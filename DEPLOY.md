@@ -30,12 +30,10 @@ You have chosen the **Static Export** option, which means your entire site is pr
    git push -u origin main
    ```
 
-4. **Enable GitHub Pages:**
-   - Go to your repository settings on GitHub
-   - Click **Pages** in the left sidebar
-   - Under **Build and deployment** > **Source**, select **Deploy from a branch**
-   - Under **Branch**, select `main` and select the `/public` folder (if available) 
-     - *Note: If `/public` isn't an option in the dropdown, you can push just the public folder to a separate branch, or use a custom workflow. The easiest way without config is to use the `gh-pages` package.*
+### 3. Deploy
+After pushing, go to your repository **Settings > Pages** and set source to **Branch: main** / **Folder: /docs**.
+
+Your site will be live!
 
 ### Alternative: Use `gh-pages` package (Easiest)
 
