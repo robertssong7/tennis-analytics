@@ -1,0 +1,36 @@
+{
+  "winning": [
+    {
+      "sequence": [
+        "FOREHAND_LEFT",
+        "BACKHAND_LEFT"
+      ],
+      "total": 20,
+      "winnerRate": 0.4,
+      "uplift": 0.05217391304347829,
+      "rankScore": 0.15629907514194744
+    },
+    {
+      "sequence": [
+        "FOREHAND_RIGHT",
+        "FOREHAND_CENTER"
+      ],
+      "total": 16,
+      "winnerRate": 0.375,
+      "uplift": 0.02717391304347827,
+      "rankScore": 0.07534208484347234
+    }
+  ],
+  "losing": [
+    {
+      "sequence": [
+        "FOREHAND_RIGHT",
+        "FOREHAND_RIGHT"
+      ],
+      "total": 24,
+      "winnerRate": 0.20833333333333334,
+      "uplift": -0.1394927536231884,
+      "rankScore": -0.4433154799579561
+    }
+  ]
+}

@@ -1,1 +1,23 @@
-[{"direction":"T","total":60,"winners":0,"errors":0,"inPlay":60,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.060174,"center":0.030087},"errorCI":{"lower":0,"upper":0.060174,"center":0.030087},"confidence":"high"},{"direction":"BODY","total":12,"winners":0,"errors":0,"inPlay":12,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.242501,"center":0.12125},"errorCI":{"lower":0,"upper":0.242501,"center":0.12125},"confidence":"low"},{"direction":"WIDE","total":33,"winners":0,"errors":0,"inPlay":33,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.104273,"center":0.052137},"errorCI":{"lower":0,"upper":0.104273,"center":0.052137},"confidence":"high"}]
+[
+  {
+    "direction": "T",
+    "total": 31,
+    "winnerRate": 0.6774193548387096,
+    "errorRate": 0,
+    "confidence": "high"
+  },
+  {
+    "direction": "WIDE",
+    "total": 17,
+    "winnerRate": 0.6470588235294118,
+    "errorRate": 0,
+    "confidence": "low"
+  },
+  {
+    "direction": "BODY",
+    "total": 4,
+    "winnerRate": 1,
+    "errorRate": 0,
+    "confidence": "low"
+  }
+]

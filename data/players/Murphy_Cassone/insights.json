@@ -1,1 +1,20 @@
-[{"type":"weakness","icon":"🔴","title":"Forehand Slice collapses in losses","detail":"Effectiveness drops from -35.0% in wins to 0.0% in losses (Δ -35.0pp). N=40W/0L.","delta":-0.35},{"type":"weakness","icon":"🔴","title":"Backhand Slice collapses in losses","detail":"Effectiveness drops from -22.6% in wins to 0.0% in losses (Δ -22.6pp). N=31W/0L.","delta":-0.22580645161290322},{"type":"weakness","icon":"🟠","title":"Backhand degrades in losses","detail":"Effectiveness: -9.7% in wins to 0.0% in losses (Δ -9.7pp). N=155W/0L.","delta":-0.0967741935483871},{"type":"weakness","icon":"🟠","title":"Forehand degrades in losses","detail":"Effectiveness: -8.3% in wins to 0.0% in losses (Δ -8.3pp). N=216W/0L.","delta":-0.08333333333333333}]
+[
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Backhand Slice",
+    "detail": "When using this shot, point win rate is -14.3% vs baseline. Evidence: N=19"
+  },
+  {
+    "type": "strength",
+    "icon": "🟢",
+    "title": "Strength: Backhand",
+    "detail": "When using this shot, point win rate is +13.9% vs baseline. Evidence: N=75"
+  },
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Forehand Slice",
+    "detail": "When using this shot, point win rate is -11.9% vs baseline. Evidence: N=22"
+  }
+]

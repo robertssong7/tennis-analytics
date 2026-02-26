@@ -1,1 +1,20 @@
-[{"type":"strength","icon":"🟢","title":"Backhand Slice is a key weapon in wins","detail":"Effectiveness jumps from -28.8% in losses to -14.5% in wins (Δ 14.4pp). N=76W/52L.","delta":0.14372469635627527},{"type":"weakness","icon":"🔴","title":"Forehand Slice collapses in losses","detail":"Effectiveness drops from -32.3% in wins to -21.7% in losses (Δ -10.5pp). N=31W/23L.","delta":-0.10518934081346423}]
+[
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Backhand",
+    "detail": "When using this shot, point win rate is -7.9% vs baseline. Evidence: N=278"
+  },
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Forehand Slice",
+    "detail": "When using this shot, point win rate is -6.6% vs baseline. Evidence: N=27"
+  },
+  {
+    "type": "strength",
+    "icon": "🟢",
+    "title": "Strength: Serve",
+    "detail": "When using this shot, point win rate is +5.4% vs baseline. Evidence: N=245"
+  }
+]

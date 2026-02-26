@@ -1,1 +1,29 @@
-{"wins":[],"losses":[{"shotType":"FOREHAND","total":221,"winners":4,"errors":33,"effectiveness":-0.131,"winnerRate":0.018,"errorRate":0.149,"winnerCI":{"lower":0.00706,"upper":0.045606,"center":0.026333},"errorCI":{"lower":0.108343,"upper":0.202283,"center":0.155313},"confidence":"high"},{"shotType":"SERVE","total":183,"winners":0,"errors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.020561,"center":0.01028},"errorCI":{"lower":0,"upper":0.020561,"center":0.01028},"confidence":"high"},{"shotType":"BACKHAND","total":116,"winners":2,"errors":21,"effectiveness":-0.164,"winnerRate":0.017,"errorRate":0.181,"winnerCI":{"lower":0.004741,"upper":0.060692,"center":0.032717},"errorCI":{"lower":0.121566,"upper":0.260952,"center":0.191259},"confidence":"high"},{"shotType":"BACKHAND_SLICE","total":76,"winners":1,"errors":6,"effectiveness":-0.066,"winnerRate":0.013,"errorRate":0.079,"winnerCI":{"lower":0.002326,"upper":0.070838,"center":0.036582},"errorCI":{"lower":0.036684,"upper":0.161729,"center":0.099206},"confidence":"high"},{"shotType":"FOREHAND_DROP","total":15,"winners":2,"errors":3,"effectiveness":-0.067,"winnerRate":0.133,"errorRate":0.2,"winnerCI":{"lower":0.03736,"upper":0.378825,"center":0.208093},"errorCI":{"lower":0.070474,"upper":0.451859,"center":0.261167},"confidence":"low"},{"shotType":"FOREHAND_SLICE","total":12,"winners":0,"errors":4,"effectiveness":-0.333,"winnerRate":0,"errorRate":0.333,"winnerCI":{"lower":0,"upper":0.242501,"center":0.12125},"errorCI":{"lower":0.138118,"upper":0.609382,"center":0.37375},"confidence":"low"},{"shotType":"FOREHAND_VOLLEY","total":11,"winners":5,"errors":3,"effectiveness":0.182,"winnerRate":0.455,"errorRate":0.273,"winnerCI":{"lower":0.21271,"upper":0.719912,"center":0.466311},"errorCI":{"lower":0.097459,"upper":0.56565,"center":0.331555},"confidence":"low"},{"shotType":"BACKHAND_DROP","total":8,"winners":4,"errors":2,"effectiveness":0.25,"winnerRate":0.5,"errorRate":0.25,"winnerCI":{"lower":0.215213,"upper":0.784787,"center":0.5},"errorCI":{"lower":0.071478,"upper":0.59073,"center":0.331104},"confidence":"insufficient"},{"shotType":"BACKHAND_VOLLEY","total":6,"winners":2,"errors":2,"effectiveness":0,"winnerRate":0.333,"errorRate":0.333,"winnerCI":{"lower":0.096769,"upper":0.700012,"center":0.398391},"errorCI":{"lower":0.096769,"upper":0.700012,"center":0.398391},"confidence":"insufficient"},{"shotType":"BACKHAND_LOB","total":3,"winners":0,"errors":1,"effectiveness":-0.333,"winnerRate":0,"errorRate":0.333,"winnerCI":{"lower":0,"upper":0.561506,"center":0.280753},"errorCI":{"lower":0.06149,"upper":0.792345,"center":0.426918},"confidence":"insufficient"},{"shotType":"FOREHAND_HALF_VOLLEY","total":2,"winners":1,"errors":0,"effectiveness":0.5,"winnerRate":0.5,"errorRate":0,"winnerCI":{"lower":0.094529,"upper":0.905471,"center":0.5},"errorCI":{"lower":0,"upper":0.657628,"center":0.328814},"confidence":"insufficient"},{"shotType":"SMASH","total":1,"winners":1,"errors":0,"effectiveness":1,"winnerRate":1,"errorRate":0,"winnerCI":{"lower":0.206543,"upper":1,"center":0.603272},"errorCI":{"lower":0,"upper":0.793457,"center":0.396728},"confidence":"insufficient"},{"shotType":"TRICK","total":1,"winners":0,"errors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.793457,"center":0.396728},"errorCI":{"lower":0,"upper":0.793457,"center":0.396728},"confidence":"insufficient"}]}
+{
+  "wins": [],
+  "losses": [
+    {
+      "shotType": "BACKHAND",
+      "total": 53,
+      "winnerRate": 0.3584905660377358,
+      "adjustedEffectiveness": -0.04588101866171773
+    },
+    {
+      "shotType": "BACKHAND_SLICE",
+      "total": 41,
+      "winnerRate": 0.2682926829268293,
+      "adjustedEffectiveness": -0.13607890177262427
+    },
+    {
+      "shotType": "FOREHAND",
+      "total": 107,
+      "winnerRate": 0.37383177570093457,
+      "adjustedEffectiveness": -0.03053980899851899
+    },
+    {
+      "shotType": "SERVE",
+      "total": 91,
+      "winnerRate": 0.45054945054945056,
+      "adjustedEffectiveness": 0.046177865849997
+    }
+  ]
+}

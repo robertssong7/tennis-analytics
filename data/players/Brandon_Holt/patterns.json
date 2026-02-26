@@ -1,1 +1,37 @@
-[{"shotType":"SERVE","total":309,"winners":0,"unforcedErrors":0,"forcedErrors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.01228,"center":0.00614},"errorCI":{"lower":0,"upper":0.01228,"center":0.00614},"confidence":"high"},{"shotType":"FOREHAND","total":307,"winners":16,"unforcedErrors":29,"forcedErrors":16,"effectiveness":-0.094,"winnerRate":0.052,"errorRate":0.147,"winnerCI":{"lower":0.032331,"upper":0.082974,"center":0.057653},"errorCI":{"lower":0.111387,"upper":0.190509,"center":0.150948},"confidence":"high"},{"shotType":"BACKHAND","total":276,"winners":8,"unforcedErrors":25,"forcedErrors":13,"effectiveness":-0.109,"winnerRate":0.029,"errorRate":0.138,"winnerCI":{"lower":0.014759,"upper":0.056144,"center":0.035451},"errorCI":{"lower":0.101979,"upper":0.183331,"center":0.142655},"confidence":"high"},{"shotType":"FOREHAND_SLICE","total":75,"winners":0,"unforcedErrors":0,"forcedErrors":16,"effectiveness":-0.213,"winnerRate":0,"errorRate":0.213,"winnerCI":{"lower":0,"upper":0.048726,"center":0.024363},"errorCI":{"lower":0.135801,"upper":0.318802,"center":0.227301},"confidence":"high"},{"shotType":"BACKHAND_SLICE","total":52,"winners":0,"unforcedErrors":4,"forcedErrors":8,"effectiveness":-0.231,"winnerRate":0,"errorRate":0.231,"winnerCI":{"lower":0,"upper":0.068795,"center":0.034397},"errorCI":{"lower":0.137241,"upper":0.36134,"center":0.249291},"confidence":"high"},{"shotType":"BACKHAND_VOLLEY","total":14,"winners":5,"unforcedErrors":1,"forcedErrors":4,"effectiveness":0,"winnerRate":0.357,"errorRate":0.357,"winnerCI":{"lower":0.163445,"upper":0.61236,"center":0.387902},"errorCI":{"lower":0.163445,"upper":0.61236,"center":0.387902},"confidence":"low"},{"shotType":"SMASH","total":10,"winners":5,"unforcedErrors":1,"forcedErrors":0,"effectiveness":0.4,"winnerRate":0.5,"errorRate":0.1,"winnerCI":{"lower":0.23659,"upper":0.76341,"center":0.5},"errorCI":{"lower":0.017876,"upper":0.404156,"center":0.211016},"confidence":"low"}]
+[
+  {
+    "shotType": "FOREHAND",
+    "total": 160,
+    "winnerRate": 0.33125,
+    "adjustedEffectiveness": -0.0635720064724919,
+    "confidence": "high"
+  },
+  {
+    "shotType": "SERVE",
+    "total": 154,
+    "winnerRate": 0.5064935064935064,
+    "adjustedEffectiveness": 0.11167150002101456,
+    "confidence": "high"
+  },
+  {
+    "shotType": "BACKHAND",
+    "total": 145,
+    "winnerRate": 0.3448275862068966,
+    "adjustedEffectiveness": -0.04999442026559531,
+    "confidence": "high"
+  },
+  {
+    "shotType": "FOREHAND_SLICE",
+    "total": 29,
+    "winnerRate": 0.1724137931034483,
+    "adjustedEffectiveness": -0.2224082133690436,
+    "confidence": "low"
+  },
+  {
+    "shotType": "BACKHAND_SLICE",
+    "total": 15,
+    "winnerRate": 0.13333333333333333,
+    "adjustedEffectiveness": -0.2614886731391586,
+    "confidence": "low"
+  }
+]

@@ -1,1 +1,30 @@
-[{"shotType":"SERVE","total":403,"winners":0,"unforcedErrors":0,"forcedErrors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.009442,"center":0.004721},"errorCI":{"lower":0,"upper":0.009442,"center":0.004721},"confidence":"high"},{"shotType":"FOREHAND","total":332,"winners":20,"unforcedErrors":26,"forcedErrors":44,"effectiveness":-0.151,"winnerRate":0.06,"errorRate":0.211,"winnerCI":{"lower":0.039331,"upper":0.091211,"center":0.065271},"errorCI":{"lower":0.170399,"upper":0.257903,"center":0.214151},"confidence":"high"},{"shotType":"BACKHAND","total":284,"winners":9,"unforcedErrors":17,"forcedErrors":35,"effectiveness":-0.151,"winnerRate":0.032,"errorRate":0.183,"winnerCI":{"lower":0.01676,"upper":0.059121,"center":0.03794},"errorCI":{"lower":0.142449,"upper":0.232207,"center":0.187328},"confidence":"high"},{"shotType":"BACKHAND_SLICE","total":36,"winners":0,"unforcedErrors":1,"forcedErrors":7,"effectiveness":-0.222,"winnerRate":0,"errorRate":0.222,"winnerCI":{"lower":0,"upper":0.096422,"center":0.048211},"errorCI":{"lower":0.117162,"upper":0.38085,"center":0.249006},"confidence":"high"},{"shotType":"FOREHAND_SLICE","total":23,"winners":0,"unforcedErrors":1,"forcedErrors":6,"effectiveness":-0.304,"winnerRate":0,"errorRate":0.304,"winnerCI":{"lower":0,"upper":0.143121,"center":0.071561},"errorCI":{"lower":0.156038,"upper":0.508661,"center":0.33235},"confidence":"low"}]
+[
+  {
+    "shotType": "SERVE",
+    "total": 201,
+    "winnerRate": 0.48756218905472637,
+    "adjustedEffectiveness": 0.12527931064281572,
+    "confidence": "high"
+  },
+  {
+    "shotType": "FOREHAND",
+    "total": 167,
+    "winnerRate": 0.2994011976047904,
+    "adjustedEffectiveness": -0.06288168080712025,
+    "confidence": "high"
+  },
+  {
+    "shotType": "BACKHAND",
+    "total": 141,
+    "winnerRate": 0.3333333333333333,
+    "adjustedEffectiveness": -0.028949545078577332,
+    "confidence": "high"
+  },
+  {
+    "shotType": "BACKHAND_SLICE",
+    "total": 17,
+    "winnerRate": 0.23529411764705882,
+    "adjustedEffectiveness": -0.12698876076485183,
+    "confidence": "low"
+  }
+]

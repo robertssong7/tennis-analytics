@@ -1,1 +1,65 @@
-[{"shotType":"FOREHAND","direction":"LEFT","total":236,"winners":23,"errors":44,"effectiveness":-0.089,"winnerRate":0.097,"errorRate":0.186,"winnerCI":{"lower":0.065821,"upper":0.14199,"center":0.103905},"errorCI":{"lower":0.141918,"upper":0.241008,"center":0.191463},"confidence":"high"},{"shotType":"FOREHAND","direction":"RIGHT","total":228,"winners":17,"errors":34,"effectiveness":-0.075,"winnerRate":0.075,"errorRate":0.149,"winnerCI":{"lower":0.04707,"upper":0.116152,"center":0.081611},"errorCI":{"lower":0.108717,"upper":0.201157,"center":0.154937},"confidence":"high"},{"shotType":"BACKHAND","direction":"RIGHT","total":180,"winners":13,"errors":29,"effectiveness":-0.089,"winnerRate":0.072,"errorRate":0.161,"winnerCI":{"lower":0.042689,"upper":0.119633,"center":0.081161},"errorCI":{"lower":0.11458,"upper":0.221806,"center":0.168193},"confidence":"high"},{"shotType":"BACKHAND","direction":"CENTER","total":160,"winners":0,"errors":16,"effectiveness":-0.1,"winnerRate":0,"errorRate":0.1,"winnerCI":{"lower":0,"upper":0.023447,"center":0.011724},"errorCI":{"lower":0.062494,"upper":0.156264,"center":0.109379},"confidence":"high"},{"shotType":"FOREHAND","direction":"CENTER","total":113,"winners":1,"errors":18,"effectiveness":-0.15,"winnerRate":0.009,"errorRate":0.159,"winnerCI":{"lower":0.001564,"upper":0.048432,"center":0.024998},"errorCI":{"lower":0.1032,"upper":0.237788,"center":0.170494},"confidence":"high"},{"shotType":"BACKHAND","direction":"LEFT","total":108,"winners":7,"errors":23,"effectiveness":-0.148,"winnerRate":0.065,"errorRate":0.213,"winnerCI":{"lower":0.031748,"upper":0.127778,"center":0.079763},"errorCI":{"lower":0.146308,"upper":0.299336,"center":0.222822},"confidence":"high"},{"shotType":"BACKHAND_SLICE","direction":"RIGHT","total":36,"winners":0,"errors":9,"effectiveness":-0.25,"winnerRate":0,"errorRate":0.25,"winnerCI":{"lower":0,"upper":0.096422,"center":0.048211},"errorCI":{"lower":0.137503,"upper":0.410708,"center":0.274105},"confidence":"high"},{"shotType":"BACKHAND_SLICE","direction":"CENTER","total":36,"winners":0,"errors":8,"effectiveness":-0.222,"winnerRate":0,"errorRate":0.222,"winnerCI":{"lower":0,"upper":0.096422,"center":0.048211},"errorCI":{"lower":0.117162,"upper":0.38085,"center":0.249006},"confidence":"high"},{"shotType":"BACKHAND_SLICE","direction":"LEFT","total":34,"winners":0,"errors":8,"effectiveness":-0.235,"winnerRate":0,"errorRate":0.235,"winnerCI":{"lower":0,"upper":0.101518,"center":0.050759},"errorCI":{"lower":0.124368,"upper":0.399965,"center":0.262167},"confidence":"high"},{"shotType":"FOREHAND_SLICE","direction":"CENTER","total":15,"winners":0,"errors":7,"effectiveness":-0.467,"winnerRate":0,"errorRate":0.467,"winnerCI":{"lower":0,"upper":0.203889,"center":0.101945},"errorCI":{"lower":0.248092,"upper":0.698834,"center":0.473463},"confidence":"low"},{"shotType":"FOREHAND_VOLLEY","direction":"RIGHT","total":11,"winners":4,"errors":3,"effectiveness":0.091,"winnerRate":0.364,"errorRate":0.273,"winnerCI":{"lower":0.151662,"upper":0.646203,"center":0.398933},"errorCI":{"lower":0.097459,"upper":0.56565,"center":0.331555},"confidence":"low"},{"shotType":"FOREHAND_SLICE","direction":"RIGHT","total":10,"winners":0,"errors":4,"effectiveness":-0.4,"winnerRate":0,"errorRate":0.4,"winnerCI":{"lower":0,"upper":0.27754,"center":0.13877},"errorCI":{"lower":0.168178,"upper":0.68733,"center":0.427754},"confidence":"low"},{"shotType":"BACKHAND_VOLLEY","direction":"LEFT","total":10,"winners":2,"errors":2,"effectiveness":0,"winnerRate":0.2,"errorRate":0.2,"winnerCI":{"lower":0.056681,"upper":0.509843,"center":0.283262},"errorCI":{"lower":0.056681,"upper":0.509843,"center":0.283262},"confidence":"low"},{"shotType":"FOREHAND_SLICE","direction":"LEFT","total":9,"winners":0,"errors":3,"effectiveness":-0.333,"winnerRate":0,"errorRate":0.333,"winnerCI":{"lower":0,"upper":0.299153,"center":0.149576},"errorCI":{"lower":0.120582,"upper":0.645803,"center":0.383192},"confidence":"insufficient"},{"shotType":"FOREHAND_VOLLEY","direction":"LEFT","total":9,"winners":6,"errors":3,"effectiveness":0.333,"winnerRate":0.667,"errorRate":0.333,"winnerCI":{"lower":0.354197,"upper":0.879418,"center":0.616808},"errorCI":{"lower":0.120582,"upper":0.645803,"center":0.383192},"confidence":"insufficient"},{"shotType":"BACKHAND_VOLLEY","direction":"RIGHT","total":7,"winners":2,"errors":1,"effectiveness":0.143,"winnerRate":0.286,"errorRate":0.143,"winnerCI":{"lower":0.082217,"upper":0.641071,"center":0.361644},"errorCI":{"lower":0.025679,"upper":0.513135,"center":0.269407},"confidence":"insufficient"},{"shotType":"BACKHAND_LOB","direction":"CENTER","total":6,"winners":0,"errors":1,"effectiveness":-0.167,"winnerRate":0,"errorRate":0.167,"winnerCI":{"lower":0,"upper":0.390343,"center":0.195172},"errorCI":{"lower":0.030053,"upper":0.563509,"center":0.296781},"confidence":"insufficient"},{"shotType":"SMASH","direction":"RIGHT","total":5,"winners":4,"errors":1,"effectiveness":0.6,"winnerRate":0.8,"errorRate":0.2,"winnerCI":{"lower":0.375528,"upper":0.963777,"center":0.669653},"errorCI":{"lower":0.036223,"upper":0.624472,"center":0.330347},"confidence":"insufficient"}]
+[
+  {
+    "shotType": "FOREHAND",
+    "direction": "LEFT",
+    "total": 127,
+    "winnerRate": 0.4330708661417323,
+    "adjustedEffectiveness": 0.028534004137951596
+  },
+  {
+    "shotType": "FOREHAND",
+    "direction": "RIGHT",
+    "total": 112,
+    "winnerRate": 0.4375,
+    "adjustedEffectiveness": 0.032963137996219305
+  },
+  {
+    "shotType": "BACKHAND",
+    "direction": "RIGHT",
+    "total": 83,
+    "winnerRate": 0.3614457831325301,
+    "adjustedEffectiveness": -0.04309107887125058
+  },
+  {
+    "shotType": "BACKHAND",
+    "direction": "CENTER",
+    "total": 72,
+    "winnerRate": 0.4027777777777778,
+    "adjustedEffectiveness": -0.001759084226002905
+  },
+  {
+    "shotType": "FOREHAND",
+    "direction": "CENTER",
+    "total": 62,
+    "winnerRate": 0.3387096774193548,
+    "adjustedEffectiveness": -0.06582718458442588
+  },
+  {
+    "shotType": "BACKHAND",
+    "direction": "LEFT",
+    "total": 61,
+    "winnerRate": 0.5081967213114754,
+    "adjustedEffectiveness": 0.10365985930769472
+  },
+  {
+    "shotType": "BACKHAND_SLICE",
+    "direction": "RIGHT",
+    "total": 20,
+    "winnerRate": 0.25,
+    "adjustedEffectiveness": -0.1545368620037807
+  },
+  {
+    "shotType": "BACKHAND_SLICE",
+    "direction": "LEFT",
+    "total": 20,
+    "winnerRate": 0.35,
+    "adjustedEffectiveness": -0.05453686200378072
+  },
+  {
+    "shotType": "BACKHAND_SLICE",
+    "direction": "CENTER",
+    "total": 17,
+    "winnerRate": 0.29411764705882354,
+    "adjustedEffectiveness": -0.11041921494495716
+  }
+]

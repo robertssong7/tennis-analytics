@@ -1,1 +1,79 @@
-[{"serveDir":"WIDE","responseType":"FOREHAND","total":426,"winners":14,"errors":144,"winnerRate":0.033,"errorRate":0.338,"winnerCI":{"lower":0.019675,"upper":0.054402,"center":0.037039},"errorCI":{"lower":0.294733,"upper":0.384219,"center":0.339476},"confidence":"high"},{"serveDir":"T","responseType":"FOREHAND","total":418,"winners":8,"errors":120,"winnerRate":0.019,"errorRate":0.287,"winnerCI":{"lower":0.009729,"upper":0.037307,"center":0.023518},"errorCI":{"lower":0.245805,"upper":0.332236,"center":0.28902},"confidence":"high"},{"serveDir":"WIDE","responseType":"BACKHAND","total":309,"winners":4,"errors":80,"winnerRate":0.013,"errorRate":0.259,"winnerCI":{"lower":0.005045,"upper":0.032807,"center":0.018926},"errorCI":{"lower":0.21323,"upper":0.31049,"center":0.26186},"confidence":"high"},{"serveDir":"T","responseType":"BACKHAND","total":308,"winners":3,"errors":96,"winnerRate":0.01,"errorRate":0.312,"winnerCI":{"lower":0.003318,"upper":0.028242,"center":0.01578},"errorCI":{"lower":0.262547,"upper":0.36547,"center":0.314008},"confidence":"high"},{"serveDir":"T","responseType":"BACKHAND_SLICE","total":250,"winners":0,"errors":77,"winnerRate":0,"errorRate":0.308,"winnerCI":{"lower":0,"upper":0.015134,"center":0.007567},"errorCI":{"lower":0.254037,"upper":0.367774,"center":0.310906},"confidence":"high"},{"serveDir":"WIDE","responseType":"BACKHAND_SLICE","total":171,"winners":1,"errors":48,"winnerRate":0.006,"errorRate":0.281,"winnerCI":{"lower":0.001033,"upper":0.032378,"center":0.016705},"errorCI":{"lower":0.21874,"upper":0.3523,"center":0.28552},"confidence":"high"},{"serveDir":"BODY","responseType":"BACKHAND","total":136,"winners":4,"errors":37,"winnerRate":0.029,"errorRate":0.272,"winnerCI":{"lower":0.011496,"upper":0.073183,"center":0.042339},"errorCI":{"lower":0.204296,"upper":0.352345,"center":0.278321},"confidence":"high"},{"serveDir":"WIDE","responseType":"FOREHAND_SLICE","total":103,"winners":1,"errors":35,"winnerRate":0.01,"errorRate":0.34,"winnerCI":{"lower":0.001716,"upper":0.052959,"center":0.027338},"errorCI":{"lower":0.255569,"upper":0.435563,"center":0.345566},"confidence":"high"},{"serveDir":"T","responseType":"FOREHAND_SLICE","total":97,"winners":0,"errors":25,"winnerRate":0,"errorRate":0.258,"winnerCI":{"lower":0,"upper":0.038095,"center":0.019048},"errorCI":{"lower":0.181095,"upper":0.352828,"center":0.266961},"confidence":"high"},{"serveDir":"BODY","responseType":"FOREHAND","total":90,"winners":1,"errors":27,"winnerRate":0.011,"errorRate":0.3,"winnerCI":{"lower":0.001964,"upper":0.060286,"center":0.031125},"errorCI":{"lower":0.215108,"upper":0.401267,"center":0.308187},"confidence":"high"},{"serveDir":"BODY","responseType":"BACKHAND_SLICE","total":37,"winners":0,"errors":6,"winnerRate":0,"errorRate":0.162,"winnerCI":{"lower":0,"upper":0.094061,"center":0.04703},"errorCI":{"lower":0.076511,"upper":0.311368,"center":0.19394},"confidence":"high"},{"serveDir":"BODY","responseType":"FOREHAND_SLICE","total":10,"winners":0,"errors":3,"winnerRate":0,"errorRate":0.3,"winnerCI":{"lower":0,"upper":0.27754,"center":0.13877},"errorCI":{"lower":0.107789,"upper":0.603227,"center":0.355508},"confidence":"low"},{"serveDir":"T","responseType":"FOREHAND_LOB","total":8,"winners":0,"errors":4,"winnerRate":0,"errorRate":0.5,"winnerCI":{"lower":0,"upper":0.324416,"center":0.162208},"errorCI":{"lower":0.215213,"upper":0.784787,"center":0.5},"confidence":"insufficient"},{"serveDir":"T","responseType":"BACKHAND_LOB","total":7,"winners":0,"errors":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.354339,"center":0.177169},"errorCI":{"lower":0,"upper":0.354339,"center":0.177169},"confidence":"insufficient"}]
+[
+  {
+    "serveDir": "T",
+    "responseType": "FOREHAND",
+    "total": 210,
+    "winnerRate": 0.49047619047619045,
+    "adjustedEffectiveness": 0.11024239663984614
+  },
+  {
+    "serveDir": "T",
+    "responseType": "BACKHAND",
+    "total": 142,
+    "winnerRate": 0.5492957746478874,
+    "adjustedEffectiveness": 0.16906198081154306
+  },
+  {
+    "serveDir": "T",
+    "responseType": "FOREHAND_SLICE",
+    "total": 48,
+    "winnerRate": 0.4791666666666667,
+    "adjustedEffectiveness": 0.09893287283032237
+  },
+  {
+    "serveDir": "T",
+    "responseType": "BACKHAND_SLICE",
+    "total": 121,
+    "winnerRate": 0.5785123966942148,
+    "adjustedEffectiveness": 0.19827860285787052
+  },
+  {
+    "serveDir": "BODY",
+    "responseType": "FOREHAND",
+    "total": 40,
+    "winnerRate": 0.575,
+    "adjustedEffectiveness": 0.19476620616365564
+  },
+  {
+    "serveDir": "BODY",
+    "responseType": "BACKHAND",
+    "total": 65,
+    "winnerRate": 0.5384615384615384,
+    "adjustedEffectiveness": 0.15822774462519412
+  },
+  {
+    "serveDir": "BODY",
+    "responseType": "BACKHAND_SLICE",
+    "total": 20,
+    "winnerRate": 0.5,
+    "adjustedEffectiveness": 0.11976620616365569
+  },
+  {
+    "serveDir": "WIDE",
+    "responseType": "FOREHAND",
+    "total": 223,
+    "winnerRate": 0.4618834080717489,
+    "adjustedEffectiveness": 0.08164961423540457
+  },
+  {
+    "serveDir": "WIDE",
+    "responseType": "BACKHAND",
+    "total": 170,
+    "winnerRate": 0.47058823529411764,
+    "adjustedEffectiveness": 0.09035444145777333
+  },
+  {
+    "serveDir": "WIDE",
+    "responseType": "FOREHAND_SLICE",
+    "total": 55,
+    "winnerRate": 0.5818181818181818,
+    "adjustedEffectiveness": 0.20158438798183748
+  },
+  {
+    "serveDir": "WIDE",
+    "responseType": "BACKHAND_SLICE",
+    "total": 78,
+    "winnerRate": 0.5641025641025641,
+    "adjustedEffectiveness": 0.18386877026621978
+  }
+]

@@ -1,1 +1,20 @@
-[{"type":"strength","icon":"🟢","title":"Forehand Slice is a key weapon in wins","detail":"Effectiveness jumps from -50.0% in losses to -18.7% in wins (Δ 31.3pp). N=75W/16L.","delta":0.31333333333333335},{"type":"weakness","icon":"🔴","title":"Forehand Volley collapses in losses","detail":"Effectiveness drops from 16.7% in wins to 44.4% in losses (Δ -27.8pp). N=30W/18L.","delta":-0.2777777777777778},{"type":"weakness","icon":"🔴","title":"Backhand Volley collapses in losses","detail":"Effectiveness drops from -12.5% in wins to 0.0% in losses (Δ -12.5pp). N=32W/13L.","delta":-0.125},{"type":"strength","icon":"🟢","title":"Backhand Slice is a key weapon in wins","detail":"Effectiveness jumps from -28.6% in losses to -18.2% in wins (Δ 10.4pp). N=121W/42L.","delta":0.10389610389610388},{"type":"weakness","icon":"🟠","title":"Backhand degrades in losses","detail":"Effectiveness: -18.0% in wins to -8.3% in losses (Δ -9.8pp). N=255W/109L.","delta":-0.09782334952329555}]
+[
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Forehand Slice",
+    "detail": "When using this shot, point win rate is -23.8% vs baseline. Evidence: N=37"
+  },
+  {
+    "type": "strength",
+    "icon": "🟢",
+    "title": "Strength: Forehand Volley",
+    "detail": "When using this shot, point win rate is +20.2% vs baseline. Evidence: N=27"
+  },
+  {
+    "type": "strength",
+    "icon": "🟢",
+    "title": "Strength: Serve",
+    "detail": "When using this shot, point win rate is +14.4% vs baseline. Evidence: N=331"
+  }
+]

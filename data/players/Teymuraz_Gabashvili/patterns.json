@@ -1,1 +1,37 @@
-[{"shotType":"SERVE","total":920,"winners":0,"unforcedErrors":0,"forcedErrors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.004158,"center":0.002079},"errorCI":{"lower":0,"upper":0.004158,"center":0.002079},"confidence":"high"},{"shotType":"FOREHAND","total":808,"winners":52,"unforcedErrors":60,"forcedErrors":61,"effectiveness":-0.085,"winnerRate":0.064,"errorRate":0.15,"winnerCI":{"lower":0.049413,"upper":0.083423,"center":0.066418},"errorCI":{"lower":0.126808,"upper":0.176012,"center":0.15141},"confidence":"high"},{"shotType":"BACKHAND","total":654,"winners":22,"unforcedErrors":43,"forcedErrors":48,"effectiveness":-0.106,"winnerRate":0.034,"errorRate":0.139,"winnerCI":{"lower":0.022318,"upper":0.050407,"center":0.036363},"errorCI":{"lower":0.114719,"upper":0.167783,"center":0.141251},"confidence":"high"},{"shotType":"BACKHAND_SLICE","total":141,"winners":2,"unforcedErrors":6,"forcedErrors":16,"effectiveness":-0.142,"winnerRate":0.014,"errorRate":0.156,"winnerCI":{"lower":0.003898,"upper":0.050241,"center":0.02707},"errorCI":{"lower":0.105353,"upper":0.22495,"center":0.165151},"confidence":"high"},{"shotType":"FOREHAND_SLICE","total":45,"winners":0,"unforcedErrors":1,"forcedErrors":9,"effectiveness":-0.222,"winnerRate":0,"errorRate":0.222,"winnerCI":{"lower":0,"upper":0.078654,"center":0.039327},"errorCI":{"lower":0.125446,"upper":0.362696,"center":0.244071},"confidence":"high"},{"shotType":"FOREHAND_VOLLEY","total":29,"winners":17,"unforcedErrors":0,"forcedErrors":1,"effectiveness":0.552,"winnerRate":0.586,"errorRate":0.034,"winnerCI":{"lower":0.407375,"upper":0.744871,"center":0.576123},"errorCI":{"lower":0.006113,"upper":0.171759,"center":0.088936},"confidence":"low"},{"shotType":"FOREHAND_DROP","total":26,"winners":7,"unforcedErrors":2,"forcedErrors":0,"effectiveness":0.192,"winnerRate":0.269,"errorRate":0.077,"winnerCI":{"lower":0.137043,"upper":0.460834,"center":0.298938},"errorCI":{"lower":0.021355,"upper":0.241419,"center":0.131387},"confidence":"low"},{"shotType":"BACKHAND_VOLLEY","total":18,"winners":5,"unforcedErrors":2,"forcedErrors":2,"effectiveness":0.056,"winnerRate":0.278,"errorRate":0.222,"winnerCI":{"lower":0.124996,"upper":0.508731,"center":0.316863},"errorCI":{"lower":0.090008,"upper":0.45215,"center":0.271079},"confidence":"low"},{"shotType":"BACKHAND_LOB","total":17,"winners":2,"unforcedErrors":0,"forcedErrors":3,"effectiveness":-0.059,"winnerRate":0.118,"errorRate":0.176,"winnerCI":{"lower":0.032879,"upper":0.343368,"center":0.188124},"errorCI":{"lower":0.06191,"upper":0.410299,"center":0.236105},"confidence":"low"},{"shotType":"BACKHAND_DROP","total":13,"winners":4,"unforcedErrors":2,"forcedErrors":0,"effectiveness":0.154,"winnerRate":0.308,"errorRate":0.154,"winnerCI":{"lower":0.126805,"upper":0.576311,"center":0.351558},"errorCI":{"lower":0.043257,"upper":0.422352,"center":0.232804},"confidence":"low"},{"shotType":"SMASH","total":12,"winners":7,"unforcedErrors":1,"forcedErrors":0,"effectiveness":0.5,"winnerRate":0.583,"errorRate":0.083,"winnerCI":{"lower":0.319507,"upper":0.806743,"center":0.563125},"errorCI":{"lower":0.014865,"upper":0.353886,"center":0.184375},"confidence":"low"}]
+[
+  {
+    "shotType": "SERVE",
+    "total": 460,
+    "winnerRate": 0.5152173913043478,
+    "adjustedEffectiveness": 0.08913043478260874,
+    "confidence": "high"
+  },
+  {
+    "shotType": "FOREHAND",
+    "total": 402,
+    "winnerRate": 0.42786069651741293,
+    "adjustedEffectiveness": 0.0017737399956738176,
+    "confidence": "high"
+  },
+  {
+    "shotType": "BACKHAND",
+    "total": 329,
+    "winnerRate": 0.3282674772036474,
+    "adjustedEffectiveness": -0.0978194793180917,
+    "confidence": "high"
+  },
+  {
+    "shotType": "BACKHAND_SLICE",
+    "total": 73,
+    "winnerRate": 0.3835616438356164,
+    "adjustedEffectiveness": -0.042525312686122696,
+    "confidence": "high"
+  },
+  {
+    "shotType": "FOREHAND_SLICE",
+    "total": 27,
+    "winnerRate": 0.18518518518518517,
+    "adjustedEffectiveness": -0.24090177133655394,
+    "confidence": "low"
+  }
+]

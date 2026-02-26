@@ -1,1 +1,20 @@
-[{"type":"weakness","icon":"🔴","title":"Smash collapses in losses","detail":"Effectiveness drops from 0.0% in wins to 58.3% in losses (Δ -58.3pp). N=3W/36L.","delta":-0.5833333333333334},{"type":"strength","icon":"🟢","title":"Backhand Volley is a key weapon in wins","detail":"Effectiveness jumps from -11.5% in losses to 11.1% in wins (Δ 22.6pp). N=27W/113L.","delta":0.22615535889872174},{"type":"weakness","icon":"🔴","title":"Forehand Volley collapses in losses","detail":"Effectiveness drops from -5.7% in wins to 10.2% in losses (Δ -15.9pp). N=35W/108L.","delta":-0.158994708994709}]
+[
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Forehand Half Volley",
+    "detail": "When using this shot, point win rate is -36.2% vs baseline. Evidence: N=17"
+  },
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Backhand Half Volley",
+    "detail": "When using this shot, point win rate is -35.9% vs baseline. Evidence: N=16"
+  },
+  {
+    "type": "strength",
+    "icon": "🟢",
+    "title": "Strength: Smash",
+    "detail": "When using this shot, point win rate is +22.9% vs baseline. Evidence: N=20"
+  }
+]

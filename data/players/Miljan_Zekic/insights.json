@@ -1,1 +1,20 @@
-[{"type":"strength","icon":"🟢","title":"Backhand is a key weapon in wins","detail":"Effectiveness jumps from -15.4% in losses to 0.0% in wins (Δ 15.4pp). N=0W/169L.","delta":0.15384615384615385},{"type":"strength","icon":"🟡","title":"Forehand improves in wins","detail":"Effectiveness: 0.0% in wins vs -7.7% in losses (Δ 7.7pp). N=0W/222L.","delta":0.07657657657657657}]
+[
+  {
+    "type": "strength",
+    "icon": "🟢",
+    "title": "Strength: Backhand",
+    "detail": "When using this shot, point win rate is +0.9% vs baseline. Evidence: N=79"
+  },
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Serve",
+    "detail": "When using this shot, point win rate is -0.5% vs baseline. Evidence: N=68"
+  },
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Forehand",
+    "detail": "When using this shot, point win rate is -0.4% vs baseline. Evidence: N=113"
+  }
+]

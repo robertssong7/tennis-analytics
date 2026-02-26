@@ -1,1 +1,16 @@
-[{"shotType":"FOREHAND","direction":"RIGHT","total":32,"winners":3,"errors":5,"effectiveness":-0.063,"winnerRate":0.094,"errorRate":0.156,"winnerCI":{"lower":0.032401,"upper":0.242185,"center":0.137293},"errorCI":{"lower":0.068643,"upper":0.317545,"center":0.193094},"confidence":"high"},{"shotType":"FOREHAND","direction":"LEFT","total":26,"winners":4,"errors":5,"effectiveness":-0.038,"winnerRate":0.154,"errorRate":0.192,"winnerCI":{"lower":0.061499,"upper":0.335316,"center":0.198408},"errorCI":{"lower":0.085069,"upper":0.378766,"center":0.231918},"confidence":"low"},{"shotType":"FOREHAND","direction":"CENTER","total":25,"winners":0,"errors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.133196,"center":0.066598},"errorCI":{"lower":0,"upper":0.133196,"center":0.066598},"confidence":"low"},{"shotType":"BACKHAND","direction":"LEFT","total":22,"winners":0,"errors":1,"effectiveness":-0.045,"winnerRate":0,"errorRate":0.045,"winnerCI":{"lower":0,"upper":0.14866,"center":0.07433},"errorCI":{"lower":0.008069,"upper":0.217985,"center":0.113027},"confidence":"low"},{"shotType":"BACKHAND","direction":"CENTER","total":18,"winners":0,"errors":1,"effectiveness":-0.056,"winnerRate":0,"errorRate":0.056,"winnerCI":{"lower":0,"upper":0.175885,"center":0.087942},"errorCI":{"lower":0.009875,"upper":0.257578,"center":0.133726},"confidence":"low"},{"shotType":"FOREHAND_SLICE","direction":"CENTER","total":6,"winners":0,"errors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.390343,"center":0.195172},"errorCI":{"lower":0,"upper":0.390343,"center":0.195172},"confidence":"insufficient"},{"shotType":"FOREHAND_SLICE","direction":"LEFT","total":5,"winners":0,"errors":1,"effectiveness":-0.2,"winnerRate":0,"errorRate":0.2,"winnerCI":{"lower":0,"upper":0.434491,"center":0.217246},"errorCI":{"lower":0.036223,"upper":0.624472,"center":0.330347},"confidence":"insufficient"}]
+[
+  {
+    "shotType": "FOREHAND",
+    "direction": "RIGHT",
+    "total": 18,
+    "winnerRate": 0.5555555555555556,
+    "adjustedEffectiveness": 0.13353720693170235
+  },
+  {
+    "shotType": "FOREHAND",
+    "direction": "LEFT",
+    "total": 16,
+    "winnerRate": 0.625,
+    "adjustedEffectiveness": 0.20298165137614677
+  }
+]

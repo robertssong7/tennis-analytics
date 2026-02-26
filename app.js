@@ -3,14 +3,11 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 // ─── Mode Detection ──────────────────────────────────────────────────
-// If data/players.json exists → static mode (GitHub Pages)
-// Otherwise → dynamic API mode (Express server)
 let STATIC_MODE = false;
 let allPlayers = [];
 
 // ─── State ───────────────────────────────────────────────────────────
 let currentPlayer = null;
-let showLowConfidence = false;
 
 // ─── DOM Refs ────────────────────────────────────────────────────────
 const searchInput = document.getElementById('player-search');
@@ -18,7 +15,6 @@ const searchDropdown = document.getElementById('search-dropdown');
 const dashboard = document.getElementById('dashboard');
 const emptyState = document.getElementById('empty-state');
 const loadingOverlay = document.getElementById('loading-overlay');
-const lowConfToggle = document.getElementById('low-conf-toggle');
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 function formatShotType(s) {
@@ -27,38 +23,78 @@ function formatShotType(s) {
 
 function formatPct(v) { return (v * 100).toFixed(1) + '%'; }
 
-function effHTML(val) {
-    const pct = Math.min(Math.abs(val) * 100, 100);
-    const cls = val >= 0 ? 'positive' : 'negative';
-    return `
-    <div class="eff-bar">
-      <div class="eff-bar-track">
-        <div class="eff-bar-fill ${cls}" style="width:${pct}%"></div>
-      </div>
-      <span class="eff-value ${cls}">${(val * 100).toFixed(1)}%</span>
-    </div>`;
-}
-
-function badgeHTML(conf) {
-    const labels = { high: '✓ N≥30', low: '⚠ N≥10', insufficient: '✗ Low N' };
-    return `<span class="badge ${conf}">${labels[conf] || conf}</span>`;
-}
-
-function ciHTML(ci) {
-    return `<span class="ci-display"><span class="ci-bracket">[</span>${(ci.lower * 100).toFixed(1)}–${(ci.upper * 100).toFixed(1)}%<span class="ci-bracket">]</span></span>`;
+function formatAdjEff(val) {
+    if (val === undefined || isNaN(val)) return '—';
+    const sign = val >= 0 ? '+' : '';
+    const cls = val >= 0 ? '<span style="color:var(--green)">' : '<span style="color:var(--red)">';
+    return `${cls}${sign}${(val * 100).toFixed(1)}%</span>`;
 }
 
 function rowClass(conf) {
     if (conf === 'insufficient') return 'row-hidden';
-    if (conf === 'low' && !showLowConfidence) return 'row-low-conf row-hidden';
-    if (conf === 'low') return 'row-low-conf';
     return '';
 }
 
 function showLoading() { loadingOverlay.classList.remove('hidden'); }
 function hideLoading() { loadingOverlay.classList.add('hidden'); }
 
-// ─── Data Fetching (dual mode) ──────────────────────────────────────
+// ─── Accordions & UI Setup ───────────────────────────────────────────
+function setupAccordions() {
+    document.querySelectorAll('.accordion-btn').forEach(btn => {
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = 'true';
+        btn.addEventListener('click', () => {
+            const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', !isExpanded);
+            const content = document.getElementById(btn.getAttribute('aria-controls'));
+            if (content) {
+                if (isExpanded) {
+                    content.classList.add('collapsed');
+                } else {
+                    content.classList.remove('collapsed');
+                }
+            }
+        });
+    });
+}
+
+function setupShowMore(tbodyId, fullData, renderRowFn) {
+    const btn = document.querySelector(`.show-more-btn[data-target="${tbodyId}"]`);
+    if (!btn) return;
+    if (fullData.length <= 8) {
+        btn.style.display = 'none';
+        return;
+    }
+    btn.style.display = 'block';
+    btn.textContent = `Show more (${fullData.length - 8})`;
+    btn.onclick = () => {
+        const tbody = document.getElementById(tbodyId);
+        tbody.innerHTML = fullData.map(renderRowFn).join('');
+        btn.style.display = 'none';
+    };
+}
+
+function splitAndRender(data, containerIdBase, rowHtmlFn) {
+    // Filter undefined values
+    const validData = data.filter(d => d.adjustedEffectiveness !== undefined);
+    const strengths = validData.filter(d => d.adjustedEffectiveness > 0).sort((a, b) => b.adjustedEffectiveness - a.adjustedEffectiveness);
+    const weaknesses = validData.filter(d => d.adjustedEffectiveness <= 0).sort((a, b) => a.adjustedEffectiveness - b.adjustedEffectiveness);
+
+    const sTbody = document.getElementById(`${containerIdBase}-strengths-tbody`);
+    const wTbody = document.getElementById(`${containerIdBase}-weaknesses-tbody`);
+
+    if (sTbody) {
+        sTbody.innerHTML = strengths.slice(0, 8).map(rowHtmlFn).join('');
+        setupShowMore(`${containerIdBase}-strengths-tbody`, strengths, rowHtmlFn);
+    }
+
+    if (wTbody) {
+        wTbody.innerHTML = weaknesses.slice(0, 8).map(rowHtmlFn).join('');
+        setupShowMore(`${containerIdBase}-weaknesses-tbody`, weaknesses, rowHtmlFn);
+    }
+}
+
+// ─── Data Fetching ───────────────────────────────────────────────────
 async function fetchJSON(url) {
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`Fetch error: ${resp.status}`);
@@ -67,7 +103,12 @@ async function fetchJSON(url) {
 
 async function fetchPlayerData(playerName, endpoint) {
     if (STATIC_MODE) {
-        return fetchJSON(`data/players/${playerName}/${endpoint}.json`);
+        // pattern-inference may not exist for all users if generating static before update
+        try {
+            return await fetchJSON(`data/players/${playerName}/${endpoint}.json`);
+        } catch {
+            return endpoint === 'pattern-inference' ? { winning: [], losing: [] } : [];
+        }
     }
     const params = endpoint === 'coverage' || endpoint === 'insights' ? {} : getFilters();
     const q = new URLSearchParams(params).toString();
@@ -87,23 +128,29 @@ function getFilters() {
     if (dateTo) f.dateTo = dateTo;
     if (serveNum) f.serveNumber = serveNum;
     if (side) f.side = side;
-    f.minN = showLowConfidence ? 10 : 30;
+    f.minN = 15; // Set minimum sample size silently 
     return f;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// INITIALIZATION — detect static/dynamic mode
+// INITIALIZATION
 // ═══════════════════════════════════════════════════════════════════════
 async function init() {
     try {
-        allPlayers = await fetchJSON('data/players.json');
-        STATIC_MODE = true;
-        console.log(`TennisIQ: Static mode — ${allPlayers.length} players loaded`);
-        // In static mode, hide surface filter (data is pre-computed without filters)
-        document.getElementById('filter-bar').style.display = 'none';
-    } catch {
+        // Try API first to see if backend is running
+        await fetchJSON('/api/players?q=a');
         STATIC_MODE = false;
         console.log('TennisIQ: Dynamic API mode');
+    } catch {
+        // Fallback to static mode
+        try {
+            allPlayers = await fetchJSON('data/players.json');
+            STATIC_MODE = true;
+            console.log(`TennisIQ: Static mode — ${allPlayers.length} players loaded`);
+            document.getElementById('filter-bar').style.display = 'none';
+        } catch (e) {
+            console.error('TennisIQ: Failed to load in both Dynamic and Static modes.');
+        }
     }
 }
 
@@ -124,7 +171,7 @@ searchInput.addEventListener('input', () => {
                 const lower = q.toLowerCase();
                 players = allPlayers.filter(p =>
                     p.toLowerCase().includes(lower) || p.replace(/_/g, ' ').toLowerCase().includes(lower)
-                ).slice(0, 20);
+                );
             } else {
                 players = await fetchJSON(`/api/players?q=${encodeURIComponent(q)}`);
             }
@@ -177,7 +224,7 @@ async function loadPlayer(name) {
     emptyState.classList.add('hidden');
 
     try {
-        const [coverage, patterns, serve, serveOne, compare, directions, insights] =
+        const [coverage, patterns, serve, serveOne, compare, directions, insights, inference] =
             await Promise.all([
                 fetchPlayerData(name, 'coverage'),
                 fetchPlayerData(name, 'patterns'),
@@ -186,6 +233,7 @@ async function loadPlayer(name) {
                 fetchPlayerData(name, 'compare'),
                 fetchPlayerData(name, 'direction-patterns'),
                 fetchPlayerData(name, 'insights'),
+                fetchPlayerData(name, 'pattern-inference')
             ]);
 
         renderPlayerHeader(name, coverage);
@@ -196,8 +244,10 @@ async function loadPlayer(name) {
         renderServeOne(serveOne);
         renderDirections(directions);
         renderCompare(compare);
+        renderInference(inference);
 
         dashboard.classList.remove('hidden');
+        setupAccordions();
     } catch (err) {
         console.error('Failed to load player:', err);
         alert('Failed to load player data. Check the console for details.');
@@ -217,15 +267,16 @@ function renderPlayerHeader(name, coverage) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// RENDER: Insights
+// RENDER: Insights (Top 3 Scout Notes)
 // ═══════════════════════════════════════════════════════════════════════
 function renderInsights(insights) {
     const grid = document.getElementById('insights-grid');
-    if (insights.length === 0) {
-        grid.innerHTML = '<p style="color:var(--text-muted);padding:12px">No significant pattern divergences found between wins and losses.</p>';
+    if (!insights || insights.length === 0) {
+        grid.innerHTML = '<p style="color:var(--text-muted);padding:12px">No specific scout notes available for this context.</p>';
         return;
     }
-    grid.innerHTML = insights.map(i => `
+    const top3 = insights.slice(0, 3);
+    grid.innerHTML = top3.map(i => `
     <div class="insight-item ${i.type}">
       <div class="insight-title">${i.icon} ${i.title}</div>
       <div class="insight-detail">${i.detail}</div>
@@ -270,21 +321,15 @@ function renderCoverage(coverage) {
 // RENDER: Shot Patterns
 // ═══════════════════════════════════════════════════════════════════════
 function renderPatterns(patterns) {
-    const tbody = document.getElementById('patterns-tbody');
-    tbody.innerHTML = patterns.map(p => `
+    const renderRow = (p) => `
     <tr class="${rowClass(p.confidence)}">
       <td style="font-weight:600">${formatShotType(p.shotType)}</td>
       <td class="num">${p.total}</td>
-      <td class="num" style="color:var(--green)">${p.winners}</td>
-      <td class="num" style="color:var(--orange)">${p.unforcedErrors}</td>
-      <td class="num" style="color:var(--red)">${p.forcedErrors}</td>
       <td class="num">${formatPct(p.winnerRate)}</td>
-      <td class="num">${formatPct(p.errorRate)}</td>
-      <td>${effHTML(p.effectiveness)}</td>
-      <td>${ciHTML(p.winnerCI)}</td>
-      <td>${badgeHTML(p.confidence)}</td>
+      <td class="num">${formatAdjEff(p.adjustedEffectiveness)}</td>
     </tr>
-  `).join('');
+  `;
+    splitAndRender(patterns, 'patterns', renderRow);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -296,12 +341,8 @@ function renderServe(serve) {
     <tr class="${rowClass(s.confidence)}">
       <td style="font-weight:600">${s.direction.replace('_', ' ')}</td>
       <td class="num">${s.total}</td>
-      <td class="num" style="color:var(--green)">${s.winners}</td>
-      <td class="num" style="color:var(--red)">${s.errors}</td>
-      <td class="num">${s.inPlay}</td>
-      <td class="num">${formatPct(s.winnerRate)}</td>
-      <td>${ciHTML(s.winnerCI)}</td>
-      <td>${badgeHTML(s.confidence)}</td>
+      <td class="num" style="color:var(--green)">${formatPct(s.winnerRate)}</td>
+      <td class="num" style="color:var(--red)">${formatPct(s.errorRate)}</td>
     </tr>
   `).join('');
 }
@@ -310,76 +351,90 @@ function renderServe(serve) {
 // RENDER: Serve + 1
 // ═══════════════════════════════════════════════════════════════════════
 function renderServeOne(serveOne) {
-    const tbody = document.getElementById('serve-one-tbody');
-    tbody.innerHTML = serveOne.map(s => `
+    const renderRow = (s) => `
     <tr class="${rowClass(s.confidence)}">
       <td style="font-weight:600">${s.serveDir.replace('_', ' ')} → ${formatShotType(s.responseType)}</td>
       <td class="num">${s.total}</td>
       <td class="num">${formatPct(s.winnerRate)}</td>
-      <td class="num">${formatPct(s.errorRate)}</td>
-      <td>${ciHTML(s.winnerCI)}</td>
-      <td>${badgeHTML(s.confidence)}</td>
+      <td class="num">${formatAdjEff(s.adjustedEffectiveness)}</td>
     </tr>
-  `).join('');
+  `;
+    splitAndRender(serveOne, 'serve-one', renderRow);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
 // RENDER: Direction Patterns
 // ═══════════════════════════════════════════════════════════════════════
 function renderDirections(directions) {
-    const tbody = document.getElementById('direction-tbody');
-    tbody.innerHTML = directions.map(d => `
+    const renderRow = (d) => `
     <tr class="${rowClass(d.confidence)}">
-      <td style="font-weight:600">${formatShotType(d.shotType)}</td>
-      <td>${d.direction.replace('_', ' ')}</td>
+      <td style="font-weight:600">${formatShotType(d.shotType)} <span style="font-weight:normal;color:var(--text-muted)">(${d.direction.replace('_', ' ')})</span></td>
       <td class="num">${d.total}</td>
       <td class="num">${formatPct(d.winnerRate)}</td>
-      <td class="num">${formatPct(d.errorRate)}</td>
-      <td>${effHTML(d.effectiveness)}</td>
-      <td>${ciHTML(d.winnerCI)}</td>
-      <td>${badgeHTML(d.confidence)}</td>
+      <td class="num">${formatAdjEff(d.adjustedEffectiveness)}</td>
     </tr>
-  `).join('');
+  `;
+    splitAndRender(directions, 'direction', renderRow);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
 // RENDER: Win vs Loss Comparison
 // ═══════════════════════════════════════════════════════════════════════
 function renderCompare(compare) {
-    renderCompareTable('compare-win-tbody', compare.wins);
-    renderCompareTable('compare-loss-tbody', compare.losses);
-}
-
-function renderCompareTable(tbodyId, data) {
-    const tbody = document.getElementById(tbodyId);
-    tbody.innerHTML = data.map(p => `
+    const renderRow = (p) => `
     <tr class="${rowClass(p.confidence)}">
       <td style="font-weight:600">${formatShotType(p.shotType)}</td>
       <td class="num">${p.total}</td>
       <td class="num">${formatPct(p.winnerRate)}</td>
-      <td class="num">${formatPct(p.errorRate)}</td>
-      <td>${effHTML(p.effectiveness)}</td>
-      <td>${ciHTML(p.winnerCI)}</td>
+      <td class="num">${formatAdjEff(p.adjustedEffectiveness)}</td>
     </tr>
-  `).join('');
+  `;
+    const winTbody = document.getElementById('compare-win-tbody');
+    const lossTbody = document.getElementById('compare-loss-tbody');
+
+    // Sort by adjustedEffectiveness (highest positive first)
+    const wins = (compare.wins || []).sort((a, b) => (b.adjustedEffectiveness || 0) - (a.adjustedEffectiveness || 0));
+    const losses = (compare.losses || []).sort((a, b) => (a.adjustedEffectiveness || 0) - (b.adjustedEffectiveness || 0)); // Most negative first for losses
+
+    winTbody.innerHTML = wins.slice(0, 8).map(renderRow).join('');
+    setupShowMore('compare-win-tbody', wins, renderRow);
+
+    lossTbody.innerHTML = losses.slice(0, 8).map(renderRow).join('');
+    setupShowMore('compare-loss-tbody', losses, renderRow);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER: Pattern Inference
+// ═══════════════════════════════════════════════════════════════════════
+function renderInference(inference) {
+    if (!inference) return;
+    const renderRow = (seq) => `
+    <tr>
+      <td style="font-weight:600">${seq.sequence.map(s => s.replace(/_/g, ' ')).join(' → ')}</td>
+      <td class="num">${seq.total}</td>
+      <td class="num">${formatPct(seq.winnerRate)}</td>
+      <td class="num">${formatAdjEff(seq.uplift)}</td>
+    </tr>
+  `;
+
+    const winning = inference.winning || [];
+    const losing = inference.losing || [];
+
+    document.getElementById('inference-winning-tbody').innerHTML = winning.slice(0, 8).map(renderRow).join('');
+    setupShowMore('inference-winning-tbody', winning, renderRow);
+
+    document.getElementById('inference-losing-tbody').innerHTML = losing.slice(0, 8).map(renderRow).join('');
+    setupShowMore('inference-losing-tbody', losing, renderRow);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
 // EVENTS
 // ═══════════════════════════════════════════════════════════════════════
 
-// Low confidence toggle
-lowConfToggle.addEventListener('change', () => {
-    showLowConfidence = lowConfToggle.checked;
-    if (currentPlayer) loadPlayer(currentPlayer);
-});
-
-// Apply filters (dynamic mode only)
 document.getElementById('filter-apply').addEventListener('click', () => {
     if (currentPlayer) loadPlayer(currentPlayer);
 });
 
-// Reset filters
 document.getElementById('filter-reset').addEventListener('click', () => {
     document.getElementById('filter-surface').value = '';
     document.getElementById('filter-date-from').value = '';
@@ -389,7 +444,6 @@ document.getElementById('filter-reset').addEventListener('click', () => {
     if (currentPlayer) loadPlayer(currentPlayer);
 });
 
-// Enter key in search
 searchInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         const firstItem = searchDropdown.querySelector('.search-item');
@@ -401,7 +455,4 @@ searchInput.addEventListener('keydown', (e) => {
     }
 });
 
-// ═══════════════════════════════════════════════════════════════════════
-// BOOT
-// ═══════════════════════════════════════════════════════════════════════
 init();
