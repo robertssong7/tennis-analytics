@@ -2,61 +2,60 @@
   "winning": [
     {
       "sequence": [
-        "BODY",
-        "FOREHAND_SLICE_LEFT"
+        "FOREHAND_RIGHT_DEEP",
+        "FOREHAND_LEFT_UNFORCED_ERROR"
       ],
-      "total": 32,
-      "winnerRate": 0.6875,
-      "uplift": 0.2974657664511221,
-      "rankScore": 1.0309377866434923
-    },
-    {
-      "sequence": [
-        "FOREHAND_SLICE_CENTER",
-        "FOREHAND_CENTER",
-        "BACKHAND_CENTER"
-      ],
-      "total": 18,
-      "winnerRate": 0.7222222222222222,
-      "uplift": 0.3321879886733443,
-      "rankScore": 0.9601467807737654
-    },
-    {
-      "sequence": [
-        "BACKHAND_SLICE_LEFT",
-        "BACKHAND_SLICE_CENTER"
-      ],
-      "total": 24,
-      "winnerRate": 0.6666666666666666,
-      "uplift": 0.27663243311778873,
-      "rankScore": 0.8791527636684604
-    },
-    {
-      "sequence": [
-        "BACKHAND_SLICE_LEFT",
-        "BACKHAND_LEFT",
-        "BACKHAND_LEFT"
-      ],
-      "total": 18,
-      "winnerRate": 0.6666666666666666,
-      "uplift": 0.27663243311778873,
-      "rankScore": 0.7995705720017562
+      "total": 27,
+      "winnerRate": 0.7037037037037037,
+      "uplift": 0.3136694701548258,
+      "rankScore": 1.0338034034763195
     },
     {
       "sequence": [
         "BACKHAND_CENTER",
-        "BACKHAND_VOLLEY_LEFT"
+        "FOREHAND_LEFT",
+        "BACKHAND_CENTER"
       ],
-      "total": 15,
-      "winnerRate": 0.6666666666666666,
-      "uplift": 0.27663243311778873,
-      "rankScore": 0.7491345161360214
+      "total": 31,
+      "winnerRate": 0.6774193548387096,
+      "uplift": 0.28738512128983174,
+      "rankScore": 0.986876829268694
     },
     {
       "sequence": [
-        "FOREHAND_SLICE_CENTER",
-        "FOREHAND_LEFT",
-        "BACKHAND_SLICE_LEFT"
+        "FOREHAND_CENTER_SHALLOW",
+        "FOREHAND_RIGHT"
+      ],
+      "total": 16,
+      "winnerRate": 0.6875,
+      "uplift": 0.2974657664511221,
+      "rankScore": 0.8247502293147938
+    },
+    {
+      "sequence": [
+        "T",
+        "FOREHAND_SLICE_LEFT_FORCED_ERROR"
+      ],
+      "total": 16,
+      "winnerRate": 0.6875,
+      "uplift": 0.2974657664511221,
+      "rankScore": 0.8247502293147938
+    },
+    {
+      "sequence": [
+        "T",
+        "BACKHAND_LEFT_FORCED_ERROR"
+      ],
+      "total": 39,
+      "winnerRate": 0.5897435897435898,
+      "uplift": 0.19970935619471186,
+      "rankScore": 0.7316475377281905
+    },
+    {
+      "sequence": [
+        "BACKHAND_LEFT",
+        "BACKHAND_CENTER",
+        "FOREHAND_RIGHT"
       ],
       "total": 17,
       "winnerRate": 0.6470588235294118,
@@ -65,10 +64,18 @@
     },
     {
       "sequence": [
-        "T",
-        "BACKHAND_CENTER",
-        "FOREHAND_LEFT",
-        "BACKHAND_LEFT"
+        "BACKHAND_CENTER_BASELINE",
+        "BACKHAND_CENTER_BASELINE"
+      ],
+      "total": 17,
+      "winnerRate": 0.6470588235294118,
+      "uplift": 0.2570245899805339,
+      "rankScore": 0.7282054980834263
+    },
+    {
+      "sequence": [
+        "FOREHAND_RIGHT_DEEP",
+        "FOREHAND_RIGHT_SHALLOW"
       ],
       "total": 21,
       "winnerRate": 0.6190476190476191,
@@ -77,43 +84,60 @@
     },
     {
       "sequence": [
-        "T",
+        "BACKHAND_LEFT_BASELINE",
+        "BACKHAND_LEFT_DEEP"
+      ],
+      "total": 50,
+      "winnerRate": 0.56,
+      "uplift": 0.16996576645112216,
+      "rankScore": 0.6649099884920172
+    },
+    {
+      "sequence": [
         "BACKHAND_CENTER",
-        "FOREHAND_RIGHT",
-        "FOREHAND_RIGHT"
+        "BACKHAND_SLICE_LEFT"
       ],
-      "total": 23,
-      "winnerRate": 0.6086956521739131,
-      "uplift": 0.2186614186250352,
-      "rankScore": 0.6856116133456602
+      "total": 16,
+      "winnerRate": 0.625,
+      "uplift": 0.2349657664511221,
+      "rankScore": 0.6514634341748075
     },
     {
       "sequence": [
-        "FOREHAND_CENTER",
         "FOREHAND_RIGHT",
-        "FOREHAND_LEFT"
+        "FOREHAND_RIGHT",
+        "FOREHAND_LEFT_UNFORCED_ERROR"
       ],
-      "total": 37,
-      "winnerRate": 0.5675675675675675,
-      "uplift": 0.17753333401868965,
-      "rankScore": 0.6410582958995367
-    },
-    {
-      "sequence": [
-        "FOREHAND_SLICE_LEFT",
-        "BACKHAND_LEFT",
-        "BACKHAND_LEFT"
-      ],
-      "total": 18,
-      "winnerRate": 0.6111111111111112,
-      "uplift": 0.22107687756223326,
-      "rankScore": 0.6389943632297473
+      "total": 16,
+      "winnerRate": 0.625,
+      "uplift": 0.2349657664511221,
+      "rankScore": 0.6514634341748075
     },
     {
       "sequence": [
         "WIDE",
-        "FOREHAND_CENTER",
-        "FOREHAND_CENTER"
+        "BACKHAND_CENTER_SHALLOW"
+      ],
+      "total": 39,
+      "winnerRate": 0.5641025641025641,
+      "uplift": 0.1740683305536862,
+      "rankScore": 0.637710059622302
+    },
+    {
+      "sequence": [
+        "WIDE",
+        "FOREHAND_CENTER_FORCED_ERROR"
+      ],
+      "total": 59,
+      "winnerRate": 0.5423728813559322,
+      "uplift": 0.1523386478070543,
+      "rankScore": 0.6211665405872299
+    },
+    {
+      "sequence": [
+        "FOREHAND_LEFT",
+        "BACKHAND_CENTER",
+        "FOREHAND_LEFT"
       ],
       "total": 22,
       "winnerRate": 0.5909090909090909,
@@ -122,195 +146,61 @@
     },
     {
       "sequence": [
-        "WIDE",
-        "FOREHAND_RIGHT",
-        "FOREHAND_LEFT"
-      ],
-      "total": 26,
-      "winnerRate": 0.5769230769230769,
-      "uplift": 0.18688884337419898,
-      "rankScore": 0.6089018935923167
-    },
-    {
-      "sequence": [
-        "BACKHAND_CENTER",
+        "FOREHAND_LEFT",
         "BACKHAND_CENTER",
         "FOREHAND_RIGHT"
       ],
-      "total": 26,
-      "winnerRate": 0.5769230769230769,
-      "uplift": 0.18688884337419898,
-      "rankScore": 0.6089018935923167
-    },
-    {
-      "sequence": [
-        "BACKHAND_VOLLEY_LEFT",
-        "BACKHAND_RIGHT"
-      ],
-      "total": 30,
-      "winnerRate": 0.5666666666666667,
-      "uplift": 0.17663243311778876,
-      "rankScore": 0.6007617690368389
-    },
-    {
-      "sequence": [
-        "FOREHAND_RIGHT",
-        "FOREHAND_RIGHT",
-        "FOREHAND_CENTER",
-        "BACKHAND_CENTER"
-      ],
-      "total": 15,
-      "winnerRate": 0.6,
-      "uplift": 0.20996576645112208,
-      "rankScore": 0.5685978360625408
+      "total": 24,
+      "winnerRate": 0.5833333333333334,
+      "uplift": 0.19329909978445547,
+      "rankScore": 0.6143149444727986
     }
   ],
   "losing": [
     {
       "sequence": [
-        "FOREHAND_CENTER",
-        "FOREHAND_CENTER",
-        "FOREHAND_LEFT"
-      ],
-      "total": 31,
-      "winnerRate": 0.16129032258064516,
-      "uplift": -0.22874391096823274,
-      "rankScore": -0.7855036633688007
-    },
-    {
-      "sequence": [
-        "T",
-        "FOREHAND_CENTER",
-        "BACKHAND_LEFT"
-      ],
-      "total": 22,
-      "winnerRate": 0.13636363636363635,
-      "uplift": -0.25367059718524154,
-      "rankScore": -0.7841065850683382
-    },
-    {
-      "sequence": [
-        "FOREHAND_RIGHT",
-        "FOREHAND_VOLLEY_CENTER"
-      ],
-      "total": 25,
-      "winnerRate": 0.16,
-      "uplift": -0.2300342335488779,
-      "rankScore": -0.7404516332625686
-    },
-    {
-      "sequence": [
-        "WIDE",
-        "BACKHAND_LEFT",
-        "BACKHAND_CENTER"
-      ],
-      "total": 36,
-      "winnerRate": 0.19444444444444445,
-      "uplift": -0.19558978910443345,
-      "rankScore": -0.7008997134243737
-    },
-    {
-      "sequence": [
-        "T",
-        "FOREHAND_SLICE_CENTER",
-        "FOREHAND_RIGHT",
-        "FOREHAND_CENTER"
-      ],
-      "total": 27,
-      "winnerRate": 0.18518518518518517,
-      "uplift": -0.20484904836369272,
-      "rankScore": -0.6751490455629623
-    },
-    {
-      "sequence": [
-        "FOREHAND_CENTER",
-        "BACKHAND_CENTER",
-        "FOREHAND_CENTER"
-      ],
-      "total": 25,
-      "winnerRate": 0.2,
-      "uplift": -0.19003423354887788,
-      "rankScore": -0.6116966002678406
-    },
-    {
-      "sequence": [
-        "BACKHAND_RIGHT",
-        "FOREHAND_SLICE_CENTER",
-        "FOREHAND_RIGHT"
+        "BACKHAND_CENTER_BASELINE",
+        "FOREHAND_LEFT_BASELINE"
       ],
       "total": 17,
-      "winnerRate": 0.17647058823529413,
-      "uplift": -0.21356364531358377,
-      "rankScore": -0.6050713697077343
+      "winnerRate": 0.11764705882352941,
+      "uplift": -0.27238717472534846,
+      "rankScore": -0.7717309781816294
     },
     {
       "sequence": [
-        "FOREHAND_SLICE_CENTER",
-        "FOREHAND_RIGHT",
-        "FOREHAND_CENTER"
-      ],
-      "total": 54,
-      "winnerRate": 0.24074074074074073,
-      "uplift": -0.14929349280813717,
-      "rankScore": -0.5955293610675174
-    },
-    {
-      "sequence": [
-        "BACKHAND_CENTER",
-        "FOREHAND_CENTER",
-        "BACKHAND_CENTER"
-      ],
-      "total": 28,
-      "winnerRate": 0.21428571428571427,
-      "uplift": -0.17574851926316362,
-      "rankScore": -0.5856300085453275
-    },
-    {
-      "sequence": [
-        "BACKHAND_RIGHT",
-        "FOREHAND_VOLLEY_CENTER"
-      ],
-      "total": 20,
-      "winnerRate": 0.2,
-      "uplift": -0.19003423354887788,
-      "rankScore": -0.56929168652247
-    },
-    {
-      "sequence": [
-        "BACKHAND_LEFT",
-        "BACKHAND_CENTER",
+        "FOREHAND_LEFT",
         "BACKHAND_RIGHT"
       ],
-      "total": 20,
-      "winnerRate": 0.2,
-      "uplift": -0.19003423354887788,
-      "rankScore": -0.56929168652247
+      "total": 34,
+      "winnerRate": 0.17647058823529413,
+      "uplift": -0.21356364531358377,
+      "rankScore": -0.7531024083269491
     },
     {
       "sequence": [
-        "FOREHAND_LEFT",
-        "BACKHAND_LOB_LEFT"
+        "FOREHAND_LEFT_BASELINE",
+        "BACKHAND_CENTER_DEEP"
       ],
-      "total": 16,
-      "winnerRate": 0.1875,
-      "uplift": -0.2025342335488779,
-      "rankScore": -0.5615441318050968
+      "total": 21,
+      "winnerRate": 0.19047619047619047,
+      "uplift": -0.19955804307268743,
+      "rankScore": -0.6075589397629741
     },
     {
       "sequence": [
-        "BACKHAND_CENTER",
-        "FOREHAND_SLICE_RIGHT"
+        "BACKHAND_LEFT_DEEP",
+        "BACKHAND_CENTER_DEEP"
       ],
-      "total": 16,
-      "winnerRate": 0.1875,
-      "uplift": -0.2025342335488779,
-      "rankScore": -0.5615441318050968
+      "total": 34,
+      "winnerRate": 0.23529411764705882,
+      "uplift": -0.15474011590181908,
+      "rankScore": -0.5456694362907044
     },
     {
       "sequence": [
-        "FOREHAND_CENTER",
-        "FOREHAND_LEFT",
-        "BACKHAND_SLICE_CENTER"
+        "BODY",
+        "BACKHAND_LEFT_DEEP"
       ],
       "total": 23,
       "winnerRate": 0.21739130434782608,
@@ -320,13 +210,102 @@
     {
       "sequence": [
         "T",
-        "FOREHAND_LEFT",
-        "BACKHAND_LEFT"
+        "BACKHAND_RIGHT_FORCED_ERROR"
       ],
-      "total": 30,
-      "winnerRate": 0.23333333333333334,
-      "uplift": -0.15670090021554456,
-      "rankScore": -0.5329706915172129
+      "total": 23,
+      "winnerRate": 0.21739130434782608,
+      "uplift": -0.17264292920105181,
+      "rankScore": -0.5413209059309636
+    },
+    {
+      "sequence": [
+        "FOREHAND_SLICE_CENTER_DEEP",
+        "FOREHAND_RIGHT_BASELINE"
+      ],
+      "total": 19,
+      "winnerRate": 0.21052631578947367,
+      "uplift": -0.17950791775940422,
+      "rankScore": -0.5285501101197935
+    },
+    {
+      "sequence": [
+        "BACKHAND_LEFT_BASELINE",
+        "BACKHAND_CENTER_BASELINE"
+      ],
+      "total": 26,
+      "winnerRate": 0.23076923076923078,
+      "uplift": -0.1592650027796471,
+      "rankScore": -0.51890075418435
+    },
+    {
+      "sequence": [
+        "BODY",
+        "BACKHAND_LEFT_FORCED_ERROR"
+      ],
+      "total": 15,
+      "winnerRate": 0.2,
+      "uplift": -0.19003423354887788,
+      "rankScore": -0.5146222443783431
+    },
+    {
+      "sequence": [
+        "WIDE",
+        "BACKHAND_LEFT_SHALLOW"
+      ],
+      "total": 70,
+      "winnerRate": 0.2714285714285714,
+      "uplift": -0.11860566212030649,
+      "rankScore": -0.503895591198236
+    },
+    {
+      "sequence": [
+        "FOREHAND_CENTER_BASELINE",
+        "FOREHAND_LEFT_DEEP"
+      ],
+      "total": 22,
+      "winnerRate": 0.22727272727272727,
+      "uplift": -0.16276150627615063,
+      "rankScore": -0.5031027256721275
+    },
+    {
+      "sequence": [
+        "FOREHAND_SLICE_CENTER_DEEP",
+        "FOREHAND_RIGHT"
+      ],
+      "total": 22,
+      "winnerRate": 0.22727272727272727,
+      "uplift": -0.16276150627615063,
+      "rankScore": -0.5031027256721275
+    },
+    {
+      "sequence": [
+        "BACKHAND_CENTER",
+        "FOREHAND_RIGHT_UNFORCED_ERROR"
+      ],
+      "total": 36,
+      "winnerRate": 0.25,
+      "uplift": -0.1400342335488779,
+      "rankScore": -0.5018153279545899
+    },
+    {
+      "sequence": [
+        "BACKHAND_LEFT_DEEP",
+        "BACKHAND_SLICE_LEFT_BASELINE"
+      ],
+      "total": 18,
+      "winnerRate": 0.2222222222222222,
+      "uplift": -0.16781201132665569,
+      "rankScore": -0.48503909817431684
+    },
+    {
+      "sequence": [
+        "WIDE",
+        "BACKHAND_CENTER_FORCED_ERROR"
+      ],
+      "total": 52,
+      "winnerRate": 0.2692307692307692,
+      "uplift": -0.12080346431810868,
+      "rankScore": -0.4773239295698025
     }
   ]
 }

@@ -223,19 +223,17 @@ app.get('/api/player/:name/serve-plus-one', async (req, res) => {
       WITH match_players AS (
         SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
         FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
-      ),
-      ${POINT_WIN_LOGIC_CTE}
+      )
       SELECT
         serve.serve_direction::text AS serve_dir,
         next_shot.shot_type::text AS response_type,
         COUNT(*) AS total,
-        SUM(pw.player_won) AS points_won
+        SUM(CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END) AS points_won
       FROM shot serve
       JOIN shot next_shot ON serve.point_number = next_shot.point_number AND serve.point_match_id = next_shot.point_match_id AND next_shot.number = 1
       JOIN point p ON serve.point_number = p.number AND serve.point_match_id = p.match_id
       JOIN match m ON p.match_id = m.id
       JOIN match_players mp ON p.match_id = mp.match_id
-      JOIN point_winners pw ON pw.point_number = serve.point_number AND pw.point_match_id = serve.point_match_id
       WHERE serve.number = 0 AND serve.serve_direction != 'UNKNOWN_SERVE_DIRECTION'
         AND ((mp.player_num = 1 AND p.number % 2 = 1) OR (mp.player_num = 2 AND p.number % 2 = 0))
         ${filterSQL}
@@ -453,6 +451,7 @@ app.get('/api/player/:name/pattern-inference', async (req, res) => {
       point_shots AS (
         SELECT 
           s.point_match_id, s.point_number, s.number AS shot_num, s.shot_type, s.direction, s.serve_direction,
+          s.depth, s.outcome,
           CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END AS player_won
         FROM shot s
         JOIN point p ON s.point_number = p.number AND s.point_match_id = p.match_id
@@ -464,7 +463,10 @@ app.get('/api/player/:name/pattern-inference', async (req, res) => {
       SELECT point_match_id, point_number, player_won,
              array_agg(
                  CASE WHEN shot_num = 0 THEN serve_direction::text 
-                 ELSE shot_type::text || '_' || direction::text END
+                 ELSE shot_type::text || '_' || direction::text ||
+                      CASE WHEN depth IS NOT NULL AND depth != 'UNKNOWN_DEPTH' THEN '_' || depth::text ELSE '' END ||
+                      CASE WHEN outcome IN ('WINNER', 'UNFORCED_ERROR', 'FORCED_ERROR') THEN '_' || outcome::text ELSE '' END
+                 END
                  ORDER BY shot_num
              ) AS seq
       FROM point_shots
