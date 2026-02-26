@@ -48,6 +48,33 @@ function buildFilterClause(query, params, paramIndex) {
 
 // ─── Point Win Logic Helpers ─────────────────────────────────────────
 
+async function getServeBaselineWinRate(playerName, queryObj) {
+  let params = [playerName];
+  let filterResult = buildFilterClause(queryObj, params, 2);
+  params = filterResult.params;
+  let filterSQL = filterResult.clauses.length > 0 ? 'AND ' + filterResult.clauses.join(' AND ') : '';
+
+  const query = `
+    WITH match_players AS (
+      SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
+      FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
+    )
+    SELECT
+      COUNT(*) AS total_points,
+      SUM(CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END) AS won_points
+    FROM point p
+    JOIN match_players mp ON p.match_id = mp.match_id
+    JOIN match m ON m.id = p.match_id
+    WHERE 1=1 
+    AND ((mp.player_num = 1 AND p.number % 2 = 1) OR (mp.player_num = 2 AND p.number % 2 = 0))
+    ${filterSQL}
+  `;
+  const res = await pool.query(query, params);
+  const total = parseInt(res.rows[0]?.total_points || 0);
+  const won = parseInt(res.rows[0]?.won_points || 0);
+  return total > 0 ? won / total : 0;
+}
+
 async function getBaselineWinRate(playerName, queryObj) {
   let params = [playerName];
   let filterResult = buildFilterClause(queryObj, params, 2);
@@ -212,7 +239,7 @@ app.get('/api/player/:name/serve', async (req, res) => {
 app.get('/api/player/:name/serve-plus-one', async (req, res) => {
   try {
     const playerName = req.params.name;
-    const pwBase = await getBaselineWinRate(playerName, req.query);
+    const pwBase = await getServeBaselineWinRate(playerName, req.query);
     const minN = parseInt(req.query.minN) || 15;
     let params = [playerName];
     let filterResult = buildFilterClause(req.query, params, 2);

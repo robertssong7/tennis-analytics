@@ -417,8 +417,10 @@ function renderInference(inference) {
     </tr>
   `;
 
-    const winning = inference.winning || [];
-    const losing = inference.losing || [];
+    // Sort winning sequences from best % win to worst
+    const winning = (inference.winning || []).sort((a, b) => b.winnerRate - a.winnerRate);
+    // Sort losing sequences from lowest % win to higher (ascending)
+    const losing = (inference.losing || []).sort((a, b) => a.winnerRate - b.winnerRate);
 
     document.getElementById('inference-winning-tbody').innerHTML = winning.slice(0, 8).map(renderRow).join('');
     setupShowMore('inference-winning-tbody', winning, renderRow);
