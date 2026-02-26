@@ -2,12 +2,16 @@
    TennisIQ — Frontend Application (Static + Dynamic Mode)
    ═══════════════════════════════════════════════════════════════════════ */
 
+// ─── Feature Flags ───────────────────────────────────────────────────
+const FEATURE_FLAGS = { showScoutReport: false };
+
 // ─── Mode Detection ──────────────────────────────────────────────────
 let STATIC_MODE = false;
 let allPlayers = [];
 
 // ─── State ───────────────────────────────────────────────────────────
 let currentPlayer = null;
+let expandedTables = {};  // Record<tableKey, boolean>
 
 // ─── DOM Refs ────────────────────────────────────────────────────────
 const searchInput = document.getElementById('player-search');
@@ -58,40 +62,35 @@ function setupAccordions() {
     });
 }
 
-function setupShowMore(tbodyId, fullData, renderRowFn) {
+function renderExpandableTable(tableKey, tbodyId, rows, renderRowFn) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    const isExpanded = !!expandedTables[tableKey];
+    const visibleRows = (rows.length > 8 && !isExpanded) ? rows.slice(0, 8) : rows;
+    tbody.innerHTML = visibleRows.length > 0
+        ? visibleRows.map(renderRowFn).join('')
+        : '<tr><td colspan="4" style="color:var(--text-muted);text-align:center;padding:12px">No data available</td></tr>';
+
     const btn = document.querySelector(`.show-more-btn[data-target="${tbodyId}"]`);
     if (!btn) return;
-    if (fullData.length <= 8) {
-        btn.style.display = 'none';
-        return;
-    }
+    if (rows.length <= 8) { btn.style.display = 'none'; return; }
     btn.style.display = 'block';
-    btn.textContent = `Show more (${fullData.length - 8})`;
+    btn.textContent = isExpanded ? 'Show less' : `Show more (${rows.length - 8})`;
     btn.onclick = () => {
-        const tbody = document.getElementById(tbodyId);
-        tbody.innerHTML = fullData.map(renderRowFn).join('');
-        btn.style.display = 'none';
+        expandedTables[tableKey] = !isExpanded;
+        renderExpandableTable(tableKey, tbodyId, rows, renderRowFn);
     };
 }
 
-function splitAndRender(data, containerIdBase, rowHtmlFn) {
-    // Filter undefined values
+function splitAndRender(data, moduleId, containerIdBase, rowHtmlFn) {
     const validData = data.filter(d => d.adjustedEffectiveness !== undefined);
-    const strengths = validData.filter(d => d.adjustedEffectiveness > 0).sort((a, b) => b.adjustedEffectiveness - a.adjustedEffectiveness);
-    const weaknesses = validData.filter(d => d.adjustedEffectiveness <= 0).sort((a, b) => a.adjustedEffectiveness - b.adjustedEffectiveness);
+    const strengths = validData.filter(d => d.adjustedEffectiveness > 0)
+        .sort((a, b) => (b.adjustedEffectiveness - a.adjustedEffectiveness) || (b.total - a.total));
+    const weaknesses = validData.filter(d => d.adjustedEffectiveness <= 0)
+        .sort((a, b) => (a.adjustedEffectiveness - b.adjustedEffectiveness) || (b.total - a.total));
 
-    const sTbody = document.getElementById(`${containerIdBase}-strengths-tbody`);
-    const wTbody = document.getElementById(`${containerIdBase}-weaknesses-tbody`);
-
-    if (sTbody) {
-        sTbody.innerHTML = strengths.slice(0, 8).map(rowHtmlFn).join('');
-        setupShowMore(`${containerIdBase}-strengths-tbody`, strengths, rowHtmlFn);
-    }
-
-    if (wTbody) {
-        wTbody.innerHTML = weaknesses.slice(0, 8).map(rowHtmlFn).join('');
-        setupShowMore(`${containerIdBase}-weaknesses-tbody`, weaknesses, rowHtmlFn);
-    }
+    renderExpandableTable(`${moduleId}:strengths`, `${containerIdBase}-strengths-tbody`, strengths, rowHtmlFn);
+    renderExpandableTable(`${moduleId}:weaknesses`, `${containerIdBase}-weaknesses-tbody`, weaknesses, rowHtmlFn);
 }
 
 // ─── Data Fetching ───────────────────────────────────────────────────
@@ -220,24 +219,33 @@ function renderDropdown(players, q) {
 // ═══════════════════════════════════════════════════════════════════════
 async function loadPlayer(name) {
     currentPlayer = name;
+    expandedTables = {};  // Reset all table expansions on every data load
     showLoading();
     emptyState.classList.add('hidden');
 
     try {
+        const fetches = [
+            fetchPlayerData(name, 'coverage'),
+            fetchPlayerData(name, 'patterns'),
+            fetchPlayerData(name, 'serve'),
+            fetchPlayerData(name, 'serve-plus-one'),
+            fetchPlayerData(name, 'compare'),
+            fetchPlayerData(name, 'direction-patterns'),
+            FEATURE_FLAGS.showScoutReport ? fetchPlayerData(name, 'insights') : Promise.resolve([]),
+            fetchPlayerData(name, 'pattern-inference')
+        ];
         const [coverage, patterns, serve, serveOne, compare, directions, insights, inference] =
-            await Promise.all([
-                fetchPlayerData(name, 'coverage'),
-                fetchPlayerData(name, 'patterns'),
-                fetchPlayerData(name, 'serve'),
-                fetchPlayerData(name, 'serve-plus-one'),
-                fetchPlayerData(name, 'compare'),
-                fetchPlayerData(name, 'direction-patterns'),
-                fetchPlayerData(name, 'insights'),
-                fetchPlayerData(name, 'pattern-inference')
-            ]);
+            await Promise.all(fetches);
 
         renderPlayerHeader(name, coverage);
-        renderInsights(insights);
+        // Scout Report gated by feature flag
+        const insightsSection = document.getElementById('insights-section');
+        if (FEATURE_FLAGS.showScoutReport) {
+            insightsSection.style.display = '';
+            renderInsights(insights);
+        } else {
+            insightsSection.style.display = 'none';
+        }
         renderCoverage(coverage);
         renderPatterns(patterns);
         renderServe(serve);
@@ -329,7 +337,7 @@ function renderPatterns(patterns) {
       <td class="num">${formatAdjEff(p.adjustedEffectiveness)}</td>
     </tr>
   `;
-    splitAndRender(patterns, 'patterns', renderRow);
+    splitAndRender(patterns, 'shotPattern', 'patterns', renderRow);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -359,7 +367,7 @@ function renderServeOne(serveOne) {
       <td class="num">${formatAdjEff(s.adjustedEffectiveness)}</td>
     </tr>
   `;
-    splitAndRender(serveOne, 'serve-one', renderRow);
+    splitAndRender(serveOne, 'servePlusOne', 'serve-one', renderRow);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -374,7 +382,7 @@ function renderDirections(directions) {
       <td class="num">${formatAdjEff(d.adjustedEffectiveness)}</td>
     </tr>
   `;
-    splitAndRender(directions, 'direction', renderRow);
+    splitAndRender(directions, 'shotDirection', 'direction', renderRow);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -389,18 +397,12 @@ function renderCompare(compare) {
       <td class="num">${formatAdjEff(p.adjustedEffectiveness)}</td>
     </tr>
   `;
-    const winTbody = document.getElementById('compare-win-tbody');
-    const lossTbody = document.getElementById('compare-loss-tbody');
+    // Sort with tie-breaker by total desc
+    const wins = (compare.wins || []).sort((a, b) => ((b.adjustedEffectiveness || 0) - (a.adjustedEffectiveness || 0)) || (b.total - a.total));
+    const losses = (compare.losses || []).sort((a, b) => ((a.adjustedEffectiveness || 0) - (b.adjustedEffectiveness || 0)) || (b.total - a.total));
 
-    // Sort by adjustedEffectiveness (highest positive first)
-    const wins = (compare.wins || []).sort((a, b) => (b.adjustedEffectiveness || 0) - (a.adjustedEffectiveness || 0));
-    const losses = (compare.losses || []).sort((a, b) => (a.adjustedEffectiveness || 0) - (b.adjustedEffectiveness || 0)); // Most negative first for losses
-
-    winTbody.innerHTML = wins.slice(0, 8).map(renderRow).join('');
-    setupShowMore('compare-win-tbody', wins, renderRow);
-
-    lossTbody.innerHTML = losses.slice(0, 8).map(renderRow).join('');
-    setupShowMore('compare-loss-tbody', losses, renderRow);
+    renderExpandableTable('compare:wins', 'compare-win-tbody', wins, renderRow);
+    renderExpandableTable('compare:losses', 'compare-loss-tbody', losses, renderRow);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -417,16 +419,13 @@ function renderInference(inference) {
     </tr>
   `;
 
-    // Sort winning sequences from best % win to worst
-    const winning = (inference.winning || []).sort((a, b) => b.winnerRate - a.winnerRate);
-    // Sort losing sequences from lowest % win to higher (ascending)
-    const losing = (inference.losing || []).sort((a, b) => a.winnerRate - b.winnerRate);
+    // Sort winning: best win% first, tie-break by total desc
+    const winning = (inference.winning || []).sort((a, b) => (b.winnerRate - a.winnerRate) || (b.total - a.total));
+    // Sort losing: lowest win% first (ascending), tie-break by total desc
+    const losing = (inference.losing || []).sort((a, b) => (a.winnerRate - b.winnerRate) || (b.total - a.total));
 
-    document.getElementById('inference-winning-tbody').innerHTML = winning.slice(0, 8).map(renderRow).join('');
-    setupShowMore('inference-winning-tbody', winning, renderRow);
-
-    document.getElementById('inference-losing-tbody').innerHTML = losing.slice(0, 8).map(renderRow).join('');
-    setupShowMore('inference-losing-tbody', losing, renderRow);
+    renderExpandableTable('patternInference:winning', 'inference-winning-tbody', winning, renderRow);
+    renderExpandableTable('patternInference:losing', 'inference-losing-tbody', losing, renderRow);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
