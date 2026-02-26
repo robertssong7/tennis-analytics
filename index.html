@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TennisIQ — Scouting-Grade Analytics</title>
-  <meta name="description" content="538-style tennis analytics platform with scouting-grade shot pattern analysis, Wilson confidence intervals, and win/loss comparison." />
+  <meta name="description"
+    content="538-style tennis analytics platform with scouting-grade shot pattern analysis, Wilson confidence intervals, and win/loss comparison." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <!-- ───── Header ───── -->
   <header id="app-header">
@@ -105,7 +110,9 @@
         <div class="coverage-totals" id="coverage-totals"></div>
         <div class="table-wrapper">
           <table id="coverage-table" class="data-table">
-            <thead><tr id="coverage-thead"></tr></thead>
+            <thead>
+              <tr id="coverage-thead"></tr>
+            </thead>
             <tbody id="coverage-tbody"></tbody>
           </table>
         </div>
@@ -127,7 +134,14 @@
             <h4 class="strength-title">Top Strengths</h4>
             <div class="table-wrapper">
               <table class="data-table compact-table">
-                <thead><tr><th>Pattern</th><th>N</th><th>Pt Win%</th><th>Adj Eff</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Pattern</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
                 <tbody id="patterns-strengths-tbody"></tbody>
               </table>
               <button class="show-more-btn" data-target="patterns-strengths-tbody">Show more...</button>
@@ -137,7 +151,14 @@
             <h4 class="weakness-title">Top Weaknesses</h4>
             <div class="table-wrapper">
               <table class="data-table compact-table">
-                <thead><tr><th>Pattern</th><th>N</th><th>Pt Win%</th><th>Adj Eff</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Pattern</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
                 <tbody id="patterns-weaknesses-tbody"></tbody>
               </table>
               <button class="show-more-btn" data-target="patterns-weaknesses-tbody">Show more...</button>
@@ -161,7 +182,10 @@
           <table id="serve-table" class="data-table compact-table">
             <thead>
               <tr>
-                <th>Direction</th><th>N</th><th>Pt Win%</th><th>Error %</th>
+                <th>Direction</th>
+                <th>N</th>
+                <th>Pt Win%</th>
+                <th>Error %</th>
               </tr>
             </thead>
             <tbody id="serve-tbody"></tbody>
@@ -185,7 +209,14 @@
             <h4 class="strength-title">Top Strengths</h4>
             <div class="table-wrapper">
               <table class="data-table compact-table">
-                <thead><tr><th>Serve → Response</th><th>N</th><th>Pt Win%</th><th>Adj Eff</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Serve → Response</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
                 <tbody id="serve-one-strengths-tbody"></tbody>
               </table>
               <button class="show-more-btn" data-target="serve-one-strengths-tbody">Show more...</button>
@@ -195,7 +226,14 @@
             <h4 class="weakness-title">Top Weaknesses</h4>
             <div class="table-wrapper">
               <table class="data-table compact-table">
-                <thead><tr><th>Serve → Response</th><th>N</th><th>Pt Win%</th><th>Adj Eff</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Serve → Response</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
                 <tbody id="serve-one-weaknesses-tbody"></tbody>
               </table>
               <button class="show-more-btn" data-target="serve-one-weaknesses-tbody">Show more...</button>
@@ -220,7 +258,14 @@
             <h4 class="strength-title">Top Strengths</h4>
             <div class="table-wrapper">
               <table class="data-table compact-table">
-                <thead><tr><th>Shot & Direction</th><th>N</th><th>Pt Win%</th><th>Adj Eff</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Shot & Direction</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
                 <tbody id="direction-strengths-tbody"></tbody>
               </table>
               <button class="show-more-btn" data-target="direction-strengths-tbody">Show more...</button>
@@ -230,7 +275,14 @@
             <h4 class="weakness-title">Top Weaknesses</h4>
             <div class="table-wrapper">
               <table class="data-table compact-table">
-                <thead><tr><th>Shot & Direction</th><th>N</th><th>Pt Win%</th><th>Adj Eff</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Shot & Direction</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
                 <tbody id="direction-weaknesses-tbody"></tbody>
               </table>
               <button class="show-more-btn" data-target="direction-weaknesses-tbody">Show more...</button>
@@ -255,7 +307,14 @@
             <h4 class="win-label">✅ In Wins</h4>
             <div class="table-wrapper">
               <table class="data-table compact-table">
-                <thead><tr><th>Shot</th><th>N</th><th>Pt Win%</th><th>Adj Eff</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Shot</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
                 <tbody id="compare-win-tbody"></tbody>
               </table>
             </div>
@@ -264,7 +323,14 @@
             <h4 class="loss-label">❌ In Losses</h4>
             <div class="table-wrapper">
               <table class="data-table compact-table">
-                <thead><tr><th>Shot</th><th>N</th><th>Pt Win%</th><th>Adj Eff</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Shot</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
                 <tbody id="compare-loss-tbody"></tbody>
               </table>
             </div>
@@ -288,18 +354,34 @@
             <h4 class="strength-title">Winning Sequences</h4>
             <div class="table-wrapper">
               <table class="data-table compact-table">
-                <thead><tr><th>Sequence</th><th>N</th><th>Pt Win%</th><th>Uplift</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Sequence</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Uplift</th>
+                  </tr>
+                </thead>
                 <tbody id="inference-winning-tbody"></tbody>
               </table>
+              <button class="show-more-btn" data-target="inference-winning-tbody">Show more...</button>
             </div>
           </div>
           <div class="table-col">
             <h4 class="weakness-title">Losing Sequences</h4>
             <div class="table-wrapper">
               <table class="data-table compact-table">
-                <thead><tr><th>Sequence</th><th>N</th><th>Pt Win%</th><th>Uplift</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Sequence</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Uplift</th>
+                  </tr>
+                </thead>
                 <tbody id="inference-losing-tbody"></tbody>
               </table>
+              <button class="show-more-btn" data-target="inference-losing-tbody">Show more...</button>
             </div>
           </div>
         </div>
@@ -311,7 +393,8 @@
   <div id="empty-state" class="empty-state">
     <div class="empty-icon">🎾</div>
     <h2>Search for a player to begin scouting</h2>
-    <p>Type a player name above to load scouting-grade analytics with shot patterns, serve analysis, and win/loss comparisons.</p>
+    <p>Type a player name above to load scouting-grade analytics with shot patterns, serve analysis, and win/loss
+      comparisons.</p>
   </div>
 
   <!-- ───── Loading Overlay ───── -->
@@ -322,4 +405,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>

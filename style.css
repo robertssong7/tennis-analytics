@@ -634,6 +634,20 @@ body {
   line-height: 1.5;
 }
 
+/* ─── Dual Tables Grid ─────────────────────────────────────────────────── */
+.dual-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.dual-tables .table-col {
+  min-width: 0;
+  /* Prevents grid blowout, allows child overflow-x to work */
+  display: flex;
+  flex-direction: column;
+}
+
 /* ─── Compare Grid ───────────────────────────────────────────────────── */
 .compare-grid {
   display: grid;
@@ -875,41 +889,4 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════
-   TABLE WRAPPER — Horizontal Scroll Support
-   ═══════════════════════════════════════════════════════════════════════ */
-.table-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════
-   PATTERN INFERENCE — Side-by-side scrollable
-   ═══════════════════════════════════════════════════════════════════════ */
-#inference-section .dual-tables {
-  display: flex;
-  gap: 24px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 8px;
-}
-
-#inference-section .table-col {
-  min-width: 420px;
-  flex: 1 0 420px;
-}
-
-/* Win/Loss labels */
-.win-label {
-  color: var(--green);
-  font-size: 0.95rem;
-  margin-bottom: 12px;
-}
-
-.loss-label {
-  color: var(--red);
-  font-size: 0.95rem;
-  margin-bottom: 12px;
 }
