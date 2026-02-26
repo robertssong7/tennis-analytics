@@ -2,85 +2,25 @@
   "winning": [
     {
       "sequence": [
-        "FOREHAND_RIGHT",
-        "FOREHAND_RIGHT"
-      ],
-      "total": 18,
-      "winnerRate": 0.6111111111111112,
-      "uplift": 0.20177045177045183,
-      "rankScore": 0.5831916153752641
-    },
-    {
-      "sequence": [
         "FOREHAND_LEFT",
         "BACKHAND_LEFT"
       ],
-      "total": 20,
-      "winnerRate": 0.6,
-      "uplift": 0.19065934065934065,
-      "rankScore": 0.5711643400677114
-    },
-    {
-      "sequence": [
-        "FOREHAND_CENTER",
-        "FOREHAND_LEFT"
-      ],
       "total": 16,
-      "winnerRate": 0.4375,
-      "uplift": 0.02815934065934067,
-      "rankScore": 0.07807427033779607
-    },
-    {
-      "sequence": [
-        "T",
-        "FOREHAND_CENTER"
-      ],
-      "total": 19,
-      "winnerRate": 0.42105263157894735,
-      "uplift": 0.011711972238288015,
-      "rankScore": 0.03448518758133045
+      "winnerRate": 0.625,
+      "uplift": 0.21565934065934067,
+      "rankScore": 0.5979346557577551
     }
   ],
   "losing": [
     {
       "sequence": [
-        "WIDE",
-        "BACKHAND_LEFT"
-      ],
-      "total": 17,
-      "winnerRate": 0.29411764705882354,
-      "uplift": -0.11522301228183579,
-      "rankScore": -0.32645137593925044
-    },
-    {
-      "sequence": [
-        "BACKHAND_CENTER",
-        "FOREHAND_RIGHT"
-      ],
-      "total": 19,
-      "winnerRate": 0.3157894736842105,
-      "uplift": -0.09355118565644882,
-      "rankScore": -0.2754557575940843
-    },
-    {
-      "sequence": [
         "BACKHAND_LEFT",
         "BACKHAND_LEFT"
       ],
-      "total": 24,
-      "winnerRate": 0.3333333333333333,
-      "uplift": -0.07600732600732601,
-      "rankScore": -0.24155537355208748
-    },
-    {
-      "sequence": [
-        "T",
-        "BACKHAND_CENTER"
-      ],
-      "total": 22,
-      "winnerRate": 0.4090909090909091,
-      "uplift": -0.00024975024975021354,
-      "rankScore": -0.0007719886247147522
+      "total": 18,
+      "winnerRate": 0.3888888888888889,
+      "uplift": -0.020451770451770435,
+      "rankScore": -0.059113219712772544
     }
   ]
 }
