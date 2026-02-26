@@ -1,1 +1,20 @@
-[{"type":"strength","icon":"🟢","title":"Trick is a key weapon in wins","detail":"Effectiveness jumps from -83.3% in losses to -53.1% in wins (Δ 30.2pp). N=64W/12L.","delta":0.30208333333333337},{"type":"weakness","icon":"🔴","title":"Backhand Swinging Volley collapses in losses","detail":"Effectiveness drops from 29.3% in wins to 47.1% in losses (Δ -17.8pp). N=41W/17L.","delta":-0.17790530846484937},{"type":"strength","icon":"🟡","title":"Forehand Lob improves in wins","detail":"Effectiveness: -20.0% in wins vs -27.4% in losses (Δ 7.4pp). N=886W/248L.","delta":0.07441928202140827},{"type":"weakness","icon":"🟠","title":"Forehand Volley degrades in losses","detail":"Effectiveness: 23.4% in wins to 29.8% in losses (Δ -6.4pp). N=1785W/560L.","delta":-0.0640406162464986}]
+[
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Trick",
+    "detail": "When using this shot, point win rate is -34.2% vs baseline. Evidence: N=40"
+  },
+  {
+    "type": "strength",
+    "icon": "🟢",
+    "title": "Strength: Smash",
+    "detail": "When using this shot, point win rate is +23.9% vs baseline. Evidence: N=1017"
+  },
+  {
+    "type": "strength",
+    "icon": "🟢",
+    "title": "Strength: Backhand Swinging Volley",
+    "detail": "When using this shot, point win rate is +23.3% vs baseline. Evidence: N=32"
+  }
+]

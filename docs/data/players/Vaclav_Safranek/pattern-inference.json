@@ -1,0 +1,96 @@
+{
+  "winning": [
+    {
+      "sequence": [
+        "BACKHAND_LEFT",
+        "BACKHAND_LEFT"
+      ],
+      "total": 26,
+      "winnerRate": 0.7692307692307693,
+      "uplift": 0.389423076923077,
+      "rankScore": 1.2687779787487505
+    },
+    {
+      "sequence": [
+        "BACKHAND_CENTER",
+        "FOREHAND_LEFT"
+      ],
+      "total": 18,
+      "winnerRate": 0.5,
+      "uplift": 0.12019230769230771,
+      "rankScore": 0.3474004516702121
+    },
+    {
+      "sequence": [
+        "FOREHAND_LEFT",
+        "BACKHAND_LEFT"
+      ],
+      "total": 30,
+      "winnerRate": 0.4666666666666667,
+      "uplift": 0.08685897435897438,
+      "rankScore": 0.295424516163604
+    },
+    {
+      "sequence": [
+        "FOREHAND_RIGHT",
+        "FOREHAND_LEFT"
+      ],
+      "total": 22,
+      "winnerRate": 0.45454545454545453,
+      "uplift": 0.07473776223776224,
+      "rankScore": 0.2310175959459231
+    },
+    {
+      "sequence": [
+        "WIDE",
+        "BACKHAND_LEFT"
+      ],
+      "total": 24,
+      "winnerRate": 0.4166666666666667,
+      "uplift": 0.036858974358974395,
+      "rankScore": 0.11713980464423529
+    },
+    {
+      "sequence": [
+        "FOREHAND_LEFT",
+        "BACKHAND_CENTER"
+      ],
+      "total": 15,
+      "winnerRate": 0.4,
+      "uplift": 0.02019230769230773,
+      "rankScore": 0.05468178290687165
+    }
+  ],
+  "losing": [
+    {
+      "sequence": [
+        "WIDE",
+        "BACKHAND_CENTER"
+      ],
+      "total": 18,
+      "winnerRate": 0.2777777777777778,
+      "uplift": -0.1020299145299145,
+      "rankScore": -0.2949043834178244
+    },
+    {
+      "sequence": [
+        "BACKHAND_CENTER",
+        "FOREHAND_RIGHT"
+      ],
+      "total": 20,
+      "winnerRate": 0.3,
+      "uplift": -0.0798076923076923,
+      "rankScore": -0.2390824795240204
+    },
+    {
+      "sequence": [
+        "FOREHAND_RIGHT",
+        "FOREHAND_RIGHT"
+      ],
+      "total": 17,
+      "winnerRate": 0.35294117647058826,
+      "uplift": -0.026866515837104032,
+      "rankScore": -0.0761185711779808
+    }
+  ]
+}

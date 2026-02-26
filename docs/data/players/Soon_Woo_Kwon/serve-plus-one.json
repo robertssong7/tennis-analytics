@@ -1,1 +1,51 @@
-[{"serveDir":"T","responseType":"FOREHAND","total":81,"winners":2,"errors":18,"winnerRate":0.025,"errorRate":0.222,"winnerCI":{"lower":0.006797,"upper":0.085629,"center":0.046213},"errorCI":{"lower":0.145445,"upper":0.324155,"center":0.2348},"confidence":"high"},{"serveDir":"WIDE","responseType":"FOREHAND","total":81,"winners":1,"errors":24,"winnerRate":0.012,"errorRate":0.296,"winnerCI":{"lower":0.002183,"upper":0.06667,"center":0.034427},"errorCI":{"lower":0.207918,"upper":0.403122,"center":0.30552},"confidence":"high"},{"serveDir":"WIDE","responseType":"BACKHAND","total":70,"winners":3,"errors":15,"winnerRate":0.043,"errorRate":0.214,"winnerCI":{"lower":0.014681,"upper":0.118599,"center":0.06664},"errorCI":{"lower":0.134386,"upper":0.323914,"center":0.22915},"confidence":"high"},{"serveDir":"T","responseType":"BACKHAND","total":68,"winners":0,"errors":19,"winnerRate":0,"errorRate":0.279,"winnerCI":{"lower":0,"upper":0.053473,"center":0.026737},"errorCI":{"lower":0.186778,"upper":0.395637,"center":0.291207},"confidence":"high"},{"serveDir":"BODY","responseType":"BACKHAND","total":45,"winners":1,"errors":7,"winnerRate":0.022,"errorRate":0.156,"winnerCI":{"lower":0.003933,"upper":0.115669,"center":0.059801},"errorCI":{"lower":0.077453,"upper":0.287842,"center":0.182648},"confidence":"high"},{"serveDir":"WIDE","responseType":"BACKHAND_SLICE","total":43,"winners":0,"errors":14,"winnerRate":0,"errorRate":0.326,"winnerCI":{"lower":0,"upper":0.082013,"center":0.041006},"errorCI":{"lower":0.204931,"upper":0.474841,"center":0.339886},"confidence":"high"},{"serveDir":"T","responseType":"BACKHAND_SLICE","total":30,"winners":0,"errors":8,"winnerRate":0,"errorRate":0.267,"winnerCI":{"lower":0,"upper":0.113517,"center":0.056759},"errorCI":{"lower":0.141825,"upper":0.444483,"center":0.293154},"confidence":"high"},{"serveDir":"WIDE","responseType":"FOREHAND_SLICE","total":25,"winners":0,"errors":5,"winnerRate":0,"errorRate":0.2,"winnerCI":{"lower":0,"upper":0.133196,"center":0.066598},"errorCI":{"lower":0.088605,"upper":0.391313,"center":0.239959},"confidence":"low"},{"serveDir":"BODY","responseType":"FOREHAND","total":20,"winners":0,"errors":4,"winnerRate":0,"errorRate":0.2,"winnerCI":{"lower":0,"upper":0.16113,"center":0.080565},"errorCI":{"lower":0.080656,"upper":0.416022,"center":0.248339},"confidence":"low"},{"serveDir":"T","responseType":"FOREHAND_SLICE","total":18,"winners":0,"errors":5,"winnerRate":0,"errorRate":0.278,"winnerCI":{"lower":0,"upper":0.175885,"center":0.087942},"errorCI":{"lower":0.124996,"upper":0.508731,"center":0.316863},"confidence":"low"},{"serveDir":"BODY","responseType":"FOREHAND_SLICE","total":9,"winners":0,"errors":3,"winnerRate":0,"errorRate":0.333,"winnerCI":{"lower":0,"upper":0.299153,"center":0.149576},"errorCI":{"lower":0.120582,"upper":0.645803,"center":0.383192},"confidence":"insufficient"}]
+[
+  {
+    "serveDir": "T",
+    "responseType": "FOREHAND",
+    "total": 42,
+    "winnerRate": 0.5476190476190477,
+    "adjustedEffectiveness": 0.12826420890937024
+  },
+  {
+    "serveDir": "T",
+    "responseType": "BACKHAND",
+    "total": 34,
+    "winnerRate": 0.6470588235294118,
+    "adjustedEffectiveness": 0.22770398481973436
+  },
+  {
+    "serveDir": "T",
+    "responseType": "BACKHAND_SLICE",
+    "total": 16,
+    "winnerRate": 0.625,
+    "adjustedEffectiveness": 0.20564516129032256
+  },
+  {
+    "serveDir": "BODY",
+    "responseType": "BACKHAND",
+    "total": 22,
+    "winnerRate": 0.45454545454545453,
+    "adjustedEffectiveness": 0.035190615835777095
+  },
+  {
+    "serveDir": "WIDE",
+    "responseType": "FOREHAND",
+    "total": 45,
+    "winnerRate": 0.5777777777777777,
+    "adjustedEffectiveness": 0.1584229390681003
+  },
+  {
+    "serveDir": "WIDE",
+    "responseType": "BACKHAND",
+    "total": 37,
+    "winnerRate": 0.35135135135135137,
+    "adjustedEffectiveness": -0.06800348735832606
+  },
+  {
+    "serveDir": "WIDE",
+    "responseType": "FOREHAND_SLICE",
+    "total": 15,
+    "winnerRate": 0.5333333333333333,
+    "adjustedEffectiveness": 0.11397849462365589
+  }
+]

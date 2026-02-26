@@ -1,1 +1,37 @@
-[{"shotType":"FOREHAND","total":1008,"winners":61,"unforcedErrors":103,"forcedErrors":72,"effectiveness":-0.113,"winnerRate":0.061,"errorRate":0.174,"winnerCI":{"lower":0.047398,"upper":0.076971,"center":0.062184},"errorCI":{"lower":0.151478,"upper":0.198222,"center":0.17485},"confidence":"high"},{"shotType":"SERVE","total":983,"winners":0,"unforcedErrors":0,"forcedErrors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.003893,"center":0.001946},"errorCI":{"lower":0,"upper":0.003893,"center":0.001946},"confidence":"high"},{"shotType":"BACKHAND","total":619,"winners":27,"unforcedErrors":43,"forcedErrors":44,"effectiveness":-0.097,"winnerRate":0.044,"errorRate":0.141,"winnerCI":{"lower":0.030148,"upper":0.062719,"center":0.046434},"errorCI":{"lower":0.115381,"upper":0.170152,"center":0.142766},"confidence":"high"},{"shotType":"BACKHAND_SLICE","total":135,"winners":0,"unforcedErrors":3,"forcedErrors":10,"effectiveness":-0.096,"winnerRate":0,"errorRate":0.096,"winnerCI":{"lower":0,"upper":0.027669,"center":0.013834},"errorCI":{"lower":0.057141,"upper":0.157791,"center":0.107466},"confidence":"high"},{"shotType":"FOREHAND_SLICE","total":38,"winners":1,"unforcedErrors":1,"forcedErrors":3,"effectiveness":-0.079,"winnerRate":0.026,"errorRate":0.105,"winnerCI":{"lower":0.00466,"upper":0.134952,"center":0.069806},"errorCI":{"lower":0.041702,"upper":0.241308,"center":0.141505},"confidence":"high"},{"shotType":"BACKHAND_LOB","total":26,"winners":1,"unforcedErrors":0,"forcedErrors":4,"effectiveness":-0.115,"winnerRate":0.038,"errorRate":0.154,"winnerCI":{"lower":0.006822,"upper":0.188932,"center":0.097877},"errorCI":{"lower":0.061499,"upper":0.335316,"center":0.198408},"confidence":"low"},{"shotType":"BACKHAND_VOLLEY","total":23,"winners":10,"unforcedErrors":4,"forcedErrors":2,"effectiveness":0.174,"winnerRate":0.435,"errorRate":0.261,"winnerCI":{"lower":0.256344,"upper":0.63189,"center":0.444117},"errorCI":{"lower":0.125484,"upper":0.464704,"center":0.295094},"confidence":"low"},{"shotType":"FOREHAND_VOLLEY","total":18,"winners":6,"unforcedErrors":3,"forcedErrors":2,"effectiveness":0.056,"winnerRate":0.333,"errorRate":0.278,"winnerCI":{"lower":0.162786,"upper":0.562509,"center":0.362647},"errorCI":{"lower":0.124996,"upper":0.508731,"center":0.316863},"confidence":"low"},{"shotType":"BACKHAND_DROP","total":17,"winners":0,"unforcedErrors":2,"forcedErrors":0,"effectiveness":-0.118,"winnerRate":0,"errorRate":0.118,"winnerCI":{"lower":0,"upper":0.184324,"center":0.092162},"errorCI":{"lower":0.032879,"upper":0.343368,"center":0.188124},"confidence":"low"},{"shotType":"FOREHAND_DROP","total":15,"winners":7,"unforcedErrors":2,"forcedErrors":0,"effectiveness":0.333,"winnerRate":0.467,"errorRate":0.133,"winnerCI":{"lower":0.248092,"upper":0.698834,"center":0.473463},"errorCI":{"lower":0.03736,"upper":0.378825,"center":0.208093},"confidence":"low"},{"shotType":"SMASH","total":11,"winners":6,"unforcedErrors":1,"forcedErrors":0,"effectiveness":0.455,"winnerRate":0.545,"errorRate":0.091,"winnerCI":{"lower":0.280088,"upper":0.78729,"center":0.533689},"errorCI":{"lower":0.016232,"upper":0.377365,"center":0.196798},"confidence":"low"}]
+[
+  {
+    "shotType": "FOREHAND",
+    "total": 512,
+    "winnerRate": 0.408203125,
+    "adjustedEffectiveness": -0.0017663561800610461,
+    "confidence": "high"
+  },
+  {
+    "shotType": "SERVE",
+    "total": 493,
+    "winnerRate": 0.486815415821501,
+    "adjustedEffectiveness": 0.07684593464143996,
+    "confidence": "high"
+  },
+  {
+    "shotType": "BACKHAND",
+    "total": 296,
+    "winnerRate": 0.3783783783783784,
+    "adjustedEffectiveness": -0.03159110280168265,
+    "confidence": "high"
+  },
+  {
+    "shotType": "BACKHAND_SLICE",
+    "total": 61,
+    "winnerRate": 0.32786885245901637,
+    "adjustedEffectiveness": -0.08210062872104468,
+    "confidence": "high"
+  },
+  {
+    "shotType": "FOREHAND_SLICE",
+    "total": 22,
+    "winnerRate": 0.4090909090909091,
+    "adjustedEffectiveness": -0.00087857208915193,
+    "confidence": "low"
+  }
+]

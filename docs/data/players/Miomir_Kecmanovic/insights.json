@@ -1,1 +1,20 @@
-[{"type":"strength","icon":"🟢","title":"Forehand Volley is a key weapon in wins","detail":"Effectiveness jumps from 16.7% in losses to 43.6% in wins (Δ 26.9pp). N=39W/120L.","delta":0.2692307692307693},{"type":"strength","icon":"🟢","title":"Forehand Lob is a key weapon in wins","detail":"Effectiveness jumps from -24.6% in losses to 0.0% in wins (Δ 24.6pp). N=26W/69L.","delta":0.2463768115942029},{"type":"weakness","icon":"🔴","title":"Backhand Drop collapses in losses","detail":"Effectiveness drops from -15.4% in wins to 8.5% in losses (Δ -23.8pp). N=26W/71L.","delta":-0.23835319609967498},{"type":"strength","icon":"🟡","title":"Backhand Lob improves in wins","detail":"Effectiveness: -13.7% in wins vs -23.5% in losses (Δ 9.8pp). N=51W/132L.","delta":0.09759358288770054},{"type":"weakness","icon":"🟠","title":"Smash degrades in losses","detail":"Effectiveness: 46.8% in wins to 52.2% in losses (Δ -5.4pp). N=47W/115L.","delta":-0.05365402405180386}]
+[
+  {
+    "type": "strength",
+    "icon": "🟢",
+    "title": "Strength: Smash",
+    "detail": "When using this shot, point win rate is +27.7% vs baseline. Evidence: N=86"
+  },
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Forehand Lob",
+    "detail": "When using this shot, point win rate is -26.7% vs baseline. Evidence: N=42"
+  },
+  {
+    "type": "weakness",
+    "icon": "🔴",
+    "title": "Weakness: Backhand Lob",
+    "detail": "When using this shot, point win rate is -15.9% vs baseline. Evidence: N=88"
+  }
+]

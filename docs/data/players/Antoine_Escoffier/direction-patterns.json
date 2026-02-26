@@ -1,1 +1,44 @@
-[{"shotType":"BACKHAND","direction":"CENTER","total":67,"winners":0,"errors":17,"effectiveness":-0.254,"winnerRate":0,"errorRate":0.254,"winnerCI":{"lower":0,"upper":0.054228,"center":0.027114},"errorCI":{"lower":0.164878,"upper":0.369294,"center":0.267086},"confidence":"high"},{"shotType":"FOREHAND","direction":"LEFT","total":63,"winners":7,"errors":12,"effectiveness":-0.079,"winnerRate":0.111,"errorRate":0.19,"winnerCI":{"lower":0.054875,"upper":0.212049,"center":0.133462},"errorCI":{"lower":0.112461,"upper":0.30407,"center":0.208266},"confidence":"high"},{"shotType":"FOREHAND","direction":"CENTER","total":55,"winners":0,"errors":15,"effectiveness":-0.273,"winnerRate":0,"errorRate":0.273,"winnerCI":{"lower":0,"upper":0.065287,"center":0.032644},"errorCI":{"lower":0.172806,"upper":0.402324,"center":0.287565},"confidence":"high"},{"shotType":"FOREHAND","direction":"RIGHT","total":51,"winners":7,"errors":7,"effectiveness":0,"winnerRate":0.137,"errorRate":0.137,"winnerCI":{"lower":0.06811,"upper":0.25722,"center":0.162665},"errorCI":{"lower":0.06811,"upper":0.25722,"center":0.162665},"confidence":"high"},{"shotType":"BACKHAND","direction":"RIGHT","total":38,"winners":4,"errors":9,"effectiveness":-0.132,"winnerRate":0.105,"errorRate":0.237,"winnerCI":{"lower":0.041702,"upper":0.241308,"center":0.141505},"errorCI":{"lower":0.129936,"upper":0.392071,"center":0.261003},"confidence":"high"},{"shotType":"BACKHAND","direction":"LEFT","total":29,"winners":2,"errors":5,"effectiveness":-0.103,"winnerRate":0.069,"errorRate":0.172,"winnerCI":{"lower":0.019121,"upper":0.219649,"center":0.119385},"errorCI":{"lower":0.075977,"upper":0.345488,"center":0.210733},"confidence":"low"},{"shotType":"BACKHAND_SLICE","direction":"LEFT","total":13,"winners":0,"errors":6,"effectiveness":-0.462,"winnerRate":0,"errorRate":0.462,"winnerCI":{"lower":0,"upper":0.228102,"center":0.114051},"errorCI":{"lower":0.232058,"upper":0.708566,"center":0.470312},"confidence":"low"},{"shotType":"BACKHAND_SLICE","direction":"CENTER","total":11,"winners":0,"errors":3,"effectiveness":-0.273,"winnerRate":0,"errorRate":0.273,"winnerCI":{"lower":0,"upper":0.25884,"center":0.12942},"errorCI":{"lower":0.097459,"upper":0.56565,"center":0.331555},"confidence":"low"},{"shotType":"FOREHAND_SLICE","direction":"RIGHT","total":10,"winners":0,"errors":4,"effectiveness":-0.4,"winnerRate":0,"errorRate":0.4,"winnerCI":{"lower":0,"upper":0.27754,"center":0.13877},"errorCI":{"lower":0.168178,"upper":0.68733,"center":0.427754},"confidence":"low"},{"shotType":"FOREHAND_SLICE","direction":"CENTER","total":10,"winners":0,"errors":3,"effectiveness":-0.3,"winnerRate":0,"errorRate":0.3,"winnerCI":{"lower":0,"upper":0.27754,"center":0.13877},"errorCI":{"lower":0.107789,"upper":0.603227,"center":0.355508},"confidence":"low"},{"shotType":"FOREHAND_SLICE","direction":"LEFT","total":6,"winners":0,"errors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.390343,"center":0.195172},"errorCI":{"lower":0,"upper":0.390343,"center":0.195172},"confidence":"insufficient"}]
+[
+  {
+    "shotType": "BACKHAND",
+    "direction": "CENTER",
+    "total": 34,
+    "winnerRate": 0.29411764705882354,
+    "adjustedEffectiveness": -0.05045164133068958
+  },
+  {
+    "shotType": "FOREHAND",
+    "direction": "LEFT",
+    "total": 34,
+    "winnerRate": 0.29411764705882354,
+    "adjustedEffectiveness": -0.05045164133068958
+  },
+  {
+    "shotType": "FOREHAND",
+    "direction": "CENTER",
+    "total": 29,
+    "winnerRate": 0.2413793103448276,
+    "adjustedEffectiveness": -0.10318997804468552
+  },
+  {
+    "shotType": "FOREHAND",
+    "direction": "RIGHT",
+    "total": 27,
+    "winnerRate": 0.4074074074074074,
+    "adjustedEffectiveness": 0.06283811901789427
+  },
+  {
+    "shotType": "BACKHAND",
+    "direction": "RIGHT",
+    "total": 18,
+    "winnerRate": 0.3888888888888889,
+    "adjustedEffectiveness": 0.04431960049937578
+  },
+  {
+    "shotType": "BACKHAND",
+    "direction": "LEFT",
+    "total": 16,
+    "winnerRate": 0.375,
+    "adjustedEffectiveness": 0.030430711610486882
+  }
+]

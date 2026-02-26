@@ -1,1 +1,16 @@
-[{"serveDir":"WIDE","responseType":"FOREHAND","total":40,"winners":0,"errors":18,"winnerRate":0,"errorRate":0.45,"winnerCI":{"lower":0,"upper":0.087625,"center":0.043812},"errorCI":{"lower":0.307051,"upper":0.601712,"center":0.454381},"confidence":"high"},{"serveDir":"T","responseType":"BACKHAND","total":27,"winners":0,"errors":8,"winnerRate":0,"errorRate":0.296,"winnerCI":{"lower":0,"upper":0.124559,"center":0.06228},"errorCI":{"lower":0.158529,"upper":0.48481,"center":0.321669},"confidence":"low"},{"serveDir":"WIDE","responseType":"BACKHAND","total":26,"winners":0,"errors":3,"winnerRate":0,"errorRate":0.115,"winnerCI":{"lower":0,"upper":0.128733,"center":0.064367},"errorCI":{"lower":0.040032,"upper":0.289763,"center":0.164897},"confidence":"low"},{"serveDir":"T","responseType":"FOREHAND","total":24,"winners":2,"errors":3,"winnerRate":0.083,"errorRate":0.125,"winnerCI":{"lower":0.023158,"upper":0.258492,"center":0.140825},"errorCI":{"lower":0.043443,"upper":0.310043,"center":0.176743},"confidence":"low"},{"serveDir":"WIDE","responseType":"BACKHAND_SLICE","total":15,"winners":0,"errors":4,"winnerRate":0,"errorRate":0.267,"winnerCI":{"lower":0,"upper":0.203889,"center":0.101945},"errorCI":{"lower":0.108973,"upper":0.519509,"center":0.314241},"confidence":"low"},{"serveDir":"T","responseType":"BACKHAND_SLICE","total":13,"winners":0,"errors":1,"winnerRate":0,"errorRate":0.077,"winnerCI":{"lower":0,"upper":0.228102,"center":0.114051},"errorCI":{"lower":0.01371,"upper":0.333145,"center":0.173428},"confidence":"low"},{"serveDir":"BODY","responseType":"BACKHAND","total":12,"winners":0,"errors":3,"winnerRate":0,"errorRate":0.25,"winnerCI":{"lower":0,"upper":0.242501,"center":0.12125},"errorCI":{"lower":0.08894,"upper":0.53231,"center":0.310625},"confidence":"low"},{"serveDir":"BODY","responseType":"FOREHAND","total":10,"winners":0,"errors":1,"winnerRate":0,"errorRate":0.1,"winnerCI":{"lower":0,"upper":0.27754,"center":0.13877},"errorCI":{"lower":0.017876,"upper":0.404156,"center":0.211016},"confidence":"low"}]
+[
+  {
+    "serveDir": "T",
+    "responseType": "BACKHAND",
+    "total": 21,
+    "winnerRate": 0.6666666666666666,
+    "adjustedEffectiveness": 0.25599999999999995
+  },
+  {
+    "serveDir": "WIDE",
+    "responseType": "FOREHAND",
+    "total": 24,
+    "winnerRate": 0.375,
+    "adjustedEffectiveness": -0.03566666666666668
+  }
+]

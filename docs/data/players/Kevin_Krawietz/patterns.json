@@ -1,1 +1,16 @@
-[{"shotType":"SERVE","total":101,"winners":0,"unforcedErrors":0,"forcedErrors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.036642,"center":0.018321},"errorCI":{"lower":0,"upper":0.036642,"center":0.018321},"confidence":"high"},{"shotType":"FOREHAND","total":48,"winners":4,"unforcedErrors":7,"forcedErrors":12,"effectiveness":-0.313,"winnerRate":0.083,"errorRate":0.396,"winnerCI":{"lower":0.032883,"upper":0.195536,"center":0.114209},"errorCI":{"lower":0.270206,"upper":0.536898,"center":0.403552},"confidence":"high"},{"shotType":"BACKHAND","total":23,"winners":2,"unforcedErrors":0,"forcedErrors":3,"effectiveness":-0.043,"winnerRate":0.087,"errorRate":0.13,"winnerCI":{"lower":0.024179,"upper":0.267964,"center":0.146072},"errorCI":{"lower":0.045376,"upper":0.321279,"center":0.183327},"confidence":"low"},{"shotType":"BACKHAND_SLICE","total":22,"winners":2,"unforcedErrors":0,"forcedErrors":9,"effectiveness":-0.318,"winnerRate":0.091,"errorRate":0.409,"winnerCI":{"lower":0.025295,"upper":0.278154,"center":0.151724},"errorCI":{"lower":0.232556,"upper":0.612655,"center":0.422605},"confidence":"low"},{"shotType":"FOREHAND_SLICE","total":21,"winners":1,"unforcedErrors":0,"forcedErrors":5,"effectiveness":-0.19,"winnerRate":0.048,"errorRate":0.238,"winnerCI":{"lower":0.008456,"upper":0.226698,"center":0.117577},"errorCI":{"lower":0.106279,"upper":0.450916,"center":0.278597},"confidence":"low"},{"shotType":"BACKHAND_VOLLEY","total":11,"winners":2,"unforcedErrors":0,"forcedErrors":1,"effectiveness":0.091,"winnerRate":0.182,"errorRate":0.091,"winnerCI":{"lower":0.051367,"upper":0.476986,"center":0.264176},"errorCI":{"lower":0.016232,"upper":0.377365,"center":0.196798},"confidence":"low"}]
+[
+  {
+    "shotType": "SERVE",
+    "total": 50,
+    "winnerRate": 0.56,
+    "adjustedEffectiveness": 0.163960396039604,
+    "confidence": "high"
+  },
+  {
+    "shotType": "FOREHAND",
+    "total": 26,
+    "winnerRate": 0.34615384615384615,
+    "adjustedEffectiveness": -0.04988575780654991,
+    "confidence": "low"
+  }
+]

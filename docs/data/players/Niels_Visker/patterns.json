@@ -1,1 +1,30 @@
-[{"shotType":"SERVE","total":112,"winners":0,"unforcedErrors":0,"forcedErrors":0,"effectiveness":0,"winnerRate":0,"errorRate":0,"winnerCI":{"lower":0,"upper":0.033163,"center":0.016581},"errorCI":{"lower":0,"upper":0.033163,"center":0.016581},"confidence":"high"},{"shotType":"FOREHAND","total":99,"winners":10,"unforcedErrors":16,"forcedErrors":7,"effectiveness":-0.131,"winnerRate":0.101,"errorRate":0.232,"winnerCI":{"lower":0.055796,"upper":0.176032,"center":0.115914},"errorCI":{"lower":0.16009,"upper":0.324554,"center":0.242322},"confidence":"high"},{"shotType":"BACKHAND","total":40,"winners":2,"unforcedErrors":3,"forcedErrors":1,"effectiveness":-0.05,"winnerRate":0.05,"errorRate":0.1,"winnerCI":{"lower":0.01382,"upper":0.165042,"center":0.089431},"errorCI":{"lower":0.039579,"upper":0.230521,"center":0.13505},"confidence":"high"},{"shotType":"BACKHAND_SLICE","total":39,"winners":0,"unforcedErrors":4,"forcedErrors":3,"effectiveness":-0.179,"winnerRate":0,"errorRate":0.179,"winnerCI":{"lower":0,"upper":0.08967,"center":0.044835},"errorCI":{"lower":0.089772,"upper":0.326684,"center":0.208228},"confidence":"high"},{"shotType":"FOREHAND_SLICE","total":25,"winners":0,"unforcedErrors":3,"forcedErrors":5,"effectiveness":-0.32,"winnerRate":0,"errorRate":0.32,"winnerCI":{"lower":0,"upper":0.133196,"center":0.066598},"errorCI":{"lower":0.17205,"upper":0.515901,"center":0.343975},"confidence":"low"}]
+[
+  {
+    "shotType": "SERVE",
+    "total": 56,
+    "winnerRate": 0.42857142857142855,
+    "adjustedEffectiveness": 0.044642857142857095,
+    "confidence": "high"
+  },
+  {
+    "shotType": "FOREHAND",
+    "total": 50,
+    "winnerRate": 0.34,
+    "adjustedEffectiveness": -0.04392857142857143,
+    "confidence": "high"
+  },
+  {
+    "shotType": "BACKHAND_SLICE",
+    "total": 20,
+    "winnerRate": 0.2,
+    "adjustedEffectiveness": -0.18392857142857144,
+    "confidence": "low"
+  },
+  {
+    "shotType": "BACKHAND",
+    "total": 17,
+    "winnerRate": 0.47058823529411764,
+    "adjustedEffectiveness": 0.08665966386554619,
+    "confidence": "low"
+  }
+]

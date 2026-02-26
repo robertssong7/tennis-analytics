@@ -1,1 +1,51 @@
-[{"serveDir":"WIDE","responseType":"BACKHAND","total":176,"winners":3,"errors":29,"winnerRate":0.017,"errorRate":0.165,"winnerCI":{"lower":0.005814,"upper":0.04891,"center":0.027362},"errorCI":{"lower":0.117243,"upper":0.226624,"center":0.171934},"confidence":"high"},{"serveDir":"WIDE","responseType":"FOREHAND","total":158,"winners":2,"errors":36,"winnerRate":0.013,"errorRate":0.228,"winnerCI":{"lower":0.003478,"upper":0.044974,"center":0.024226},"errorCI":{"lower":0.169363,"upper":0.299253,"center":0.234308},"confidence":"high"},{"serveDir":"T","responseType":"BACKHAND","total":123,"winners":0,"errors":24,"winnerRate":0,"errorRate":0.195,"winnerCI":{"lower":0,"upper":0.030287,"center":0.015143},"errorCI":{"lower":0.134773,"upper":0.273938,"center":0.204356},"confidence":"high"},{"serveDir":"T","responseType":"FOREHAND","total":108,"winners":1,"errors":17,"winnerRate":0.009,"errorRate":0.157,"winnerCI":{"lower":0.001636,"upper":0.050595,"center":0.026116},"errorCI":{"lower":0.100661,"upper":0.237689,"center":0.169175},"confidence":"high"},{"serveDir":"BODY","responseType":"BACKHAND","total":55,"winners":1,"errors":8,"winnerRate":0.018,"errorRate":0.145,"winnerCI":{"lower":0.003217,"upper":0.09606,"center":0.049638},"errorCI":{"lower":0.075592,"upper":0.261612,"center":0.168602},"confidence":"high"},{"serveDir":"T","responseType":"BACKHAND_SLICE","total":38,"winners":0,"errors":10,"winnerRate":0,"errorRate":0.263,"winnerCI":{"lower":0,"upper":0.091813,"center":0.045906},"errorCI":{"lower":0.149715,"upper":0.420092,"center":0.284903},"confidence":"high"},{"serveDir":"BODY","responseType":"FOREHAND","total":34,"winners":2,"errors":7,"winnerRate":0.059,"errorRate":0.206,"winnerCI":{"lower":0.016282,"upper":0.190939,"center":0.103611},"errorCI":{"lower":0.103494,"upper":0.367987,"center":0.235741},"confidence":"high"},{"serveDir":"T","responseType":"FOREHAND_SLICE","total":22,"winners":0,"errors":2,"winnerRate":0,"errorRate":0.091,"winnerCI":{"lower":0,"upper":0.14866,"center":0.07433},"errorCI":{"lower":0.025295,"upper":0.278154,"center":0.151724},"confidence":"low"},{"serveDir":"WIDE","responseType":"BACKHAND_SLICE","total":22,"winners":0,"errors":3,"winnerRate":0,"errorRate":0.136,"winnerCI":{"lower":0,"upper":0.14866,"center":0.07433},"errorCI":{"lower":0.047489,"upper":0.333354,"center":0.190422},"confidence":"low"},{"serveDir":"WIDE","responseType":"FOREHAND_SLICE","total":18,"winners":0,"errors":5,"winnerRate":0,"errorRate":0.278,"winnerCI":{"lower":0,"upper":0.175885,"center":0.087942},"errorCI":{"lower":0.124996,"upper":0.508731,"center":0.316863},"confidence":"low"},{"serveDir":"WIDE","responseType":"BACKHAND_LOB","total":6,"winners":0,"errors":1,"winnerRate":0,"errorRate":0.167,"winnerCI":{"lower":0,"upper":0.390343,"center":0.195172},"errorCI":{"lower":0.030053,"upper":0.563509,"center":0.296781},"confidence":"insufficient"}]
+[
+  {
+    "serveDir": "T",
+    "responseType": "FOREHAND",
+    "total": 43,
+    "winnerRate": 0.37209302325581395,
+    "adjustedEffectiveness": -0.0161335043149759
+  },
+  {
+    "serveDir": "T",
+    "responseType": "BACKHAND",
+    "total": 67,
+    "winnerRate": 0.6716417910447762,
+    "adjustedEffectiveness": 0.2834152634739863
+  },
+  {
+    "serveDir": "T",
+    "responseType": "BACKHAND_SLICE",
+    "total": 23,
+    "winnerRate": 0.6956521739130435,
+    "adjustedEffectiveness": 0.3074256463422536
+  },
+  {
+    "serveDir": "BODY",
+    "responseType": "FOREHAND",
+    "total": 20,
+    "winnerRate": 0.3,
+    "adjustedEffectiveness": -0.08822652757078986
+  },
+  {
+    "serveDir": "BODY",
+    "responseType": "BACKHAND",
+    "total": 26,
+    "winnerRate": 0.3076923076923077,
+    "adjustedEffectiveness": -0.08053421987848214
+  },
+  {
+    "serveDir": "WIDE",
+    "responseType": "FOREHAND",
+    "total": 91,
+    "winnerRate": 0.5164835164835165,
+    "adjustedEffectiveness": 0.1282569889127267
+  },
+  {
+    "serveDir": "WIDE",
+    "responseType": "BACKHAND",
+    "total": 81,
+    "winnerRate": 0.3950617283950617,
+    "adjustedEffectiveness": 0.006835200824271859
+  }
+]
