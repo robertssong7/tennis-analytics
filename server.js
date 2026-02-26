@@ -48,30 +48,7 @@ function buildFilterClause(query, params, paramIndex) {
 
 // ─── Point Win Logic Helpers ─────────────────────────────────────────
 
-const POINT_WIN_LOGIC_CTE = `
-  point_winners AS (
-    SELECT
-      p.match_id AS point_match_id,
-      p.number AS point_number,
-      CASE 
-        WHEN p.player_won = mp.player_num THEN 1
-        ELSE 0
-      END AS player_won
-    FROM point p
-    JOIN match_players mp ON p.match_id = mp.match_id
-  )
-`;
-
-// Baseline win-rate cache: avoids 5 redundant DB scans per player load
-const baselineCache = new Map();
-function baselineCacheKey(player, queryObj) {
-  return `${player}|${queryObj.surface || ''}|${queryObj.dateFrom || ''}|${queryObj.dateTo || ''}|${queryObj.side || ''}`;
-}
-
 async function getBaselineWinRate(playerName, queryObj) {
-  const cacheKey = baselineCacheKey(playerName, queryObj);
-  if (baselineCache.has(cacheKey)) return baselineCache.get(cacheKey);
-
   let params = [playerName];
   let filterResult = buildFilterClause(queryObj, params, 2);
   params = filterResult.params;
@@ -81,25 +58,19 @@ async function getBaselineWinRate(playerName, queryObj) {
     WITH match_players AS (
       SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
       FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
-    ),
-    ${POINT_WIN_LOGIC_CTE}
+    )
     SELECT
       COUNT(*) AS total_points,
-      SUM(pw.player_won) AS won_points
-    FROM point_winners pw
-    JOIN point p ON p.number = pw.point_number AND p.match_id = pw.point_match_id
+      SUM(CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END) AS won_points
+    FROM point p
+    JOIN match_players mp ON p.match_id = mp.match_id
     JOIN match m ON m.id = p.match_id
     WHERE 1=1 ${filterSQL}
   `;
   const res = await pool.query(query, params);
   const total = parseInt(res.rows[0]?.total_points || 0);
   const won = parseInt(res.rows[0]?.won_points || 0);
-  const rate = total > 0 ? won / total : 0;
-
-  baselineCache.set(cacheKey, rate);
-  // Expire cache after 60 seconds
-  setTimeout(() => baselineCache.delete(cacheKey), 60000);
-  return rate;
+  return total > 0 ? won / total : 0;
 }
 
 // ─── API Endpoints ───────────────────────────────────────────────────
@@ -156,14 +127,12 @@ app.get('/api/player/:name/patterns', async (req, res) => {
         SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
         FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
       ),
-      ${POINT_WIN_LOGIC_CTE},
       player_shots AS (
-        SELECT s.shot_type::text AS shot_type, pw.player_won
+        SELECT s.shot_type::text AS shot_type, CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END AS player_won
         FROM shot s
         JOIN point p ON s.point_number = p.number AND s.point_match_id = p.match_id
         JOIN match m ON p.match_id = m.id
         JOIN match_players mp ON p.match_id = mp.match_id
-        JOIN point_winners pw ON pw.point_number = s.point_number AND pw.point_match_id = s.point_match_id
         WHERE s.shot_type != 'UNKNOWN_SHOT_TYPE'
         AND (
           (mp.player_num = 1 AND ( 
@@ -212,14 +181,12 @@ app.get('/api/player/:name/serve', async (req, res) => {
         SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
         FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
       ),
-      ${POINT_WIN_LOGIC_CTE},
       player_serves AS (
-        SELECT s.serve_direction::text AS direction, pw.player_won, s.outcome
+        SELECT s.serve_direction::text AS direction, CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END AS player_won, s.outcome
         FROM shot s
         JOIN point p ON s.point_number = p.number AND s.point_match_id = p.match_id
         JOIN match m ON p.match_id = m.id
         JOIN match_players mp ON p.match_id = mp.match_id
-        JOIN point_winners pw ON pw.point_number = s.point_number AND pw.point_match_id = s.point_match_id
         WHERE s.number = 0 AND s.serve_direction != 'UNKNOWN_SERVE_DIRECTION'
         AND ((mp.player_num = 1 AND p.number % 2 = 1) OR (mp.player_num = 2 AND p.number % 2 = 0))
         ${filterSQL}
@@ -304,14 +271,12 @@ app.get('/api/player/:name/direction-patterns', async (req, res) => {
         SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
         FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
       ),
-      ${POINT_WIN_LOGIC_CTE},
       player_shots AS (
-        SELECT s.shot_type::text AS shot_type, s.direction::text AS direction, pw.player_won
+        SELECT s.shot_type::text AS shot_type, s.direction::text AS direction, CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END AS player_won
         FROM shot s
         JOIN point p ON s.point_number = p.number AND s.point_match_id = p.match_id
         JOIN match m ON p.match_id = m.id
         JOIN match_players mp ON p.match_id = mp.match_id
-        JOIN point_winners pw ON pw.point_number = s.point_number AND pw.point_match_id = s.point_match_id
         WHERE s.shot_type != 'UNKNOWN_SHOT_TYPE' AND s.direction != 'UNKNOWN_DIRECTION'
         AND (
           (mp.player_num = 1 AND ( 
@@ -360,14 +325,12 @@ app.get('/api/player/:name/compare', async (req, res) => {
                CASE WHEN m.first_player_name = $1 THEN 'win' ELSE 'loss' END AS result
         FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
       ),
-      ${POINT_WIN_LOGIC_CTE},
       player_shots AS (
-        SELECT s.shot_type::text AS shot_type, pw.player_won, mp.result
+        SELECT s.shot_type::text AS shot_type, CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END AS player_won, mp.result
         FROM shot s
         JOIN point p ON s.point_number = p.number AND s.point_match_id = p.match_id
         JOIN match m ON p.match_id = m.id
         JOIN match_players mp ON p.match_id = mp.match_id
-        JOIN point_winners pw ON pw.point_number = s.point_number AND pw.point_match_id = s.point_match_id
         WHERE s.shot_type != 'UNKNOWN_SHOT_TYPE'
         AND (
           (mp.player_num = 1 AND ( 
@@ -420,14 +383,12 @@ app.get('/api/player/:name/insights', async (req, res) => {
         SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
         FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
       ),
-      ${POINT_WIN_LOGIC_CTE},
       player_shots AS (
-        SELECT s.shot_type::text AS shot_type, s.direction::text AS direction, pw.player_won
+        SELECT s.shot_type::text AS shot_type, s.direction::text AS direction, CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END AS player_won
         FROM shot s
         JOIN point p ON s.point_number = p.number AND s.point_match_id = p.match_id
         JOIN match m ON p.match_id = m.id
         JOIN match_players mp ON p.match_id = mp.match_id
-        JOIN point_winners pw ON pw.point_number = s.point_number AND pw.point_match_id = s.point_match_id
         WHERE s.shot_type != 'UNKNOWN_SHOT_TYPE'
         AND (
           (mp.player_num = 1 AND ( 
@@ -489,16 +450,14 @@ app.get('/api/player/:name/pattern-inference', async (req, res) => {
         SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
         FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
       ),
-      ${POINT_WIN_LOGIC_CTE},
       point_shots AS (
         SELECT 
           s.point_match_id, s.point_number, s.number AS shot_num, s.shot_type, s.direction, s.serve_direction,
-          pw.player_won
+          CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END AS player_won
         FROM shot s
         JOIN point p ON s.point_number = p.number AND s.point_match_id = p.match_id
         JOIN match m ON p.match_id = m.id
         JOIN match_players mp ON p.match_id = mp.match_id
-        JOIN point_winners pw ON pw.point_number = s.point_number AND pw.point_match_id = s.point_match_id
         WHERE 1=1 ${filterSQL}
         ORDER BY s.point_match_id, s.point_number, s.number
       )
