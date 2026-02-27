@@ -2,16 +2,14 @@
    TennisIQ — Frontend Application (Static + Dynamic Mode)
    ═══════════════════════════════════════════════════════════════════════ */
 
-// ─── Feature Flags ───────────────────────────────────────────────────
-const FEATURE_FLAGS = { showScoutReport: false };
-
 // ─── Mode Detection ──────────────────────────────────────────────────
 let STATIC_MODE = false;
 let allPlayers = [];
 
 // ─── State ───────────────────────────────────────────────────────────
+const FEATURE_FLAGS = { showScoutReport: false };
+let expandedTables = {};
 let currentPlayer = null;
-let expandedTables = {};  // Record<tableKey, boolean>
 
 // ─── DOM Refs ────────────────────────────────────────────────────────
 const searchInput = document.getElementById('player-search');
@@ -67,13 +65,14 @@ function renderExpandableTable(tableKey, tbodyId, rows, renderRowFn) {
     if (!tbody) return;
     const isExpanded = !!expandedTables[tableKey];
     const visibleRows = (rows.length > 8 && !isExpanded) ? rows.slice(0, 8) : rows;
-    tbody.innerHTML = visibleRows.length > 0
-        ? visibleRows.map(renderRowFn).join('')
-        : '<tr><td colspan="4" style="color:var(--text-muted);text-align:center;padding:12px">No data available</td></tr>';
+    tbody.innerHTML = visibleRows.map(renderRowFn).join('');
 
     const btn = document.querySelector(`.show-more-btn[data-target="${tbodyId}"]`);
     if (!btn) return;
-    if (rows.length <= 8) { btn.style.display = 'none'; return; }
+    if (rows.length <= 8) {
+        btn.style.display = 'none';
+        return;
+    }
     btn.style.display = 'block';
     btn.textContent = isExpanded ? 'Show less' : `Show more (${rows.length - 8})`;
     btn.onclick = () => {
@@ -83,6 +82,7 @@ function renderExpandableTable(tableKey, tbodyId, rows, renderRowFn) {
 }
 
 function splitAndRender(data, moduleId, containerIdBase, rowHtmlFn) {
+    // Filter undefined values
     const validData = data.filter(d => d.adjustedEffectiveness !== undefined);
     const strengths = validData.filter(d => d.adjustedEffectiveness > 0)
         .sort((a, b) => (b.adjustedEffectiveness - a.adjustedEffectiveness) || (b.total - a.total));
@@ -218,34 +218,34 @@ function renderDropdown(players, q) {
 // LOAD PLAYER DATA
 // ═══════════════════════════════════════════════════════════════════════
 async function loadPlayer(name) {
+    expandedTables = {};
     currentPlayer = name;
-    expandedTables = {};  // Reset all table expansions on every data load
     showLoading();
     emptyState.classList.add('hidden');
 
     try {
-        const fetches = [
-            fetchPlayerData(name, 'coverage'),
-            fetchPlayerData(name, 'patterns'),
-            fetchPlayerData(name, 'serve'),
-            fetchPlayerData(name, 'serve-plus-one'),
-            fetchPlayerData(name, 'compare'),
-            fetchPlayerData(name, 'direction-patterns'),
-            FEATURE_FLAGS.showScoutReport ? fetchPlayerData(name, 'insights') : Promise.resolve([]),
-            fetchPlayerData(name, 'pattern-inference')
-        ];
         const [coverage, patterns, serve, serveOne, compare, directions, insights, inference] =
-            await Promise.all(fetches);
+            await Promise.all([
+                fetchPlayerData(name, 'coverage'),
+                fetchPlayerData(name, 'patterns'),
+                fetchPlayerData(name, 'serve'),
+                fetchPlayerData(name, 'serve-plus-one'),
+                fetchPlayerData(name, 'compare'),
+                fetchPlayerData(name, 'direction-patterns'),
+                FEATURE_FLAGS.showScoutReport ? fetchPlayerData(name, 'insights') : Promise.resolve([]),
+                fetchPlayerData(name, 'pattern-inference')
+            ]);
 
         renderPlayerHeader(name, coverage);
-        // Scout Report gated by feature flag
+
         const insightsSection = document.getElementById('insights-section');
         if (FEATURE_FLAGS.showScoutReport) {
-            insightsSection.style.display = '';
+            if (insightsSection) insightsSection.style.display = 'block';
             renderInsights(insights);
         } else {
-            insightsSection.style.display = 'none';
+            if (insightsSection) insightsSection.style.display = 'none';
         }
+
         renderCoverage(coverage);
         renderPatterns(patterns);
         renderServe(serve);
@@ -397,9 +397,10 @@ function renderCompare(compare) {
       <td class="num">${formatAdjEff(p.adjustedEffectiveness)}</td>
     </tr>
   `;
-    // Sort with tie-breaker by total desc
-    const wins = (compare.wins || []).sort((a, b) => ((b.adjustedEffectiveness || 0) - (a.adjustedEffectiveness || 0)) || (b.total - a.total));
-    const losses = (compare.losses || []).sort((a, b) => ((a.adjustedEffectiveness || 0) - (b.adjustedEffectiveness || 0)) || (b.total - a.total));
+
+    // Sort by adjustedEffectiveness (highest positive first), then total N desc
+    const wins = (compare.wins || []).sort((a, b) => ((b.adjustedEffectiveness || 0) - (a.adjustedEffectiveness || 0)) || ((b.total || 0) - (a.total || 0)));
+    const losses = (compare.losses || []).sort((a, b) => ((a.adjustedEffectiveness || 0) - (b.adjustedEffectiveness || 0)) || ((b.total || 0) - (a.total || 0)));
 
     renderExpandableTable('compare:wins', 'compare-win-tbody', wins, renderRow);
     renderExpandableTable('compare:losses', 'compare-loss-tbody', losses, renderRow);
@@ -419,9 +420,9 @@ function renderInference(inference) {
     </tr>
   `;
 
-    // Sort winning: best win% first, tie-break by total desc
+    // Sort winning sequences from best % win to worst, then total desc
     const winning = (inference.winning || []).sort((a, b) => (b.winnerRate - a.winnerRate) || (b.total - a.total));
-    // Sort losing: lowest win% first (ascending), tie-break by total desc
+    // Sort losing sequences from lowest % win to higher (ascending), then total desc
     const losing = (inference.losing || []).sort((a, b) => (a.winnerRate - b.winnerRate) || (b.total - a.total));
 
     renderExpandableTable('patternInference:winning', 'inference-winning-tbody', winning, renderRow);
