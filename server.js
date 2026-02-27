@@ -1,7 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
-const path = require('path');
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
@@ -10,10 +10,10 @@ app.use(express.static('docs'));
 
 const pool = new Pool({
   user: 'postgres',
-  password: '139071',
-  host: 'localhost',
-  port: 5432,
-  database: 'tennis',
+  password: process.env.DB_PASSWORD,
+  host: process.env.DB_DOMAIN,
+  port: process.env.DB_PORT,
+  database: process.DB_NAME,
 });
 
 function wilsonInterval(wins, total, z = 1.96) {
