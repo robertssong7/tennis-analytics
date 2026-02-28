@@ -238,6 +238,14 @@ async function loadPlayer(name) {
 
         renderPlayerHeader(name, coverage);
 
+        // Mount the Phase 7 Tour-Percentile Radar dynamically without breaking CommonJS scope
+        try {
+            const { renderRadar } = await import('./js/playerRadar/RadarComponent.js');
+            await renderRadar('radar-module-container', { patterns, directionPatterns: directions, servePlusOne: serveOne });
+        } catch (radarErr) {
+            console.error('Failed to mount Player Radar:', radarErr);
+        }
+
         const insightsSection = document.getElementById('insights-section');
         if (FEATURE_FLAGS.showScoutReport) {
             if (insightsSection) insightsSection.style.display = 'block';
