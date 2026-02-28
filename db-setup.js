@@ -7,13 +7,16 @@
 
 const { Pool } = require('pg');
 const https = require('https');
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const pool = new Pool({
     user: 'postgres',
-    password: '139071',
-    host: 'localhost',
-    port: 5432,
-    database: 'tennis',
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_DOMAIN,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
 });
 
 const CSV_URL = 'https://raw.githubusercontent.com/JeffSackmann/tennis_MatchChartingProject/refs/heads/master/charting-m-matches.csv';

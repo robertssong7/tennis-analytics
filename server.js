@@ -13,7 +13,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   host: process.env.DB_DOMAIN,
   port: process.env.DB_PORT,
-  database: process.DB_NAME,
+  database: process.env.DB_NAME,
 });
 
 function wilsonInterval(wins, total, z = 1.96) {

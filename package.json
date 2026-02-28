@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "export": "node generate-static.js",
     "deploy": "gh-pages -d docs",
-    "run-server": "bun server.js"
+    "run-server": "bun server.js",
+    "run-server-ts": "bun server.ts"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,10 @@
     "pg": "^8.18.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.3.2",
+    "@types/pg": "^8.16.0",
     "gh-pages": "^6.3.0"
   }
 }
