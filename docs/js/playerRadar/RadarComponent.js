@@ -19,12 +19,11 @@ async function loadDistributions() {
 }
 
 const AXIS_CONFIG = [
-    { key: 'serveStrengthProfile', label: 'Serve Strength Profile', invert: false, tooltip: 'Tour percentile for serve dominance using expected service points won (and unreturned/DF rates when needed).' },
+    { key: 'serveStrengthProfile', label: 'Serve Strength Profile', invert: false, tooltip: 'Tour percentile for overall serve conversion (points won on serve vs baseline). Space preserved for deeper ESPW formulas later.' },
     { key: 'servePlusOneAdvantage', label: 'Serve+1 Advantage', invert: false, tooltip: 'Tour percentile for how Serve→Response patterns outperform player baseline.' },
     { key: 'defensiveProblemSolving', label: 'Defensive Problem-Solving', invert: false, tooltip: 'Tour percentile for slice/lob pattern value vs baseline.' },
     { key: 'finishingConversion', label: 'Finishing Conversion', invert: false, tooltip: 'Tour percentile for volley/smash pattern value vs baseline.' },
-    { key: 'exploitability', label: 'Shot Balance', invert: true, tooltip: 'Tour percentile for balance between LEFT vs RIGHT effectiveness; more balanced ranks higher.' },
-    { key: 'patternStability', label: 'Pattern Stability', invert: false, tooltip: 'Tour percentile for consistency of pattern performance; less volatility ranks higher.' }
+    { key: 'exploitability', label: 'Shot Balance', invert: true, tooltip: 'Tour percentile for consistency across all shot types; lower variability (more balance) ranks higher.' }
 ];
 
 export async function renderRadar(containerId, dataPackages) {
@@ -36,9 +35,6 @@ export async function renderRadar(containerId, dataPackages) {
 
     // Evaluate Raw Scores
     const rawScores = computeRawScores(dataPackages);
-    if (rawScores.serveStrengthProfile === null) {
-        console.warn('Serve strength unavailable: missing point-level serve outcome fields.');
-    }
 
     // Determine Percentiles for all 6 axes
     let validCount = 0;
@@ -161,8 +157,8 @@ export async function renderRadar(containerId, dataPackages) {
                     min: 0,
                     max: 100,
                     ticks: {
-                        stepSize: 25,
-                        display: false // hides the numbers like 25, 50, 75 along the axis
+                        stepSize: 20,
+                        display: false // hides the numbers like 20, 40, 60, 80 along the axis
                     },
                     pointLabels: {
                         font: { family: "'Inter', sans-serif", size: 12, weight: '500' },

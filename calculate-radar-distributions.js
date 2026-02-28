@@ -57,9 +57,18 @@ function weightedAverage(items, effKey = 'adjustedEffectiveness', nKey = 'total'
 }
 
 function computeRawScores(dataPackages) {
-    const { patterns, directionPatterns, servePlusOne } = dataPackages;
+    const { patterns, directionPatterns, servePlusOne, serve } = dataPackages;
 
-    const serveStrengthProfile = null;
+    let serveStrengthProfile = null;
+    let serveW = 0, serveN = 0;
+    for (const s of (serve || [])) {
+        if (s.total > 0 && s.winnerRate !== undefined) {
+            serveW += s.winnerRate * s.total;
+            serveN += s.total;
+        }
+    }
+    if (serveN >= 100) serveStrengthProfile = serveW / serveN;
+
     const servePlusOneAdvantage = weightedAverage(servePlusOne || []);
 
     const defensiveItems = (patterns || []).filter(p => isDefensive(p.shotType || p.pattern_name || p.direction || p.serveDir));
@@ -68,33 +77,23 @@ function computeRawScores(dataPackages) {
     const finishingItems = (patterns || []).filter(p => isFinishing(p.shotType || p.pattern_name));
     const finishingConversion = weightedAverage(finishingItems);
 
-    let leftW = 0, leftN = 0, rightW = 0, rightN = 0;
-    for (const p of (directionPatterns || [])) {
-        const tag = directionTag(p.direction || p.shotType || p.serveDir);
-        const eff = p.adjustedEffectiveness;
-        const n = p.total;
-        if (eff !== undefined && n !== undefined) {
-            const shrunk = calculateShrunkEff(eff, n);
-            if (tag === 'LEFT') { leftW += shrunk * n; leftN += n; }
-            if (tag === 'RIGHT') { rightW += shrunk * n; rightN += n; }
-        }
+    let exploitability = null;
+    const coreShotTypes = ['FOREHAND', 'BACKHAND', 'FOREHAND_VOLLEY', 'BACKHAND_VOLLEY', 'OVERHEAD', 'DROP_SHOT'];
+    const coreShots = (patterns || []).filter(p => p.shotType && coreShotTypes.includes(p.shotType.toUpperCase()) && p.total >= 10 && p.adjustedEffectiveness !== undefined);
+
+    let sumW = 0, sumN = 0;
+    for (const p of coreShots) {
+        sumW += p.adjustedEffectiveness * p.total;
+        sumN += p.total;
     }
-    const exploitability = (leftN + rightN >= 300 && leftN > 0 && rightN > 0)
-        ? Math.abs((leftW / leftN) - (rightW / rightN))
-        : null;
 
-    let patternStability = null;
-    const sortedPatterns = (patterns || []).filter(p => p.total !== undefined && p.adjustedEffectiveness !== undefined)
-        .sort((a, b) => b.total - a.total).slice(0, 20);
-
-    let sumNTop20 = 0;
-    for (const p of sortedPatterns) sumNTop20 += p.total;
-
-    if (sumNTop20 >= 300 && sortedPatterns.length > 1) {
-        const values = sortedPatterns.map(p => calculateShrunkEff(p.adjustedEffectiveness, p.total));
-        const mean = values.reduce((a, b) => a + b, 0) / values.length;
-        const trueVariance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (values.length - 1);
-        patternStability = -Math.sqrt(trueVariance);
+    if (sumN >= 50 && coreShots.length >= 2) {
+        const mean = sumW / sumN;
+        let varianceSum = 0;
+        for (const p of coreShots) {
+            varianceSum += p.total * Math.pow(p.adjustedEffectiveness - mean, 2);
+        }
+        exploitability = Math.sqrt(varianceSum / sumN);
     }
 
     return {
@@ -102,8 +101,7 @@ function computeRawScores(dataPackages) {
         servePlusOneAdvantage,
         defensiveProblemSolving,
         finishingConversion,
-        exploitability,
-        patternStability
+        exploitability
     };
 }
 
@@ -116,8 +114,7 @@ try {
         servePlusOneAdvantage: [],
         defensiveProblemSolving: [],
         finishingConversion: [],
-        exploitability: [],
-        patternStability: []
+        exploitability: []
     };
 
     for (const player of players) {
@@ -125,15 +122,15 @@ try {
         const patterns = safeReadJson(path.join(playerDir, 'patterns.json'));
         const directionPatterns = safeReadJson(path.join(playerDir, 'direction-patterns.json'));
         const servePlusOne = safeReadJson(path.join(playerDir, 'serve-plus-one.json'));
+        const serve = safeReadJson(path.join(playerDir, 'serve.json'));
 
-        const scores = computeRawScores({ patterns, directionPatterns, servePlusOne });
+        const scores = computeRawScores({ patterns, directionPatterns, servePlusOne, serve });
 
         if (scores.serveStrengthProfile !== null) distributions.serveStrengthProfile.push(scores.serveStrengthProfile);
         if (scores.servePlusOneAdvantage !== null) distributions.servePlusOneAdvantage.push(scores.servePlusOneAdvantage);
         if (scores.defensiveProblemSolving !== null) distributions.defensiveProblemSolving.push(scores.defensiveProblemSolving);
         if (scores.finishingConversion !== null) distributions.finishingConversion.push(scores.finishingConversion);
         if (scores.exploitability !== null) distributions.exploitability.push(scores.exploitability);
-        if (scores.patternStability !== null) distributions.patternStability.push(scores.patternStability);
     }
 
     const outPath = path.join(DATA_DIR, 'tourDistributionsAll.json');

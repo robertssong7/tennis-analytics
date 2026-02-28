@@ -22,10 +22,19 @@ function weightedAverage(items, effKey = 'adjustedEffectiveness', nKey = 'total'
 }
 
 export function computeRawScores(dataPackages) {
-    const { patterns, directionPatterns, servePlusOne } = dataPackages;
+    const { patterns, directionPatterns, servePlusOne, serve } = dataPackages;
 
-    // 1. Serve Strength Profile -> Tier C (Missing underlying data)
-    const serveStrengthProfile = null;
+    // 1. Serve Strength Profile -> Tier C Fallback: Overall conversion vs Baseline
+    // Ideally ESPW, but for now we aggregate the provided serve data
+    let serveStrengthProfile = null;
+    let serveW = 0, serveN = 0;
+    for (const s of (serve || [])) {
+        if (s.total > 0 && s.winnerRate !== undefined) {
+            serveW += s.winnerRate * s.total;
+            serveN += s.total;
+        }
+    }
+    if (serveN >= 100) serveStrengthProfile = serveW / serveN;
 
     // 2. Serve+1 Advantage -> Weighted mean over servePlusOne
     const servePlusOneAdvantage = weightedAverage(servePlusOne || []);
@@ -38,36 +47,25 @@ export function computeRawScores(dataPackages) {
     const finishingItems = (patterns || []).filter(p => isFinishing(p.shotType || p.pattern_name));
     const finishingConversion = weightedAverage(finishingItems);
 
-    // 5. Exploitability (Directional Asymmetry)
-    let leftW = 0, leftN = 0, rightW = 0, rightN = 0;
-    for (const p of (directionPatterns || [])) {
-        const tag = directionTag(p.direction || p.shotType || p.serveDir);
-        const eff = p.adjustedEffectiveness;
-        const n = p.total;
-        if (eff !== undefined && n !== undefined) {
-            const shrunk = calculateShrunkEff(eff, n);
-            if (tag === 'LEFT') { leftW += shrunk * n; leftN += n; }
-            if (tag === 'RIGHT') { rightW += shrunk * n; rightN += n; }
-        }
+    // 5. Exploitability -> Shot Balance (Variability across main shot types)
+    // Calculate standard deviation of adjustedEffectiveness across Core Shots
+    let exploitability = null;
+    const coreShotTypes = ['FOREHAND', 'BACKHAND', 'FOREHAND_VOLLEY', 'BACKHAND_VOLLEY', 'OVERHEAD', 'DROP_SHOT'];
+    const coreShots = (patterns || []).filter(p => p.shotType && coreShotTypes.includes(p.shotType.toUpperCase()) && p.total >= 10 && p.adjustedEffectiveness !== undefined);
+
+    let sumW = 0, sumN = 0;
+    for (const p of coreShots) {
+        sumW += p.adjustedEffectiveness * p.total;
+        sumN += p.total;
     }
-    const exploitability = (leftN + rightN >= 300 && leftN > 0 && rightN > 0)
-        ? Math.abs((leftW / leftN) - (rightW / rightN))
-        : null;
 
-    // 6. Pattern Stability -> Standard Deviation of adj_eff_shrunk over top 20 patterns by N
-    let patternStability = null;
-    const sortedPatterns = (patterns || []).filter(p => p.total !== undefined && p.adjustedEffectiveness !== undefined)
-        .sort((a, b) => b.total - a.total).slice(0, 20);
-
-    let sumNTop20 = 0;
-    for (const p of sortedPatterns) sumNTop20 += p.total;
-
-    if (sumNTop20 >= 300 && sortedPatterns.length > 1) {
-        const values = sortedPatterns.map(p => calculateShrunkEff(p.adjustedEffectiveness, p.total));
-        const mean = values.reduce((a, b) => a + b, 0) / values.length;
-        const variance = values.reduce((a, b) => a + Math.pow(b - Math.mean, 2), 0) / values.length;
-        const trueVariance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (values.length - 1);
-        patternStability = -Math.sqrt(trueVariance);
+    if (sumN >= 50 && coreShots.length >= 2) {
+        const mean = sumW / sumN;
+        let varianceSum = 0;
+        for (const p of coreShots) {
+            varianceSum += p.total * Math.pow(p.adjustedEffectiveness - mean, 2);
+        }
+        exploitability = Math.sqrt(varianceSum / sumN);
     }
 
     return {
@@ -75,7 +73,6 @@ export function computeRawScores(dataPackages) {
         servePlusOneAdvantage,
         defensiveProblemSolving,
         finishingConversion,
-        exploitability,
-        patternStability
+        exploitability
     };
 }
