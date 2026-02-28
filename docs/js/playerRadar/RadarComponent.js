@@ -23,7 +23,7 @@ const AXIS_CONFIG = [
     { key: 'servePlusOneAdvantage', label: 'Serve+1 Advantage', invert: false, tooltip: 'Tour percentile for how Serve→Response patterns outperform player baseline.' },
     { key: 'defensiveProblemSolving', label: 'Defensive Problem-Solving', invert: false, tooltip: 'Tour percentile for slice/lob pattern value vs baseline.' },
     { key: 'finishingConversion', label: 'Finishing Conversion', invert: false, tooltip: 'Tour percentile for volley/smash pattern value vs baseline.' },
-    { key: 'exploitability', label: 'Exploitability', invert: true, tooltip: 'Tour percentile for balance between LEFT vs RIGHT effectiveness; more balanced ranks higher.' },
+    { key: 'exploitability', label: 'Shot Balance', invert: true, tooltip: 'Tour percentile for balance between LEFT vs RIGHT effectiveness; more balanced ranks higher.' },
     { key: 'patternStability', label: 'Pattern Stability', invert: false, tooltip: 'Tour percentile for consistency of pattern performance; less volatility ranks higher.' }
 ];
 
@@ -75,27 +75,34 @@ export async function renderRadar(containerId, dataPackages) {
 
     // Inject DOM structural skeleton
     container.innerHTML = `
-        <section class="card module-card" id="radar-section" style="overflow:visible;">
-            <div style="display:flex; justify-content:space-between; align-items:center; padding: 16px 20px 0;">
-                <div class="header-text">
-                    <h3>🕸️ Tour-Percentile Player Radar</h3>
-                    <span class="card-subtitle">0-100 Percentiles against Tour Baseline</span>
-                </div>
-                <div class="info-popover-container" style="position:relative;">
-                    <button id="radar-info-btn" style="background:#f1f5f9; border:none; width:28px; height:28px; border-radius:50%; font-weight:bold; color:var(--text-muted); cursor:pointer;">i</button>
-                    <div id="radar-info-tooltip" style="display:none; position:absolute; right:0; top:36px; background:white; border:1px solid #e2e8f0; border-radius:8px; padding:16px; width:300px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); z-index:100;">
-                        <ul style="list-style:none; padding:0; margin:0; font-size:12px; color:#475569; display:flex; flex-direction:column; gap:8px;">
-                            ${formattedData.map(d => `<li><strong>${d.label}:</strong> ${d.tooltip}</li>`).join('')}
-                        </ul>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <section class="card module-card" id="radar-section" style="overflow:visible; height: 100%;">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding: 16px 20px 0;">
+                    <div class="header-text">
+                        <h3>🕸️ Tour-Percentile Player Radar</h3>
+                        <span class="card-subtitle">0-100 Percentiles against Tour Baseline</span>
+                    </div>
+                    <div class="info-popover-container" style="position:relative;">
+                        <button id="radar-info-btn" style="background:#f1f5f9; border:none; width:28px; height:28px; border-radius:50%; font-weight:bold; color:var(--text-muted); cursor:pointer;">i</button>
+                        <div id="radar-info-tooltip" style="display:none; position:absolute; right:0; top:36px; background:white; border:1px solid #e2e8f0; border-radius:8px; padding:16px; width:300px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); z-index:100;">
+                            <ul style="list-style:none; padding:0; margin:0; font-size:12px; color:#475569; display:flex; flex-direction:column; gap:8px;">
+                                ${formattedData.map(d => `<li><strong>${d.label}:</strong> ${d.tooltip}</li>`).join('')}
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="card-content" style="display:flex; justify-content:center; align-items:center; padding: 0 20px 20px;">
-                <div style="width: 100%; max-width: 500px; position:relative;">
-                    <canvas id="player-radar-canvas"></canvas>
+                <div class="card-content" style="display:flex; justify-content:center; align-items:center; padding: 0 20px 20px;">
+                    <div style="width: 100%; max-width: 500px; position:relative;">
+                        <canvas id="player-radar-canvas"></canvas>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+            
+            <!-- Empty space for future graph -->
+            <section class="card module-card" style="display:flex; justify-content:center; align-items:center; border: 2px dashed rgba(255,255,255,0.1); background: transparent; height: 100%; box-shadow: none;">
+                <span style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Future Graph Space</span>
+            </section>
+        </div>
     `;
 
     // Setup Info Tooltip
@@ -112,30 +119,45 @@ export async function renderRadar(containerId, dataPackages) {
 
     // Make undefined map to 0 explicitly but retain formatted null flag for tooltips 
     const drawData = dataPoints.map(p => p === null ? null : p);
+    const tourAverageData = dataPoints.map(p => p === null ? null : 50);
 
     radarChartInstance = new window.Chart(ctx, {
         type: 'radar',
         data: {
             labels: labels,
-            datasets: [{
-                label: 'Tour Percentile',
-                data: drawData,
-                backgroundColor: 'rgba(56, 189, 248, 0.2)', // light blue
-                borderColor: 'rgba(2, 132, 199, 1)',       // stronger blue
-                pointBackgroundColor: 'rgba(2, 132, 199, 1)',
-                pointBorderColor: '#fff',
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: 'rgba(2, 132, 199, 1)',
-                borderWidth: 2,
-            }]
+            datasets: [
+                {
+                    label: 'Tour Average',
+                    data: tourAverageData,
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    fill: true
+                },
+                {
+                    label: 'Player Percentile',
+                    data: drawData,
+                    backgroundColor: 'rgba(56, 189, 248, 0.2)', // light blue
+                    borderColor: 'rgba(2, 132, 199, 1)',       // stronger blue
+                    pointBackgroundColor: 'rgba(2, 132, 199, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(2, 132, 199, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }
+            ]
         },
         options: {
             spanGaps: true, // Connect lines over missing null axes (e.g., Tier C serve)
             responsive: true,
             scales: {
                 r: {
-                    angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
-                    grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                    angleLines: { color: 'rgba(255, 255, 255, 0.15)' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
                     min: 0,
                     max: 100,
                     ticks: {
@@ -144,7 +166,7 @@ export async function renderRadar(containerId, dataPackages) {
                     },
                     pointLabels: {
                         font: { family: "'Inter', sans-serif", size: 12, weight: '500' },
-                        color: '#475569'
+                        color: '#94a3b8'
                     }
                 }
             },
@@ -154,7 +176,7 @@ export async function renderRadar(containerId, dataPackages) {
                     callbacks: {
                         label: function (context) {
                             if (context.raw === null) return ' — (Insufficient Data)';
-                            return ` ${context.raw}th Percentile`;
+                            return ` ${context.dataset.label}: ${context.raw}th Percentile`;
                         }
                     }
                 }
