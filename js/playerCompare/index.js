@@ -81,12 +81,17 @@ export async function mountCompareFeature() {
     if (searchContainer && !document.getElementById('compare-nav-btn')) {
         const btn = document.createElement('button');
         btn.id = 'compare-nav-btn';
-        btn.innerHTML = '⚖️ Compare';
+        btn.innerHTML = 'Compare Players';
         btn.className = 'filter-apply-btn'; // Steal existing blue button styling
-        btn.style.marginRight = '12px'; // Add slight margin before search bar
+        btn.style.marginLeft = '12px'; // Add slight margin after search bar
         btn.addEventListener('click', openModal);
-        // Insert it right before the search container
-        searchContainer.parentNode.insertBefore(btn, searchContainer);
+
+        // Ensure parent is a flex row so they sit next to each other
+        searchContainer.parentNode.style.display = 'flex';
+        searchContainer.parentNode.style.alignItems = 'center';
+
+        // Insert it right after the search container
+        searchContainer.parentNode.insertBefore(btn, searchContainer.nextSibling);
     }
 
     // Modal DOM
