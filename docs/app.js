@@ -136,11 +136,6 @@ function getFilters() {
 // ═══════════════════════════════════════════════════════════════════════
 async function init() {
     try {
-        // Init global orbit constellation in background
-        import('./js/orbitConstellation/index.js?v=mm7cqj5e').then(mod => {
-            mod.initGlobalOrbit('global-orbit-container');
-        }).catch(err => console.error("Orbit Map Init Failed:", err));
-
         // Mount FIFA-Style Compare Feature
         import('./js/playerCompare/index.js?v=mm7cqj5e').then(mod => {
             mod.mountCompareFeature();

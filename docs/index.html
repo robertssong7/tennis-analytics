@@ -341,7 +341,7 @@
         </div>
       </div>
     </section>
-    
+
     <!-- Direction Patterns -->
     <section class="card module-card" id="direction-section">
       <button class="card-header accordion-btn" aria-expanded="true" aria-controls="direction-content">
@@ -390,23 +390,19 @@
         </div>
       </div>
     </section>
-\n  </main>
+    \n
+  </main>
 
   <!-- ───── Global Orbit State (Home Screen) ───── -->
-  <div id="empty-state" class="empty-state"
-    style="position:relative; width:100vw; height:calc(100vh - 60px); padding:0; margin:0; display:flex; font-family:'Inter', sans-serif;">
+  </main>
 
-    <!-- Overlay Text overlaying WebGL Canvas -->
-    <div style="position:absolute; top:40px; left:40px; z-index:10; pointer-events:none;">
-      <h2 style="margin:0 0 8px 0; font-size:28px; color:#f8fafc; font-weight:700;">ATP Tour Pattern Network</h2>
-      <p style="margin:0; color:#cbd5e1; font-size:15px; max-width:400px; line-height:1.5;">
-        Explore the average shot patterns across Serve Hubs.<br />
-        <strong style="color:#38bdf8;">Search for a player to overlay their scouting network against this
-          baseline.</strong>
-      </p>
-    </div>
-
-    <div id="global-orbit-container" style="width:100%; height:100%;"></div>
+  <!-- Empty State / Welcome Screen -->
+  <div id="home-empty-state" class="empty-state">
+    <div style="font-size: 4rem; opacity: 0.8; margin-bottom: 1rem;">🎾</div>
+    <h2 style="margin-bottom: 0.5rem; font-weight: 700;">TennisIQ Database</h2>
+    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 400px; margin: 0 auto;">
+      Access tour-level matchmaking intel.<br />Search a player above to load their scout report.
+    </p>
   </div>
 
   <!-- ───── Loading Overlay ───── -->
