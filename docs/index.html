@@ -19,7 +19,7 @@
   <!-- ───── Header ───── -->
   <header id="app-header">
     <div class="header-left">
-      <div class="logo">
+      <div class="logo" id="home-logo" style="cursor:pointer;" onclick="window.location.reload();">
         <span class="logo-icon">🎾</span>
         <h1>Tennis<span class="accent">IQ</span></h1>
       </div>
@@ -76,28 +76,11 @@
   </div>
 
   <!-- ───── Main Dashboard ───── -->
-  <main id="dashboard" class="hidden">
+  <main id="dashboard" class="hidden">\n
     <!-- Player Header -->
     <section class="player-header" id="player-header">
       <h2 id="player-name-display"></h2>
       <div class="player-meta" id="player-meta"></div>
-    </section>
-
-    <!-- Radar Module Injection Target -->
-    <div id="radar-module-container"></div>
-
-    <!-- Top 3 Scout Notes -->
-    <section class="card module-card" id="insights-section" data-feature="scoutReport">
-      <button class="card-header accordion-btn" aria-expanded="true" aria-controls="insights-content">
-        <div class="header-text">
-          <h3>🎯 Top 3 Scout Notes</h3>
-          <span class="card-subtitle">Immediate standout strengths and weaknesses</span>
-        </div>
-        <span class="accordion-icon">▼</span>
-      </button>
-      <div class="card-content" id="insights-content">
-        <div class="scout-notes-list" id="insights-grid"></div>
-      </div>
     </section>
 
     <!-- Data Coverage -->
@@ -122,11 +105,77 @@
       </div>
     </section>
 
+    <!-- Radar Module Injection Target -->
+    <div id="radar-module-container"></div>
+
+    <!-- Top 3 Scout Notes -->
+    <section class="card module-card" id="insights-section" data-feature="scoutReport">
+      <button class="card-header accordion-btn" aria-expanded="true" aria-controls="insights-content">
+        <div class="header-text">
+          <h3>🎯 Top 3 Scout Notes</h3>
+          <span class="card-subtitle">Immediate standout strengths and weaknesses</span>
+        </div>
+        <span class="accordion-icon">▼</span>
+      </button>
+      <div class="card-content" id="insights-content">
+        <div class="scout-notes-list" id="insights-grid"></div>
+      </div>
+    </section>
+
+    <!-- Pattern Inference (New) -->
+    <section class="card module-card" id="inference-section">
+      <button class="card-header accordion-btn" aria-expanded="true" aria-controls="inference-content">
+        <div class="header-text">
+          <h3>🧠 Pattern Inference</h3>
+          <span class="card-subtitle">Frequent shot sequences correlated with winning or losing</span>
+        </div>
+        <span class="accordion-icon">▼</span>
+      </button>
+      <div class="card-content" id="inference-content">
+        <div class="dual-tables">
+          <div class="table-col">
+            <h4 class="strength-title">Winning Sequences</h4>
+            <div class="table-wrapper">
+              <table class="data-table compact-table">
+                <thead>
+                  <tr>
+                    <th>Sequence</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Uplift</th>
+                  </tr>
+                </thead>
+                <tbody id="inference-winning-tbody"></tbody>
+              </table>
+              <button class="show-more-btn" data-target="inference-winning-tbody">Show more...</button>
+            </div>
+          </div>
+          <div class="table-col">
+            <h4 class="weakness-title">Losing Sequences</h4>
+            <div class="table-wrapper">
+              <table class="data-table compact-table">
+                <thead>
+                  <tr>
+                    <th>Sequence</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Drop-off</th>
+                  </tr>
+                </thead>
+                <tbody id="inference-losing-tbody"></tbody>
+              </table>
+              <button class="show-more-btn" data-target="inference-losing-tbody">Show more...</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Shot Patterns -->
     <section class="card module-card" id="patterns-section">
       <button class="card-header accordion-btn" aria-expanded="true" aria-controls="patterns-content">
         <div class="header-text">
-          <h3>🎾 Shot Pattern Effectiveness</h3>
+          <h3>🎾 Shots Played</h3>
           <span class="card-subtitle">Ranked by Adjusted Effectiveness vs player baseline</span>
         </div>
         <span class="accordion-icon">▼</span>
@@ -246,6 +295,53 @@
       </div>
     </section>
 
+    <!-- Win vs Loss Comparison -->
+    <section class="card module-card compare-card" id="compare-section">
+      <button class="card-header accordion-btn" aria-expanded="true" aria-controls="compare-content">
+        <div class="header-text">
+          <h3>⚖️ Win Loss Comparison of Shots</h3>
+          <span class="card-subtitle">Same shot, different outcomes</span>
+        </div>
+        <span class="accordion-icon">▼</span>
+      </button>
+      <div class="card-content" id="compare-content">
+        <div class="dual-tables">
+          <div class="table-col">
+            <h4 class="win-label">✅ In Wins</h4>
+            <div class="table-wrapper">
+              <table class="data-table compact-table">
+                <thead>
+                  <tr>
+                    <th>Shot</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
+                <tbody id="compare-win-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="table-col">
+            <h4 class="loss-label">❌ In Losses</h4>
+            <div class="table-wrapper">
+              <table class="data-table compact-table">
+                <thead>
+                  <tr>
+                    <th>Shot</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
+                <tbody id="compare-loss-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
     <!-- Direction Patterns -->
     <section class="card module-card" id="direction-section">
       <button class="card-header accordion-btn" aria-expanded="true" aria-controls="direction-content">
@@ -294,103 +390,7 @@
         </div>
       </div>
     </section>
-
-    <!-- Win vs Loss Comparison -->
-    <section class="card module-card compare-card" id="compare-section">
-      <button class="card-header accordion-btn" aria-expanded="true" aria-controls="compare-content">
-        <div class="header-text">
-          <h3>⚖️ Win vs Loss Comparison</h3>
-          <span class="card-subtitle">Same shot, different outcomes</span>
-        </div>
-        <span class="accordion-icon">▼</span>
-      </button>
-      <div class="card-content" id="compare-content">
-        <div class="dual-tables">
-          <div class="table-col">
-            <h4 class="win-label">✅ In Wins</h4>
-            <div class="table-wrapper">
-              <table class="data-table compact-table">
-                <thead>
-                  <tr>
-                    <th>Shot</th>
-                    <th>N</th>
-                    <th>Pt Win%</th>
-                    <th>Adj Eff</th>
-                  </tr>
-                </thead>
-                <tbody id="compare-win-tbody"></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="table-col">
-            <h4 class="loss-label">❌ In Losses</h4>
-            <div class="table-wrapper">
-              <table class="data-table compact-table">
-                <thead>
-                  <tr>
-                    <th>Shot</th>
-                    <th>N</th>
-                    <th>Pt Win%</th>
-                    <th>Adj Eff</th>
-                  </tr>
-                </thead>
-                <tbody id="compare-loss-tbody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Pattern Inference (New) -->
-    <section class="card module-card" id="inference-section">
-      <button class="card-header accordion-btn" aria-expanded="true" aria-controls="inference-content">
-        <div class="header-text">
-          <h3>🧠 Pattern Inference</h3>
-          <span class="card-subtitle">Frequent shot sequences correlated with winning or losing</span>
-        </div>
-        <span class="accordion-icon">▼</span>
-      </button>
-      <div class="card-content" id="inference-content">
-        <div class="dual-tables">
-          <div class="table-col">
-            <h4 class="strength-title">Winning Sequences</h4>
-            <div class="table-wrapper">
-              <table class="data-table compact-table">
-                <thead>
-                  <tr>
-                    <th>Sequence</th>
-                    <th>N</th>
-                    <th>Pt Win%</th>
-                    <th>Uplift</th>
-                  </tr>
-                </thead>
-                <tbody id="inference-winning-tbody"></tbody>
-              </table>
-              <button class="show-more-btn" data-target="inference-winning-tbody">Show more...</button>
-            </div>
-          </div>
-          <div class="table-col">
-            <h4 class="weakness-title">Losing Sequences</h4>
-            <div class="table-wrapper">
-              <table class="data-table compact-table">
-                <thead>
-                  <tr>
-                    <th>Sequence</th>
-                    <th>N</th>
-                    <th>Pt Win%</th>
-                    <th>Drop-off</th>
-                  </tr>
-                </thead>
-                <tbody id="inference-losing-tbody"></tbody>
-              </table>
-              <button class="show-more-btn" data-target="inference-losing-tbody">Show more...</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+\n  </main>
 
   <!-- ───── Global Orbit State (Home Screen) ───── -->
   <div id="empty-state" class="empty-state"
@@ -398,9 +398,9 @@
 
     <!-- Overlay Text overlaying WebGL Canvas -->
     <div style="position:absolute; top:40px; left:40px; z-index:10; pointer-events:none;">
-      <h2 style="margin:0 0 8px 0; font-size:28px; color:#f8fafc; font-weight:700;">Global Tour Constellation</h2>
+      <h2 style="margin:0 0 8px 0; font-size:28px; color:#f8fafc; font-weight:700;">ATP Tour Pattern Network</h2>
       <p style="margin:0; color:#cbd5e1; font-size:15px; max-width:400px; line-height:1.5;">
-        Explore the entire ATP patterned network structure across Serve Hubs.<br />
+        Explore the average shot patterns across Serve Hubs.<br />
         <strong style="color:#38bdf8;">Search for a player to overlay their scouting network against this
           baseline.</strong>
       </p>

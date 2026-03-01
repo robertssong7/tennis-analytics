@@ -330,10 +330,31 @@ function renderInsights(insights) {
 // ═══════════════════════════════════════════════════════════════════════
 function renderCoverage(coverage) {
     const t = coverage.totals;
-    document.getElementById('coverage-totals').innerHTML = `
-    <div class="cov-stat"><span class="value">${t.total_matches}</span><span class="label">Matches</span></div>
-    <div class="cov-stat"><span class="value">${Number(t.total_points).toLocaleString()}</span><span class="label">Points</span></div>
-  `;
+
+    // Inject totals directly into header so they are visible even when collapsed
+    const headerText = document.querySelector('#coverage-section .header-text');
+    if (headerText) {
+        let inlineTotals = headerText.querySelector('.coverage-totals-inline');
+        if (!inlineTotals) {
+            inlineTotals = document.createElement('div');
+            inlineTotals.className = 'coverage-totals-inline';
+            inlineTotals.style.display = 'flex';
+            inlineTotals.style.gap = '16px';
+            inlineTotals.style.marginTop = '8px';
+            inlineTotals.style.fontSize = '13px';
+            headerText.appendChild(inlineTotals);
+
+            const subtitle = headerText.querySelector('.card-subtitle');
+            if (subtitle) subtitle.style.display = 'none';
+        }
+        inlineTotals.innerHTML = `
+            <div><span style="color:#f8fafc; font-weight:700;">${t.total_matches}</span> <span style="color:#94a3b8">Matches</span></div>
+            <div><span style="color:#f8fafc; font-weight:700;">${Number(t.total_points).toLocaleString()}</span> <span style="color:#94a3b8">Points</span></div>
+        `;
+    }
+
+    const oldTotals = document.getElementById('coverage-totals');
+    if (oldTotals) oldTotals.style.display = 'none';
 
     const rows = coverage.breakdown;
     const years = [...new Set(rows.map(r => r.year))].sort((a, b) => b - a);
