@@ -141,6 +141,11 @@ async function init() {
             mod.initGlobalOrbit('global-orbit-container');
         }).catch(err => console.error("Orbit Map Init Failed:", err));
 
+        // Mount FIFA-Style Compare Feature
+        import('./js/playerCompare/index.js?v=3.0').then(mod => {
+            mod.mountCompareFeature();
+        }).catch(err => console.error("Compare Map Init Failed:", err));
+
         // Try API first to see if backend is running
         await fetchJSON('/api/players?q=a');
         STATIC_MODE = false;
