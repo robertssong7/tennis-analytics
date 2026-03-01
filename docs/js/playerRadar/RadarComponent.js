@@ -114,15 +114,6 @@ export async function renderRadar(containerId, dataPackages) {
                     </div>
                 </div>
             </section>
-            
-            <!-- Orbit Map space -->
-            <section class="card module-card" style="position:relative; overflow:hidden; padding:0; height:100%; min-height:400px; display:flex; flex-direction:column; background: #0B1120;">
-                <div style="position:absolute; top:16px; left:20px; z-index:10; pointer-events:none;">
-                    <h3 style="margin:0; font-size:16px;">🌌 Player Pattern Constellation</h3>
-                    <span style="color:var(--text-muted); font-size:13px;">Overlaying their pattern network vs Global Baseline</span>
-                </div>
-                <div id="player-orbit-container" style="flex:1; width:100%; height:100%;"></div>
-            </section>
         </div>
     `;
 

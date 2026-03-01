@@ -137,7 +137,7 @@ function getFilters() {
 async function init() {
     try {
         // Mount FIFA-Style Compare Feature
-        import('./js/playerCompare/index.js?v=mm7ded37').then(mod => {
+        import('./js/playerCompare/index.js?v=mm7dm3mj').then(mod => {
             mod.mountCompareFeature();
         }).catch(err => console.error("Compare Map Init Failed:", err));
 
@@ -245,30 +245,10 @@ async function loadPlayer(name) {
 
         // Mount the Phase 7 Tour-Percentile Radar dynamically first to build the HTML shell
         try {
-            const { renderRadar } = await import('./js/playerRadar/RadarComponent.js?v=mm7ded37');
+            const { renderRadar } = await import('./js/playerRadar/RadarComponent.js?v=mm7dm3mj');
             await renderRadar('radar-module-container', { patterns, directionPatterns: directions, servePlusOne: serveOne });
         } catch (radarErr) {
             console.error('Failed to mount Player Radar:', radarErr);
-        }
-
-        // Build Orbit Constellation Player Pipeline (Mounts inside Radar shell)
-        try {
-            const playerModelData = {};
-            const addNode = (seq, tot, val) => {
-                if (!seq || !seq.length) return;
-                const key = seq.map(s => s.replace(/_/g, ' ')).join(' → ');
-                if (!playerModelData[key]) playerModelData[key] = { total: 0, value: val || 0 };
-                playerModelData[key].total += tot;
-                playerModelData[key].value = val || 0;
-            };
-            (serveOne || []).forEach(i => addNode([i.serveDir, i.responseType], i.total, i.adjustedEffectiveness));
-            (inference?.winning || []).forEach(i => addNode(i.sequence, i.total, i.uplift));
-            (inference?.losing || []).forEach(i => addNode(i.sequence, i.total, i.uplift));
-
-            const { renderPlayerOrbit } = await import('./js/orbitConstellation/index.js?v=mm7ded37');
-            renderPlayerOrbit('player-orbit-container', playerModelData);
-        } catch (orbitErr) {
-            console.error('Failed to mount Player Orbit Map:', orbitErr);
         }
 
         const insightsSection = document.getElementById('insights-section');
