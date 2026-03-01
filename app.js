@@ -136,6 +136,11 @@ function getFilters() {
 // ═══════════════════════════════════════════════════════════════════════
 async function init() {
     try {
+        // Init global orbit constellation in background
+        import('./js/orbitConstellation/index.js').then(mod => {
+            mod.initGlobalOrbit('global-orbit-container');
+        }).catch(err => console.error("Orbit Map Init Failed:", err));
+
         // Try API first to see if backend is running
         await fetchJSON('/api/players?q=a');
         STATIC_MODE = false;
@@ -238,12 +243,32 @@ async function loadPlayer(name) {
 
         renderPlayerHeader(name, coverage);
 
-        // Mount the Phase 7 Tour-Percentile Radar dynamically without breaking CommonJS scope
+        // Mount the Phase 7 Tour-Percentile Radar dynamically first to build the HTML shell
         try {
             const { renderRadar } = await import('./js/playerRadar/RadarComponent.js');
             await renderRadar('radar-module-container', { patterns, directionPatterns: directions, servePlusOne: serveOne });
         } catch (radarErr) {
             console.error('Failed to mount Player Radar:', radarErr);
+        }
+
+        // Build Orbit Constellation Player Pipeline (Mounts inside Radar shell)
+        try {
+            const playerModelData = {};
+            const addNode = (seq, tot, val) => {
+                if (!seq || !seq.length) return;
+                const key = seq.map(s => s.replace(/_/g, ' ')).join(' → ');
+                if (!playerModelData[key]) playerModelData[key] = { total: 0, value: val || 0 };
+                playerModelData[key].total += tot;
+                playerModelData[key].value = val || 0;
+            };
+            (serveOne || []).forEach(i => addNode([i.serveDir, i.responseType], i.total, i.adjustedEffectiveness));
+            (inference?.winning || []).forEach(i => addNode(i.sequence, i.total, i.uplift));
+            (inference?.losing || []).forEach(i => addNode(i.sequence, i.total, i.uplift));
+
+            const { renderPlayerOrbit } = await import('./js/orbitConstellation/index.js');
+            renderPlayerOrbit('player-orbit-container', playerModelData);
+        } catch (orbitErr) {
+            console.error('Failed to mount Player Orbit Map:', orbitErr);
         }
 
         const insightsSection = document.getElementById('insights-section');
