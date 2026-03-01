@@ -3,19 +3,31 @@ import { computeRawScores } from './radarModel.js';
 import { calculatePercentile } from './percentiles.js';
 
 let cachedDistributions = null;
+let cachedTop100Distributions = null;
 let radarChartInstance = null;
 
 async function loadDistributions() {
-    if (cachedDistributions) return cachedDistributions;
+    if (cachedDistributions && cachedTop100Distributions) return { dist: cachedDistributions, distTop100: cachedTop100Distributions };
     try {
-        const resp = await fetch('data/tourDistributionsAll.json');
-        if (!resp.ok) throw new Error('Distributions not found');
-        cachedDistributions = await resp.json();
-        return cachedDistributions;
+        const [respAll, respTop100] = await Promise.all([
+            fetch('data/tourDistributionsAll.json'),
+            fetch('data/tourDistributionsTop100.json')
+        ]);
+        if (!respAll.ok || !respTop100.ok) throw new Error('Distributions not found');
+        cachedDistributions = await respAll.json();
+        cachedTop100Distributions = await respTop100.json();
+        return { dist: cachedDistributions, distTop100: cachedTop100Distributions };
     } catch (e) {
         console.warn('Radar Module: Failed to load distributions. Percentiles will default to 50.');
-        return null;
+        return { dist: null, distTop100: null };
     }
+}
+
+function getArrayMedian(arr) {
+    if (!arr || arr.length === 0) return null;
+    const sorted = [...arr].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
 const AXIS_CONFIG = [
@@ -31,29 +43,38 @@ export async function renderRadar(containerId, dataPackages) {
     if (!container) return;
 
     // Load static arrays
-    const dist = await loadDistributions();
+    const { dist, distTop100 } = await loadDistributions();
 
     // Evaluate Raw Scores
     const rawScores = computeRawScores(dataPackages);
 
-    // Determine Percentiles for all 6 axes
+    // Determine Percentiles for all 5 axes
     let validCount = 0;
     const labels = [];
     const dataPoints = [];
+    const tourAverageDataPoints = [];
     const formattedData = [];
 
     for (const axis of AXIS_CONFIG) {
         labels.push(axis.label);
         const raw = rawScores[axis.key];
         let pct = null;
+        let top100Pct = 50; // default fallback if Top 100 map fails
 
-        if (raw !== null && dist && dist[axis.key]) {
-            pct = calculatePercentile(raw, dist[axis.key], axis.invert);
-            validCount++;
+        if (dist && dist[axis.key]) {
+            if (raw !== null) {
+                pct = calculatePercentile(raw, dist[axis.key], axis.invert);
+                validCount++;
+            }
+            if (distTop100 && distTop100[axis.key] && distTop100[axis.key].length > 0) {
+                const medianRaw = getArrayMedian(distTop100[axis.key]);
+                top100Pct = calculatePercentile(medianRaw, dist[axis.key], axis.invert);
+            }
         }
 
         dataPoints.push(pct);
-        formattedData.push({ label: axis.label, raw, pct, tooltip: axis.tooltip });
+        tourAverageDataPoints.push(top100Pct);
+        formattedData.push({ label: axis.label, raw, pct, tooltip: axis.tooltip, top100Pct });
     }
 
     // PRD: "If fewer than 4 axes available: hide radar and show 'Not enough data for this filter context.'"
@@ -115,7 +136,7 @@ export async function renderRadar(containerId, dataPackages) {
 
     // Make undefined map to 0 explicitly but retain formatted null flag for tooltips 
     const drawData = dataPoints.map(p => p === null ? null : p);
-    const tourAverageData = dataPoints.map(p => p === null ? null : 50);
+    const tourAverageData = dataPoints.map((p, i) => p === null ? null : tourAverageDataPoints[i]);
 
     radarChartInstance = new window.Chart(ctx, {
         type: 'radar',
@@ -123,7 +144,7 @@ export async function renderRadar(containerId, dataPackages) {
             labels: labels,
             datasets: [
                 {
-                    label: 'Tour Average',
+                    label: 'Top 100 Average',
                     data: tourAverageData,
                     backgroundColor: 'rgba(255, 255, 255, 0.05)',
                     borderColor: 'rgba(255, 255, 255, 0.2)',
