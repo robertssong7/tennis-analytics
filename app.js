@@ -15,7 +15,7 @@ let currentPlayer = null;
 const searchInput = document.getElementById('player-search');
 const searchDropdown = document.getElementById('search-dropdown');
 const dashboard = document.getElementById('dashboard');
-const emptyState = document.getElementById('empty-state');
+const emptyState = document.getElementById('home-empty-state');
 const loadingOverlay = document.getElementById('loading-overlay');
 
 // ─── Helpers ─────────────────────────────────────────────────────────
