@@ -1,13 +1,8 @@
 // docs/js/orbitConstellation/OrbitConstellation.js
 
-const HUB_ANGLES = {
-    'T': -Math.PI / 2,     // Top
-    'BODY': Math.PI / 6,   // Bottom Right
-    'WIDE': 5 * Math.PI / 6 // Bottom Left
-};
-
-const LENGTH_RING_SPACING = 30; // pixels between concentric rings
-const HUB_DISTANCE = 250; // distance of each hub from the absolute center
+const HUB_DISTANCE_X = 350; // horizontal spread between hubs
+const HUB_START_Y = -150; // start Y relative to center
+const LENGTH_Y_SPACING = 50; // vertical drop per pattern length
 
 export class OrbitMap {
     constructor(containerId, globalNodes, options = {}) {
@@ -72,27 +67,38 @@ export class OrbitMap {
     }
 
     computeLayout() {
-        // Place Hubs relative to logical center (0,0)
+        // Place Hubs relative to logical center (0,0) horizontally
         this.hubs = {
-            'T': { x: Math.cos(HUB_ANGLES['T']) * HUB_DISTANCE, y: Math.sin(HUB_ANGLES['T']) * HUB_DISTANCE },
-            'BODY': { x: Math.cos(HUB_ANGLES['BODY']) * HUB_DISTANCE, y: Math.sin(HUB_ANGLES['BODY']) * HUB_DISTANCE },
-            'WIDE': { x: Math.cos(HUB_ANGLES['WIDE']) * HUB_DISTANCE, y: Math.sin(HUB_ANGLES['WIDE']) * HUB_DISTANCE },
-            'ANY': { x: 0, y: 0 } // Fallback to center
+            'WIDE': { x: -HUB_DISTANCE_X, y: HUB_START_Y },
+            'BODY': { x: 0, y: HUB_START_Y },
+            'T': { x: HUB_DISTANCE_X, y: HUB_START_Y },
+            'ANY': null // Exclude ANY
         };
 
         // Assign physical coordinates to nodes
-        // Apply simple overlap jitter
         for (const node of this.nodes) {
-            const hub = this.hubs[node.serve_dir] || this.hubs['ANY'];
-            const radius = node.length_bucket * LENGTH_RING_SPACING;
+            const hub = this.hubs[node.serve_dir];
+            // Hide if invalid hub
+            if (!hub) {
+                node.hidden = true;
+                continue;
+            } else {
+                node.hidden = false;
+            }
 
-            // Base coords
-            let nx = hub.x + Math.cos(node.base_angle) * radius;
-            let ny = hub.y + Math.sin(node.base_angle) * radius;
+            const depth = Math.max(1, node.length_bucket);
+            // Spread nodes horizontally so they don't strictly overlap
+            const spreadWidth = 200 + (depth * 25);
 
-            // Simple outward repulsion pass (1 iteration for performance)
-            // Just jitter slightly based on length hash
-            const jitterScale = 15;
+            // Map the deterministic hash angle to an X offset
+            const horizontalOffset = (node.base_angle / (Math.PI * 2) - 0.5) * spreadWidth;
+
+            // Base coords: waterfall down
+            let nx = hub.x + horizontalOffset;
+            let ny = hub.y + (depth * LENGTH_Y_SPACING);
+
+            // Very tiny jitter just to prevent perfect stacking collisions of identical matches
+            const jitterScale = 4;
             nx += (Math.random() - 0.5) * jitterScale;
             ny += (Math.random() - 0.5) * jitterScale;
 
@@ -126,12 +132,12 @@ export class OrbitMap {
         }
     }
 
-    // Helper: Blue (High Value) -> Gray (Zero) -> Red/Orange (Low Value)
+    // Helper: Blue (Win > Loss avg) -> Gray (Zero) -> Red/Orange (Loss > Win avg)
     getColorForValue(val) {
-        if (!val) return '#94a3b8'; // baseline gray
-        if (val > 0.1) return '#38bdf8'; // Strong Blue
+        if (!val || Math.abs(val) < 0.01) return '#94a3b8'; // baseline gray
+        if (val >= 0.06) return '#38bdf8'; // Strong Blue
         if (val > 0) return '#7dd3fc'; // Light Blue
-        if (val < -0.1) return '#f43f5e'; // Strong Red
+        if (val <= -0.06) return '#f43f5e'; // Strong Red
         return '#fb7185'; // Light Red
     }
 
@@ -218,6 +224,8 @@ export class OrbitMap {
 
         // Optimized by only checking valid distance
         for (const node of this.nodes) {
+            if (node.hidden) continue;
+
             const dx = node.renderX - worldX;
             const dy = node.renderY - worldY;
             const distSq = dx * dx + dy * dy;
@@ -263,36 +271,28 @@ export class OrbitMap {
         this.ctx.translate(this.transform.x, this.transform.y);
         this.ctx.scale(this.transform.scale, this.transform.scale);
 
-        // Draw Hubs & Connecting Web/Grid (Optional)
+        // Draw Hub Anchors
         this.ctx.lineWidth = 1;
 
         for (const [key, hub] of Object.entries(this.hubs)) {
-            if (key === 'ANY') continue;
-
-            // Draw Concentric Rings
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-            for (let r = 1; r <= 6; r++) {
-                this.ctx.beginPath();
-                this.ctx.arc(hub.x, hub.y, r * LENGTH_RING_SPACING, 0, Math.PI * 2);
-                this.ctx.stroke();
-            }
+            if (!hub) continue;
 
             // Draw Hub Label/Center point
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 1)';
             this.ctx.beginPath();
             this.ctx.arc(hub.x, hub.y, 6, 0, Math.PI * 2);
             this.ctx.fill();
 
-            this.ctx.fillStyle = '#64748b';
-            this.ctx.font = '12px Inter';
+            this.ctx.fillStyle = '#f8fafc';
+            this.ctx.font = 'bold 14px Inter';
             this.ctx.textAlign = 'center';
-            this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(key, hub.x, hub.y + 16);
+            this.ctx.textBaseline = 'bottom';
+            this.ctx.fillText(key + ' SERVE', hub.x, hub.y - 12);
         }
 
         // Draw Nodes
         // Sort by opacity/importance so bright nodes render on top of faded ones
-        const renderQueue = [...this.nodes].sort((a, b) => a.drawOpacity - b.drawOpacity);
+        const renderQueue = [...this.nodes].filter(n => !n.hidden).sort((a, b) => a.drawOpacity - b.drawOpacity);
 
         for (const node of renderQueue) {
             this.ctx.globalAlpha = node.drawOpacity;

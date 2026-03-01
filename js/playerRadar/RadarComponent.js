@@ -115,9 +115,13 @@ export async function renderRadar(containerId, dataPackages) {
                 </div>
             </section>
             
-            <!-- Empty space for future graph -->
-            <section class="card module-card" style="display:flex; justify-content:center; align-items:center; border: 2px dashed rgba(255,255,255,0.1); background: transparent; height: 100%; box-shadow: none;">
-                <span style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Future Graph Space</span>
+            <!-- Orbit Map space -->
+            <section class="card module-card" style="position:relative; overflow:hidden; padding:0; height:100%; min-height:400px; display:flex; flex-direction:column; background: #0B1120;">
+                <div style="position:absolute; top:16px; left:20px; z-index:10; pointer-events:none;">
+                    <h3 style="margin:0; font-size:16px;">🌌 Player Pattern Constellation</h3>
+                    <span style="color:var(--text-muted); font-size:13px;">Overlaying their pattern network vs Global Baseline</span>
+                </div>
+                <div id="player-orbit-container" style="flex:1; width:100%; height:100%;"></div>
             </section>
         </div>
     `;
