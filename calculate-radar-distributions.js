@@ -109,7 +109,17 @@ try {
     const players = JSON.parse(fs.readFileSync(PLAYERS_FILE, 'utf8'));
     console.log(`Starting radar distribution calculation for ${players.length} players...`);
 
+    const top100Names = safeReadJson(path.join(DATA_DIR, 'top100.json')) || [];
+
     const distributions = {
+        serveStrengthProfile: [],
+        servePlusOneAdvantage: [],
+        defensiveProblemSolving: [],
+        finishingConversion: [],
+        exploitability: []
+    };
+
+    const distributionsTop100 = {
         serveStrengthProfile: [],
         servePlusOneAdvantage: [],
         defensiveProblemSolving: [],
@@ -131,15 +141,26 @@ try {
         if (scores.defensiveProblemSolving !== null) distributions.defensiveProblemSolving.push(scores.defensiveProblemSolving);
         if (scores.finishingConversion !== null) distributions.finishingConversion.push(scores.finishingConversion);
         if (scores.exploitability !== null) distributions.exploitability.push(scores.exploitability);
+
+        if (top100Names.includes(player)) {
+            if (scores.serveStrengthProfile !== null) distributionsTop100.serveStrengthProfile.push(scores.serveStrengthProfile);
+            if (scores.servePlusOneAdvantage !== null) distributionsTop100.servePlusOneAdvantage.push(scores.servePlusOneAdvantage);
+            if (scores.defensiveProblemSolving !== null) distributionsTop100.defensiveProblemSolving.push(scores.defensiveProblemSolving);
+            if (scores.finishingConversion !== null) distributionsTop100.finishingConversion.push(scores.finishingConversion);
+            if (scores.exploitability !== null) distributionsTop100.exploitability.push(scores.exploitability);
+        }
     }
 
     const outPath = path.join(DATA_DIR, 'tourDistributionsAll.json');
     fs.writeFileSync(outPath, JSON.stringify(distributions, null, 2));
 
+    const outPathTop100 = path.join(DATA_DIR, 'tourDistributionsTop100.json');
+    fs.writeFileSync(outPathTop100, JSON.stringify(distributionsTop100, null, 2));
+
     for (const key of Object.keys(distributions)) {
-        console.log(` - ${key}: ${distributions[key].length} valid players`);
+        console.log(` - ${key}: ${distributions[key].length} valid ALL players | ${distributionsTop100[key].length} valid Top 100 players`);
     }
-    console.log(`\nSuccessfully wrote distributions to ${outPath}`);
+    console.log(`\nSuccessfully wrote distributions to ${outPath} and ${outPathTop100}`);
 
 } catch (err) {
     console.error("Error calculating radar distributions:", err);
