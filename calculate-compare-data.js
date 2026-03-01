@@ -18,7 +18,7 @@ function safeReadJson(filePath) {
 function isDefensive(patternName) {
     if (!patternName) return false;
     const upper = patternName.toUpperCase();
-    return upper.includes('SLICE') || upper.includes('LOB');
+    return upper.includes('SLICE') || upper.includes('LOB') || upper.includes('DEFENSIVE');
 }
 
 function isFinishing(patternName) {
@@ -30,7 +30,7 @@ function isFinishing(patternName) {
 function isTouch(patternName) {
     if (!patternName) return false;
     const upper = patternName.toUpperCase();
-    return upper.includes('DROP_SHOT') || upper.includes('SLICE') || upper.includes('TOUCH');
+    return upper.includes('DROP_SHOT') || upper.includes('TOUCH') || upper.includes('ANGLE');
 }
 
 // Radar Model Math
@@ -57,6 +57,7 @@ function weightedAverage(items, effKey = 'adjustedEffectiveness', nKey = 'total'
 function computeRawScores(dataPackages) {
     const { patterns, directionPatterns, servePlusOne, serve } = dataPackages;
 
+    // 1. Serve Strength
     let serveStrength = null;
     let serveW = 0, serveN = 0;
     for (const s of (serve || [])) {
@@ -67,51 +68,56 @@ function computeRawScores(dataPackages) {
     }
     if (serveN >= 100) serveStrength = serveW / serveN;
 
+    // 2. Serve+1
     const servePlusOneAdv = weightedAverage(servePlusOne || []);
 
-    const defensiveItems = (patterns || []).filter(p => isDefensive(p.shotType || p.pattern_name || p.direction || p.serveDir));
+    // 3. Defense
+    const defensiveItems = (patterns || []).filter(p => isDefensive(p.shotType || p.pattern_name));
     const defense = weightedAverage(defensiveItems);
 
+    // 4. Volley/Net
     const finishingItems = (patterns || []).filter(p => isFinishing(p.shotType || p.pattern_name));
     const volleyNet = weightedAverage(finishingItems);
 
+    // 5. Touch
     const touchItems = (patterns || []).filter(p => isTouch(p.shotType || p.pattern_name));
     const touch = weightedAverage(touchItems);
 
+    // 6. Forehand
     const fhItems = (patterns || []).filter(p => {
         const type = p.shotType || p.pattern_name || '';
         return type.toUpperCase().includes('FOREHAND') && !isDefensive(type) && !isFinishing(type);
     });
     const forehand = weightedAverage(fhItems);
 
+    // 7. Backhand
     const bhItems = (patterns || []).filter(p => {
         const type = p.shotType || p.pattern_name || '';
         return type.toUpperCase().includes('BACKHAND') && !isDefensive(type) && !isFinishing(type);
     });
     const backhand = weightedAverage(bhItems);
 
-    let exploitability = null;
-    const coreShotTypes = ['FOREHAND', 'BACKHAND', 'FOREHAND_VOLLEY', 'BACKHAND_VOLLEY', 'OVERHEAD', 'DROP_SHOT'];
-    const coreShots = (patterns || []).filter(p => p.shotType && coreShotTypes.includes(p.shotType.toUpperCase()) && p.total >= 10 && p.adjustedEffectiveness !== undefined);
+    // 8. Pace Proxy (High Uplift on FH/Serve)
+    const pace = (forehand || 0) * 0.6 + (serveStrength || 0) * 0.4;
 
-    let sumW = 0, sumN = 0;
-    for (const p of coreShots) {
-        sumW += p.adjustedEffectiveness * p.total;
-        sumN += p.total;
+    // 9. Consistency (Inverse of Uplift Volatility)
+    let upliftVolatility = 1.0;
+    const corePatterns = (patterns || []).filter(p => p.total >= 30 && p.adjustedEffectiveness !== undefined)
+        .sort((a, b) => b.total - a.total).slice(0, 15);
+    if (corePatterns.length >= 5) {
+        const effs = corePatterns.map(p => p.adjustedEffectiveness);
+        const mean = effs.reduce((a, b) => a + b, 0) / effs.length;
+        const variance = effs.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / effs.length;
+        upliftVolatility = Math.sqrt(variance);
     }
+    const consistency = 1 / Math.max(0.01, upliftVolatility);
 
-    if (sumN >= 50 && coreShots.length >= 2) {
-        const mean = sumW / sumN;
-        let varianceSum = 0;
-        for (const p of coreShots) {
-            varianceSum += p.total * Math.pow(p.adjustedEffectiveness - mean, 2);
-        }
-        exploitability = Math.sqrt(varianceSum / sumN);
+    // 10. Balance
+    let balance = 0;
+    if (forehand && backhand) {
+        const diff = Math.abs(forehand - backhand);
+        balance = 1 / (0.1 + diff);
     }
-
-    // Consistency is roughly inverse of variance/exploitability, but we also can use error rate. 
-    // We'll use 1 / exploitability as a rough proxy for consistency if exploitability exists
-    const consistency = exploitability !== null ? (1 / Math.max(0.01, exploitability)) : null;
 
     return {
         serve: serveStrength,
@@ -121,15 +127,16 @@ function computeRawScores(dataPackages) {
         defense,
         volley_net: volleyNet,
         touch,
-        balance_raw: exploitability, // Balance is inverted exploitability later
-        consistency_raw: consistency
+        pace,
+        consistency,
+        balance
     };
 }
 
 function calculatePercentile(val, arr, invert = false) {
-    if (val === null || val === undefined) return null;
+    if (val === null || val === undefined) return 0;
     const valid = arr.filter(v => v !== null && v !== undefined).sort((a, b) => a - b);
-    if (valid.length === 0) return null;
+    if (valid.length === 0) return 50;
 
     let countBelow = 0;
     for (const v of valid) {
@@ -142,82 +149,79 @@ function calculatePercentile(val, arr, invert = false) {
 
 try {
     const players = safeReadJson(PLAYERS_FILE) || [];
+    const top100 = safeReadJson(TOP100_FILE) || [];
     console.log(`Starting compare data calculation for ${players.length} players...`);
 
     const rawScores = {};
     const distributions = {
-        serve: [],
-        serve_plus_1: [],
-        forehand: [],
-        backhand: [],
-        defense: [],
-        volley_net: [],
-        touch: [],
-        balance_raw: [],
-        consistency_raw: []
+        serve: [], serve_plus_1: [], forehand: [], backhand: [],
+        defense: [], volley_net: [], touch: [], pace: [],
+        consistency: [], balance: []
     };
 
     for (const player of players) {
         const playerDir = path.join(DATA_DIR, 'players', player);
         const patterns = safeReadJson(path.join(playerDir, 'patterns.json'));
-        const directionPatterns = safeReadJson(path.join(playerDir, 'direction-patterns.json'));
         const servePlusOne = safeReadJson(path.join(playerDir, 'serve-plus-one.json'));
         const serve = safeReadJson(path.join(playerDir, 'serve.json'));
 
-        const scores = computeRawScores({ patterns, directionPatterns, servePlusOne, serve });
+        const scores = computeRawScores({ patterns, servePlusOne, serve });
         rawScores[player] = scores;
 
         for (const key of Object.keys(distributions)) {
-            if (scores[key] !== null) {
-                distributions[key].push(scores[key]);
-            }
+            if (scores[key] !== null) distributions[key].push(scores[key]);
         }
     }
 
     const finalData = { players: {} };
     const metaData = {};
 
-    let fakeEloBase = 1500;
-
     for (const player of players) {
         const scores = rawScores[player];
+        const percentiles = {};
+        for (const key of Object.keys(distributions)) {
+            percentiles[key] = calculatePercentile(scores[key], distributions[key]);
+        }
 
-        // Derived percentiles
-        const percentiles = {
-            elo: fakeEloBase + Math.floor(Math.random() * 500), // Placeholder ELO
-            serve: calculatePercentile(scores.serve, distributions.serve),
-            serve_plus_1: calculatePercentile(scores.serve_plus_1, distributions.serve_plus_1),
-            forehand: calculatePercentile(scores.forehand, distributions.forehand),
-            backhand: calculatePercentile(scores.backhand, distributions.backhand),
-            defense: calculatePercentile(scores.defense, distributions.defense),
-            volley_net: calculatePercentile(scores.volley_net, distributions.volley_net),
-            touch: calculatePercentile(scores.touch, distributions.touch),
-            balance: calculatePercentile(scores.balance_raw, distributions.balance_raw, true), // Inverted! lower expl = higher balance
-            consistency: calculatePercentile(scores.consistency_raw, distributions.consistency_raw)
-        };
+        // FIFA ELO Rating (0-100)
+        let rating = 70;
+        const topIdx = top100.indexOf(player);
+        if (topIdx !== -1) {
+            rating = Math.round(98 - (topIdx * 0.15)); // #1 = 98, #100 = 83
+        } else {
+            // Average of core tactical percentiles for non-top 100
+            const avgPerf = (percentiles.forehand + percentiles.backhand + percentiles.serve) / 3;
+            rating = Math.round(60 + (avgPerf * 0.2)); // Range 60-80
+        }
+        percentiles.elo = rating;
 
         finalData.players[player] = percentiles;
 
-        // Meta Data
+        // Archetype Heuristic
+        let style = "All-Round";
+        if (percentiles.defense > 85) style = "Defensive";
+        else if (percentiles.serve > 95 && (percentiles.forehand + percentiles.backhand) < 130) style = "Serve Bot";
+        else if (percentiles.pace > 85 || percentiles.forehand > 90) style = "Power";
+        else if (percentiles.volley_net > 85 || percentiles.serve_plus_1 > 90) style = "Attacking";
+        else if (percentiles.forehand - percentiles.backhand > 30) style = "Forehand Dominant";
+        else if (percentiles.backhand - percentiles.forehand > 30) style = "Backhand Dominant";
+        else if (percentiles.balance > 80) style = "All-Round";
+
         const nameParts = player.replace(/_/g, ' ').split(' ');
         const lastName = nameParts[nameParts.length - 1];
-        const firstName = nameParts.slice(0, nameParts.length - 1).join(' ');
-
         metaData[player] = {
             fullName: player.replace(/_/g, ' '),
             lastName,
-            countryCode: "US", // Default stub
-            age: 25 + Math.floor(Math.random() * 10),
-            hometown: "Unknown",
-            playstyle: "All-Round",
-            racket: "Custom"
+            countryCode: "UN",
+            age: 22 + Math.floor(Math.random() * 12),
+            hometown: "Tour Professional",
+            playstyle: style
         };
     }
 
     fs.writeFileSync(path.join(DATA_DIR, 'player_percentiles_all.json'), JSON.stringify(finalData, null, 2));
     fs.writeFileSync(path.join(DATA_DIR, 'player_meta.json'), JSON.stringify(metaData, null, 2));
-
-    console.log(`Successfully wrote player_percentiles_all.json and player_meta.json`);
+    console.log(`Successfully updated player compare data.`);
 
 } catch (err) {
     console.error("Error calculating compare data:", err);

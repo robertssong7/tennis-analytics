@@ -36,22 +36,7 @@ export function getPlayerList() {
     return playerListCache || [];
 }
 
-function determineArchetype(p) {
-    const srv = p.serve || 0;
-    const srv1 = p.serve_plus_1 || 0;
-    const def = p.defense || 0;
-    const con = p.consistency || 0;
-    const fh = p.forehand || 0;
-    const bh = p.backhand || 0;
-    const vol = p.volley_net || 0;
-
-    if (srv >= 80 && srv1 >= 65) return "Big Server";
-    if (def >= 80 && con >= 70 && srv < 60) return "Counterpuncher";
-    if (srv >= 60 && fh >= 60 && bh >= 60 && vol >= 60) return "All-Court";
-    if ((fh >= 75 || bh >= 75) && vol < 60) return "Aggressive Baseliner";
-
-    return "All-Round";
-}
+// Archetype determined by backend in player_meta.json
 
 export function buildCompareProfile(playerId) {
     if (!percentilesCache || !metaCache) return null;
@@ -62,38 +47,36 @@ export function buildCompareProfile(playerId) {
     if (!p) return null; // Player not in dataset
 
     const radar = {
-        serve: p.serve !== null ? p.serve : p.serve_plus_1, // Fallback to serve+1 as proxy if null
+        serve: p.serve,
         forehand: p.forehand,
         backhand: p.backhand,
-        pace: p.defense, // Proxy pace with defensive problem solving speed
+        pace: p.pace,
         consistency: p.consistency
     };
 
-    const hasServeProxy = p.serve === null && p.serve_plus_1 !== null;
-
     const attributes = [
-        { key: 'serve', label: 'Serve', value: p.serve, higherIsBetter: true, note: hasServeProxy ? 'Proxy' : undefined },
+        { key: 'serve', label: 'Serve', value: p.serve, higherIsBetter: true },
         { key: 'serve_plus_1', label: 'Serve+1', value: p.serve_plus_1, higherIsBetter: true },
         { key: 'forehand', label: 'Forehand', value: p.forehand, higherIsBetter: true },
         { key: 'backhand', label: 'Backhand', value: p.backhand, higherIsBetter: true },
         { key: 'volley_net', label: 'Volley / Net', value: p.volley_net, higherIsBetter: true },
         { key: 'defense', label: 'Defense', value: p.defense, higherIsBetter: true },
         { key: 'touch', label: 'Touch / Finesse', value: p.touch, higherIsBetter: true },
-        { key: 'balance', label: 'Balance', value: p.balance, higherIsBetter: true },
+        { key: 'pace', label: 'Pace', value: p.pace, higherIsBetter: true },
         { key: 'consistency', label: 'Consistency', value: p.consistency, higherIsBetter: true },
+        { key: 'balance', label: 'Balance', value: p.balance, higherIsBetter: true },
         { key: 'physical', label: 'Physical', value: null, higherIsBetter: true, note: 'Coming soon' },
-        { key: 'trick', label: 'Trick', value: null, higherIsBetter: true, note: 'Coming soon' },
-        { key: 'skill_finesse', label: 'Skill/Finesse', value: null, higherIsBetter: true, note: 'Coming soon' }
+        { key: 'trick', label: 'Trick', value: null, higherIsBetter: true, note: 'Coming soon' }
     ];
 
     return {
         playerId,
         fullName: m?.fullName || playerId.replace(/_/g, ' '),
         lastName: m?.lastName || playerId.split('_').pop(),
-        countryCode: m?.countryCode || 'US',
-        imageUrl: `data/players/${playerId}/profile.png`, // Assume image exists or fallback
-        elo: p.elo || '--',
-        archetype: determineArchetype(p),
+        countryCode: m?.countryCode || 'UN',
+        imageUrl: `data/players/${playerId}/profile.png`,
+        elo: p.elo || 0,
+        archetype: m?.playstyle || 'All-Round',
         radar,
         attributes,
         meta: {
