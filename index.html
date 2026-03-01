@@ -392,12 +392,21 @@
     </section>
   </main>
 
-  <!-- ───── Empty State ───── -->
-  <div id="empty-state" class="empty-state">
-    <div class="empty-icon">🎾</div>
-    <h2>Search for a player to begin scouting</h2>
-    <p>Type a player name above to load scouting-grade analytics with shot patterns, serve analysis, and win/loss
-      comparisons.</p>
+  <!-- ───── Global Orbit State (Home Screen) ───── -->
+  <div id="empty-state" class="empty-state"
+    style="position:relative; width:100vw; height:calc(100vh - 60px); padding:0; margin:0; display:flex; font-family:'Inter', sans-serif;">
+
+    <!-- Overlay Text overlaying WebGL Canvas -->
+    <div style="position:absolute; top:40px; left:40px; z-index:10; pointer-events:none;">
+      <h2 style="margin:0 0 8px 0; font-size:28px; color:#f8fafc; font-weight:700;">Global Tour Constellation</h2>
+      <p style="margin:0; color:#cbd5e1; font-size:15px; max-width:400px; line-height:1.5;">
+        Explore the entire ATP patterned network structure across Serve Hubs.<br />
+        <strong style="color:#38bdf8;">Search for a player to overlay their scouting network against this
+          baseline.</strong>
+      </p>
+    </div>
+
+    <div id="global-orbit-container" style="width:100%; height:100%;"></div>
   </div>
 
   <!-- ───── Loading Overlay ───── -->
@@ -407,7 +416,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=2.5"></script>
 </body>
 
 </html>
