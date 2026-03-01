@@ -137,7 +137,7 @@ function getFilters() {
 async function init() {
     try {
         // Init global orbit constellation in background
-        import('./js/orbitConstellation/index.js').then(mod => {
+        import('./js/orbitConstellation/index.js?v=2.5').then(mod => {
             mod.initGlobalOrbit('global-orbit-container');
         }).catch(err => console.error("Orbit Map Init Failed:", err));
 
@@ -245,7 +245,7 @@ async function loadPlayer(name) {
 
         // Mount the Phase 7 Tour-Percentile Radar dynamically first to build the HTML shell
         try {
-            const { renderRadar } = await import('./js/playerRadar/RadarComponent.js');
+            const { renderRadar } = await import('./js/playerRadar/RadarComponent.js?v=2.5');
             await renderRadar('radar-module-container', { patterns, directionPatterns: directions, servePlusOne: serveOne });
         } catch (radarErr) {
             console.error('Failed to mount Player Radar:', radarErr);
@@ -265,7 +265,7 @@ async function loadPlayer(name) {
             (inference?.winning || []).forEach(i => addNode(i.sequence, i.total, i.uplift));
             (inference?.losing || []).forEach(i => addNode(i.sequence, i.total, i.uplift));
 
-            const { renderPlayerOrbit } = await import('./js/orbitConstellation/index.js');
+            const { renderPlayerOrbit } = await import('./js/orbitConstellation/index.js?v=2.5');
             renderPlayerOrbit('player-orbit-container', playerModelData);
         } catch (orbitErr) {
             console.error('Failed to mount Player Orbit Map:', orbitErr);
