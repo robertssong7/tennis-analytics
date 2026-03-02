@@ -660,6 +660,231 @@ app.get('/api/h2h/:playerA/:playerB', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ─── Rally Comfort Zone ───────────────────────────────────────────────
+app.get('/api/player/:name/rally-comfort', async (req, res) => {
+  try {
+    const playerName = req.params.name;
+    let params = [playerName];
+    let filterResult = buildFilterClause(req.query, params, 2);
+    params = filterResult.params;
+    let filterSQL = filterResult.clauses.length > 0 ? 'AND ' + filterResult.clauses.join(' AND ') : '';
+
+    const result = await pool.query(`
+      WITH match_players AS (
+        SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
+        FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
+      ),
+      rally_points AS (
+        SELECT
+          p.match_id, p.number, p.rally_length,
+          CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END AS point_won,
+          CASE
+            WHEN p.rally_length BETWEEN 1 AND 3 THEN '1-3'
+            WHEN p.rally_length BETWEEN 4 AND 6 THEN '4-6'
+            WHEN p.rally_length BETWEEN 7 AND 9 THEN '7-9'
+            WHEN p.rally_length BETWEEN 10 AND 12 THEN '10-12'
+            WHEN p.rally_length >= 13 THEN '13+'
+          END AS bucket
+        FROM point p
+        JOIN match_players mp ON p.match_id = mp.match_id
+        JOIN match m ON m.id = p.match_id
+        WHERE p.rally_length IS NOT NULL
+        ${filterSQL}
+      )
+      SELECT bucket, COUNT(*) AS n, SUM(point_won) AS wins
+      FROM rally_points
+      WHERE bucket IS NOT NULL
+      GROUP BY bucket
+      HAVING COUNT(*) >= 20
+      ORDER BY MIN(rally_length)
+    `, params);
+
+    const buckets = result.rows.map(r => ({
+      range: r.bucket,
+      n: parseInt(r.n),
+      pt_win_rate: parseInt(r.n) > 0 ? parseInt(r.wins) / parseInt(r.n) : 0,
+    }));
+
+    // Find peak bucket
+    let peakBucket = null;
+    let peakRate = 0;
+    for (const b of buckets) {
+      if (b.pt_win_rate > peakRate) {
+        peakRate = b.pt_win_rate;
+        peakBucket = b.range;
+      }
+    }
+
+    // Get top patterns in peak bucket
+    let peakPatterns = [];
+    if (peakBucket) {
+      const [lo, hi] = peakBucket === '13+' ? [13, 999] : peakBucket.split('-').map(Number);
+      const patResult = await pool.query(`
+        WITH match_players AS (
+          SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
+          FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
+        )
+        SELECT s.shot_type, COUNT(*) AS n,
+               SUM(CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END) AS wins
+        FROM shot s
+        JOIN point p ON s.point_match_id = p.match_id AND s.point_number = p.number
+        JOIN match_players mp ON p.match_id = mp.match_id
+        WHERE p.rally_length BETWEEN $2 AND $3
+          AND s.shot_type IS NOT NULL
+          AND s.shot_type != 'UNKNOWN_SHOT_TYPE'
+        GROUP BY s.shot_type
+        HAVING COUNT(*) >= 10
+        ORDER BY (SUM(CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END)::FLOAT / COUNT(*)) DESC
+        LIMIT 5
+      `, [playerName, lo, hi]);
+
+      peakPatterns = patResult.rows.map(r => ({
+        pattern: r.shot_type,
+        n: parseInt(r.n),
+        pt_win_rate: parseInt(r.n) > 0 ? parseInt(r.wins) / parseInt(r.n) : 0,
+      }));
+    }
+
+    res.json({ buckets, peak_bucket: peakBucket, peak_patterns: peakPatterns });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─── Pressure-State Tendencies ────────────────────────────────────────
+app.get('/api/player/:name/pressure-state', async (req, res) => {
+  try {
+    const playerName = req.params.name;
+    let params = [playerName];
+    let filterResult = buildFilterClause(req.query, params, 2);
+    params = filterResult.params;
+    let filterSQL = filterResult.clauses.length > 0 ? 'AND ' + filterResult.clauses.join(' AND ') : '';
+
+    const result = await pool.query(`
+      WITH match_players AS (
+        SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
+        FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
+      )
+      SELECT
+        COALESCE(p.score_state_label, 'neutral') AS state_label,
+        COUNT(*) AS n,
+        SUM(CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END) AS wins
+      FROM point p
+      JOIN match_players mp ON p.match_id = mp.match_id
+      JOIN match m ON m.id = p.match_id
+      WHERE p.score_state_label IS NOT NULL
+      ${filterSQL}
+      GROUP BY p.score_state_label
+      HAVING COUNT(*) >= 20
+      ORDER BY state_label
+    `, params);
+
+    // Find baseline (neutral state)
+    const neutralRow = result.rows.find(r => r.state_label === 'neutral');
+    const baselineWinRate = neutralRow ? parseInt(neutralRow.wins) / parseInt(neutralRow.n) : 0.5;
+
+    const states = result.rows.map(r => {
+      const n = parseInt(r.n);
+      const wins = parseInt(r.wins);
+      return {
+        label: r.state_label,
+        n,
+        pt_win_rate: n > 0 ? wins / n : 0,
+      };
+    });
+
+    res.json({
+      baseline: { pt_win_rate: baselineWinRate },
+      states
+    });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─── Opponent-Specific Pattern Shifts ─────────────────────────────────
+app.get('/api/player/:name/opponent-shifts', async (req, res) => {
+  try {
+    const playerName = req.params.name;
+
+    // Segment by opponent hand
+    const handResult = await pool.query(`
+      WITH match_context AS (
+        SELECT m.id, m.first_player_name, m.second_player_name,
+          CASE WHEN m.first_player_name = $1 THEN m.p2_hand ELSE m.p1_hand END AS opp_hand,
+          CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
+        FROM match m
+        WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
+      )
+      SELECT mc.opp_hand, COUNT(DISTINCT mc.id) AS matches,
+        COUNT(p.number) AS points,
+        SUM(CASE WHEN p.player_won = mc.player_num THEN 1 ELSE 0 END) AS wins
+      FROM match_context mc
+      JOIN point p ON p.match_id = mc.id
+      WHERE mc.opp_hand IS NOT NULL
+      GROUP BY mc.opp_hand
+      HAVING COUNT(DISTINCT mc.id) >= 3 AND COUNT(p.number) >= 20
+    `, [playerName]);
+
+    // Segment by opponent rank tier
+    const rankResult = await pool.query(`
+      WITH match_context AS (
+        SELECT m.id, m.first_player_name, m.second_player_name,
+          m.opponent_rank_tier,
+          CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
+        FROM match m
+        WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
+      )
+      SELECT mc.opponent_rank_tier AS tier, COUNT(DISTINCT mc.id) AS matches,
+        COUNT(p.number) AS points,
+        SUM(CASE WHEN p.player_won = mc.player_num THEN 1 ELSE 0 END) AS wins
+      FROM match_context mc
+      JOIN point p ON p.match_id = mc.id
+      WHERE mc.opponent_rank_tier IS NOT NULL
+      GROUP BY mc.opponent_rank_tier
+      HAVING COUNT(DISTINCT mc.id) >= 3 AND COUNT(p.number) >= 20
+    `, [playerName]);
+
+    // Overall baseline
+    const baseResult = await pool.query(`
+      WITH match_players AS (
+        SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
+        FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
+      )
+      SELECT COUNT(*) AS n, SUM(CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END) AS wins
+      FROM point p JOIN match_players mp ON p.match_id = mp.match_id
+    `, [playerName]);
+    const baseN = parseInt(baseResult.rows[0].n) || 1;
+    const baseWinRate = parseInt(baseResult.rows[0].wins) / baseN;
+
+    const segments = [];
+
+    for (const r of handResult.rows) {
+      const winRate = parseInt(r.wins) / parseInt(r.points);
+      const delta = winRate - baseWinRate;
+      segments.push({
+        segment_label: `vs ${r.opp_hand === 'L' ? 'Left-Handers' : 'Right-Handers'}`,
+        matches: parseInt(r.matches),
+        points: parseInt(r.points),
+        pt_win_rate: winRate,
+        delta,
+        status: delta > 0.05 ? 'amplified' : delta < -0.05 ? 'weakened' : 'holds'
+      });
+    }
+
+    for (const r of rankResult.rows) {
+      const winRate = parseInt(r.wins) / parseInt(r.points);
+      const delta = winRate - baseWinRate;
+      segments.push({
+        segment_label: `vs ${r.tier}`,
+        matches: parseInt(r.matches),
+        points: parseInt(r.points),
+        pt_win_rate: winRate,
+        delta,
+        status: delta > 0.05 ? 'amplified' : delta < -0.05 ? 'weakened' : 'holds'
+      });
+    }
+
+    res.json({ baseline_win_rate: baseWinRate, segments });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Tennis Analytics API running on http://localhost:${PORT}`);

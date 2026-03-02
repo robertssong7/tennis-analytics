@@ -13,13 +13,15 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="home.css" />
 </head>
 
 <body>
   <!-- ───── Header ───── -->
   <header id="app-header">
     <div class="header-left">
-      <div class="logo" id="home-logo" style="cursor:pointer;" onclick="window.location.reload();">
+      <div class="logo" id="home-logo" style="cursor:pointer;"
+        onclick="document.getElementById('home-screen').style.display='';document.getElementById('dashboard').classList.add('hidden');document.getElementById('player-search').value='';">
         <span class="logo-icon">🎾</span>
         <h1>Tennis<span class="accent">IQ</span></h1>
       </div>
@@ -394,16 +396,118 @@
         </div>
       </div>
     </section>
+
+    <!-- ═════ Rally Length Sweet Spot ═════ -->
+    <section class="data-card" id="rally-comfort-section" style="display:none;">
+      <button class="accordion-btn" aria-expanded="true" aria-controls="rally-comfort-content">
+        <div class="header-text">
+          <h3><span class="card-icon">📊</span> Rally Length Sweet Spot</h3>
+          <p class="card-subtitle home-section-label"
+            style="color:#2563EB;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;">Rally Tendencies</p>
+        </div>
+        <span class="accordion-icon">▼</span>
+      </button>
+      <div class="card-content" id="rally-comfort-content">
+        <div id="rally-comfort-summary" style="margin-bottom:16px;font-size:15px;"></div>
+        <div id="rally-comfort-bars" style="margin-bottom:24px;"></div>
+        <div id="rally-comfort-patterns"></div>
+      </div>
+    </section>
+
+    <!-- ═════ Under Pressure: Score-State Tendencies ═════ -->
+    <section class="data-card" id="pressure-state-section" style="display:none;">
+      <button class="accordion-btn" aria-expanded="true" aria-controls="pressure-state-content">
+        <div class="header-text">
+          <h3><span class="card-icon">🔥</span> Score-State Tendencies</h3>
+          <p class="card-subtitle home-section-label"
+            style="color:#2563EB;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;">Under Pressure</p>
+        </div>
+        <span class="accordion-icon">▼</span>
+      </button>
+      <div class="card-content" id="pressure-state-content">
+        <div class="table-wrapper">
+          <table class="data-table compact-table">
+            <thead>
+              <tr>
+                <th>Score State</th>
+                <th>Points Played</th>
+                <th>Win Rate</th>
+                <th>vs Baseline</th>
+              </tr>
+            </thead>
+            <tbody id="pressure-state-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═════ Matchup Intelligence: Opponent Shifts ═════ -->
+    <section class="data-card" id="opponent-shifts-section" style="display:none;">
+      <button class="accordion-btn" aria-expanded="true" aria-controls="opponent-shifts-content">
+        <div class="header-text">
+          <h3><span class="card-icon">🎯</span> Opponent-Specific Pattern Shifts</h3>
+          <p class="card-subtitle home-section-label"
+            style="color:#2563EB;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;">Matchup Intelligence
+          </p>
+        </div>
+        <span class="accordion-icon">▼</span>
+      </button>
+      <div class="card-content" id="opponent-shifts-content">
+        <div id="opponent-shifts-grid"
+          style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px;"></div>
+      </div>
+    </section>
+
   </main>
 
 
-  <!-- Empty State / Welcome Screen -->
-  <div id="home-empty-state" class="empty-state">
-    <div style="font-size: 4rem; opacity: 0.8; margin-bottom: 1rem;">🎾</div>
-    <h2 style="margin-bottom: 0.5rem; font-weight: 700;">TennisIQ Database</h2>
-    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 400px; margin: 0 auto;">
-      Access tour-level matchmaking intel.<br />Search a player above to load their scout report.
-    </p>
+  <!-- ═══════ Home Screen ═══════ -->
+  <div id="home-screen" class="home-screen">
+
+    <!-- Zone 1: Hero -->
+    <section class="home-hero">
+      <div class="home-hero-text">
+        <h2 class="home-hero-headline">Know the player before the first serve.</h2>
+        <div class="home-hero-copy">
+          <span class="stanza">
+            <span class="line">Patterns that repeat. Tendencies that hold under pressure.</span>
+            <span class="line">Strengths that travel across surfaces — and those that don't.</span>
+          </span>
+          <span class="stanza">
+            <span class="line">Point-by-point data from thousands of charted matches,</span>
+            <span class="line">turned into something you can actually use.</span>
+          </span>
+        </div>
+      </div>
+      <div id="home-live-panel" class="home-live-panel" style="display:none;"></div>
+    </section>
+
+    <!-- Zone 2: Tournament Spotlight -->
+    <section class="home-spotlight" id="home-spotlight" style="display:none;">
+      <div class="home-spotlight-inner">
+        <div class="home-spotlight-info"></div>
+        <div class="home-spotlight-matches"></div>
+      </div>
+    </section>
+
+    <!-- Zone 3: Data Panel Slot 1 -->
+    <section class="home-data-slot" id="home-slot-1">
+      <div class="home-section-label">Analytics Preview</div>
+      <div class="home-data-placeholder">Data panel — awaiting specification</div>
+    </section>
+
+    <!-- Zone 4: Data Panel Slot 2 -->
+    <section class="home-data-slot" id="home-slot-2" style="display:none;"></section>
+
+    <!-- Zone 5: Data Panel Slot 3 (optional) -->
+    <section class="home-data-slot" id="home-slot-3" style="display:none;"></section>
+
+    <!-- Zone 6: CTA -->
+    <section class="home-cta">
+      <span class="home-cta-arrow">↑</span>
+      <div class="home-cta-text">Search a player above to load their scout report.</div>
+    </section>
+
   </div>
 
   <!-- ───── Loading Overlay ───── -->
@@ -413,7 +517,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="app.js?v=mm7dm3mj"></script>
+  <script src="app.js?v=home1"></script>
 </body>
 
 </html>

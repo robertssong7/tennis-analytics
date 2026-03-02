@@ -1,0 +1,382 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   TennisIQ — Home Screen Design System
+   Light mode · Editorial layout · Informed minimalism
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Design Tokens ───────────────────────────────────────────────────── */
+:root {
+    --home-bg: #FFFFFF;
+    --home-accent: #2563EB;
+    --home-dark: #1A1A2E;
+    --home-muted: #666666;
+    --home-panel-bg: #F7F8FA;
+    --home-live-green: #22C55E;
+    --home-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    --home-unit: 8px;
+}
+
+/* ─── Home Container ──────────────────────────────────────────────────── */
+.home-screen {
+    background: var(--home-bg);
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--home-dark);
+}
+
+/* ─── Zone 1: Hero ────────────────────────────────────────────────────── */
+.home-hero {
+    display: grid;
+    grid-template-columns: 55% 40%;
+    gap: 5%;
+    padding: 80px 64px;
+    max-width: 1280px;
+    margin: 0 auto;
+    align-items: start;
+}
+
+.home-hero-text {
+    padding-top: 16px;
+}
+
+.home-hero-headline {
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--home-dark);
+    margin: 0 0 36px 0;
+    letter-spacing: -0.5px;
+}
+
+.home-hero-copy {
+    font-size: 19px;
+    font-weight: 400;
+    color: #444444;
+    line-height: 1.65;
+    margin: 0;
+}
+
+.home-hero-copy .stanza {
+    display: block;
+    margin-bottom: 32px;
+}
+
+.home-hero-copy .stanza:last-child {
+    margin-bottom: 0;
+}
+
+.home-hero-copy .line {
+    display: block;
+    margin-bottom: 14px;
+}
+
+.home-hero-copy .line:last-child {
+    margin-bottom: 0;
+}
+
+/* ─── Live Scores Panel ──────────────────────────────────────────────── */
+.home-live-panel {
+    background: var(--home-panel-bg);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--home-shadow);
+    opacity: 0;
+    transition: opacity 300ms ease;
+}
+
+.home-live-panel.visible {
+    opacity: 1;
+}
+
+.home-live-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.home-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--home-accent);
+}
+
+.home-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--home-live-green);
+    animation: live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.home-live-tournament {
+    font-size: 11px;
+    color: var(--home-muted);
+    font-weight: 500;
+}
+
+.home-live-matches {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.home-match-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: var(--home-shadow);
+}
+
+.home-match-players {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.home-match-player {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--home-dark);
+}
+
+.home-match-player.winner {
+    font-weight: 700;
+}
+
+.home-match-serving-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--home-live-green);
+    flex-shrink: 0;
+}
+
+.home-match-scores {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.home-match-set {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--home-dark);
+    min-width: 16px;
+    text-align: center;
+}
+
+.home-match-set.current-game {
+    font-size: 12px;
+    color: var(--home-accent);
+    font-weight: 700;
+}
+
+.home-match-live-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--home-live-green);
+    animation: live-pulse 2s ease-in-out infinite;
+    margin-left: 4px;
+}
+
+/* ─── Zone 2: Tournament Spotlight ────────────────────────────────────── */
+.home-spotlight {
+    background: var(--home-panel-bg);
+    padding: 40px 64px;
+}
+
+.home-spotlight-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+}
+
+.home-spotlight-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.home-spotlight-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--home-dark);
+}
+
+.home-spotlight-meta {
+    font-size: 14px;
+    color: var(--home-muted);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.home-spotlight-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.home-spotlight-matches {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.home-spotlight-match {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: var(--home-shadow);
+    font-size: 14px;
+    color: var(--home-dark);
+}
+
+/* ─── Zones 3–5: Data Panel Slots ─────────────────────────────────────── */
+.home-data-slot {
+    padding: 60px 64px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.home-data-slot+.home-data-slot {
+    border-top: 1px solid #E5E7EB;
+}
+
+.home-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--home-accent);
+    margin-bottom: 16px;
+}
+
+.home-data-placeholder {
+    width: 100%;
+    height: 200px;
+    background: var(--home-panel-bg);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #CCC;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ─── Zone 6: CTA ─────────────────────────────────────────────────────── */
+.home-cta {
+    padding: 80px 64px;
+    text-align: center;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.home-cta-text {
+    font-size: 18px;
+    color: var(--home-muted);
+    font-weight: 400;
+}
+
+.home-cta-arrow {
+    display: block;
+    font-size: 24px;
+    color: #CCC;
+    margin-bottom: 12px;
+    animation: cta-float 2.5s ease-in-out infinite;
+}
+
+@keyframes cta-float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .home-hero {
+        padding: 64px 40px;
+    }
+
+    .home-hero-headline {
+        font-size: 42px;
+    }
+
+    .home-spotlight {
+        padding: 32px 40px;
+    }
+
+    .home-data-slot,
+    .home-cta {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .home-hero {
+        grid-template-columns: 1fr;
+        padding: 48px 24px;
+        gap: 32px;
+    }
+
+    .home-hero-headline {
+        font-size: 32px;
+    }
+
+    .home-hero-copy {
+        font-size: 16px;
+    }
+
+    .home-spotlight {
+        padding: 24px;
+    }
+
+    .home-spotlight-inner {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .home-data-slot,
+    .home-cta {
+        padding: 40px 24px;
+    }
+}

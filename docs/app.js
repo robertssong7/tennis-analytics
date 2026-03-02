@@ -7,7 +7,12 @@ let STATIC_MODE = false;
 let allPlayers = [];
 
 // ─── State ───────────────────────────────────────────────────────────
-const FEATURE_FLAGS = { showScoutReport: false };
+const FEATURE_FLAGS = {
+    showScoutReport: false,
+    ENABLE_RALLY_COMFORT: true,
+    ENABLE_PRESSURE_STATE: true,
+    ENABLE_OPPONENT_SHIFT: true,
+};
 let expandedTables = {};
 let currentPlayer = null;
 let currentSurface = 'all'; // Surface toggle state
@@ -16,7 +21,7 @@ let currentSurface = 'all'; // Surface toggle state
 const searchInput = document.getElementById('player-search');
 const searchDropdown = document.getElementById('search-dropdown');
 const dashboard = document.getElementById('dashboard');
-const emptyState = document.getElementById('home-empty-state');
+const homeScreen = document.getElementById('home-screen');
 const loadingOverlay = document.getElementById('loading-overlay');
 
 // ─── Helpers ─────────────────────────────────────────────────────────
@@ -152,6 +157,11 @@ async function init() {
             mod.mountCompareFeature();
         }).catch(err => console.error("Compare Map Init Failed:", err));
 
+        // Mount Home Screen
+        import('./js/home.js').then(mod => {
+            mod.initHomeScreen();
+        }).catch(err => console.error("Home Screen Init Failed:", err));
+
         // Try API first to see if backend is running
         await fetchJSON('/api/players?q=a');
         STATIC_MODE = false;
@@ -256,7 +266,7 @@ async function loadPlayer(name) {
     expandedTables = {};
     currentPlayer = name;
     showLoading();
-    emptyState.classList.add('hidden');
+    homeScreen.style.display = 'none';
 
     // Mount surface toggle if not already
     await mountPlayerSurfaceToggle();
@@ -274,6 +284,13 @@ async function loadPlayer(name) {
                 fetchPlayerData(name, 'pattern-inference'),
                 fetchPlayerData(name, 'serve-detailed')
             ]);
+
+        // Fetch new feature data (non-blocking — don't break player load if these fail)
+        const [rallyComfort, pressureState, opponentShifts] = await Promise.all([
+            FEATURE_FLAGS.ENABLE_RALLY_COMFORT ? fetchPlayerData(name, 'rally-comfort').catch(() => null) : null,
+            FEATURE_FLAGS.ENABLE_PRESSURE_STATE ? fetchPlayerData(name, 'pressure-state').catch(() => null) : null,
+            FEATURE_FLAGS.ENABLE_OPPONENT_SHIFT ? fetchPlayerData(name, 'opponent-shifts').catch(() => null) : null,
+        ]);
 
         renderPlayerHeader(name, coverage);
 
@@ -301,6 +318,11 @@ async function loadPlayer(name) {
         renderDirections(directions);
         renderCompare(compare);
         renderInference(inference);
+
+        // New features
+        renderRallyComfort(rallyComfort);
+        renderPressureState(pressureState);
+        renderOpponentShifts(opponentShifts);
 
         dashboard.classList.remove('hidden');
         setupAccordions();
@@ -556,5 +578,196 @@ searchInput.addEventListener('keydown', (e) => {
         }
     }
 });
+
+// ═══════════════════════════════════════════════════════════════════════
+// RALLY COMFORT ZONE
+// ═══════════════════════════════════════════════════════════════════════
+function renderRallyComfort(data) {
+    const section = document.getElementById('rally-comfort-section');
+    if (!section) return;
+    if (!FEATURE_FLAGS.ENABLE_RALLY_COMFORT || !data || !data.buckets || data.buckets.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    // Summary: Peak vs Tour avg
+    const summaryEl = document.getElementById('rally-comfort-summary');
+    if (summaryEl && data.peak_bucket) {
+        const peakLabel = data.peak_bucket === '13+' ? '13+' : data.peak_bucket;
+        summaryEl.innerHTML = `
+            <span style="font-weight:600;color:var(--text-primary);">Peak: <span style="color:#2563EB;">${peakLabel} balls</span></span>
+            <span style="margin-left:16px;color:#888;font-size:13px;">Tour avg loaded from benchmarks</span>
+        `;
+    }
+
+    // Bar chart (CSS-only horizontal bars)
+    const barsEl = document.getElementById('rally-comfort-bars');
+    if (barsEl) {
+        const maxRate = Math.max(...data.buckets.map(b => b.pt_win_rate), 0.01);
+        barsEl.innerHTML = data.buckets.map(b => {
+            const pct = (b.pt_win_rate * 100).toFixed(1);
+            const barWidth = (b.pt_win_rate / Math.max(maxRate, 0.01)) * 100;
+            const isPeak = b.range === data.peak_bucket;
+            const barColor = isPeak ? '#2563EB' : '#D1D5DB';
+            const textColor = isPeak ? '#2563EB' : 'var(--text-muted)';
+            return `
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                    <span style="min-width:50px;font-size:13px;font-weight:500;color:${textColor};text-align:right;">${b.range}</span>
+                    <div style="flex:1;position:relative;height:24px;background:rgba(255,255,255,0.05);border-radius:4px;">
+                        <div style="width:${barWidth}%;height:100%;background:${barColor};border-radius:4px;transition:width 0.3s ease;"></div>
+                        <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.15);"></div>
+                    </div>
+                    <span style="min-width:50px;font-size:13px;font-weight:600;color:${textColor};">${pct}%</span>
+                    <span style="min-width:40px;font-size:11px;color:#888;">(${b.n})</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Peak patterns table
+    const patternsEl = document.getElementById('rally-comfort-patterns');
+    if (patternsEl && data.peak_patterns && data.peak_patterns.length > 0) {
+        patternsEl.innerHTML = `
+            <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-secondary);">
+                Top patterns in ${data.peak_bucket}-ball rallies
+            </div>
+            <table class="data-table compact-table">
+                <thead><tr><th>Pattern</th><th>N</th><th>Win Rate</th></tr></thead>
+                <tbody>
+                    ${data.peak_patterns.map(p => `
+                        <tr>
+                            <td>${formatShotType(p.pattern)}</td>
+                            <td>${p.n}</td>
+                            <td style="color:${p.pt_win_rate > 0.55 ? '#22c55e' : p.pt_win_rate < 0.45 ? '#ef4444' : 'inherit'}">${(p.pt_win_rate * 100).toFixed(1)}%</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } else if (patternsEl) {
+        patternsEl.innerHTML = '';
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PRESSURE-STATE TENDENCIES
+// ═══════════════════════════════════════════════════════════════════════
+const STATE_LABELS = {
+    break_point_save: 'Break Point Save',
+    break_point_convert: 'Break Point Convert',
+    set_serving_ahead: 'Serving Ahead (Set)',
+    set_serving_behind: 'Serving Behind (Set)',
+    set_returning_ahead: 'Returning Ahead (Set)',
+    set_returning_behind: 'Returning Behind (Set)',
+    deuce_pressure: 'Deuce / 30-30',
+    behind_in_game: 'Behind in Game',
+    ahead_in_game: 'Ahead in Game',
+    neutral: 'Neutral (Baseline)',
+};
+
+const STATE_ORDER = [
+    'break_point_save', 'break_point_convert',
+    'set_serving_ahead', 'set_serving_behind',
+    'set_returning_ahead', 'set_returning_behind',
+    'deuce_pressure', 'behind_in_game', 'ahead_in_game', 'neutral'
+];
+
+function renderPressureState(data) {
+    const section = document.getElementById('pressure-state-section');
+    if (!section) return;
+    if (!FEATURE_FLAGS.ENABLE_PRESSURE_STATE || !data || !data.states || data.states.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    const tbody = document.getElementById('pressure-state-tbody');
+    if (!tbody) return;
+
+    const baseline = data.baseline?.pt_win_rate ?? 0.5;
+
+    // Sort by defined order
+    const sorted = [...data.states].sort((a, b) => {
+        const ai = STATE_ORDER.indexOf(a.label);
+        const bi = STATE_ORDER.indexOf(b.label);
+        return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+
+    tbody.innerHTML = sorted.map(s => {
+        const pct = (s.pt_win_rate * 100).toFixed(1);
+        const delta = s.pt_win_rate - baseline;
+        const deltaPct = (delta * 100).toFixed(1);
+        let deltaColor = '#888';
+        let deltaText = `${deltaPct > 0 ? '+' : ''}${deltaPct}%`;
+
+        if (Math.abs(delta) <= 0.03) {
+            deltaColor = '#888';
+        } else if (delta > 0) {
+            deltaColor = '#22c55e';
+        } else {
+            deltaColor = '#ef4444';
+        }
+
+        return `
+            <tr>
+                <td style="font-weight:500;">${STATE_LABELS[s.label] || s.label}</td>
+                <td>${s.n}</td>
+                <td style="font-weight:600;color:${delta > 0.03 ? '#22c55e' : delta < -0.03 ? '#ef4444' : 'inherit'}">${pct}%</td>
+                <td style="color:${deltaColor};font-weight:500;">${deltaText}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// OPPONENT-SPECIFIC PATTERN SHIFTS
+// ═══════════════════════════════════════════════════════════════════════
+function renderOpponentShifts(data) {
+    const section = document.getElementById('opponent-shifts-section');
+    if (!section) return;
+    if (!FEATURE_FLAGS.ENABLE_OPPONENT_SHIFT || !data || !data.segments || data.segments.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    const grid = document.getElementById('opponent-shifts-grid');
+    if (!grid) return;
+
+    const segmentCount = data.segments.length;
+    if (segmentCount === 1) {
+        grid.style.gridTemplateColumns = '1fr';
+    }
+
+    grid.innerHTML = data.segments.map(seg => {
+        const winPct = (seg.pt_win_rate * 100).toFixed(1);
+        const deltaPct = (seg.delta * 100).toFixed(1);
+        const deltaSign = seg.delta >= 0 ? '+' : '';
+
+        const badgeColor = {
+            amplified: 'background:#dcfce7;color:#166534;',
+            weakened: 'background:#fee2e2;color:#991b1b;',
+            holds: 'background:#f3f4f6;color:#6b7280;',
+        };
+
+        return `
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                    <span style="font-weight:600;font-size:15px;">${seg.segment_label}</span>
+                    <span style="font-size:12px;color:#888;">${seg.matches} matches · ${seg.points} pts</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                    <span style="font-size:24px;font-weight:700;">${winPct}%</span>
+                    <span style="font-size:13px;padding:3px 8px;border-radius:4px;${badgeColor[seg.status] || badgeColor.holds}">
+                        ${deltaSign}${deltaPct}% · ${seg.status.charAt(0).toUpperCase() + seg.status.slice(1)}
+                    </span>
+                </div>
+                <div style="font-size:12px;color:#888;">Point win rate in this segment</div>
+            </div>
+        `;
+    }).join('');
+}
 
 init();

@@ -49,7 +49,10 @@ async function exportStaticData() {
             'direction-patterns',
             'insights',
             'pattern-inference',
-            'serve-detailed'
+            'serve-detailed',
+            'rally-comfort',
+            'pressure-state',
+            'opponent-shifts'
         ];
 
         for (const player of players) {
