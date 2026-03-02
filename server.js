@@ -539,6 +539,127 @@ app.get('/api/player/:name/pattern-inference', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ─── Serve Detailed: 1st/2nd Serve Split ──────────────────────────────
+app.get('/api/player/:name/serve-detailed', async (req, res) => {
+  try {
+    const playerName = req.params.name;
+    let params = [playerName];
+    let filterResult = buildFilterClause(req.query, params, 2);
+    params = filterResult.params;
+    let filterSQL = filterResult.clauses.length > 0 ? 'AND ' + filterResult.clauses.join(' AND ') : '';
+
+    // Identify which points had a 2nd serve (i.e., the point has 2+ serve shots at number 0 and 1)
+    // In Zifan's data model: if 2nd column was populated, there are two serve shots for that point
+    // shot.number=0 is always a serve. If there's also a shot where the serve happened on number=1 (after 1st fault),
+    // we detect this by counting serve-type shots per point
+    const result = await pool.query(`
+      WITH match_players AS (
+        SELECT m.id AS match_id, CASE WHEN m.first_player_name = $1 THEN 1 ELSE 2 END AS player_num
+        FROM match m WHERE (m.first_player_name = $1 OR m.second_player_name = $1)
+      ),
+      serve_points AS (
+        SELECT
+          p.match_id, p.number AS point_num,
+          mp.player_num,
+          CASE WHEN p.player_won = mp.player_num THEN 1 ELSE 0 END AS point_won,
+          COUNT(CASE WHEN s.serve_direction != 'UNKNOWN_SERVE_DIRECTION' THEN 1 END) AS serve_count,
+          MAX(CASE WHEN s.number = 0 THEN s.serve_direction::text END) AS first_serve_dir,
+          MAX(CASE WHEN s.number = 0 AND s.outcome IN ('WINNER') THEN 1 ELSE 0 END) AS is_ace
+        FROM point p
+        JOIN match_players mp ON p.match_id = mp.match_id
+        JOIN match m ON m.id = p.match_id
+        LEFT JOIN shot s ON s.point_number = p.number AND s.point_match_id = p.match_id
+        WHERE ((mp.player_num = 1 AND p.number % 2 = 1) OR (mp.player_num = 2 AND p.number % 2 = 0))
+        ${filterSQL}
+        GROUP BY p.match_id, p.number, mp.player_num, p.player_won
+      )
+      SELECT
+        -- Overall
+        COUNT(*) AS total_serve_points,
+        SUM(point_won) AS total_points_won,
+        -- 1st serve (points where only 1 serve was needed)
+        COUNT(*) FILTER (WHERE serve_count <= 1) AS first_serve_in,
+        SUM(point_won) FILTER (WHERE serve_count <= 1) AS first_serve_won,
+        -- 2nd serve (points where 2 serves happened)
+        COUNT(*) FILTER (WHERE serve_count > 1) AS second_serve_total,
+        SUM(point_won) FILTER (WHERE serve_count > 1) AS second_serve_won,
+        -- Aces (on 1st serve mostly)
+        SUM(is_ace) AS aces,
+        -- Double faults = 2nd serve points where point was lost immediately
+        COUNT(*) FILTER (WHERE serve_count > 1 AND point_won = 0) AS double_fault_candidates
+      FROM serve_points
+    `, params);
+
+    const r = result.rows[0];
+    const totalServe = parseInt(r.total_serve_points) || 0;
+    const firstIn = parseInt(r.first_serve_in) || 0;
+    const firstWon = parseInt(r.first_serve_won) || 0;
+    const secondTotal = parseInt(r.second_serve_total) || 0;
+    const secondWon = parseInt(r.second_serve_won) || 0;
+    const aces = parseInt(r.aces) || 0;
+
+    res.json({
+      totalServePoints: totalServe,
+      firstServeIn: firstIn,
+      firstServeInPct: totalServe > 0 ? firstIn / totalServe : 0,
+      firstServeWon: firstWon,
+      firstServeWinPct: firstIn > 0 ? firstWon / firstIn : 0,
+      secondServeTotal: secondTotal,
+      secondServeWon: secondWon,
+      secondServeWinPct: secondTotal > 0 ? secondWon / secondTotal : 0,
+      aces,
+      acePct: totalServe > 0 ? aces / totalServe : 0,
+      doubleFaults: secondTotal - secondWon, // approximate
+      doubleFaultPct: totalServe > 0 ? (secondTotal - secondWon) / totalServe : 0,
+    });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─── Head-to-Head ─────────────────────────────────────────────────────
+app.get('/api/h2h/:playerA/:playerB', async (req, res) => {
+  try {
+    const { playerA, playerB } = req.params;
+    const result = await pool.query(`
+      SELECT
+        m.id, m.date, m.first_player_name, m.second_player_name,
+        COALESCE(m.surface, 'Unknown') AS surface,
+        m.event_round,
+        e.name AS tournament
+      FROM match m
+      LEFT JOIN event e ON m.event_id = e.id
+      WHERE (m.first_player_name = $1 AND m.second_player_name = $2)
+         OR (m.first_player_name = $2 AND m.second_player_name = $1)
+      ORDER BY m.date DESC
+    `, [playerA, playerB]);
+
+    let winsA = 0, winsB = 0;
+    const matches = result.rows.map(r => {
+      const winner = r.first_player_name; // first_player_name is always winner in this schema
+      if (winner === playerA) winsA++;
+      else winsB++;
+      return {
+        date: r.date,
+        surface: r.surface,
+        tournament: r.tournament || 'Unknown',
+        round: r.event_round || '',
+        winner
+      };
+    });
+
+    res.json({
+      playerA, playerB,
+      winsA, winsB,
+      totalMatches: matches.length,
+      mostRecent: matches.length > 0 ? matches[0] : null,
+      bySurface: {
+        Hard: { winsA: matches.filter(m => m.surface === 'Hard' && m.winner === playerA).length, winsB: matches.filter(m => m.surface === 'Hard' && m.winner === playerB).length },
+        Clay: { winsA: matches.filter(m => m.surface === 'Clay' && m.winner === playerA).length, winsB: matches.filter(m => m.surface === 'Clay' && m.winner === playerB).length },
+        Grass: { winsA: matches.filter(m => m.surface === 'Grass' && m.winner === playerA).length, winsB: matches.filter(m => m.surface === 'Grass' && m.winner === playerB).length },
+      }
+    });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Tennis Analytics API running on http://localhost:${PORT}`);

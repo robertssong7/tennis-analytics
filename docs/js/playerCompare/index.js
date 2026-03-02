@@ -1,11 +1,14 @@
-import { initCompareData, getPlayerList, buildCompareProfile } from './playerCompareModel.js';
+import { initCompareData, getPlayerList, buildCompareProfile, setCompareSurface, fetchH2H } from './playerCompareModel.js';
 import { renderCompareCard } from './PlayerCompareCard.js';
 import { renderCompareRadar } from './CompareRadarPentagon.js';
 import { renderCompareBars } from './PlayerCompareBars.js';
+import { createSurfaceToggle } from '../SurfaceToggle.js';
 
 let modalRoot = null;
 let playerAId = null;
 let playerBId = null;
+let compareSurfaceToggle = null;
+let currentH2HData = null;
 
 // CSS Injected Once
 const STYLES = `
@@ -54,6 +57,27 @@ const STYLES = `
 }
 .swap-btn:hover { background: #334155; color: #f8fafc; }
 
+.compare-h2h-section {
+    padding: 0 40px; margin-bottom: 16px;
+}
+.h2h-bar {
+    display: flex; align-items: center; justify-content: center; gap: 24px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 14px 24px;
+}
+.h2h-record {
+    display: flex; align-items: center; gap: 16px;
+}
+.h2h-number {
+    font-size: 32px; font-weight: 900; font-family: 'Inter', sans-serif; line-height: 1;
+}
+.h2h-vs {
+    font-size: 14px; color: #64748b; font-weight: 600;
+}
+.h2h-recent {
+    font-size: 12px; color: #94a3b8; text-align: center; margin-top: 8px;
+}
+
 .compare-bars-section { padding: 0 40px 40px 40px; }
 
 @media (max-width: 900px) {
@@ -63,6 +87,7 @@ const STYLES = `
         padding: 16px;
     }
     .compare-bars-section { padding: 0 16px 24px 16px; }
+    .compare-h2h-section { padding: 0 16px; }
     .swap-btn { margin: 10px auto; }
 }
 `;
@@ -106,7 +131,7 @@ export async function mountCompareFeature() {
         modalRoot.innerHTML = `
             <div class="compare-modal-content">
                 <div class="compare-modal-header">
-                    <h2 class="compare-modal-title">Player Compare <span class="compare-modal-subtitle">Scope: All surfaces (tour percentiles)</span></h2>
+                    <h2 class="compare-modal-title">Player Compare <span class="compare-modal-subtitle" id="compare-surface-label">All surfaces</span></h2>
                     <button class="compare-modal-close" id="close-compare-modal">&times;</button>
                 </div>
 
@@ -120,6 +145,7 @@ export async function mountCompareFeature() {
 
                     <!-- Center Column -->
                     <div>
+                        <div id="compare-surface-toggle-mount" style="display:flex; justify-content:center; margin-bottom: 12px;"></div>
                         <button class="swap-btn" id="compare-swap-btn">⇄ Swap</button>
                         <div class="compare-radar-container">
                             <canvas id="compare-radar-canvas"></canvas>
@@ -133,6 +159,8 @@ export async function mountCompareFeature() {
                         <div id="compare-card-b"></div>
                     </div>
                 </div>
+
+                <div class="compare-h2h-section" id="compare-h2h-section" style="display:none;"></div>
 
                 <div class="compare-bars-section">
                     <div id="compare-bars-container"></div>
@@ -151,10 +179,22 @@ export async function mountCompareFeature() {
         // Setup Typeaheads
         setupTypeahead('compare-search-a', 'compare-results-a', 'left');
         setupTypeahead('compare-search-b', 'compare-results-b', 'right');
+
+        // Mount Surface Toggle
+        compareSurfaceToggle = createSurfaceToggle('compare-surface-toggle-mount', async (newSurface) => {
+            setCompareSurface(newSurface);
+            await initCompareData(newSurface);
+            // Update subtitle
+            const label = document.getElementById('compare-surface-label');
+            if (label) {
+                label.textContent = newSurface === 'all' ? 'All surfaces' : `${newSurface} courts`;
+            }
+            updateUI();
+        });
     }
 
     // Pre-fetch Data offline safely
-    await initCompareData();
+    await initCompareData('all');
 }
 
 export function openModal() {
@@ -204,7 +244,7 @@ function clearPlayer(side) {
     updateUI();
 }
 
-function updateUI() {
+async function updateUI() {
     const pA = playerAId ? buildCompareProfile(playerAId) : null;
     const pB = playerBId ? buildCompareProfile(playerBId) : null;
 
@@ -213,6 +253,59 @@ function updateUI() {
 
     renderCompareRadar('compare-radar-canvas', pA, pB);
     renderCompareBars('compare-bars-container', pA, pB);
+
+    // H2H section
+    await renderH2H(playerAId, playerBId);
+}
+
+async function renderH2H(aId, bId) {
+    const section = document.getElementById('compare-h2h-section');
+    if (!section) return;
+
+    if (!aId || !bId) {
+        section.style.display = 'none';
+        return;
+    }
+
+    const h2h = await fetchH2H(aId, bId);
+    if (!h2h || h2h.totalMatches === 0) {
+        section.style.display = 'block';
+        section.innerHTML = `
+            <div class="h2h-bar" style="justify-content: center;">
+                <span style="color: #64748b; font-size: 13px;">No head-to-head matches found in dataset</span>
+            </div>
+        `;
+        return;
+    }
+
+    // Figure out which side is A and B in the H2H data
+    const isAFirst = h2h.playerA === aId;
+    const winsLeft = isAFirst ? h2h.winsA : h2h.winsB;
+    const winsRight = isAFirst ? h2h.winsB : h2h.winsA;
+
+    // Most recent match
+    const recent = h2h.mostRecent;
+    let recentHtml = '';
+    if (recent) {
+        const date = recent.date ? new Date(recent.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        recentHtml = `
+            <div class="h2h-recent">
+                Last: ${recent.tournament || ''} ${recent.round ? '(' + recent.round + ')' : ''} · ${recent.surface || ''} · ${date}
+            </div>
+        `;
+    }
+
+    section.style.display = 'block';
+    section.innerHTML = `
+        <div class="h2h-bar">
+            <div class="h2h-record">
+                <span class="h2h-number" style="color: #38bdf8;">${winsLeft}</span>
+                <span class="h2h-vs">H2H</span>
+                <span class="h2h-number" style="color: #f43f5e;">${winsRight}</span>
+            </div>
+        </div>
+        ${recentHtml}
+    `;
 }
 
 function setupTypeahead(inputId, resultsId, side) {

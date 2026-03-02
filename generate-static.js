@@ -6,6 +6,8 @@ const PORT = 3001;
 const BASE_URL = `http://localhost:${PORT}/api`;
 const DATA_DIR = path.join(__dirname, 'docs', 'data');
 
+const SURFACES = ['all', 'Hard', 'Clay', 'Grass'];
+
 // Ensure directory exists
 function ensureDir(dir) {
     if (!fs.existsSync(dir)) {
@@ -46,7 +48,8 @@ async function exportStaticData() {
             'compare',
             'direction-patterns',
             'insights',
-            'pattern-inference'
+            'pattern-inference',
+            'serve-detailed'
         ];
 
         for (const player of players) {
@@ -54,16 +57,54 @@ async function exportStaticData() {
             const playerDir = path.join(DATA_DIR, 'players', player);
             ensureDir(playerDir);
 
-            for (const endpoint of endpoints) {
+            // Export for each surface
+            for (const surface of SURFACES) {
+                const surfaceParam = surface === 'all' ? '' : `?surface=${surface}`;
+                const surfaceDir = surface === 'all' ? playerDir : path.join(playerDir, 'surface', surface);
+                ensureDir(surfaceDir);
+
+                for (const endpoint of endpoints) {
+                    try {
+                        const sep = surface === 'all' ? '?' : '&';
+                        const url = `${BASE_URL}/player/${encodeURIComponent(player)}/${endpoint}${surfaceParam}`;
+                        const data = await fetchJson(url);
+                        fs.writeFileSync(path.join(surfaceDir, `${endpoint}.json`), JSON.stringify(data, null, 2));
+                        if (surface === 'all') {
+                            // console.log(`  - Saved ${endpoint}.json`);
+                        }
+                    } catch (err) {
+                        // Some endpoints may return no data for certain surfaces, that's OK
+                        if (surface === 'all') {
+                            console.error(`  - Error fetching ${endpoint} for ${player}:`, err.message);
+                        }
+                    }
+                }
+            }
+            console.log(`  ✓ All surfaces exported`);
+        }
+
+        // Export H2H data for all player pairs
+        console.log('\n--- Generating H2H data ---');
+        const h2hDir = path.join(DATA_DIR, 'h2h');
+        ensureDir(h2hDir);
+
+        let h2hCount = 0;
+        for (let i = 0; i < players.length; i++) {
+            for (let j = i + 1; j < players.length; j++) {
                 try {
-                    const data = await fetchJson(`${BASE_URL}/player/${encodeURIComponent(player)}/${endpoint}`);
-                    fs.writeFileSync(path.join(playerDir, `${endpoint}.json`), JSON.stringify(data, null, 2));
-                    console.log(`  - Saved ${endpoint}.json`);
+                    const url = `${BASE_URL}/h2h/${encodeURIComponent(players[i])}/${encodeURIComponent(players[j])}`;
+                    const data = await fetchJson(url);
+                    if (data.totalMatches > 0) {
+                        const key = [players[i], players[j]].sort().join('_vs_');
+                        fs.writeFileSync(path.join(h2hDir, `${key}.json`), JSON.stringify(data, null, 2));
+                        h2hCount++;
+                    }
                 } catch (err) {
-                    console.error(`  - Error fetching ${endpoint} for ${player}:`, err.message);
+                    // Skip pairs with no data
                 }
             }
         }
+        console.log(`Saved ${h2hCount} H2H files`);
 
         console.log('\nStatic export complete!');
         process.exit(0);

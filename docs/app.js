@@ -10,6 +10,7 @@ let allPlayers = [];
 const FEATURE_FLAGS = { showScoutReport: false };
 let expandedTables = {};
 let currentPlayer = null;
+let currentSurface = 'all'; // Surface toggle state
 
 // ─── DOM Refs ────────────────────────────────────────────────────────
 const searchInput = document.getElementById('player-search');
@@ -102,14 +103,24 @@ async function fetchJSON(url) {
 
 async function fetchPlayerData(playerName, endpoint) {
     if (STATIC_MODE) {
-        // pattern-inference may not exist for all users if generating static before update
+        // Load surface-specific data if a surface is selected
+        const basePath = currentSurface === 'all'
+            ? `data/players/${playerName}`
+            : `data/players/${playerName}/surface/${currentSurface}`;
         try {
-            return await fetchJSON(`data/players/${playerName}/${endpoint}.json`);
+            return await fetchJSON(`${basePath}/${endpoint}.json`);
         } catch {
-            return endpoint === 'pattern-inference' ? { winning: [], losing: [] } : [];
+            // Fall back to "all" if surface-specific data doesn't exist
+            try {
+                return await fetchJSON(`data/players/${playerName}/${endpoint}.json`);
+            } catch {
+                return endpoint === 'pattern-inference' ? { winning: [], losing: [] } : [];
+            }
         }
     }
     const params = endpoint === 'coverage' || endpoint === 'insights' ? {} : getFilters();
+    // Override surface with toggle value
+    if (currentSurface !== 'all') params.surface = currentSurface;
     const q = new URLSearchParams(params).toString();
     const sep = endpoint === 'serve-plus-one' ? 'serve-plus-one' : endpoint;
     return fetchJSON(`/api/player/${encodeURIComponent(playerName)}/${sep}${q ? '?' + q : ''}`);
@@ -137,7 +148,7 @@ function getFilters() {
 async function init() {
     try {
         // Mount FIFA-Style Compare Feature
-        import('./js/playerCompare/index.js?v=mm7dm3mj').then(mod => {
+        import('./js/playerCompare/index.js?v=srf2').then(mod => {
             mod.mountCompareFeature();
         }).catch(err => console.error("Compare Map Init Failed:", err));
 
@@ -151,6 +162,7 @@ async function init() {
             allPlayers = await fetchJSON('data/players.json');
             STATIC_MODE = true;
             console.log(`TennisIQ: Static mode — ${allPlayers.length} players loaded`);
+            // In static mode, hide the full filter bar but keep surface toggle in player header
             document.getElementById('filter-bar').style.display = 'none';
         } catch (e) {
             console.error('TennisIQ: Failed to load in both Dynamic and Static modes.');
@@ -220,6 +232,24 @@ function renderDropdown(players, q) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// SURFACE TOGGLE (Player Dashboard)
+// ═══════════════════════════════════════════════════════════════════════
+let playerSurfaceToggle = null;
+
+async function mountPlayerSurfaceToggle() {
+    if (playerSurfaceToggle) return; // Already mounted
+    try {
+        const { createSurfaceToggle } = await import('./js/SurfaceToggle.js');
+        playerSurfaceToggle = createSurfaceToggle('player-surface-toggle', (newSurface) => {
+            currentSurface = newSurface;
+            if (currentPlayer) loadPlayer(currentPlayer);
+        });
+    } catch (err) {
+        console.error('Failed to mount surface toggle:', err);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // LOAD PLAYER DATA
 // ═══════════════════════════════════════════════════════════════════════
 async function loadPlayer(name) {
@@ -228,8 +258,11 @@ async function loadPlayer(name) {
     showLoading();
     emptyState.classList.add('hidden');
 
+    // Mount surface toggle if not already
+    await mountPlayerSurfaceToggle();
+
     try {
-        const [coverage, patterns, serve, serveOne, compare, directions, insights, inference] =
+        const [coverage, patterns, serve, serveOne, compare, directions, insights, inference, serveDetailed] =
             await Promise.all([
                 fetchPlayerData(name, 'coverage'),
                 fetchPlayerData(name, 'patterns'),
@@ -238,14 +271,15 @@ async function loadPlayer(name) {
                 fetchPlayerData(name, 'compare'),
                 fetchPlayerData(name, 'direction-patterns'),
                 FEATURE_FLAGS.showScoutReport ? fetchPlayerData(name, 'insights') : Promise.resolve([]),
-                fetchPlayerData(name, 'pattern-inference')
+                fetchPlayerData(name, 'pattern-inference'),
+                fetchPlayerData(name, 'serve-detailed')
             ]);
 
         renderPlayerHeader(name, coverage);
 
         // Mount the Phase 7 Tour-Percentile Radar dynamically first to build the HTML shell
         try {
-            const { renderRadar } = await import('./js/playerRadar/RadarComponent.js?v=mm7dm3mj');
+            const { renderRadar } = await import('./js/playerRadar/RadarComponent.js?v=srf2');
             await renderRadar('radar-module-container', { patterns, directionPatterns: directions, servePlusOne: serveOne });
         } catch (radarErr) {
             console.error('Failed to mount Player Radar:', radarErr);
@@ -261,6 +295,7 @@ async function loadPlayer(name) {
 
         renderCoverage(coverage);
         renderPatterns(patterns);
+        renderServeDetailed(serveDetailed);
         renderServe(serve);
         renderServeOne(serveOne);
         renderDirections(directions);
@@ -357,6 +392,35 @@ function renderCoverage(coverage) {
         });
         return `<tr><td class="num" style="font-weight:700">${year}</td>${cells.join('')}<td class="num" style="font-weight:600;color:var(--accent)">${totalMatches}</td></tr>`;
     }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER: Serve Detailed (1st vs 2nd Serve Summary)
+// ═══════════════════════════════════════════════════════════════════════
+function renderServeDetailed(data) {
+    const panel = document.getElementById('serve-detailed-panel');
+    if (!panel) return;
+
+    if (!data || !data.totalServePoints) {
+        panel.innerHTML = '<p style="color:var(--text-muted); font-size:13px; grid-column: 1/-1;">No detailed serve data available.</p>';
+        return;
+    }
+
+    const metrics = [
+        { label: '1st Serve In', value: formatPct(data.firstServeInPct), sub: `${data.firstServeIn} / ${data.totalServePoints}`, color: '#38bdf8' },
+        { label: '1st Serve Win', value: formatPct(data.firstServeWinPct), sub: `${data.firstServeWon} / ${data.firstServeIn}`, color: '#22c55e' },
+        { label: '2nd Serve Win', value: formatPct(data.secondServeWinPct), sub: `${data.secondServeWon} / ${data.secondServeTotal}`, color: '#f59e0b' },
+        { label: 'Aces', value: `${data.aces}`, sub: formatPct(data.acePct) + ' of serves', color: '#a78bfa' },
+        { label: 'Double Faults', value: `${data.doubleFaults}`, sub: formatPct(data.doubleFaultPct) + ' of serves', color: '#f43f5e' },
+    ];
+
+    panel.innerHTML = metrics.map(m => `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 16px; text-align: center;">
+            <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 6px;">${m.label}</div>
+            <div style="font-size: 26px; font-weight: 800; color: ${m.color}; line-height: 1;">${m.value}</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">${m.sub}</div>
+        </div>
+    `).join('');
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -477,6 +541,8 @@ document.getElementById('filter-reset').addEventListener('click', () => {
     document.getElementById('filter-date-to').value = '';
     document.getElementById('filter-serve-num').value = '';
     document.getElementById('filter-side').value = '';
+    currentSurface = 'all';
+    if (playerSurfaceToggle) playerSurfaceToggle.setValue('all');
     if (currentPlayer) loadPlayer(currentPlayer);
 });
 
