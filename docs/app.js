@@ -454,9 +454,13 @@ function renderServeDetailed(data) {
         { label: '1st Serve In', value: formatPct(data.firstServeInPct), sub: `${data.firstServeIn} / ${data.totalServePoints}`, color: '#38bdf8' },
         { label: '1st Serve Win', value: formatPct(data.firstServeWinPct), sub: `${data.firstServeWon} / ${data.firstServeIn}`, color: '#22c55e' },
         { label: '2nd Serve Win', value: formatPct(data.secondServeWinPct), sub: `${data.secondServeWon} / ${data.secondServeTotal}`, color: '#f59e0b' },
-        { label: 'Aces', value: `${data.aces}`, sub: formatPct(data.acePct) + ' of serves', color: '#a78bfa' },
-        { label: 'Double Faults', value: `${data.doubleFaults}`, sub: formatPct(data.doubleFaultPct) + ' of serves', color: '#f43f5e' },
     ];
+    if (data.aces > 0) {
+        metrics.push({ label: 'Aces', value: `${data.aces}`, sub: formatPct(data.acePct) + ' of serves', color: '#a78bfa' });
+    }
+    if (data.doubleFaults > 0) {
+        metrics.push({ label: 'Double Faults', value: `${data.doubleFaults}`, sub: formatPct(data.doubleFaultPct) + ' of serves', color: '#f43f5e' });
+    }
 
     panel.innerHTML = metrics.map(m => `
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 16px; text-align: center;">
