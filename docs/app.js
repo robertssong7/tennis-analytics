@@ -345,21 +345,31 @@ function renderPlayerHeader(name, coverage) {
     const t = coverage.totals;
     document.getElementById('player-meta').textContent = '';
 
-    // ── Compact stat boxes next to player name ──
-    let statsRow = document.getElementById('player-stat-boxes');
-    if (!statsRow) {
-        statsRow = document.createElement('div');
-        statsRow.id = 'player-stat-boxes';
-        statsRow.style.cssText = 'display:flex; gap:12px; margin-top:10px; flex-wrap:wrap;';
-        const nameEl = document.getElementById('player-name-display');
-        if (nameEl && nameEl.parentNode) nameEl.parentNode.appendChild(statsRow);
-    }
+    // ── Stat boxes on the right side ──
+    const statsRow = document.getElementById('player-stat-boxes');
+    if (!statsRow) return;
+
     const boxStyle = 'background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:8px 14px; text-align:center; min-width:80px;';
     const labelStyle = 'font-size:10px; color:#94a3b8; text-transform:uppercase; font-weight:600; letter-spacing:0.5px;';
     const valueStyle = 'font-size:18px; font-weight:700; color:#f8fafc; margin-top:2px;';
+
+    // Compute W-L from coverage if available
+    let wlHtml = '';
+    if (coverage.byOpponent) {
+        let wins = 0, losses = 0;
+        for (const row of coverage.byOpponent) {
+            if (row.wins !== undefined) wins += row.wins;
+            if (row.losses !== undefined) losses += row.losses;
+        }
+        if (wins > 0 || losses > 0) {
+            wlHtml = `<div style="${boxStyle}"><div style="${labelStyle}">W–L</div><div style="${valueStyle}">${wins}–${losses}</div></div>`;
+        }
+    }
+
     statsRow.innerHTML = `
         <div style="${boxStyle}"><div style="${labelStyle}">Matches</div><div style="${valueStyle}">${t.total_matches}</div></div>
         <div style="${boxStyle}"><div style="${labelStyle}">Points</div><div style="${valueStyle}">${Number(t.total_points).toLocaleString()}</div></div>
+        ${wlHtml}
     `;
 }
 

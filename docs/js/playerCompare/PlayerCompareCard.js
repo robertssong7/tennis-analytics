@@ -12,11 +12,10 @@ export function renderCompareCard(containerId, playerProfile, side = 'left', onC
         return;
     }
 
-    const { fullName, lastName, countryCode, imageUrl, percentiles } = playerProfile;
+    const { fullName, lastName, countryCode, imageUrl, percentiles, attributes, matchesPlayed } = playerProfile;
 
-    // Compute overall rating: average of non-null radar percentiles
-    const radarKeys = ['serve', 'ground_consistency', 'aggression_efficiency', 'volley_win', 'break_point_defense', 'aggregate_consistency'];
-    const validVals = radarKeys.map(k => percentiles?.[k]).filter(v => v !== null && v !== undefined);
+    // Compute overall rating: average of ALL non-null attribute values (11 metrics)
+    const validVals = (attributes || []).map(a => a.value).filter(v => v !== null && v !== undefined);
     const overallRating = validVals.length > 0 ? Math.round(validVals.reduce((a, b) => a + b, 0) / validVals.length) : '—';
 
     const accentColor = side === 'left' ? '#38bdf8' : '#f43f5e';
@@ -46,9 +45,20 @@ export function renderCompareCard(containerId, playerProfile, side = 'left', onC
 
             </div>
 
-            <div style="margin-top:20px;">
+            <div style="margin-top:16px;">
                 <h3 style="margin:0; font-size:22px; color:#f8fafc; font-weight:800; letter-spacing:-0.5px;">${lastName}</h3>
                 <div style="color:#94a3b8; font-size:13px; margin-top:2px;">${fullName}</div>
+            </div>
+
+            <div style="margin-top:auto; padding-top:16px; display:flex; gap:16px; align-items:center;">
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <span style="font-size:9px; color:#64748b; text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Matches</span>
+                    <span style="font-size:16px; font-weight:700; color:#f8fafc;">${matchesPlayed || '—'}</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <span style="font-size:9px; color:#64748b; text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Metrics</span>
+                    <span style="font-size:16px; font-weight:700; color:#f8fafc;">${validVals.length}/11</span>
+                </div>
             </div>
         </div>
     `;

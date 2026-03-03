@@ -1,382 +1,277 @@
-/* ═══════════════════════════════════════════════════════════════════════
-   TennisIQ — Home Screen Design System
-   Light mode · Editorial layout · Informed minimalism
-   ═══════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   home.css — Home Page Redesign v2
+   2-panel hero, layered neutrals, 3-step, trust chips
+   ═══════════════════════════════════════════════════════════════ */
 
-/* ─── Design Tokens ───────────────────────────────────────────────────── */
-:root {
-    --home-bg: #FFFFFF;
-    --home-accent: #2563EB;
-    --home-dark: #1A1A2E;
-    --home-muted: #666666;
-    --home-panel-bg: #F7F8FA;
-    --home-live-green: #22C55E;
-    --home-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-    --home-unit: 8px;
-}
-
-/* ─── Home Container ──────────────────────────────────────────────────── */
+/* ─── Base: Layered Neutrals ──────────────────────────────────── */
 .home-screen {
-    background: var(--home-bg);
-    min-height: 100vh;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: var(--home-dark);
+    background: #F8FAFC;
+    min-height: calc(100vh - 64px);
+    position: relative;
+    overflow: hidden;
 }
 
-/* ─── Zone 1: Hero ────────────────────────────────────────────────────── */
-.home-hero {
-    display: grid;
-    grid-template-columns: 55% 40%;
-    gap: 5%;
-    padding: 80px 64px;
-    max-width: 1280px;
+/* Subtle accent gradients at top */
+.home-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 600px;
+    background:
+        radial-gradient(circle at 20% 10%, rgba(56, 189, 248, 0.14), transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.10), transparent 45%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ─── Hero Section ─────────────────────────────────────────────── */
+.home-hero-v2 {
+    display: flex;
+    align-items: center;
+    max-width: 1240px;
     margin: 0 auto;
-    align-items: start;
-}
-
-.home-hero-text {
-    padding-top: 16px;
-}
-
-.home-hero-headline {
-    font-size: 52px;
-    font-weight: 700;
-    line-height: 1.15;
-    color: var(--home-dark);
-    margin: 0 0 36px 0;
-    letter-spacing: -0.5px;
-}
-
-.home-hero-copy {
-    font-size: 19px;
-    font-weight: 400;
-    color: #444444;
-    line-height: 1.65;
-    margin: 0;
-}
-
-.home-hero-copy .stanza {
-    display: block;
-    margin-bottom: 32px;
-}
-
-.home-hero-copy .stanza:last-child {
-    margin-bottom: 0;
-}
-
-.home-hero-copy .line {
-    display: block;
-    margin-bottom: 14px;
-}
-
-.home-hero-copy .line:last-child {
-    margin-bottom: 0;
-}
-
-/* ─── Live Scores Panel ──────────────────────────────────────────────── */
-.home-live-panel {
-    background: var(--home-panel-bg);
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: var(--home-shadow);
-    opacity: 0;
-    transition: opacity 300ms ease;
-}
-
-.home-live-panel.visible {
-    opacity: 1;
-}
-
-.home-live-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-.home-live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--home-accent);
-}
-
-.home-live-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--home-live-green);
-    animation: live-pulse 2s ease-in-out infinite;
-}
-
-@keyframes live-pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.4;
-    }
-}
-
-.home-live-tournament {
-    font-size: 11px;
-    color: var(--home-muted);
-    font-weight: 500;
-}
-
-.home-live-matches {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.home-match-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: #FFFFFF;
-    border-radius: 8px;
-    box-shadow: var(--home-shadow);
-}
-
-.home-match-players {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-}
-
-.home-match-player {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--home-dark);
-}
-
-.home-match-player.winner {
-    font-weight: 700;
-}
-
-.home-match-serving-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--home-live-green);
-    flex-shrink: 0;
-}
-
-.home-match-scores {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.home-match-set {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--home-dark);
-    min-width: 16px;
-    text-align: center;
-}
-
-.home-match-set.current-game {
-    font-size: 12px;
-    color: var(--home-accent);
-    font-weight: 700;
-}
-
-.home-match-live-indicator {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--home-live-green);
-    animation: live-pulse 2s ease-in-out infinite;
-    margin-left: 4px;
-}
-
-/* ─── Zone 2: Tournament Spotlight ────────────────────────────────────── */
-.home-spotlight {
-    background: var(--home-panel-bg);
-    padding: 40px 64px;
-}
-
-.home-spotlight-inner {
-    max-width: 1280px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    padding: 72px 32px 48px;
     gap: 48px;
-    align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
-.home-spotlight-info {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.hero-left {
+    flex: 0 0 40%;
+    max-width: 560px;
 }
 
-.home-spotlight-name {
-    font-size: 22px;
+.hero-right {
+    flex: 1;
+    min-height: 320px;
+}
+
+/* ─── Typography ───────────────────────────────────────────────── */
+.hero-headline {
+    font-size: 48px;
     font-weight: 700;
-    color: var(--home-dark);
+    line-height: 1.12;
+    letter-spacing: -1.5px;
+    color: #0f172a;
+    margin: 0 0 20px 0;
 }
 
-.home-spotlight-meta {
-    font-size: 14px;
-    color: var(--home-muted);
+.hero-subhead {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: #475569;
+    max-width: 520px;
+    margin: 0 0 32px 0;
+}
+
+/* ─── CTA Row ──────────────────────────────────────────────────── */
+.hero-cta-row {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     flex-wrap: wrap;
-}
-
-.home-spotlight-meta span {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.home-spotlight-matches {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.home-spotlight-match {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    background: #FFFFFF;
-    border-radius: 8px;
-    box-shadow: var(--home-shadow);
-    font-size: 14px;
-    color: var(--home-dark);
-}
-
-/* ─── Zones 3–5: Data Panel Slots ─────────────────────────────────────── */
-.home-data-slot {
-    padding: 60px 64px;
-    max-width: 1280px;
-    margin: 0 auto;
-}
-
-.home-data-slot+.home-data-slot {
-    border-top: 1px solid #E5E7EB;
-}
-
-.home-section-label {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--home-accent);
     margin-bottom: 16px;
 }
 
-.home-data-placeholder {
-    width: 100%;
-    height: 200px;
-    background: var(--home-panel-bg);
-    border-radius: 12px;
-    display: flex;
+.cta-primary {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    color: #CCC;
+    gap: 8px;
+    height: 44px;
+    padding: 0 24px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+}
+
+.cta-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(14, 165, 233, 0.4);
+}
+
+.cta-primary:active {
+    transform: translateY(0);
+}
+
+.cta-icon {
+    font-size: 16px;
+}
+
+.cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 24px;
+    border-radius: 12px;
+    border: 1.5px solid #cbd5e1;
+    background: #fff;
+    color: #334155;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cta-secondary:hover {
+    border-color: #94a3b8;
+    background: #f1f5f9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.cta-tertiary {
+    display: inline-block;
     font-size: 14px;
+    color: #64748b;
+    text-decoration: none;
     font-weight: 500;
+    margin-bottom: 28px;
+    transition: color 0.2s;
 }
 
-/* ─── Zone 6: CTA ─────────────────────────────────────────────────────── */
-.home-cta {
-    padding: 80px 64px;
-    text-align: center;
-    max-width: 1280px;
+.cta-tertiary:hover {
+    color: #0ea5e9;
+}
+
+/* ─── Trust Chips ──────────────────────────────────────────────── */
+.trust-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.trust-chip {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.chip-blue {
+    background: #EFF6FF;
+    color: #1d4ed8;
+    border: 1px solid #DBEAFE;
+}
+
+.chip-green {
+    background: #ECFDF5;
+    color: #059669;
+    border: 1px solid #D1FAE5;
+}
+
+.chip-purple {
+    background: #F5F3FF;
+    color: #7c3aed;
+    border: 1px solid #EDE9FE;
+}
+
+/* ─── 3-Step Section ───────────────────────────────────────────── */
+.steps-section {
+    max-width: 1240px;
     margin: 0 auto;
+    padding: 24px 32px 64px;
+    position: relative;
+    z-index: 1;
 }
 
-.home-cta-text {
-    font-size: 18px;
-    color: var(--home-muted);
-    font-weight: 400;
+.steps-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
 }
 
-.home-cta-arrow {
-    display: block;
-    font-size: 24px;
-    color: #CCC;
-    margin-bottom: 12px;
-    animation: cta-float 2.5s ease-in-out infinite;
+.step-card {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 28px 24px;
+    transition: all 0.2s ease;
 }
 
-@keyframes cta-float {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-6px);
-    }
+.step-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
 }
 
-/* ─── Responsive ──────────────────────────────────────────────────────── */
+.step-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+}
+
+.step-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+}
+
+.step-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #64748b;
+    margin: 0;
+}
+
+/* ─── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 1024px) {
-    .home-hero {
-        padding: 64px 40px;
-    }
-
-    .home-hero-headline {
-        font-size: 42px;
-    }
-
-    .home-spotlight {
-        padding: 32px 40px;
-    }
-
-    .home-data-slot,
-    .home-cta {
-        padding-left: 40px;
-        padding-right: 40px;
-    }
-}
-
-@media (max-width: 768px) {
-    .home-hero {
-        grid-template-columns: 1fr;
-        padding: 48px 24px;
+    .home-hero-v2 {
+        flex-direction: column;
+        padding: 48px 24px 32px;
         gap: 32px;
     }
 
-    .home-hero-headline {
-        font-size: 32px;
+    .hero-left {
+        flex: none;
+        max-width: 100%;
     }
 
-    .home-hero-copy {
+    .hero-right {
+        display: none;
+    }
+
+    .hero-headline {
+        font-size: 36px;
+    }
+
+    .steps-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .steps-section {
+        padding: 16px 24px 48px;
+    }
+}
+
+@media (max-width: 640px) {
+    .hero-headline {
+        font-size: 30px;
+    }
+
+    .hero-subhead {
         font-size: 16px;
     }
 
-    .home-spotlight {
-        padding: 24px;
+    .hero-cta-row {
+        flex-direction: column;
     }
 
-    .home-spotlight-inner {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-
-    .home-data-slot,
-    .home-cta {
-        padding: 40px 24px;
+    .cta-primary,
+    .cta-secondary {
+        width: 100%;
+        justify-content: center;
     }
 }

@@ -203,8 +203,9 @@ export function openModal() {
     // Auto-populate Player A from the currently loaded player dashboard
     const searchInput = document.getElementById('player-search');
     if (searchInput && searchInput.value.trim()) {
-        const pName = searchInput.value.trim().replace(/ /g, '_');
-        playerAId = pName;
+        const name = searchInput.value.trim();
+        // Match makePlayerId format: lowercase, remove punctuation, spaces to underscores
+        playerAId = name.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
     }
 
     modalRoot.style.display = 'flex';

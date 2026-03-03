@@ -93,6 +93,7 @@ export function buildCompareProfile(playerId) {
         lastName: playerInfo?.last_name || playerId.split('_').pop(),
         countryCode: 'UN',
         imageUrl: `data/players/${playerId}/profile.png`,
+        matchesPlayed: playerInfo?.matches_played || 0,
         percentiles,
         attributes,
     };

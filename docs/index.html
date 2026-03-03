@@ -79,32 +79,14 @@
   <!-- ───── Main Dashboard ───── -->
   <main id="dashboard" class="hidden">
     <!-- Player Header -->
-    <section class="player-header" id="player-header">
-      <h2 id="player-name-display"></h2>
-      <div class="player-meta" id="player-meta"></div>
-      <div id="player-surface-toggle" style="margin-top: 12px;"></div>
-    </section>
-
-    <!-- Data Coverage -->
-    <section class="card module-card" id="coverage-section">
-      <button class="card-header accordion-btn" aria-expanded="false" aria-controls="coverage-content">
-        <div class="header-text">
-          <h3>📊 Data Coverage</h3>
-          <span class="card-subtitle">Charted matches & points — understand sample bias</span>
-        </div>
-        <span class="accordion-icon">▼</span>
-      </button>
-      <div class="card-content collapsed" id="coverage-content">
-        <div class="coverage-totals" id="coverage-totals"></div>
-        <div class="table-wrapper">
-          <table id="coverage-table" class="data-table">
-            <thead>
-              <tr id="coverage-thead"></tr>
-            </thead>
-            <tbody id="coverage-tbody"></tbody>
-          </table>
-        </div>
+    <section class="player-header" id="player-header"
+      style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h2 id="player-name-display"></h2>
+        <div class="player-meta" id="player-meta"></div>
+        <div id="player-surface-toggle" style="margin-top: 12px;"></div>
       </div>
+      <div id="player-stat-boxes" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start;"></div>
     </section>
 
     <!-- Radar Module Injection Target -->
@@ -124,7 +106,7 @@
       </div>
     </section>
 
-    <!-- Pattern Inference (New) -->
+    <!-- 1. Pattern Inference -->
     <section class="card module-card" id="inference-section">
       <button class="card-header accordion-btn" aria-expanded="true" aria-controls="inference-content">
         <div class="header-text">
@@ -173,56 +155,7 @@
       </div>
     </section>
 
-    <!-- Shot Patterns -->
-    <section class="card module-card" id="patterns-section">
-      <button class="card-header accordion-btn" aria-expanded="true" aria-controls="patterns-content">
-        <div class="header-text">
-          <h3>🎾 Shots Played</h3>
-          <span class="card-subtitle">Ranked by Adjusted Effectiveness vs player baseline</span>
-        </div>
-        <span class="accordion-icon">▼</span>
-      </button>
-      <div class="card-content" id="patterns-content">
-        <div class="dual-tables">
-          <div class="table-col">
-            <h4 class="strength-title">Top Strengths</h4>
-            <div class="table-wrapper">
-              <table class="data-table compact-table">
-                <thead>
-                  <tr>
-                    <th>Pattern</th>
-                    <th>N</th>
-                    <th>Pt Win%</th>
-                    <th>Adj Eff</th>
-                  </tr>
-                </thead>
-                <tbody id="patterns-strengths-tbody"></tbody>
-              </table>
-              <button class="show-more-btn" data-target="patterns-strengths-tbody">Show more...</button>
-            </div>
-          </div>
-          <div class="table-col">
-            <h4 class="weakness-title">Top Weaknesses</h4>
-            <div class="table-wrapper">
-              <table class="data-table compact-table">
-                <thead>
-                  <tr>
-                    <th>Pattern</th>
-                    <th>N</th>
-                    <th>Pt Win%</th>
-                    <th>Adj Eff</th>
-                  </tr>
-                </thead>
-                <tbody id="patterns-weaknesses-tbody"></tbody>
-              </table>
-              <button class="show-more-btn" data-target="patterns-weaknesses-tbody">Show more...</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Serve Analysis -->
+    <!-- 2. Serve Direction Analysis -->
     <section class="card module-card" id="serve-section">
       <button class="card-header accordion-btn" aria-expanded="true" aria-controls="serve-content">
         <div class="header-text">
@@ -232,7 +165,6 @@
         <span class="accordion-icon">▼</span>
       </button>
       <div class="card-content" id="serve-content">
-        <!-- 1st / 2nd Serve Summary -->
         <div id="serve-detailed-panel"
           style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; padding: 0 4px;">
         </div>
@@ -252,7 +184,7 @@
       </div>
     </section>
 
-    <!-- Serve + 1 -->
+    <!-- 3. Serve + 1 Sequences -->
     <section class="card module-card" id="serve-one-section">
       <button class="card-header accordion-btn" aria-expanded="true" aria-controls="serve-one-content">
         <div class="header-text">
@@ -301,16 +233,17 @@
       </div>
     </section>
 
-    <!-- Win vs Loss Comparison -->
+    <!-- 4. Win Loss Comparison of Shots (collapsed by default) -->
+
     <section class="card module-card compare-card" id="compare-section">
-      <button class="card-header accordion-btn" aria-expanded="true" aria-controls="compare-content">
+      <button class="card-header accordion-btn" aria-expanded="false" aria-controls="compare-content">
         <div class="header-text">
           <h3>⚖️ Win Loss Comparison of Shots</h3>
           <span class="card-subtitle">Same shot, different outcomes</span>
         </div>
         <span class="accordion-icon">▼</span>
       </button>
-      <div class="card-content" id="compare-content">
+      <div class="card-content collapsed" id="compare-content">
         <div class="dual-tables">
           <div class="table-col">
             <h4 class="win-label">✅ In Wins</h4>
@@ -348,16 +281,16 @@
       </div>
     </section>
 
-    <!-- Direction Patterns -->
+    <!-- 5. Shot Direction (collapsed by default) -->
     <section class="card module-card" id="direction-section">
-      <button class="card-header accordion-btn" aria-expanded="true" aria-controls="direction-content">
+      <button class="card-header accordion-btn" aria-expanded="false" aria-controls="direction-content">
         <div class="header-text">
           <h3>🧭 Shot Direction Breakdown</h3>
           <span class="card-subtitle">Where each shot lands and effectiveness</span>
         </div>
         <span class="accordion-icon">▼</span>
       </button>
-      <div class="card-content" id="direction-content">
+      <div class="card-content collapsed" id="direction-content">
         <div class="dual-tables">
           <div class="table-col">
             <h4 class="strength-title">Top Strengths</h4>
@@ -393,6 +326,77 @@
               <button class="show-more-btn" data-target="direction-weaknesses-tbody">Show more...</button>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Shots Played (collapsed by default) -->
+    <section class="card module-card" id="patterns-section">
+      <button class="card-header accordion-btn" aria-expanded="false" aria-controls="patterns-content">
+        <div class="header-text">
+          <h3>🎾 Shots Played</h3>
+          <span class="card-subtitle">Ranked by Adjusted Effectiveness vs player baseline</span>
+        </div>
+        <span class="accordion-icon">▼</span>
+      </button>
+      <div class="card-content collapsed" id="patterns-content">
+        <div class="dual-tables">
+          <div class="table-col">
+            <h4 class="strength-title">Top Strengths</h4>
+            <div class="table-wrapper">
+              <table class="data-table compact-table">
+                <thead>
+                  <tr>
+                    <th>Pattern</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
+                <tbody id="patterns-strengths-tbody"></tbody>
+              </table>
+              <button class="show-more-btn" data-target="patterns-strengths-tbody">Show more...</button>
+            </div>
+          </div>
+          <div class="table-col">
+            <h4 class="weakness-title">Top Weaknesses</h4>
+            <div class="table-wrapper">
+              <table class="data-table compact-table">
+                <thead>
+                  <tr>
+                    <th>Pattern</th>
+                    <th>N</th>
+                    <th>Pt Win%</th>
+                    <th>Adj Eff</th>
+                  </tr>
+                </thead>
+                <tbody id="patterns-weaknesses-tbody"></tbody>
+              </table>
+              <button class="show-more-btn" data-target="patterns-weaknesses-tbody">Show more...</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Coverage (collapsed) -->
+    <section class="card module-card" id="coverage-section">
+      <button class="card-header accordion-btn" aria-expanded="false" aria-controls="coverage-content">
+        <div class="header-text">
+          <h3>📊 Data Coverage</h3>
+          <span class="card-subtitle">Charted matches & points — understand sample bias</span>
+        </div>
+        <span class="accordion-icon">▼</span>
+      </button>
+      <div class="card-content collapsed" id="coverage-content">
+        <div class="coverage-totals" id="coverage-totals"></div>
+        <div class="table-wrapper">
+          <table id="coverage-table" class="data-table">
+            <thead>
+              <tr id="coverage-thead"></tr>
+            </thead>
+            <tbody id="coverage-tbody"></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -464,48 +468,63 @@
   <!-- ═══════ Home Screen ═══════ -->
   <div id="home-screen" class="home-screen">
 
-    <!-- Zone 1: Hero -->
-    <section class="home-hero">
-      <div class="home-hero-text">
-        <h2 class="home-hero-headline">Know the player before the first serve.</h2>
-        <div class="home-hero-copy">
-          <span class="stanza">
-            <span class="line">Patterns that repeat. Tendencies that hold under pressure.</span>
-            <span class="line">Strengths that travel across surfaces — and those that don't.</span>
-          </span>
-          <span class="stanza">
-            <span class="line">Point-by-point data from thousands of charted matches,</span>
-            <span class="line">turned into something you can actually use.</span>
-          </span>
+    <!-- Hero Section: 2-panel -->
+    <section class="home-hero-v2">
+      <!-- Left Panel (40%) -->
+      <div class="hero-left">
+        <h2 class="hero-headline">Know the player<br>before the first serve.</h2>
+        <p class="hero-subhead">
+          Patterns that repeat. Tendencies that hold under pressure.
+          Point-by-point data from thousands of charted matches,
+          turned into something you can actually use.
+        </p>
+
+        <!-- CTA Row -->
+        <div class="hero-cta-row">
+          <button class="cta-primary" id="cta-search-btn">
+            <span class="cta-icon">🔍</span> Search a player
+          </button>
+          <button class="cta-secondary" id="cta-compare-btn">
+            Compare players
+          </button>
+        </div>
+
+        <a href="#how-it-works" class="cta-tertiary">See how it works ↓</a>
+
+        <!-- Trust Chips -->
+        <div class="trust-chips">
+          <span class="trust-chip chip-blue">Built on TennisAbstract charting data</span>
+          <span class="trust-chip chip-green">01–100 tour percentiles</span>
+          <span class="trust-chip chip-purple">Pattern-first scouting</span>
         </div>
       </div>
-      <div id="home-live-panel" class="home-live-panel" style="display:none;"></div>
-    </section>
 
-    <!-- Zone 2: Tournament Spotlight -->
-    <section class="home-spotlight" id="home-spotlight" style="display:none;">
-      <div class="home-spotlight-inner">
-        <div class="home-spotlight-info"></div>
-        <div class="home-spotlight-matches"></div>
+      <!-- Right Panel (60%) — empty for now -->
+      <div class="hero-right">
       </div>
     </section>
 
-    <!-- Zone 3: Data Panel Slot 1 -->
-    <section class="home-data-slot" id="home-slot-1">
-      <div class="home-section-label">Analytics Preview</div>
-      <div class="home-data-placeholder">Data panel — awaiting specification</div>
-    </section>
-
-    <!-- Zone 4: Data Panel Slot 2 -->
-    <section class="home-data-slot" id="home-slot-2" style="display:none;"></section>
-
-    <!-- Zone 5: Data Panel Slot 3 (optional) -->
-    <section class="home-data-slot" id="home-slot-3" style="display:none;"></section>
-
-    <!-- Zone 6: CTA -->
-    <section class="home-cta">
-      <span class="home-cta-arrow">↑</span>
-      <div class="home-cta-text">Search a player above to load their scout report.</div>
+    <!-- 3-Step Section -->
+    <section class="steps-section" id="how-it-works">
+      <div class="steps-row">
+        <div class="step-card">
+          <div class="step-icon">🔍</div>
+          <h4 class="step-title">Search</h4>
+          <p class="step-desc">Type any player name to pull up their full scouting profile from charted match data.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">📊</div>
+          <h4 class="step-title">Scout</h4>
+          <p class="step-desc">Tour percentile radar, serve patterns, shot sequences, and win/loss tendencies — all in
+            one view.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">⚖️</div>
+          <h4 class="step-title">Compare</h4>
+          <p class="step-desc">Overlay two players side by side with FIFA-style attribute bars and head-to-head records.
+          </p>
+        </div>
+      </div>
     </section>
 
   </div>
