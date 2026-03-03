@@ -12,7 +12,12 @@ export function renderCompareCard(containerId, playerProfile, side = 'left', onC
         return;
     }
 
-    const { fullName, lastName, countryCode, imageUrl, elo, archetype } = playerProfile;
+    const { fullName, lastName, countryCode, imageUrl, percentiles } = playerProfile;
+
+    // Compute overall rating: average of non-null radar percentiles
+    const radarKeys = ['serve', 'ground_consistency', 'aggression_efficiency', 'volley_win', 'break_point_defense', 'aggregate_consistency'];
+    const validVals = radarKeys.map(k => percentiles?.[k]).filter(v => v !== null && v !== undefined);
+    const overallRating = validVals.length > 0 ? Math.round(validVals.reduce((a, b) => a + b, 0) / validVals.length) : '—';
 
     const accentColor = side === 'left' ? '#38bdf8' : '#f43f5e';
 
@@ -27,15 +32,15 @@ export function renderCompareCard(containerId, playerProfile, side = 'left', onC
                     <div style="width:72px; height:72px; border-radius:50%; background:#0f172a; overflow:hidden; border:2px solid ${accentColor}44; display:flex; align-items:center; justify-content:center;">
                         <img src="${imageUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'72\\' height=\\'72\\'><rect width=\\'72\\' height=\\'72\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'50%\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-size=\\'28\\' fill=\\'%23475569\\'>👤</text></svg>'" />
                     </div>
-                    <div style="position:absolute; -5px; -5px; background:${accentColor}; color:#0f172a; font-size:10px; font-weight:800; padding:2px 6px; border-radius:10px; border:2px solid #0f172a;">
+                    <div style="position:absolute; bottom:-5px; right:-5px; background:${accentColor}; color:#0f172a; font-size:10px; font-weight:800; padding:2px 6px; border-radius:10px; border:2px solid #0f172a;">
                         ${countryCode}
                     </div>
                 </div>
                 
                 <div class="rating-block" style="text-align:right;">
                     <div style="background: linear-gradient(135deg, ${accentColor}22 0%, ${accentColor}11 100%); padding: 8px 12px; border-radius: 10px; border: 1px solid ${accentColor}33;">
-                        <div style="font-size:38px; font-weight:900; color:#f8fafc; line-height:1; font-family:'Inter', sans-serif;">${elo}</div>
-                        <div style="font-size:9px; color:${accentColor}; text-transform:uppercase; font-weight:800; letter-spacing:1px; margin-top:2px;">Rating</div>
+                        <div style="font-size:38px; font-weight:900; color:#f8fafc; line-height:1; font-family:'Inter', sans-serif;">${overallRating}</div>
+                        <div style="font-size:9px; color:${accentColor}; text-transform:uppercase; font-weight:800; letter-spacing:1px; margin-top:2px;">Overall</div>
                     </div>
                 </div>
 
@@ -45,15 +50,6 @@ export function renderCompareCard(containerId, playerProfile, side = 'left', onC
                 <h3 style="margin:0; font-size:22px; color:#f8fafc; font-weight:800; letter-spacing:-0.5px;">${lastName}</h3>
                 <div style="color:#94a3b8; font-size:13px; margin-top:2px;">${fullName}</div>
             </div>
-
-            <div style="margin-top:auto; padding-top:20px; display:flex; gap:8px;">
-                <div style="display:flex; flex-direction:column; gap:4px;">
-                    <span style="font-size:9px; color:#64748b; text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Playstyle Archetype</span>
-                    <span style="display:inline-block; padding:4px 10px; background:${accentColor}15; color:${accentColor}; border: 1px solid ${accentColor}33; border-radius:6px; font-size:12px; font-weight:700;">
-                        ${archetype}
-                    </span>
-                </div>
-            </div>
         </div>
     `;
 
@@ -61,4 +57,3 @@ export function renderCompareCard(containerId, playerProfile, side = 'left', onC
         if (onClear) onClear(side);
     });
 }
-

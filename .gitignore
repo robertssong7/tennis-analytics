@@ -1,6 +1,13 @@
 node_modules/
 **/.ipynb_checkpoints/
 .env
-.env
 .DS_Store
 
+# Raw data (never commit CSVs)
+data/raw/**
+data/csvs/**
+data/derived/**
+
+# Temp files
+_check.js
+_output.txt

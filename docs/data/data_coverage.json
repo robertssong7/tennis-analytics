@@ -1,0 +1,54 @@
+{
+  "total_players": 979,
+  "thresholds": {
+    "serve": {
+      "min_serve_pts": 200
+    },
+    "return_quality": {
+      "min_return_pts": 200
+    },
+    "ground_consistency": {
+      "min_gs_total": 1000
+    },
+    "ground_damage": {
+      "min_gs_total": 1000
+    },
+    "aggression_efficiency": {
+      "min_gs_total": 1000
+    },
+    "volley_win": {
+      "min_net_pts": 50
+    },
+    "volley_usage": {
+      "min_net_pts": 50
+    },
+    "break_point_defense": {
+      "min_bk_pts": 20
+    },
+    "endurance": {
+      "min_matches": 20,
+      "min_long_matches": 5
+    },
+    "efficiency": {
+      "min_matches": 20,
+      "min_bo3": 10
+    },
+    "aggregate_consistency": {
+      "min_matches": 20,
+      "min_quality_matches": 10
+    }
+  },
+  "eligible_players": {
+    "serve": 465,
+    "return_quality": 457,
+    "ground_consistency": 347,
+    "ground_damage": 347,
+    "aggression_efficiency": 347,
+    "volley_win": 512,
+    "volley_usage": 512,
+    "break_point_defense": 481,
+    "endurance": 154,
+    "efficiency": 154,
+    "aggregate_consistency": 154
+  }
+}

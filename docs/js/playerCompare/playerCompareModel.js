@@ -1,115 +1,100 @@
-let percentilesCache = {};  // keyed by surface
-let metaCache = {};         // keyed by surface
+let percentilesCache = null;
+let playersCache = null;
 let playerListCache = null;
-let currentCompareSurface = 'all';
 
 export async function initCompareData(surface = 'all') {
-    const cacheKey = surface;
-    if (percentilesCache[cacheKey] && metaCache[cacheKey]) {
-        return { percentiles: percentilesCache[cacheKey], meta: metaCache[cacheKey], list: playerListCache };
+    if (percentilesCache && playersCache) {
+        return { percentiles: percentilesCache, list: playerListCache };
     }
 
     try {
-        const suffix = surface === 'all' ? '_all' : `_${surface.toLowerCase()}`;
-        let pRes, mRes;
-
-        try {
-            [pRes, mRes] = await Promise.all([
-                fetch(`data/player_percentiles${suffix}.json`),
-                fetch(`data/player_meta${suffix}.json`)
-            ]);
-            if (!pRes.ok || !mRes.ok) throw new Error('New naming not found');
-        } catch {
-            // Fallback to legacy naming convention
-            [pRes, mRes] = await Promise.all([
-                fetch(`data/player_percentiles_all.json`),
-                fetch(`data/player_meta.json`)
-            ]);
-        }
+        const [pRes, plRes] = await Promise.all([
+            fetch('data/player_percentiles_all.json'),
+            fetch('data/players_v2.json')
+        ]);
 
         if (!pRes.ok) throw new Error("Failed to load percentiles");
-        if (!mRes.ok) throw new Error("Failed to load meta");
+        if (!plRes.ok) throw new Error("Failed to load players");
 
-        const pData = await pRes.json();
-        const mData = await mRes.json();
+        percentilesCache = await pRes.json(); // { player_id: { serve: 81, ... } }
+        playersCache = await plRes.json();    // [{ player_id, full_name, last_name, matches_played }]
 
-        percentilesCache[cacheKey] = pData.players || {};
-        metaCache[cacheKey] = mData || {};
-
-        // Build player list from 'all' surface (superset)
-        if (!playerListCache || cacheKey === 'all') {
-            playerListCache = Object.keys(percentilesCache[cacheKey]).map(id => ({
-                id,
-                name: metaCache[cacheKey][id]?.fullName || id.replace(/_/g, ' ')
-            })).sort((a, b) => a.name.localeCompare(b.name));
+        // Build lookup by player_id
+        const playerLookup = {};
+        for (const p of playersCache) {
+            playerLookup[p.player_id] = p;
         }
 
-        return { percentiles: percentilesCache[cacheKey], meta: metaCache[cacheKey], list: playerListCache };
+        playerListCache = Object.keys(percentilesCache).map(id => ({
+            id,
+            name: playerLookup[id]?.full_name || id.replace(/_/g, ' ')
+        })).sort((a, b) => a.name.localeCompare(b.name));
+
+        return { percentiles: percentilesCache, list: playerListCache };
     } catch (e) {
         console.error("Compare Data Init Error:", e);
-        return { percentiles: {}, meta: {}, list: [] };
+        return { percentiles: {}, list: [] };
     }
 }
 
 export function setCompareSurface(surface) {
-    currentCompareSurface = surface;
+    // v2: single surface for now (all)
 }
 
 export function getPlayerList() {
     return playerListCache || [];
 }
 
+// All 11 metrics with display labels
+const METRIC_DEFS = [
+    { key: 'serve', label: 'Serve (SQI)' },
+    { key: 'return_quality', label: 'Return' },
+    { key: 'ground_consistency', label: 'GS Consistency' },
+    { key: 'ground_damage', label: 'GS Damage' },
+    { key: 'aggression_efficiency', label: 'Aggression' },
+    { key: 'volley_win', label: 'Net Win Rate' },
+    { key: 'volley_usage', label: 'Net Usage' },
+    { key: 'break_point_defense', label: 'BP Defense' },
+    { key: 'endurance', label: 'Endurance' },
+    { key: 'efficiency', label: 'Efficiency' },
+    { key: 'aggregate_consistency', label: 'Consistency' },
+];
+
 export function buildCompareProfile(playerId) {
-    const surface = currentCompareSurface;
-    const perc = percentilesCache[surface];
-    const met = metaCache[surface];
+    if (!percentilesCache) return null;
 
-    if (!perc || !met) return null;
+    const p = percentilesCache[playerId];
+    if (!p) return null;
 
-    const p = perc[playerId];
-    const m = met[playerId];
+    // Find player info
+    const playerInfo = playersCache?.find(pl => pl.player_id === playerId);
 
-    if (!p) return null; // Player not in dataset for this surface
-
-    const radar = {
+    // Percentiles for radar (6 axes)
+    const percentiles = {
         serve: p.serve,
-        forehand: p.forehand,
-        backhand: p.backhand,
-        pace: p.pace,
-        consistency: p.consistency
+        ground_consistency: p.ground_consistency,
+        aggression_efficiency: p.aggression_efficiency,
+        volley_win: p.volley_win,
+        break_point_defense: p.break_point_defense,
+        aggregate_consistency: p.aggregate_consistency,
     };
 
-    const attributes = [
-        { key: 'serve', label: 'Serve', value: p.serve, higherIsBetter: true },
-        { key: 'serve_plus_1', label: 'Serve+1', value: p.serve_plus_1, higherIsBetter: true },
-        { key: 'forehand', label: 'Forehand', value: p.forehand, higherIsBetter: true },
-        { key: 'backhand', label: 'Backhand', value: p.backhand, higherIsBetter: true },
-        { key: 'volley_net', label: 'Volley / Net', value: p.volley_net, higherIsBetter: true },
-        { key: 'defense', label: 'Defense', value: p.defense, higherIsBetter: true },
-        { key: 'touch', label: 'Touch / Finesse', value: p.touch, higherIsBetter: true },
-        { key: 'pace', label: 'Pace', value: p.pace, higherIsBetter: true },
-        { key: 'consistency', label: 'Consistency', value: p.consistency, higherIsBetter: true },
-        { key: 'balance', label: 'Balance', value: p.balance, higherIsBetter: true },
-        { key: 'physical', label: 'Physical', value: null, higherIsBetter: true, note: 'Coming soon' },
-        { key: 'trick', label: 'Trick', value: null, higherIsBetter: true, note: 'Coming soon' }
-    ];
+    // All 11 metrics for bar comparison
+    const attributes = METRIC_DEFS.map(def => ({
+        key: def.key,
+        label: def.label,
+        value: p[def.key] ?? null,
+        higherIsBetter: true,
+    }));
 
     return {
         playerId,
-        fullName: m?.fullName || playerId.replace(/_/g, ' '),
-        lastName: m?.lastName || playerId.split('_').pop(),
-        countryCode: m?.countryCode || 'UN',
+        fullName: playerInfo?.full_name || playerId.replace(/_/g, ' '),
+        lastName: playerInfo?.last_name || playerId.split('_').pop(),
+        countryCode: 'UN',
         imageUrl: `data/players/${playerId}/profile.png`,
-        elo: p.elo || 0,
-        archetype: m?.playstyle || 'All-Round',
-        radar,
+        percentiles,
         attributes,
-        meta: {
-            age: m?.age,
-            hometown: m?.hometown,
-            playstyle: m?.playstyle,
-            racket: m?.racket
-        }
     };
 }
 
