@@ -1,0 +1,96 @@
+{
+  "winning": [
+    {
+      "sequence": [
+        "WIDE",
+        "FOREHAND_CENTER_DEEP"
+      ],
+      "total": 23,
+      "winnerRate": 0.6521739130434783,
+      "uplift": 0.2632445612590646,
+      "rankScore": 0.8254017992026037
+    },
+    {
+      "sequence": [
+        "T",
+        "BACKHAND_SLICE_CENTER_DEEP"
+      ],
+      "total": 15,
+      "winnerRate": 0.6666666666666666,
+      "uplift": 0.27773731488225295,
+      "rankScore": 0.7521265914204729
+    },
+    {
+      "sequence": [
+        "T",
+        "FOREHAND_CENTER_DEEP"
+      ],
+      "total": 16,
+      "winnerRate": 0.5625,
+      "uplift": 0.17357064821558632,
+      "rankScore": 0.481240021754383
+    },
+    {
+      "sequence": [
+        "FOREHAND_LEFT",
+        "BACKHAND_SLICE_LEFT"
+      ],
+      "total": 15,
+      "winnerRate": 0.5333333333333333,
+      "uplift": 0.14440398154891965,
+      "rankScore": 0.39105323127351166
+    },
+    {
+      "sequence": [
+        "WIDE",
+        "BACKHAND_SLICE_LEFT_SHALLOW"
+      ],
+      "total": 15,
+      "winnerRate": 0.4,
+      "uplift": 0.011070648215586343,
+      "rankScore": 0.029979871126550418
+    },
+    {
+      "sequence": [
+        "T",
+        "FOREHAND_CENTER_SHALLOW"
+      ],
+      "total": 15,
+      "winnerRate": 0.4,
+      "uplift": 0.011070648215586343,
+      "rankScore": 0.029979871126550418
+    }
+  ],
+  "losing": [
+    {
+      "sequence": [
+        "FOREHAND_RIGHT",
+        "FOREHAND_CENTER"
+      ],
+      "total": 18,
+      "winnerRate": 0.16666666666666666,
+      "uplift": -0.22226268511774702,
+      "rankScore": -0.6424217878985041
+    },
+    {
+      "sequence": [
+        "T",
+        "FOREHAND_CENTER_FORCED_ERROR"
+      ],
+      "total": 16,
+      "winnerRate": 0.3125,
+      "uplift": -0.07642935178441368,
+      "rankScore": -0.21190715880556227
+    },
+    {
+      "sequence": [
+        "T",
+        "BACKHAND_SLICE_CENTER_FORCED_ERROR"
+      ],
+      "total": 16,
+      "winnerRate": 0.3125,
+      "uplift": -0.07642935178441368,
+      "rankScore": -0.21190715880556227
+    }
+  ]
+}

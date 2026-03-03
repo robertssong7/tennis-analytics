@@ -1,0 +1,66 @@
+{
+  "winning": [
+    {
+      "sequence": [
+        "FOREHAND_LEFT",
+        "BACKHAND_SLICE_LEFT"
+      ],
+      "total": 15,
+      "winnerRate": 0.5333333333333333,
+      "uplift": 0.16094839609483963,
+      "rankScore": 0.4358563364117086
+    },
+    {
+      "sequence": [
+        "FOREHAND_RIGHT",
+        "FOREHAND_CENTER"
+      ],
+      "total": 30,
+      "winnerRate": 0.4666666666666667,
+      "uplift": 0.09428172942817298,
+      "rankScore": 0.32067077126968174
+    },
+    {
+      "sequence": [
+        "FOREHAND_RIGHT",
+        "FOREHAND_LEFT"
+      ],
+      "total": 16,
+      "winnerRate": 0.375,
+      "uplift": 0.002615062761506304,
+      "rankScore": 0.007250493520501596
+    }
+  ],
+  "losing": [
+    {
+      "sequence": [
+        "FOREHAND_LEFT",
+        "BACKHAND_CENTER"
+      ],
+      "total": 18,
+      "winnerRate": 0.16666666666666666,
+      "uplift": -0.20571827057182704,
+      "rankScore": -0.5946022793440505
+    },
+    {
+      "sequence": [
+        "FOREHAND_RIGHT",
+        "FOREHAND_RIGHT"
+      ],
+      "total": 43,
+      "winnerRate": 0.3488372093023256,
+      "uplift": -0.023547727936168106,
+      "rankScore": -0.08856771703783602
+    },
+    {
+      "sequence": [
+        "FOREHAND_LEFT",
+        "BACKHAND_LEFT"
+      ],
+      "total": 25,
+      "winnerRate": 0.36,
+      "uplift": -0.01238493723849371,
+      "rankScore": -0.03986557506949733
+    }
+  ]
+}

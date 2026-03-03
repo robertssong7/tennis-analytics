@@ -1,0 +1,36 @@
+{
+  "winning": [
+    {
+      "sequence": [
+        "T",
+        "BACKHAND_SLICE_CENTER"
+      ],
+      "total": 23,
+      "winnerRate": 0.4782608695652174,
+      "uplift": 0.0991871131329704,
+      "rankScore": 0.3110006195231389
+    },
+    {
+      "sequence": [
+        "BACKHAND_SLICE_CENTER",
+        "FOREHAND_LEFT"
+      ],
+      "total": 21,
+      "winnerRate": 0.38095238095238093,
+      "uplift": 0.0018786245201339313,
+      "rankScore": 0.005719514503605153
+    }
+  ],
+  "losing": [
+    {
+      "sequence": [
+        "FOREHAND_LEFT",
+        "BACKHAND_SLICE_CENTER"
+      ],
+      "total": 15,
+      "winnerRate": 0.2,
+      "uplift": -0.179073756432247,
+      "rankScore": -0.48494072211847467
+    }
+  ]
+}

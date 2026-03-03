@@ -1,0 +1,48 @@
+{
+  "wins": [
+    {
+      "shotType": "BACKHAND",
+      "total": 19,
+      "winnerRate": 0.5789473684210527,
+      "adjustedEffectiveness": 0.14334130781499205
+    },
+    {
+      "shotType": "FOREHAND",
+      "total": 29,
+      "winnerRate": 0.5172413793103449,
+      "adjustedEffectiveness": 0.08163531870428425
+    },
+    {
+      "shotType": "SERVE",
+      "total": 51,
+      "winnerRate": 0.5882352941176471,
+      "adjustedEffectiveness": 0.15262923351158647
+    }
+  ],
+  "losses": [
+    {
+      "shotType": "BACKHAND",
+      "total": 38,
+      "winnerRate": 0.39473684210526316,
+      "adjustedEffectiveness": -0.040869218500797444
+    },
+    {
+      "shotType": "BACKHAND_SLICE",
+      "total": 15,
+      "winnerRate": 0.3333333333333333,
+      "adjustedEffectiveness": -0.10227272727272729
+    },
+    {
+      "shotType": "FOREHAND",
+      "total": 72,
+      "winnerRate": 0.4583333333333333,
+      "adjustedEffectiveness": 0.022727272727272707
+    },
+    {
+      "shotType": "SERVE",
+      "total": 81,
+      "winnerRate": 0.48148148148148145,
+      "adjustedEffectiveness": 0.04587542087542085
+    }
+  ]
+}

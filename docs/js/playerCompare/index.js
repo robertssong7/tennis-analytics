@@ -200,11 +200,11 @@ export async function mountCompareFeature() {
 export function openModal() {
     if (!modalRoot) return;
 
-    // Auto-populate Player A if a player is currently active on the dashboard
+    // Auto-populate Player A from the currently loaded player dashboard
     const searchInput = document.getElementById('player-search');
-    if (searchInput && searchInput.value && !playerAId) {
+    if (searchInput && searchInput.value.trim()) {
         const pName = searchInput.value.trim().replace(/ /g, '_');
-        setPlayerSelection('left', pName);
+        playerAId = pName;
     }
 
     modalRoot.style.display = 'flex';

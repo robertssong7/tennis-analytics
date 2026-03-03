@@ -885,6 +885,76 @@ app.get('/api/player/:name/opponent-shifts', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ─── Head-to-Head ─────────────────────────────────────────────────────
+app.get('/api/h2h/:playerA/:playerB', async (req, res) => {
+  try {
+    const a = req.params.playerA;
+    const b = req.params.playerB;
+
+    // Find all matches between these two players, with point-based winner determination
+    const result = await pool.query(`
+      WITH h2h_matches AS (
+        SELECT m.id, m.date, m.event, m.event_round, m.surface,
+               m.first_player_name, m.second_player_name
+        FROM match m
+        WHERE (m.first_player_name = $1 AND m.second_player_name = $2)
+           OR (m.first_player_name = $2 AND m.second_player_name = $1)
+      ),
+      match_points AS (
+        SELECT h.id, h.date, h.event, h.event_round, h.surface,
+               h.first_player_name, h.second_player_name,
+               SUM(CASE WHEN p.player_won = 1 THEN 1 ELSE 0 END) AS p1_pts,
+               SUM(CASE WHEN p.player_won = 2 THEN 1 ELSE 0 END) AS p2_pts
+        FROM h2h_matches h
+        JOIN point p ON p.match_id = h.id
+        GROUP BY h.id, h.date, h.event, h.event_round, h.surface,
+                 h.first_player_name, h.second_player_name
+      )
+      SELECT *, CASE WHEN p1_pts > p2_pts THEN first_player_name ELSE second_player_name END AS probable_winner
+      FROM match_points
+      ORDER BY date DESC
+    `, [a, b]);
+
+    if (result.rows.length === 0) {
+      return res.json({ playerA: a, playerB: b, totalMatches: 0, winsA: 0, winsB: 0, mostRecent: null, matches: [] });
+    }
+
+    let winsA = 0, winsB = 0;
+    const matches = [];
+
+    for (const r of result.rows) {
+      const winner = r.probable_winner;
+      const whoWon = winner === a ? 'A' : winner === b ? 'B' : null;
+
+      if (whoWon === 'A') winsA++;
+      else if (whoWon === 'B') winsB++;
+
+      const eventName = (r.event || '').replace(/_/g, ' ');
+
+      matches.push({
+        date: r.date,
+        tournament: eventName || null,
+        round: r.event_round || null,
+        surface: r.surface || null,
+        score: null,
+        winner: whoWon
+      });
+    }
+
+    const mostRecent = matches[0] || null;
+
+    res.json({
+      playerA: a,
+      playerB: b,
+      totalMatches: result.rows.length,
+      winsA,
+      winsB,
+      mostRecent,
+      matches
+    });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Tennis Analytics API running on http://localhost:${PORT}`);
