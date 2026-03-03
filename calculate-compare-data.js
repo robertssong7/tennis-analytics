@@ -202,14 +202,22 @@ try {
                 percentiles[key] = calculatePercentile(scores[key], distributions[key]);
             }
 
-            // FIFA ELO Rating
+            // FIFA ELO Rating — case-insensitive top100 lookup
             let rating = 70;
-            const topIdx = top100.indexOf(player);
+            const playerLower = player.toLowerCase();
+            const topIdx = top100.findIndex(t => t.toLowerCase() === playerLower);
             if (topIdx !== -1) {
-                rating = Math.round(98 - (topIdx * 0.15));
+                // Top 100: scale from 99 (#1) down to ~84 (#100)
+                rating = Math.round(99 - (topIdx * 0.15));
             } else {
-                const avgPerf = (percentiles.forehand + percentiles.backhand + percentiles.serve) / 3;
-                rating = Math.round(60 + (avgPerf * 0.2));
+                // Non-top-100: use weighted average of all percentile dimensions
+                const dims = ['serve', 'serve_plus_1', 'forehand', 'backhand', 'defense', 'volley_net', 'consistency'];
+                const validDims = dims.filter(d => percentiles[d] > 0);
+                const avgPerf = validDims.length > 0
+                    ? validDims.reduce((sum, d) => sum + percentiles[d], 0) / validDims.length
+                    : 50;
+                rating = Math.round(50 + (avgPerf * 0.33));
+                rating = Math.min(83, Math.max(40, rating)); // Cap below top-100 minimum
             }
             percentiles.elo = rating;
 

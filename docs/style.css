@@ -890,3 +890,100 @@ body {
   flex-direction: column;
   gap: 12px;
 }
+
+/* ─── Hide Data Coverage section (stats moved to player header) ────── */
+#coverage-section {
+  display: none !important;
+}
+
+/* ─── Tournament Matchup List (Compare Modal) ───────────────────────── */
+.matchup-header {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #94a3b8;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 4px;
+}
+
+.matchup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.matchup-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+  transition: background 0.15s ease;
+}
+
+.matchup-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.matchup-date {
+  color: #64748b;
+  min-width: 100px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+}
+
+.matchup-tourney {
+  flex: 1;
+  color: #e2e8f0;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.matchup-round {
+  color: #94a3b8;
+  font-size: 11px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.matchup-surface {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  min-width: 40px;
+  text-align: center;
+}
+
+.matchup-winner {
+  font-size: 14px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.matchup-expand-btn {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 6px;
+  margin-top: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: var(--font-sans, Inter, sans-serif);
+  transition: all 0.15s ease;
+}
+
+.matchup-expand-btn:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+}

@@ -271,8 +271,8 @@ async function renderH2H(aId, bId) {
     if (!h2h || h2h.totalMatches === 0) {
         section.style.display = 'block';
         section.innerHTML = `
-            <div class="h2h-bar" style="justify-content: center;">
-                <span style="color: #64748b; font-size: 13px;">No head-to-head matches found in dataset</span>
+            <div style="text-align:center; color:#64748b; font-size:13px; padding:12px 0;">
+                No recorded matches found in dataset
             </div>
         `;
         return;
@@ -280,31 +280,45 @@ async function renderH2H(aId, bId) {
 
     // Figure out which side is A and B in the H2H data
     const isAFirst = h2h.playerA === aId;
-    const winsLeft = isAFirst ? h2h.winsA : h2h.winsB;
-    const winsRight = isAFirst ? h2h.winsB : h2h.winsA;
+    const matches = (h2h.matches || []).map(m => ({
+        ...m,
+        winner: isAFirst ? m.winner : (m.winner === 'A' ? 'B' : m.winner === 'B' ? 'A' : null)
+    }));
 
-    // Most recent match
-    const recent = h2h.mostRecent;
-    let recentHtml = '';
-    if (recent) {
-        const date = recent.date ? new Date(recent.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-        recentHtml = `
-            <div class="h2h-recent">
-                Last: ${recent.tournament || ''} ${recent.round ? '(' + recent.round + ')' : ''} · ${recent.surface || ''} · ${date}
+    // Filter by current surface if applicable
+    const currentSurface = document.querySelector('.compare-surface-toggle .surface-btn.active')?.dataset?.surface;
+    const filtered = (currentSurface && currentSurface !== 'all')
+        ? matches.filter(m => m.surface && m.surface.toLowerCase() === currentSurface.toLowerCase())
+        : matches;
+
+    const MAX_VISIBLE = 5;
+    const showAll = filtered.length <= MAX_VISIBLE;
+
+    const formatMatch = (m, idx) => {
+        const date = m.date ? new Date(m.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        const winnerColor = m.winner === 'A' ? '#38bdf8' : m.winner === 'B' ? '#f43f5e' : '#94a3b8';
+        const winnerLabel = m.winner === 'A' ? '◀' : m.winner === 'B' ? '▶' : '—';
+        const surfaceColors = { Hard: '#1d4ed8', Clay: '#dc2626', Grass: '#16a34a' };
+        const surfaceBg = surfaceColors[m.surface] || '#475569';
+        const hidden = (!showAll && idx >= MAX_VISIBLE) ? 'style="display:none;"' : '';
+        return `
+            <div class="matchup-row" data-matchup-idx="${idx}" ${hidden}>
+                <span class="matchup-date">${date}</span>
+                <span class="matchup-tourney">${m.tournament || 'Unknown'}</span>
+                <span class="matchup-round">${m.round || ''}</span>
+                <span class="matchup-surface" style="background:${surfaceBg};">${m.surface || '?'}</span>
+                <span class="matchup-winner" style="color:${winnerColor};">${winnerLabel}</span>
             </div>
         `;
-    }
+    };
 
     section.style.display = 'block';
     section.innerHTML = `
-        <div class="h2h-bar">
-            <div class="h2h-record">
-                <span class="h2h-number" style="color: #38bdf8;">${winsLeft}</span>
-                <span class="h2h-vs">H2H</span>
-                <span class="h2h-number" style="color: #f43f5e;">${winsRight}</span>
-            </div>
+        <div class="matchup-header">Tournament Matchups (${filtered.length})</div>
+        <div class="matchup-list">
+            ${filtered.map((m, i) => formatMatch(m, i)).join('')}
         </div>
-        ${recentHtml}
+        ${!showAll ? `<button class="matchup-expand-btn" onclick="this.style.display='none'; this.parentNode.querySelectorAll('.matchup-row[style*=none]').forEach(r => r.style.display = '');">Show all ${filtered.length} matches ▾</button>` : ''}
     `;
 }
 

@@ -26,7 +26,10 @@ const loadingOverlay = document.getElementById('loading-overlay');
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 function formatShotType(s) {
-    return s.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    return s ? s.replace(/_/g, ' ') : '—';
+}
+function toTitleCase(s) {
+    return s.replace(/_/g, ' ').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
 }
 
 function formatPct(v) { return (v * 100).toFixed(1) + '%'; }
@@ -340,8 +343,24 @@ async function loadPlayer(name) {
 function renderPlayerHeader(name, coverage) {
     document.getElementById('player-name-display').textContent = name.replace(/_/g, ' ');
     const t = coverage.totals;
-    document.getElementById('player-meta').textContent =
-        `${t.total_matches} charted matches · ${Number(t.total_points).toLocaleString()} points tracked`;
+    document.getElementById('player-meta').textContent = '';
+
+    // ── Compact stat boxes next to player name ──
+    let statsRow = document.getElementById('player-stat-boxes');
+    if (!statsRow) {
+        statsRow = document.createElement('div');
+        statsRow.id = 'player-stat-boxes';
+        statsRow.style.cssText = 'display:flex; gap:12px; margin-top:10px; flex-wrap:wrap;';
+        const nameEl = document.getElementById('player-name-display');
+        if (nameEl && nameEl.parentNode) nameEl.parentNode.appendChild(statsRow);
+    }
+    const boxStyle = 'background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:8px 14px; text-align:center; min-width:80px;';
+    const labelStyle = 'font-size:10px; color:#94a3b8; text-transform:uppercase; font-weight:600; letter-spacing:0.5px;';
+    const valueStyle = 'font-size:18px; font-weight:700; color:#f8fafc; margin-top:2px;';
+    statsRow.innerHTML = `
+        <div style="${boxStyle}"><div style="${labelStyle}">Matches</div><div style="${valueStyle}">${t.total_matches}</div></div>
+        <div style="${boxStyle}"><div style="${labelStyle}">Points</div><div style="${valueStyle}">${Number(t.total_points).toLocaleString()}</div></div>
+    `;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -423,10 +442,13 @@ function renderServeDetailed(data) {
     const panel = document.getElementById('serve-detailed-panel');
     if (!panel) return;
 
-    if (!data || !data.totalServePoints) {
-        panel.innerHTML = '<p style="color:var(--text-muted); font-size:13px; grid-column: 1/-1;">No detailed serve data available.</p>';
+    // Hide section entirely if data is bogus (100% 1st serve in means no 1st/2nd distinction)
+    const section = document.getElementById('serve-detailed-section');
+    if (!data || !data.totalServePoints || data.firstServeInPct >= 0.99) {
+        if (section) section.style.display = 'none';
         return;
     }
+    if (section) section.style.display = 'block';
 
     const metrics = [
         { label: '1st Serve In', value: formatPct(data.firstServeInPct), sub: `${data.firstServeIn} / ${data.totalServePoints}`, color: '#38bdf8' },
@@ -533,7 +555,7 @@ function renderInference(inference) {
     if (!inference) return;
     const renderRow = (seq) => `
     <tr>
-      <td style="font-weight:600">${seq.sequence.map(s => s.replace(/_/g, ' ')).join(' → ')}</td>
+      <td style="font-weight:600">${seq.sequence.map(s => toTitleCase(s)).join(' → ')}</td>
       <td class="num">${seq.total}</td>
       <td class="num">${formatPct(seq.winnerRate)}</td>
       <td class="num">${formatAdjEff(seq.uplift)}</td>
