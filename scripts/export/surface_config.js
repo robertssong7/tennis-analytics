@@ -358,50 +358,51 @@ const TOURNAMENT_SURFACE = {
 };
 
 // ═══════════════════════════════════════════════════════════════
-// Surface-Specific Weight Vectors (for Overall Rating)
+// Calibrated Overall: Piecewise-Linear Mapping
 // ═══════════════════════════════════════════════════════════════
-// All vectors sum to 1.00
-const SURFACE_WEIGHTS = {
-    Hard: {
-        serve: 0.12, return_quality: 0.14, ground_consistency: 0.08,
-        ground_damage: 0.12, aggression_efficiency: 0.08, volley_win: 0.06,
-        volley_usage: 0.03, break_point_defense: 0.09, endurance: 0.08,
-        efficiency: 0.08, aggregate_consistency: 0.12,
-    },
-    Clay: {
-        serve: 0.08, return_quality: 0.16, ground_consistency: 0.12,
-        ground_damage: 0.10, aggression_efficiency: 0.07, volley_win: 0.04,
-        volley_usage: 0.02, break_point_defense: 0.10, endurance: 0.12,
-        efficiency: 0.05, aggregate_consistency: 0.14,
-    },
-    Grass: {
-        serve: 0.16, return_quality: 0.10, ground_consistency: 0.06,
-        ground_damage: 0.12, aggression_efficiency: 0.08, volley_win: 0.08,
-        volley_usage: 0.06, break_point_defense: 0.08, endurance: 0.05,
-        efficiency: 0.14, aggregate_consistency: 0.07,
-    },
-};
+// Maps overall_base (mean of metric percentiles) → OVR ∈ [floor, cap]
+// using quantile-based anchors computed from the dataset.
+//
+// calibrationConfig = {
+//   anchors: [ { x: <quantile value>, ovr: <target OVR> }, ... ],
+//   floor: 40,
+//   cap: 99
+// }
 
-// ═══════════════════════════════════════════════════════════════
-// OVR Mapping Curve (Piecewise Linear)
-// ═══════════════════════════════════════════════════════════════
-// Maps percentile rank p ∈ [0,1] of composite score S → OVR ∈ [40,99]
-const OVR_CURVE = [
-    // { pMin, pMax, ovrMin, ovrMax }
-    { pMin: 0.985, pMax: 1.0, ovrMin: 90, ovrMax: 99 },
-    { pMin: 0.923, pMax: 0.985, ovrMin: 78, ovrMax: 90 },
-    { pMin: 0.77, pMax: 0.923, ovrMin: 65, ovrMax: 78 },
-    { pMin: 0.0, pMax: 0.77, ovrMin: 40, ovrMax: 65 },
-];
+function computeOverallCalibrated(overallBase, config) {
+    if (overallBase === null || overallBase === undefined) return null;
 
-function mapPercentileToOVR(p) {
-    for (const seg of OVR_CURVE) {
-        if (p >= seg.pMin) {
-            const t = (p - seg.pMin) / (seg.pMax - seg.pMin || 1);
-            return Math.round(seg.ovrMin + t * (seg.ovrMax - seg.ovrMin));
+    const { anchors, floor, cap } = config;
+    // anchors sorted ascending by x
+    const sorted = [...anchors].sort((a, b) => a.x - b.x);
+
+    let ovr;
+
+    if (overallBase <= sorted[0].x) {
+        // Below lowest anchor: linearly map from floor to first anchor OVR
+        const t = (overallBase - 0) / (sorted[0].x || 1);
+        ovr = floor + t * (sorted[0].ovr - floor);
+    } else if (overallBase >= sorted[sorted.length - 1].x) {
+        // Above highest anchor: linearly map from last anchor OVR to cap
+        const lastAnchor = sorted[sorted.length - 1];
+        // Use a gentle ramp: assume max possible overallBase is ~100
+        const headroom = 100 - lastAnchor.x;
+        const t = headroom > 0 ? Math.min(1, (overallBase - lastAnchor.x) / headroom) : 1;
+        ovr = lastAnchor.ovr + t * (cap - lastAnchor.ovr);
+    } else {
+        // Between two anchors: piecewise linear interpolation
+        for (let i = 0; i < sorted.length - 1; i++) {
+            if (overallBase >= sorted[i].x && overallBase <= sorted[i + 1].x) {
+                const x0 = sorted[i].x, x1 = sorted[i + 1].x;
+                const y0 = sorted[i].ovr, y1 = sorted[i + 1].ovr;
+                const t = (overallBase - x0) / (x1 - x0 || 1);
+                ovr = y0 + t * (y1 - y0);
+                break;
+            }
         }
     }
-    return 40;
+
+    return Math.max(floor, Math.min(cap, Math.round(ovr)));
 }
 
 function getSurface(tournamentName) {
@@ -410,8 +411,6 @@ function getSurface(tournamentName) {
 
 module.exports = {
     TOURNAMENT_SURFACE,
-    SURFACE_WEIGHTS,
-    OVR_CURVE,
-    mapPercentileToOVR,
+    computeOverallCalibrated,
     getSurface,
 };

@@ -1,13 +1,14 @@
 /**
- * Metrics Computation + Export — Surface-Aware v2
+ * Metrics Computation + Export — Surface-Aware v3 (Calibrated Overall)
  * 
  * Creates player_match_stats view in PostgreSQL,
  * computes all 11 metrics with percentile rankings (01-100) per surface,
- * computes weighted overall rating mapped to FIFA-like 40-99 scale,
+ * computes calibrated overall rating (40-99 scale) using mean-of-percentiles
+ * + piecewise-linear quantile-based mapping,
  * and exports JSON files to public/data/.
  * 
  * Checkpoints: A (surface mapping) → B (surface agg) → C (percentiles)
- *              → D (weighted composite) → E (OVR mapping)
+ *              → D (overall_base + calibration)
  */
 
 require('dotenv').config();
@@ -15,7 +16,9 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-const { SURFACE_WEIGHTS, mapPercentileToOVR, getSurface } = require('./surface_config');
+const { computeOverallCalibrated, getSurface } = require('./surface_config');
+
+const MIN_METRICS_PRESENT = 8;  // require at least 8 of 11 metrics for overall
 
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -179,11 +182,9 @@ function computeMatchLevelMetrics(matches, existingMetrics) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Compute percentiles + OVR for a group of players
+// Compute percentiles for a group of players (no OVR — computed later)
 // ═══════════════════════════════════════════════════════════════
-function computePercentilesAndOVR(rawMetrics, surfaceName) {
-    const weights = SURFACE_WEIGHTS[surfaceName];
-
+function computePercentiles(rawMetrics) {
     // 1. Build sorted distributions per metric
     const distributions = {};
     for (const key of METRIC_KEYS) {
@@ -207,45 +208,58 @@ function computePercentilesAndOVR(rawMetrics, surfaceName) {
         playerPercentiles[pid] = p;
     }
 
-    // 3. Compute weighted composite S per player (Option 1: renormalize over available)
-    const compositeScores = {};
-    for (const [pid, pctls] of Object.entries(playerPercentiles)) {
-        let wSum = 0, vSum = 0;
-        for (const key of METRIC_KEYS) {
-            if (pctls[key] !== null && pctls[key] !== undefined) {
-                wSum += weights[key];
-                vSum += weights[key] * pctls[key];
-            }
-        }
-        compositeScores[pid] = wSum > 0 ? vSum / wSum : null;
-    }
-
-    // 4. Compute percentile rank of S, then map to OVR
-    const validScores = Object.values(compositeScores).filter(v => v !== null);
-    validScores.sort((a, b) => a - b);
-
-    for (const [pid, S] of Object.entries(compositeScores)) {
-        if (S === null) {
-            playerPercentiles[pid].overall = null;
-            continue;
-        }
-        // Percentile rank of S within this surface population
-        let below = 0;
-        for (const v of validScores) {
-            if (v < S) below++;
-            else if (v === S) below += 0.5;
-        }
-        const pRank = validScores.length > 1 ? below / (validScores.length - 1) : 0.5;
-        playerPercentiles[pid].overall = mapPercentileToOVR(Math.min(1, pRank));
-    }
-
-    // 5. Eligibility counts
+    // 3. Eligibility counts
     const eligibility = {};
     for (const key of METRIC_KEYS) {
         eligibility[key] = distributions[key].length;
     }
 
     return { playerPercentiles, eligibility };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Compute overall_base (mean of non-null metric percentiles)
+// ═══════════════════════════════════════════════════════════════
+function computeOverallBase(pctls) {
+    const vals = METRIC_KEYS.map(k => pctls[k]).filter(v => v !== null && v !== undefined);
+    if (vals.length < MIN_METRICS_PRESENT) return null;
+    return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Compute quantile from a sorted array (linear interpolation)
+// ═══════════════════════════════════════════════════════════════
+function quantile(sortedArr, q) {
+    if (sortedArr.length === 0) return 0;
+    const pos = q * (sortedArr.length - 1);
+    const lo = Math.floor(pos);
+    const hi = Math.ceil(pos);
+    if (lo === hi) return sortedArr[lo];
+    return sortedArr[lo] + (pos - lo) * (sortedArr[hi] - sortedArr[lo]);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Build calibration config from overall_base distribution
+// ═══════════════════════════════════════════════════════════════
+function buildCalibrationConfig(allOverallBases) {
+    const valid = allOverallBases.filter(v => v !== null).sort((a, b) => a - b);
+    const q50 = quantile(valid, 0.50);
+    const q90 = quantile(valid, 0.90);
+    const q98 = quantile(valid, 0.98);
+    const q995 = quantile(valid, 0.995);
+
+    return {
+        version: new Date().toISOString().split('T')[0],
+        min_metrics_present: MIN_METRICS_PRESENT,
+        anchors: [
+            { q: 0.50, x: Math.round(q50 * 100) / 100, ovr: 70 },
+            { q: 0.90, x: Math.round(q90 * 100) / 100, ovr: 84 },
+            { q: 0.98, x: Math.round(q98 * 100) / 100, ovr: 92 },
+            { q: 0.995, x: Math.round(q995 * 100) / 100, ovr: 95 },
+        ],
+        floor: 40,
+        cap: 99,
+    };
 }
 
 
@@ -449,8 +463,8 @@ async function run() {
 
             console.log(`  ${playerCount} players with data`);
 
-            // Compute percentiles and OVR
-            const { playerPercentiles, eligibility } = computePercentilesAndOVR(rawMetrics, surface);
+            // Compute percentiles (no OVR yet — computed after all surfaces)
+            const { playerPercentiles, eligibility } = computePercentiles(rawMetrics);
 
             surfaceResults[surface] = playerPercentiles;
             coverageBySurface[surface] = {
@@ -461,16 +475,6 @@ async function run() {
             // Log eligibility
             for (const [key, count] of Object.entries(eligibility)) {
                 console.log(`    ${key}: ${count} eligible`);
-            }
-
-            // Top 5 OVR
-            const topOVR = Object.entries(playerPercentiles)
-                .filter(([_, p]) => p.overall !== null)
-                .sort((a, b) => b[1].overall - a[1].overall)
-                .slice(0, 15);
-            console.log(`  Top 15 OVR (${surface}):`);
-            for (const [pid, p] of topOVR) {
-                console.log(`    ${pid}: ${p.overall}`);
             }
         }
 
@@ -492,25 +496,63 @@ async function run() {
             allRawMetrics[pid] = m;
         }
 
-        // For "All", use Hard weights as default
         const { playerPercentiles: allPercentiles, eligibility: allEligibility } =
-            computePercentilesAndOVR(allRawMetrics, 'Hard');
+            computePercentiles(allRawMetrics);
 
         console.log(`  ${Object.keys(allRawMetrics).length} players total`);
 
         // ─────────────────────────────────────────────────────
-        // CHECKPOINT D & E: Verify weighted composite + OVR
+        // CHECKPOINT D: Calibrated Overall Rating
         // ─────────────────────────────────────────────────────
-        console.log('\n=== CHECKPOINT D/E: OVR Sanity ===');
+        console.log('\n=== CHECKPOINT D: Calibrated Overall ===');
+
+        // 1. Compute overall_base for ALL players ("All" bucket) — used for calibration anchors
+        const allOverallBases = [];
+        for (const [pid, pctls] of Object.entries(allPercentiles)) {
+            pctls.overall_base = computeOverallBase(pctls);
+            if (pctls.overall_base !== null) {
+                allOverallBases.push(pctls.overall_base);
+            }
+        }
+
+        // 2. Build calibration config from the "All" distribution
+        const calibrationConfig = buildCalibrationConfig(allOverallBases);
+        console.log('  Calibration anchors:', JSON.stringify(calibrationConfig.anchors));
+
+        // 3. Apply calibration to "All" percentiles
+        for (const [pid, pctls] of Object.entries(allPercentiles)) {
+            pctls.overall = computeOverallCalibrated(pctls.overall_base, calibrationConfig);
+        }
+
+        // 4. Apply calibration to each surface bucket using the SAME global curve
+        for (const surface of SURFACES) {
+            for (const [pid, pctls] of Object.entries(surfaceResults[surface])) {
+                pctls.overall_base = computeOverallBase(pctls);
+                pctls.overall = computeOverallCalibrated(pctls.overall_base, calibrationConfig);
+            }
+        }
+
+        // 5. Log top players for sanity check
         const checkPlayers = ['carlos_alcaraz', 'novak_djokovic', 'jannik_sinner', 'roger_federer', 'rafael_nadal'];
         for (const pid of checkPlayers) {
-            const line = [`  ${pid}:`];
+            const base = allPercentiles[pid]?.overall_base;
+            const ovr = allPercentiles[pid]?.overall;
+            const line = [`  ${pid}: base=${base?.toFixed(1) ?? '-'} ovr=${ovr ?? '-'}`];
             for (const surface of SURFACES) {
-                const ovr = surfaceResults[surface]?.[pid]?.overall;
-                line.push(`${surface}=${ovr ?? '-'}`);
+                const sOvr = surfaceResults[surface]?.[pid]?.overall;
+                line.push(`${surface}=${sOvr ?? '-'}`);
             }
-            line.push(`All=${allPercentiles[pid]?.overall ?? '-'}`);
             console.log(line.join(' '));
+        }
+
+        // Log top 15 overall (All)
+        const topOVR = Object.entries(allPercentiles)
+            .filter(([_, p]) => p.overall !== null)
+            .sort((a, b) => b[1].overall - a[1].overall)
+            .slice(0, 15);
+        console.log('\n  Top 15 OVR (All):');
+        for (const [pid, p] of topOVR) {
+            console.log(`    ${pid}: base=${p.overall_base?.toFixed(1)} ovr=${p.overall}`);
         }
 
         // ─────────────────────────────────────────────────────
@@ -538,6 +580,13 @@ async function run() {
             JSON.stringify(allPercentiles, null, 2)
         );
         console.log(`  ✓ player_percentiles_all.json (backward compat)`);
+
+        // 2b. overall_calibration.json
+        fs.writeFileSync(
+            path.join(PUBLIC_DIR, 'overall_calibration.json'),
+            JSON.stringify(calibrationConfig, null, 2)
+        );
+        console.log(`  ✓ overall_calibration.json`);
 
         // 3. players_v2.json
         const playersJson = allPlayers.map(p => ({
