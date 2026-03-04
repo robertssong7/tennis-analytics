@@ -1,14 +1,17 @@
 /**
- * Metrics Computation + Export — Surface-Aware v3 (Calibrated Overall)
+ * Metrics Computation + Export — Surface-Aware v4 (SPS + CAR)
  * 
  * Creates player_match_stats view in PostgreSQL,
  * computes all 11 metrics with percentile rankings (01-100) per surface,
- * computes calibrated overall rating (40-99 scale) using mean-of-percentiles
- * + piecewise-linear quantile-based mapping,
+ * computes two-component overall:
+ *   - SPS (Skill Profile Score): surface-weighted composite of metric percentiles
+ *   - CAR (Competition-Adjusted Rating): Elo-like rating with tournament-tier weighting
+ *   - OverallBase = 0.45 * SPS_pct + 0.55 * CAR_pct
+ *   - Overall = piecewise-linear calibration to 40-99
  * and exports JSON files to public/data/.
  * 
  * Checkpoints: A (surface mapping) → B (surface agg) → C (percentiles)
- *              → D (overall_base + calibration)
+ *              → D (Elo/CAR) → E (SPS + CAR → Overall)
  */
 
 require('dotenv').config();
@@ -16,9 +19,12 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-const { computeOverallCalibrated, getSurface } = require('./surface_config');
+const { computeOverallCalibrated, getSurface, SURFACE_WEIGHTS } = require('./surface_config');
+const { runElo, computeEloPercentile } = require('./elo_engine');
 
 const MIN_METRICS_PRESENT = 8;  // require at least 8 of 11 metrics for overall
+const SPS_WEIGHT = 0.45;
+const CAR_WEIGHT = 0.55;
 
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -502,42 +508,134 @@ async function run() {
         console.log(`  ${Object.keys(allRawMetrics).length} players total`);
 
         // ─────────────────────────────────────────────────────
-        // CHECKPOINT D: Calibrated Overall Rating
+        // CHECKPOINT D: Elo Engine (CAR)
         // ─────────────────────────────────────────────────────
-        console.log('\n=== CHECKPOINT D: Calibrated Overall ===');
+        const eloRatings = await runElo(pool);
 
-        // 1. Compute overall_base for ALL players ("All" bucket) — used for calibration anchors
-        const allOverallBases = [];
+        // Build sorted rating arrays for percentile computation
+        const sortedElo = {
+            all: Object.values(eloRatings).map(r => r.all).sort((a, b) => a - b),
+            Hard: Object.values(eloRatings).map(r => r.Hard).sort((a, b) => a - b),
+            Clay: Object.values(eloRatings).map(r => r.Clay).sort((a, b) => a - b),
+            Grass: Object.values(eloRatings).map(r => r.Grass).sort((a, b) => a - b),
+        };
+
+        // ─────────────────────────────────────────────────────
+        // CHECKPOINT E: SPS + CAR → Overall
+        // ─────────────────────────────────────────────────────
+        console.log('\n=== CHECKPOINT E: SPS + CAR → Overall ===');
+
+        // --- Helper: compute SPS (surface-weighted composite of percentiles) ---
+        function computeSPS(pctls, surface) {
+            const weights = SURFACE_WEIGHTS[surface] || SURFACE_WEIGHTS.Hard;
+            let weightedSum = 0;
+            let totalWeight = 0;
+            for (const key of METRIC_KEYS) {
+                const val = pctls[key];
+                const w = weights[key] || 0;
+                if (val !== null && val !== undefined) {
+                    weightedSum += val * w;
+                    totalWeight += w;
+                }
+            }
+            if (totalWeight === 0) return null;
+            // Re-normalize to account for missing metrics
+            return weightedSum / totalWeight;
+        }
+
+        // --- Compute SPS for all surfaces and "All" ---
+        // For "All" we use an equal blend of surface weights  
+        const allSPS = {};
         for (const [pid, pctls] of Object.entries(allPercentiles)) {
-            pctls.overall_base = computeOverallBase(pctls);
-            if (pctls.overall_base !== null) {
-                allOverallBases.push(pctls.overall_base);
+            allSPS[pid] = computeSPS(pctls, 'Hard'); // Use Hard weights for "All" as default
+        }
+        const surfaceSPS = {};
+        for (const surface of SURFACES) {
+            surfaceSPS[surface] = {};
+            for (const [pid, pctls] of Object.entries(surfaceResults[surface])) {
+                surfaceSPS[surface][pid] = computeSPS(pctls, surface);
             }
         }
 
-        // 2. Build calibration config from the "All" distribution
+        // --- Convert SPS to percentile (within surface cohort) ---
+        function percentileRank(value, sortedArr) {
+            if (sortedArr.length === 0 || value === null) return null;
+            let below = 0;
+            for (const v of sortedArr) {
+                if (v < value) below++;
+                else if (v === value) below += 0.5;
+            }
+            return Math.max(1, Math.min(100, Math.round((below / (sortedArr.length - 1 || 1)) * 100)));
+        }
+
+        // SPS percentiles for "All"
+        const allSPSvalues = Object.values(allSPS).filter(v => v !== null).sort((a, b) => a - b);
+        const surfaceSPSvalues = {};
+        for (const surface of SURFACES) {
+            surfaceSPSvalues[surface] = Object.values(surfaceSPS[surface])
+                .filter(v => v !== null).sort((a, b) => a - b);
+        }
+
+        // --- Combine SPS_pct + CAR_pct → OverallBase for "All" ---
+        const allOverallBases = [];
+        for (const [pid, pctls] of Object.entries(allPercentiles)) {
+            const sps = allSPS[pid];
+            const spsPct = percentileRank(sps, allSPSvalues);
+            const elo = eloRatings[pid];
+            const carPct = elo ? computeEloPercentile(elo.all, sortedElo.all) : null;
+
+            if (spsPct !== null && carPct !== null) {
+                const base = SPS_WEIGHT * spsPct + CAR_WEIGHT * carPct;
+                pctls.overall_base = Math.round(base * 100) / 100;
+                pctls.sps_pct = spsPct;
+                pctls.car_pct = carPct;
+                pctls.elo_rating = Math.round(elo.all);
+                allOverallBases.push(pctls.overall_base);
+            } else {
+                pctls.overall_base = null;
+                pctls.sps_pct = spsPct;
+                pctls.car_pct = carPct;
+                pctls.elo_rating = elo ? Math.round(elo.all) : null;
+            }
+        }
+
+        // --- Build calibration from combined OverallBase ---
         const calibrationConfig = buildCalibrationConfig(allOverallBases);
         console.log('  Calibration anchors:', JSON.stringify(calibrationConfig.anchors));
 
-        // 3. Apply calibration to "All" percentiles
+        // --- Apply calibration to "All" ---
         for (const [pid, pctls] of Object.entries(allPercentiles)) {
             pctls.overall = computeOverallCalibrated(pctls.overall_base, calibrationConfig);
         }
 
-        // 4. Apply calibration to each surface bucket using the SAME global curve
+        // --- Apply same pattern to each surface ---
         for (const surface of SURFACES) {
             for (const [pid, pctls] of Object.entries(surfaceResults[surface])) {
-                pctls.overall_base = computeOverallBase(pctls);
+                const sps = surfaceSPS[surface][pid];
+                const spsPct = percentileRank(sps, surfaceSPSvalues[surface]);
+                const elo = eloRatings[pid];
+                const carPct = elo ? computeEloPercentile(elo[surface], sortedElo[surface]) : null;
+
+                if (spsPct !== null && carPct !== null) {
+                    pctls.overall_base = Math.round((SPS_WEIGHT * spsPct + CAR_WEIGHT * carPct) * 100) / 100;
+                    pctls.sps_pct = spsPct;
+                    pctls.car_pct = carPct;
+                    pctls.elo_rating = Math.round(elo[surface]);
+                } else {
+                    pctls.overall_base = null;
+                    pctls.sps_pct = spsPct;
+                    pctls.car_pct = carPct;
+                    pctls.elo_rating = elo ? Math.round(elo[surface]) : null;
+                }
                 pctls.overall = computeOverallCalibrated(pctls.overall_base, calibrationConfig);
             }
         }
 
-        // 5. Log top players for sanity check
+        // --- Sanity checks ---
         const checkPlayers = ['carlos_alcaraz', 'novak_djokovic', 'jannik_sinner', 'roger_federer', 'rafael_nadal'];
         for (const pid of checkPlayers) {
-            const base = allPercentiles[pid]?.overall_base;
-            const ovr = allPercentiles[pid]?.overall;
-            const line = [`  ${pid}: base=${base?.toFixed(1) ?? '-'} ovr=${ovr ?? '-'}`];
+            const p = allPercentiles[pid];
+            const line = [`  ${pid}: sps=${p?.sps_pct ?? '-'} car=${p?.car_pct ?? '-'} base=${p?.overall_base?.toFixed(1) ?? '-'} ovr=${p?.overall ?? '-'}`];
             for (const surface of SURFACES) {
                 const sOvr = surfaceResults[surface]?.[pid]?.overall;
                 line.push(`${surface}=${sOvr ?? '-'}`);
@@ -545,14 +643,14 @@ async function run() {
             console.log(line.join(' '));
         }
 
-        // Log top 15 overall (All)
+        // Top 15 overall (All)
         const topOVR = Object.entries(allPercentiles)
             .filter(([_, p]) => p.overall !== null)
             .sort((a, b) => b[1].overall - a[1].overall)
             .slice(0, 15);
         console.log('\n  Top 15 OVR (All):');
         for (const [pid, p] of topOVR) {
-            console.log(`    ${pid}: base=${p.overall_base?.toFixed(1)} ovr=${p.overall}`);
+            console.log(`    ${pid}: sps=${p.sps_pct} car=${p.car_pct} base=${p.overall_base?.toFixed(1)} ovr=${p.overall} elo=${p.elo_rating}`);
         }
 
         // ─────────────────────────────────────────────────────
@@ -587,6 +685,26 @@ async function run() {
             JSON.stringify(calibrationConfig, null, 2)
         );
         console.log(`  ✓ overall_calibration.json`);
+
+        // 2c. player_car.json (Elo ratings)
+        const carJson = {};
+        for (const [pid, r] of Object.entries(eloRatings)) {
+            carJson[pid] = {
+                elo_all: Math.round(r.all),
+                elo_hard: Math.round(r.Hard),
+                elo_clay: Math.round(r.Clay),
+                elo_grass: Math.round(r.Grass),
+                matches_all: r.matches_all,
+                matches_hard: r.matches_Hard,
+                matches_clay: r.matches_Clay,
+                matches_grass: r.matches_Grass,
+            };
+        }
+        fs.writeFileSync(
+            path.join(PUBLIC_DIR, 'player_car.json'),
+            JSON.stringify(carJson, null, 2)
+        );
+        console.log(`  ✓ player_car.json (${Object.keys(carJson).length} players)`);
 
         // 3. players_v2.json
         const playersJson = allPlayers.map(p => ({

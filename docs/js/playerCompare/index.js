@@ -29,8 +29,13 @@ const STYLES = `
 }
 .compare-modal-title { margin: 0; font-size: 20px; font-weight: 700; color: #f8fafc; }
 .compare-modal-subtitle { font-size: 13px; color: #94a3b8; font-weight: normal; margin-left: 12px; }
-.compare-modal-close { background: transparent; border: none; color: #94a3b8; font-size: 28px; cursor: pointer; line-height: 1; }
-.compare-modal-close:hover { color: #f8fafc; }
+.compare-modal-close {
+    background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.3); color: #94a3b8;
+    font-size: 32px; cursor: pointer; line-height: 1;
+    width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; transition: all 0.2s ease;
+}
+.compare-modal-close:hover { color: #f8fafc; background: rgba(248,250,252,0.1); border-color: rgba(248,250,252,0.3); }
 
 .compare-top-row {
     display: grid; grid-template-columns: 1fr 300px 1fr; gap: 24px; padding: 24px; align-items: center;
@@ -173,6 +178,12 @@ export async function mountCompareFeature() {
         document.getElementById('close-compare-modal').addEventListener('click', closeModal);
         modalRoot.addEventListener('click', (e) => {
             if (e.target === modalRoot) closeModal();
+        });
+        // ESC key closes modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalRoot && modalRoot.style.display === 'flex') {
+                closeModal();
+            }
         });
         document.getElementById('compare-swap-btn').addEventListener('click', handleSwap);
 
@@ -338,7 +349,7 @@ function setupTypeahead(inputId, resultsId, side) {
         }
 
         const list = getPlayerList();
-        const matches = list.filter(p => p.name.toLowerCase().includes(val)).slice(0, 5);
+        const matches = list.filter(p => p.name.toLowerCase().includes(val)).slice(0, 8);
 
         if (matches.length > 0) {
             matches.forEach(m => {

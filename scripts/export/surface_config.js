@@ -358,6 +358,89 @@ const TOURNAMENT_SURFACE = {
 };
 
 // ═══════════════════════════════════════════════════════════════
+// Surface-Specific Weight Vectors (for SPS component)
+// ═══════════════════════════════════════════════════════════════
+// All vectors sum to 1.00
+const SURFACE_WEIGHTS = {
+    Hard: {
+        serve: 0.12, return_quality: 0.14, ground_consistency: 0.08,
+        ground_damage: 0.12, aggression_efficiency: 0.08, volley_win: 0.06,
+        volley_usage: 0.03, break_point_defense: 0.09, endurance: 0.08,
+        efficiency: 0.08, aggregate_consistency: 0.12,
+    },
+    Clay: {
+        serve: 0.08, return_quality: 0.16, ground_consistency: 0.12,
+        ground_damage: 0.10, aggression_efficiency: 0.07, volley_win: 0.04,
+        volley_usage: 0.02, break_point_defense: 0.10, endurance: 0.12,
+        efficiency: 0.05, aggregate_consistency: 0.14,
+    },
+    Grass: {
+        serve: 0.16, return_quality: 0.10, ground_consistency: 0.06,
+        ground_damage: 0.12, aggression_efficiency: 0.08, volley_win: 0.08,
+        volley_usage: 0.06, break_point_defense: 0.08, endurance: 0.05,
+        efficiency: 0.14, aggregate_consistency: 0.07,
+    },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// Tournament Tier Mapping (for Elo K-factor weighting)
+// ═══════════════════════════════════════════════════════════════
+// Maps tournament name → tier multiplier for Elo updates.
+// Higher weight = stronger Elo swing per match.
+const TOURNAMENT_TIER = {
+    // Grand Slams — 1.30
+    Australian_Open: 1.30, Roland_Garros: 1.30, Wimbledon: 1.30, Wimbedon: 1.30, US_Open: 1.30,
+    Australian_Open_Juniors: 0.85, Roland_Garros_Juniors: 0.85, Wimbledon_Juniors: 0.85,
+
+    // Masters 1000 — 1.15
+    Indian_Wells: 1.15, Indian_Wells_Masters: 1.15,
+    Miami: 1.15, Miami_Masters: 1.15, Key_Biscayne: 1.15,
+    Monte_Carlo: 1.15, Monte_Carlo_Masters: 1.15,
+    Madrid: 1.15, Madrid_Masters: 1.15,
+    Rome: 1.15, Rome_Masters: 1.15,
+    Canada_Masters: 1.15,
+    Cincinnati: 1.15, Cincinnati_Masters: 1.15,
+    Shanghai_Masters: 1.15,
+    Paris: 1.15, Paris_Masters: 1.15,
+    Hamburg_Masters: 1.15, Essen_Masters: 1.15, Stockholm_Masters: 1.15,
+    Stuttgart_Masters: 1.15,
+
+    // Year-end / Tour Finals — 1.20
+    Tour_Finals: 1.20, Masters: 1.20, Masters_Cup: 1.20,
+    NextGen_Finals: 1.00, Young_Masters: 1.00,
+
+    // ATP 500 — 1.05
+    Rotterdam: 1.05, Dubai: 1.05, Acapulco: 1.05,
+    Barcelona: 1.05, Hamburg: 1.05, Halle: 1.05,
+    Queens_Club: 1.05, Washington: 1.05, Beijing: 1.05,
+    Tokyo: 1.05, Vienna: 1.05, Basel: 1.05,
+
+    // Olympics — 1.10
+    Olympics: 1.10, Paris_Olympics: 1.10, Tokyo_Olympics: 1.10,
+
+    // Davis Cup / Team — 1.05
+    Davis_Cup_World_Group: 1.05, Davis_Cup_World_Group_F: 1.05,
+    Davis_Cup_World_Group_SF: 1.05, Davis_Cup_World_Group_QF: 1.05,
+    Davis_Cup_World_Group_R1: 1.05, Davis_Cup_World_Group_PO: 1.05,
+    Davis_Cup_Finals: 1.05, Davis_Cup_Qualifiers: 1.00,
+    ATP_Cup: 1.00, United_Cup: 1.00, Laver_Cup: 0.90, Hopman_Cup: 0.90,
+
+    // Grand Slam Cup — 1.10
+    Grand_Slam_Cup: 1.10,
+
+    // Exhibition — 0.70
+    Six_Kings_Slam: 0.70, Kooyong_Classic: 0.70, St_Anton_EXH: 0.70,
+    Suntory_Cup: 0.70, Pepsi_Grand_Slam: 0.70,
+    Nike_Junior_Tour: 0.70, French_Club: 0.70,
+    Great_Ocean_Road_Open: 0.85, Dutch_Championships: 0.85,
+    WITC_Hilton_Head: 0.70,
+};
+
+function getTournamentTier(tournamentName) {
+    return TOURNAMENT_TIER[tournamentName] || 1.00; // Default to ATP 250 level
+}
+
+// ═══════════════════════════════════════════════════════════════
 // Calibrated Overall: Piecewise-Linear Mapping
 // ═══════════════════════════════════════════════════════════════
 // Maps overall_base (mean of metric percentiles) → OVR ∈ [floor, cap]
@@ -411,6 +494,9 @@ function getSurface(tournamentName) {
 
 module.exports = {
     TOURNAMENT_SURFACE,
+    SURFACE_WEIGHTS,
+    TOURNAMENT_TIER,
+    getTournamentTier,
     computeOverallCalibrated,
     getSurface,
 };
