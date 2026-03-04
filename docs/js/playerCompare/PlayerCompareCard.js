@@ -12,11 +12,10 @@ export function renderCompareCard(containerId, playerProfile, side = 'left', onC
         return;
     }
 
-    const { fullName, lastName, countryCode, imageUrl, percentiles, attributes, matchesPlayed } = playerProfile;
+    const { fullName, lastName, countryCode, imageUrl, matchesPlayed, overall } = playerProfile;
 
-    // Compute overall rating: average of ALL non-null attribute values (11 metrics)
-    const validVals = (attributes || []).map(a => a.value).filter(v => v !== null && v !== undefined);
-    const overallRating = validVals.length > 0 ? Math.round(validVals.reduce((a, b) => a + b, 0) / validVals.length) : '—';
+    // Use precomputed overall rating from JSON (FIFA 40-99 scale)
+    const overallRating = overall ?? '—';
 
     const accentColor = side === 'left' ? '#38bdf8' : '#f43f5e';
 
@@ -54,10 +53,6 @@ export function renderCompareCard(containerId, playerProfile, side = 'left', onC
                 <div style="display:flex; flex-direction:column; gap:2px;">
                     <span style="font-size:9px; color:#64748b; text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Matches</span>
                     <span style="font-size:16px; font-weight:700; color:#f8fafc;">${matchesPlayed || '—'}</span>
-                </div>
-                <div style="display:flex; flex-direction:column; gap:2px;">
-                    <span style="font-size:9px; color:#64748b; text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Metrics</span>
-                    <span style="font-size:16px; font-weight:700; color:#f8fafc;">${validVals.length}/11</span>
                 </div>
             </div>
         </div>

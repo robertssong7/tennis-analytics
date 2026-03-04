@@ -1,44 +1,54 @@
-let percentilesCache = null;
+let surfaceData = null;    // Full JSON: { Hard: { players: {...} }, Clay: ..., Grass: ..., All: ... }
 let playersCache = null;
 let playerListCache = null;
+let currentSurface = 'All';
 
-export async function initCompareData(surface = 'all') {
-    if (percentilesCache && playersCache) {
-        return { percentiles: percentilesCache, list: playerListCache };
-    }
+export async function initCompareData(surface = 'All') {
+    currentSurface = surface;
 
-    try {
-        const [pRes, plRes] = await Promise.all([
-            fetch('data/player_percentiles_all.json'),
-            fetch('data/players_v2.json')
-        ]);
+    // Load full surface JSON once
+    if (!surfaceData || !playersCache) {
+        try {
+            const [sRes, plRes] = await Promise.all([
+                fetch('data/player_percentiles_by_surface.json'),
+                fetch('data/players_v2.json')
+            ]);
 
-        if (!pRes.ok) throw new Error("Failed to load percentiles");
-        if (!plRes.ok) throw new Error("Failed to load players");
+            if (!sRes.ok) throw new Error("Failed to load surface percentiles");
+            if (!plRes.ok) throw new Error("Failed to load players");
 
-        percentilesCache = await pRes.json(); // { player_id: { serve: 81, ... } }
-        playersCache = await plRes.json();    // [{ player_id, full_name, last_name, matches_played }]
+            surfaceData = await sRes.json();
+            playersCache = await plRes.json();
 
-        // Build lookup by player_id
-        const playerLookup = {};
-        for (const p of playersCache) {
-            playerLookup[p.player_id] = p;
+            // Build player name list (union of all surfaces)
+            const allIds = new Set();
+            for (const surfKey of Object.keys(surfaceData)) {
+                for (const pid of Object.keys(surfaceData[surfKey].players || {})) {
+                    allIds.add(pid);
+                }
+            }
+
+            const playerLookup = {};
+            for (const p of playersCache) {
+                playerLookup[p.player_id] = p;
+            }
+
+            playerListCache = [...allIds].map(id => ({
+                id,
+                name: playerLookup[id]?.full_name || id.replace(/_/g, ' ')
+            })).sort((a, b) => a.name.localeCompare(b.name));
+
+        } catch (e) {
+            console.error("Compare Data Init Error:", e);
+            return { percentiles: {}, list: [] };
         }
-
-        playerListCache = Object.keys(percentilesCache).map(id => ({
-            id,
-            name: playerLookup[id]?.full_name || id.replace(/_/g, ' ')
-        })).sort((a, b) => a.name.localeCompare(b.name));
-
-        return { percentiles: percentilesCache, list: playerListCache };
-    } catch (e) {
-        console.error("Compare Data Init Error:", e);
-        return { percentiles: {}, list: [] };
     }
+
+    return { list: playerListCache };
 }
 
 export function setCompareSurface(surface) {
-    // v2: single surface for now (all)
+    currentSurface = surface;
 }
 
 export function getPlayerList() {
@@ -61,9 +71,12 @@ const METRIC_DEFS = [
 ];
 
 export function buildCompareProfile(playerId) {
-    if (!percentilesCache) return null;
+    if (!surfaceData) return null;
 
-    const p = percentilesCache[playerId];
+    const bucket = surfaceData[currentSurface];
+    if (!bucket || !bucket.players) return null;
+
+    const p = bucket.players[playerId];
     if (!p) return null;
 
     // Find player info
@@ -71,12 +84,12 @@ export function buildCompareProfile(playerId) {
 
     // Percentiles for radar (6 axes)
     const percentiles = {
-        serve: p.serve,
-        ground_consistency: p.ground_consistency,
-        aggression_efficiency: p.aggression_efficiency,
-        volley_win: p.volley_win,
-        break_point_defense: p.break_point_defense,
-        aggregate_consistency: p.aggregate_consistency,
+        serve: p.serve ?? null,
+        ground_consistency: p.ground_consistency ?? null,
+        aggression_efficiency: p.aggression_efficiency ?? null,
+        volley_win: p.volley_win ?? null,
+        break_point_defense: p.break_point_defense ?? null,
+        aggregate_consistency: p.aggregate_consistency ?? null,
     };
 
     // All 11 metrics for bar comparison
@@ -96,6 +109,7 @@ export function buildCompareProfile(playerId) {
         matchesPlayed: playerInfo?.matches_played || 0,
         percentiles,
         attributes,
+        overall: p.overall ?? null,
     };
 }
 

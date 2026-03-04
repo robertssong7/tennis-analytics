@@ -1,17 +1,21 @@
 /**
- * Metrics Computation + Export — Checkpoints 3 & 4
+ * Metrics Computation + Export — Surface-Aware v2
  * 
- * Creates player_match_stats and player_agg_stats views in PostgreSQL,
- * computes all 11 metrics with percentile rankings (01-100),
+ * Creates player_match_stats view in PostgreSQL,
+ * computes all 11 metrics with percentile rankings (01-100) per surface,
+ * computes weighted overall rating mapped to FIFA-like 40-99 scale,
  * and exports JSON files to public/data/.
  * 
- * Run: node scripts/export/compute_metrics.js
+ * Checkpoints: A (surface mapping) → B (surface agg) → C (percentiles)
+ *              → D (weighted composite) → E (OVR mapping)
  */
 
 require('dotenv').config();
+const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
-const { Pool } = require('pg');
+
+const { SURFACE_WEIGHTS, mapPercentileToOVR, getSurface } = require('./surface_config');
 
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -23,17 +27,240 @@ const pool = new Pool({
 
 const PUBLIC_DIR = path.join(__dirname, '..', '..', 'docs', 'data');
 
+const METRIC_KEYS = [
+    'serve', 'return_quality', 'ground_consistency', 'ground_damage',
+    'aggression_efficiency', 'volley_win', 'volley_usage',
+    'break_point_defense', 'endurance', 'efficiency', 'aggregate_consistency'
+];
+
+const SURFACES = ['Hard', 'Clay', 'Grass'];
+
+// ═══════════════════════════════════════════════════════════════
+// Utility: compute percentile rank within a sorted array
+// ═══════════════════════════════════════════════════════════════
+function computePercentile(val, sortedArr) {
+    if (val === undefined || val === null || sortedArr.length === 0) return null;
+    let countBelow = 0;
+    for (const v of sortedArr) {
+        if (v < val) countBelow++;
+        else if (v === val) countBelow += 0.5;
+    }
+    const n = sortedArr.length;
+    const pct = Math.round((countBelow / (n - 1 || 1)) * 100);
+    return Math.max(1, Math.min(100, pct));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Compute raw metrics from aggregated counts
+// ═══════════════════════════════════════════════════════════════
+function computeRawMetrics(p) {
+    const m = {};
+    const servePts = Number(p.serve_pts) || 0;
+    const firstIn = Number(p.first_in) || 0;
+    const secondIn = Number(p.second_in) || 0;
+    const firstWon = Number(p.first_won) || 0;
+    const secondWon = Number(p.second_won) || 0;
+    const aces = Number(p.aces) || 0;
+    const dfs = Number(p.dfs) || 0;
+    const unret = Number(p.unret) || 0;
+    const returnPts = Number(p.return_pts) || 0;
+    const returnWon = Number(p.return_pts_won) || 0;
+    const fhTotal = Number(p.fh_ground_total) || 0;
+    const bhTotal = Number(p.bh_ground_total) || 0;
+    const winFH = Number(p.winners_fh) || 0;
+    const winBH = Number(p.winners_bh) || 0;
+    const ueFH = Number(p.unforced_fh) || 0;
+    const ueBH = Number(p.unforced_bh) || 0;
+    const ifFH = Number(p.induced_forced_fh) || 0;
+    const ifBH = Number(p.induced_forced_bh) || 0;
+    const netPts = Number(p.net_pts) || 0;
+    const netWon = Number(p.net_won) || 0;
+    const bkPts = Number(p.bk_pts) || 0;
+    const bpSaved = Number(p.bp_saved) || 0;
+    const gsTotal = fhTotal + bhTotal;
+
+    // 1. Serve (SQI)
+    if (servePts >= 200 && firstIn > 0 && secondIn > 0) {
+        const fsWin = firstWon / firstIn;
+        const ssWin = secondWon / secondIn;
+        const freePoint = (aces + unret) / servePts;
+        const dfRate = dfs / servePts;
+        m.serve = 0.45 * fsWin + 0.25 * ssWin + 0.25 * freePoint - 0.20 * dfRate;
+    }
+
+    // 2. Return
+    if (returnPts >= 200) {
+        m.return_quality = returnWon / returnPts;
+    }
+
+    // 3. Ground Consistency
+    if (gsTotal >= 1000 && fhTotal > 0 && bhTotal > 0) {
+        const fhIn = 1 - (ueFH / fhTotal);
+        const bhIn = 1 - (ueBH / bhTotal);
+        m.ground_consistency = 0.5 * fhIn + 0.5 * bhIn;
+    }
+
+    // 4. Ground Damage
+    if (gsTotal >= 1000 && fhTotal > 0 && bhTotal > 0) {
+        const fhDmg = (winFH + ifFH) / fhTotal;
+        const bhDmg = (winBH + ifBH) / bhTotal;
+        m.ground_damage = 0.5 * fhDmg + 0.5 * bhDmg;
+    }
+
+    // 5. Aggression Efficiency
+    if (gsTotal >= 1000) {
+        const winnerRate = (winFH + winBH) / gsTotal;
+        const ueRate = (ueFH + ueBH) / gsTotal;
+        m.aggression_efficiency = winnerRate - ueRate;
+    }
+
+    // 6. Volley Win
+    if (netPts >= 50) {
+        m.volley_win = netWon / netPts;
+    }
+
+    // 7. Volley Usage
+    if (netPts >= 50) {
+        const totalPts = Number(p.total_pts) || 1;
+        m.volley_usage = netPts / totalPts;
+    }
+
+    // 8. Break Point Defense
+    if (bkPts >= 20) {
+        m.break_point_defense = bpSaved / bkPts;
+    }
+
+    return m;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Compute match-level metrics (endurance, efficiency, consistency)
+// ═══════════════════════════════════════════════════════════════
+function computeMatchLevelMetrics(matches, existingMetrics) {
+    const m = existingMetrics;
+    if (matches.length < 20) return;
+
+    // 9. Efficiency: straight-set matches / total Bo3 matches
+    const bo3 = matches.filter(r => r.sets_played && parseInt(r.sets_played) <= 3);
+    const straightSet = bo3.filter(r => parseInt(r.sets_played) === 2);
+    if (bo3.length >= 10) {
+        m.efficiency = straightSet.length / bo3.length;
+    }
+
+    // 10. Endurance: long match ratio
+    const longMatches = matches.filter(r => {
+        const sp = parseInt(r.sets_played || 0);
+        return sp >= 3;
+    });
+    if (longMatches.length >= 5) {
+        m.endurance = longMatches.length / matches.length;
+    }
+
+    // 11. Aggregate Consistency: -stddev of match quality
+    const qualities = [];
+    for (const match of matches) {
+        const sp = Number(match.serve_pts) || 0;
+        const fi = Number(match.first_in) || 0;
+        const fw = Number(match.first_won) || 0;
+        const rp = Number(match.return_pts) || 0;
+        const rw = Number(match.return_pts_won) || 0;
+        if (sp > 0 && fi > 0 && rp > 0) {
+            const serveQ = fw / fi;
+            const returnQ = rw / rp;
+            qualities.push(0.5 * serveQ + 0.5 * returnQ);
+        }
+    }
+
+    if (qualities.length >= 10) {
+        const mean = qualities.reduce((a, b) => a + b, 0) / qualities.length;
+        const variance = qualities.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / qualities.length;
+        m.aggregate_consistency = -Math.sqrt(variance);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Compute percentiles + OVR for a group of players
+// ═══════════════════════════════════════════════════════════════
+function computePercentilesAndOVR(rawMetrics, surfaceName) {
+    const weights = SURFACE_WEIGHTS[surfaceName];
+
+    // 1. Build sorted distributions per metric
+    const distributions = {};
+    for (const key of METRIC_KEYS) {
+        distributions[key] = [];
+        for (const pid of Object.keys(rawMetrics)) {
+            const val = rawMetrics[pid][key];
+            if (val !== undefined && val !== null) {
+                distributions[key].push(val);
+            }
+        }
+        distributions[key].sort((a, b) => a - b);
+    }
+
+    // 2. Compute percentiles
+    const playerPercentiles = {};
+    for (const pid of Object.keys(rawMetrics)) {
+        const p = {};
+        for (const key of METRIC_KEYS) {
+            p[key] = computePercentile(rawMetrics[pid][key], distributions[key]);
+        }
+        playerPercentiles[pid] = p;
+    }
+
+    // 3. Compute weighted composite S per player (Option 1: renormalize over available)
+    const compositeScores = {};
+    for (const [pid, pctls] of Object.entries(playerPercentiles)) {
+        let wSum = 0, vSum = 0;
+        for (const key of METRIC_KEYS) {
+            if (pctls[key] !== null && pctls[key] !== undefined) {
+                wSum += weights[key];
+                vSum += weights[key] * pctls[key];
+            }
+        }
+        compositeScores[pid] = wSum > 0 ? vSum / wSum : null;
+    }
+
+    // 4. Compute percentile rank of S, then map to OVR
+    const validScores = Object.values(compositeScores).filter(v => v !== null);
+    validScores.sort((a, b) => a - b);
+
+    for (const [pid, S] of Object.entries(compositeScores)) {
+        if (S === null) {
+            playerPercentiles[pid].overall = null;
+            continue;
+        }
+        // Percentile rank of S within this surface population
+        let below = 0;
+        for (const v of validScores) {
+            if (v < S) below++;
+            else if (v === S) below += 0.5;
+        }
+        const pRank = validScores.length > 1 ? below / (validScores.length - 1) : 0.5;
+        playerPercentiles[pid].overall = mapPercentileToOVR(Math.min(1, pRank));
+    }
+
+    // 5. Eligibility counts
+    const eligibility = {};
+    for (const key of METRIC_KEYS) {
+        eligibility[key] = distributions[key].length;
+    }
+
+    return { playerPercentiles, eligibility };
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════════════
 async function run() {
     const client = await pool.connect();
     try {
-        console.log('=== Metrics Pipeline (Checkpoints 3 & 4) ===\n');
+        console.log('=== Surface-Aware Metrics Pipeline ===\n');
 
-        // ═══════════════════════════════════════════════════
-        // CHECKPOINT 3: Derived Views
-        // ═══════════════════════════════════════════════════
-
-        // 3.1 player_match_stats — one row per player per match
-        console.log('Step 3.1: Creating player_match_stats view...');
+        // ─────────────────────────────────────────────────────
+        // Create player_match_stats view (same as before)
+        // ─────────────────────────────────────────────────────
+        console.log('Step 1: Creating player_match_stats view...');
         await client.query(`DROP VIEW IF EXISTS player_match_stats CASCADE`);
         await client.query(`
             CREATE VIEW player_match_stats AS
@@ -41,45 +268,25 @@ async function run() {
                 o.match_id,
                 o.player_id,
                 o.player,
-                -- Serve
-                o.serve_pts,
-                o.aces,
-                o.dfs,
-                o.first_in,
-                o.first_won,
-                o.second_in,
-                o.second_won,
-                -- Return
-                o.return_pts,
-                o.return_pts_won,
-                -- Break points
-                o.bk_pts,
-                o.bp_saved,
-                -- Winners/UE by wing
-                o.winners AS total_winners,
-                o.winners_fh,
-                o.winners_bh,
-                o.unforced AS total_unforced,
-                o.unforced_fh,
-                o.unforced_bh,
-                -- Serve extras (subquery to avoid fan-out)
+                o.serve_pts, o.aces, o.dfs,
+                o.first_in, o.first_won, o.second_in, o.second_won,
+                o.return_pts, o.return_pts_won,
+                o.bk_pts, o.bp_saved,
+                o.winners AS total_winners, o.winners_fh, o.winners_bh,
+                o.unforced AS total_unforced, o.unforced_fh, o.unforced_bh,
                 COALESCE(sb.unret, 0) AS unret,
                 COALESCE(sb.forced_err, 0) AS serve_forced_err,
                 COALESCE(sb.pts_won_lte_3_shots, 0) AS serve_pts_won_lte_3,
-                -- Net (subquery to avoid fan-out)
                 COALESCE(np.net_pts, 0) AS net_pts,
                 COALESCE(np.pts_won, 0) AS net_won,
-                -- Groundstroke totals: use subqueries to prevent duplicate row fan-out
                 COALESCE((SELECT SUM(st.shots) FROM cs_shot_types st
                     WHERE st.match_id = o.match_id AND st.player_id = o.player_id AND st.row = 'F'), 0) AS fh_ground_total,
                 COALESCE((SELECT SUM(st.shots) FROM cs_shot_types st
                     WHERE st.match_id = o.match_id AND st.player_id = o.player_id AND st.row = 'B'), 0) AS bh_ground_total,
-                -- Induced forced by wing
                 COALESCE((SELECT SUM(st.induced_forced) FROM cs_shot_types st
                     WHERE st.match_id = o.match_id AND st.player_id = o.player_id AND st.row = 'F'), 0) AS induced_forced_fh,
                 COALESCE((SELECT SUM(st.induced_forced) FROM cs_shot_types st
                     WHERE st.match_id = o.match_id AND st.player_id = o.player_id AND st.row = 'B'), 0) AS induced_forced_bh,
-                -- Sets played in this match
                 (SELECT MAX(o2.set::int) FROM cs_overview o2 
                  WHERE o2.match_id = o.match_id AND o2.player_id = o.player_id
                  AND o2.set ~ '^[0-9]+$') AS sets_played
@@ -90,300 +297,250 @@ async function run() {
                 ON o.match_id = np.match_id AND o.player_id = np.player_id AND np.row = 'NetPoints'
             WHERE o.set = 'Total'
         `);
-
         const viewCount = await client.query('SELECT COUNT(*) FROM player_match_stats');
         console.log(`  ✓ player_match_stats: ${parseInt(viewCount.rows[0].count).toLocaleString()} rows`);
 
-        // Verify sample
-        const sampleCheck = await client.query(`
-            SELECT player, serve_pts, aces, dfs, first_in, first_won, 
-                   second_in, second_won, return_pts, return_pts_won,
-                   winners_fh, winners_bh, unforced_fh, unforced_bh,
-                   fh_ground_total, bh_ground_total, induced_forced_fh, induced_forced_bh,
-                   net_pts, net_won, bk_pts, bp_saved, unret, sets_played
-            FROM player_match_stats
-            WHERE player_id = 'carlos_alcaraz'
-            LIMIT 1
-        `);
-        if (sampleCheck.rows[0]) {
-            const s = sampleCheck.rows[0];
-            console.log(`  Sample Alcaraz: serve=${s.serve_pts} aces=${s.aces} dfs=${s.dfs} 1stIn=${s.first_in} fhTotal=${s.fh_ground_total} bhTotal=${s.bh_ground_total} net=${s.net_pts}`);
-        }
+        // ─────────────────────────────────────────────────────
+        // CHECKPOINT A: Surface mapping
+        // ─────────────────────────────────────────────────────
+        console.log('\n=== CHECKPOINT A: Surface Mapping ===');
 
-        // 3.2 player_agg_stats — aggregated per player
-        console.log('\nStep 3.2: Creating player_agg_stats...');
-        await client.query(`DROP MATERIALIZED VIEW IF EXISTS player_agg_stats CASCADE`);
-        await client.query(`
-            CREATE MATERIALIZED VIEW player_agg_stats AS
-            SELECT
-                player_id,
-                MAX(player) AS player_name,
-                COUNT(*) AS matches_played,
-                -- Serve aggregates
-                SUM(serve_pts) AS serve_pts,
-                SUM(aces) AS aces,
-                SUM(COALESCE(dfs, 0)) AS dfs,
-                SUM(first_in) AS first_in,
-                SUM(first_won) AS first_won,
-                SUM(second_in) AS second_in,
-                SUM(second_won) AS second_won,
-                SUM(unret) AS unret,
-                -- Return
-                SUM(return_pts) AS return_pts,
-                SUM(return_pts_won) AS return_pts_won,
-                -- Break points
-                SUM(COALESCE(bk_pts, 0)) AS bk_pts,
-                SUM(COALESCE(bp_saved, 0)) AS bp_saved,
-                -- Winners/UE by wing
-                SUM(total_winners) AS total_winners,
-                SUM(winners_fh) AS winners_fh,
-                SUM(winners_bh) AS winners_bh,
-                SUM(total_unforced) AS total_unforced,
-                SUM(unforced_fh) AS unforced_fh,
-                SUM(unforced_bh) AS unforced_bh,
-                -- Groundstroke totals
-                SUM(fh_ground_total) AS fh_ground_total,
-                SUM(bh_ground_total) AS bh_ground_total,
-                SUM(induced_forced_fh) AS induced_forced_fh,
-                SUM(induced_forced_bh) AS induced_forced_bh,
-                -- Net
-                SUM(net_pts) AS net_pts,
-                SUM(net_won) AS net_won,
-                -- Total points
-                SUM(serve_pts + return_pts) AS total_pts
-            FROM player_match_stats
-            GROUP BY player_id
-        `);
-
-        const aggCount = await client.query('SELECT COUNT(*) FROM player_agg_stats');
-        console.log(`  ✓ player_agg_stats: ${parseInt(aggCount.rows[0].count).toLocaleString()} players\n`);
-
-        // ═══════════════════════════════════════════════════
-        // CHECKPOINT 4: Metrics + Percentile + Export
-        // ═══════════════════════════════════════════════════
-
-        console.log('Step 4: Computing metrics...');
-
-        // Fetch all player aggregates
-        const allPlayers = await client.query('SELECT * FROM player_agg_stats ORDER BY player_id');
-        const players = allPlayers.rows;
-        console.log(`  ${players.length} players loaded\n`);
-
-        // Compute raw metrics for each player
-        const rawMetrics = {};
-        for (const p of players) {
-            const m = {};
-            const servePts = Number(p.serve_pts) || 0;
-            const firstIn = Number(p.first_in) || 0;
-            const secondIn = Number(p.second_in) || 0;
-            const firstWon = Number(p.first_won) || 0;
-            const secondWon = Number(p.second_won) || 0;
-            const aces = Number(p.aces) || 0;
-            const dfs = Number(p.dfs) || 0;
-            const unret = Number(p.unret) || 0;
-            const returnPts = Number(p.return_pts) || 0;
-            const returnWon = Number(p.return_pts_won) || 0;
-            const fhTotal = Number(p.fh_ground_total) || 0;
-            const bhTotal = Number(p.bh_ground_total) || 0;
-            const winFH = Number(p.winners_fh) || 0;
-            const winBH = Number(p.winners_bh) || 0;
-            const ueFH = Number(p.unforced_fh) || 0;
-            const ueBH = Number(p.unforced_bh) || 0;
-            const ifFH = Number(p.induced_forced_fh) || 0;
-            const ifBH = Number(p.induced_forced_bh) || 0;
-            const netPts = Number(p.net_pts) || 0;
-            const netWon = Number(p.net_won) || 0;
-            const bkPts = Number(p.bk_pts) || 0;
-            const bpSaved = Number(p.bp_saved) || 0;
-            const gsTotal = fhTotal + bhTotal;
-            const matches = Number(p.matches_played) || 0;
-
-            // 1. Serve (SQI): 0.45*FS_win + 0.25*SS_win + 0.25*FreePoint - 0.20*DF_rate
-            if (servePts >= 200 && firstIn > 0 && secondIn > 0) {
-                const fsWin = firstWon / firstIn;
-                const ssWin = secondWon / secondIn;
-                const freePoint = (aces + unret) / servePts;
-                const dfRate = dfs / servePts;
-                m.serve = 0.45 * fsWin + 0.25 * ssWin + 0.25 * freePoint - 0.20 * dfRate;
-            }
-
-            // 2. Return
-            if (returnPts >= 200) {
-                m.return_quality = returnWon / returnPts;
-            }
-
-            // 3. Ground Consistency
-            if (gsTotal >= 1000 && fhTotal > 0 && bhTotal > 0) {
-                const fhIn = 1 - (ueFH / fhTotal);
-                const bhIn = 1 - (ueBH / bhTotal);
-                m.ground_consistency = 0.5 * fhIn + 0.5 * bhIn;
-            }
-
-            // 4. Ground Damage
-            if (gsTotal >= 1000 && fhTotal > 0 && bhTotal > 0) {
-                const fhDmg = (winFH + ifFH) / fhTotal;
-                const bhDmg = (winBH + ifBH) / bhTotal;
-                m.ground_damage = 0.5 * fhDmg + 0.5 * bhDmg;
-            }
-
-            // 5. Aggression Efficiency
-            if (gsTotal >= 1000) {
-                const winnerRate = (winFH + winBH) / gsTotal;
-                const ueRate = (ueFH + ueBH) / gsTotal;
-                m.aggression_efficiency = winnerRate - ueRate;
-            }
-
-            // 6. Volley Win
-            if (netPts >= 50) {
-                m.volley_win = netWon / netPts;
-            }
-
-            // 7. Volley Usage
-            if (netPts >= 50) {
-                const totalPts = p.total_pts || 1;
-                m.volley_usage = netPts / totalPts;
-            }
-
-            // 8. Break Point Defense
-            if (bkPts >= 20) {
-                m.break_point_defense = bpSaved / bkPts;
-            }
-
-            rawMetrics[p.player_id] = m;
-        }
-
-        // Compute match-level data for Endurance, Efficiency, Consistency
-        console.log('  Computing match-level metrics (endurance, efficiency, consistency)...');
-        const matchData = await client.query(`
-            SELECT player_id, match_id, serve_pts, first_in, first_won, second_in, second_won,
-                   aces, dfs, unret, return_pts, return_pts_won,
-                   fh_ground_total, bh_ground_total, winners_fh, winners_bh,
-                   unforced_fh, unforced_bh, net_pts, net_won, sets_played
+        // Get all match rows with their tournament name
+        const allMatchRows = await client.query(`
+            SELECT match_id, player_id, player,
+                   serve_pts, aces, dfs, first_in, first_won, second_in, second_won,
+                   return_pts, return_pts_won, bk_pts, bp_saved,
+                   total_winners, winners_fh, winners_bh,
+                   total_unforced, unforced_fh, unforced_bh,
+                   unret, net_pts, net_won,
+                   fh_ground_total, bh_ground_total,
+                   induced_forced_fh, induced_forced_bh,
+                   sets_played
             FROM player_match_stats
             ORDER BY player_id
         `);
 
-        // Group matches by player
-        const playerMatches = {};
-        for (const row of matchData.rows) {
-            if (!playerMatches[row.player_id]) playerMatches[row.player_id] = [];
-            playerMatches[row.player_id].push(row);
+        // Map each match to its surface via tournament name
+        const surfaceCounts = { Hard: 0, Clay: 0, Grass: 0, Unknown: 0 };
+        const matchSurfaces = {};
+        const unmappedTournaments = new Set();
+
+        for (const row of allMatchRows.rows) {
+            if (matchSurfaces[row.match_id]) continue;
+            const parts = row.match_id.split('-');
+            const tourney = parts[2] || '';
+            const surface = getSurface(tourney);
+            matchSurfaces[row.match_id] = surface;
+            surfaceCounts[surface] = (surfaceCounts[surface] || 0) + 1;
         }
 
-        for (const [pid, matches] of Object.entries(playerMatches)) {
-            if (!rawMetrics[pid]) rawMetrics[pid] = {};
-            const m = rawMetrics[pid];
+        console.log('  Surface distribution (unique matches):');
+        for (const [s, c] of Object.entries(surfaceCounts)) {
+            if (c > 0) console.log(`    ${s}: ${c}`);
+        }
+        if (unmappedTournaments.size > 0) {
+            console.log(`  ⚠ ${unmappedTournaments.size} unmapped tournaments (defaulted to Hard)`);
+        }
 
-            if (matches.length >= 20) {
-                // 9. Efficiency: straight-set wins / total wins
-                // We need to estimate wins. In overview, if player has more serve_pts + return_pts
-                // relative to the match, they usually won. But we don't have explicit win/loss.
-                // Best proxy: count matches with sets_played
-                const bo3 = matches.filter(r => r.sets_played && parseInt(r.sets_played) <= 3);
-                const straightSetMatches = bo3.filter(r => parseInt(r.sets_played) === 2);
-                if (bo3.length >= 10) {
-                    m.efficiency = straightSetMatches.length / bo3.length;
-                }
+        // ─────────────────────────────────────────────────────
+        // CHECKPOINT B: Player surface aggregate stats
+        // ─────────────────────────────────────────────────────
+        console.log('\n=== CHECKPOINT B: Player Surface Aggregates ===');
 
-                // 10. Endurance: win rate in long matches
-                const longMatches = matches.filter(r => {
-                    const sp = parseInt(r.sets_played || 0);
-                    return sp >= 3; // 3 sets in Bo3 = long, 4-5 in Bo5 = long
-                });
-                if (longMatches.length >= 5) {
-                    // Use total points won ratio as proxy for win in long matches
-                    // Higher points = more likely won
-                    m.endurance = longMatches.length / matches.length;
-                }
+        // Group match rows by (player_id, surface)
+        const playerSurfaceMatches = {}; // { pid: { Hard: [...], Clay: [...], Grass: [...] } }
+        const playerAllMatches = {};     // { pid: [...] } for "All" bucket
 
-                // 11. Aggregate Consistency: -stddev of match_quality
-                const matchQualities = [];
-                for (const match of matches) {
-                    const sp = Number(match.serve_pts) || 0;
-                    const fi = Number(match.first_in) || 0;
-                    const fw = Number(match.first_won) || 0;
-                    const si = Number(match.second_in) || 0;
-                    const sw = Number(match.second_won) || 0;
-                    const rp = Number(match.return_pts) || 0;
-                    const rw = Number(match.return_pts_won) || 0;
+        for (const row of allMatchRows.rows) {
+            const pid = row.player_id;
+            const surface = matchSurfaces[row.match_id];
 
-                    if (sp > 0 && fi > 0 && rp > 0) {
-                        const serveQ = fi > 0 ? fw / fi : 0;
-                        const returnQ = rp > 0 ? rw / rp : 0;
-                        const quality = 0.5 * serveQ + 0.5 * returnQ;
-                        matchQualities.push(quality);
-                    }
-                }
+            if (!playerSurfaceMatches[pid]) playerSurfaceMatches[pid] = { Hard: [], Clay: [], Grass: [] };
+            if (!playerAllMatches[pid]) playerAllMatches[pid] = [];
 
-                if (matchQualities.length >= 10) {
-                    const mean = matchQualities.reduce((a, b) => a + b, 0) / matchQualities.length;
-                    const variance = matchQualities.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / matchQualities.length;
-                    const stddev = Math.sqrt(variance);
-                    m.aggregate_consistency = -stddev; // Negative because lower variance = better
-                }
+            playerSurfaceMatches[pid][surface].push(row);
+            playerAllMatches[pid].push(row);
+        }
+
+        // Aggregate function: sum counts across matches
+        function aggregate(matches) {
+            const agg = {
+                matches_played: matches.length,
+                serve_pts: 0, aces: 0, dfs: 0,
+                first_in: 0, first_won: 0, second_in: 0, second_won: 0,
+                unret: 0,
+                return_pts: 0, return_pts_won: 0,
+                bk_pts: 0, bp_saved: 0,
+                total_winners: 0, winners_fh: 0, winners_bh: 0,
+                total_unforced: 0, unforced_fh: 0, unforced_bh: 0,
+                fh_ground_total: 0, bh_ground_total: 0,
+                induced_forced_fh: 0, induced_forced_bh: 0,
+                net_pts: 0, net_won: 0,
+                total_pts: 0,
+            };
+            for (const r of matches) {
+                agg.serve_pts += Number(r.serve_pts) || 0;
+                agg.aces += Number(r.aces) || 0;
+                agg.dfs += Number(r.dfs) || 0;
+                agg.first_in += Number(r.first_in) || 0;
+                agg.first_won += Number(r.first_won) || 0;
+                agg.second_in += Number(r.second_in) || 0;
+                agg.second_won += Number(r.second_won) || 0;
+                agg.unret += Number(r.unret) || 0;
+                agg.return_pts += Number(r.return_pts) || 0;
+                agg.return_pts_won += Number(r.return_pts_won) || 0;
+                agg.bk_pts += Number(r.bk_pts) || 0;
+                agg.bp_saved += Number(r.bp_saved) || 0;
+                agg.total_winners += Number(r.total_winners) || 0;
+                agg.winners_fh += Number(r.winners_fh) || 0;
+                agg.winners_bh += Number(r.winners_bh) || 0;
+                agg.total_unforced += Number(r.total_unforced) || 0;
+                agg.unforced_fh += Number(r.unforced_fh) || 0;
+                agg.unforced_bh += Number(r.unforced_bh) || 0;
+                agg.fh_ground_total += Number(r.fh_ground_total) || 0;
+                agg.bh_ground_total += Number(r.bh_ground_total) || 0;
+                agg.induced_forced_fh += Number(r.induced_forced_fh) || 0;
+                agg.induced_forced_bh += Number(r.induced_forced_bh) || 0;
+                agg.net_pts += Number(r.net_pts) || 0;
+                agg.net_won += Number(r.net_won) || 0;
+                agg.total_pts += (Number(r.serve_pts) || 0) + (Number(r.return_pts) || 0);
+            }
+            return agg;
+        }
+
+        // Sample check: verify aggregates differ by surface
+        const samplePid = 'carlos_alcaraz';
+        if (playerSurfaceMatches[samplePid]) {
+            for (const surf of SURFACES) {
+                const m = playerSurfaceMatches[samplePid][surf];
+                const a = m.length > 0 ? aggregate(m) : null;
+                console.log(`  ${samplePid} ${surf}: ${m.length} matches, serve_pts=${a?.serve_pts || 0}`);
             }
         }
 
-        // ═══════════════════════════════════════════════════
-        // Percentile Ranking
-        // ═══════════════════════════════════════════════════
-        console.log('  Computing percentiles...');
+        // ─────────────────────────────────────────────────────
+        // CHECKPOINT C: Per-surface metrics + percentiles
+        // ─────────────────────────────────────────────────────
+        console.log('\n=== CHECKPOINT C: Per-Surface Percentiles ===');
 
-        const metricKeys = [
-            'serve', 'return_quality', 'ground_consistency', 'ground_damage',
-            'aggression_efficiency', 'volley_win', 'volley_usage',
-            'break_point_defense', 'endurance', 'efficiency', 'aggregate_consistency'
-        ];
+        const surfaceResults = {};
+        const coverageBySurface = {};
 
-        // Collect all raw values per metric for percentile computation
-        const distributions = {};
-        for (const key of metricKeys) {
-            distributions[key] = [];
-            for (const pid of Object.keys(rawMetrics)) {
-                const val = rawMetrics[pid][key];
-                if (val !== undefined && val !== null) {
-                    distributions[key].push(val);
-                }
+        for (const surface of SURFACES) {
+            console.log(`\n  --- ${surface} ---`);
+
+            // Compute raw metrics for each player on this surface
+            const rawMetrics = {};
+            let playerCount = 0;
+
+            for (const [pid, surfaceData] of Object.entries(playerSurfaceMatches)) {
+                const matches = surfaceData[surface];
+                if (!matches || matches.length === 0) continue;
+
+                const agg = aggregate(matches);
+                const m = computeRawMetrics(agg);
+
+                // Match-level metrics need individual match rows
+                computeMatchLevelMetrics(matches, m);
+
+                rawMetrics[pid] = m;
+                playerCount++;
             }
-            distributions[key].sort((a, b) => a - b);
-        }
 
-        // Compute percentile for each player
-        function computePercentile(val, sortedArr) {
-            if (val === undefined || val === null || sortedArr.length === 0) return null;
-            let countBelow = 0;
-            for (const v of sortedArr) {
-                if (v < val) countBelow++;
-                else if (v === val) countBelow += 0.5;
+            console.log(`  ${playerCount} players with data`);
+
+            // Compute percentiles and OVR
+            const { playerPercentiles, eligibility } = computePercentilesAndOVR(rawMetrics, surface);
+
+            surfaceResults[surface] = playerPercentiles;
+            coverageBySurface[surface] = {
+                total_players: playerCount,
+                eligible_players: eligibility,
+            };
+
+            // Log eligibility
+            for (const [key, count] of Object.entries(eligibility)) {
+                console.log(`    ${key}: ${count} eligible`);
             }
-            const n = sortedArr.length;
-            const pct = Math.round((countBelow / (n - 1 || 1)) * 100);
-            return Math.max(1, Math.min(100, pct));
-        }
 
-        const playerPercentiles = {};
-        const eligibilityCounts = {};
-
-        for (const pid of Object.keys(rawMetrics)) {
-            const p = {};
-            for (const key of metricKeys) {
-                const rawVal = rawMetrics[pid][key];
-                p[key] = computePercentile(rawVal, distributions[key]);
+            // Top 5 OVR
+            const topOVR = Object.entries(playerPercentiles)
+                .filter(([_, p]) => p.overall !== null)
+                .sort((a, b) => b[1].overall - a[1].overall)
+                .slice(0, 15);
+            console.log(`  Top 15 OVR (${surface}):`);
+            for (const [pid, p] of topOVR) {
+                console.log(`    ${pid}: ${p.overall}`);
             }
-            playerPercentiles[pid] = p;
         }
 
-        for (const key of metricKeys) {
-            eligibilityCounts[key] = distributions[key].length;
+        // ─────────────────────────────────────────────────────
+        // Also compute "All" surface (existing behavior)
+        // ─────────────────────────────────────────────────────
+        console.log('\n  --- All (combined) ---');
+        const allRawMetrics = {};
+        const allPlayers = [];
+
+        for (const [pid, matches] of Object.entries(playerAllMatches)) {
+            const agg = aggregate(matches);
+            agg.player_id = pid;
+            agg.player_name = matches[0]?.player || pid;
+            allPlayers.push(agg);
+
+            const m = computeRawMetrics(agg);
+            computeMatchLevelMetrics(matches, m);
+            allRawMetrics[pid] = m;
         }
 
-        // ═══════════════════════════════════════════════════
+        // For "All", use Hard weights as default
+        const { playerPercentiles: allPercentiles, eligibility: allEligibility } =
+            computePercentilesAndOVR(allRawMetrics, 'Hard');
+
+        console.log(`  ${Object.keys(allRawMetrics).length} players total`);
+
+        // ─────────────────────────────────────────────────────
+        // CHECKPOINT D & E: Verify weighted composite + OVR
+        // ─────────────────────────────────────────────────────
+        console.log('\n=== CHECKPOINT D/E: OVR Sanity ===');
+        const checkPlayers = ['carlos_alcaraz', 'novak_djokovic', 'jannik_sinner', 'roger_federer', 'rafael_nadal'];
+        for (const pid of checkPlayers) {
+            const line = [`  ${pid}:`];
+            for (const surface of SURFACES) {
+                const ovr = surfaceResults[surface]?.[pid]?.overall;
+                line.push(`${surface}=${ovr ?? '-'}`);
+            }
+            line.push(`All=${allPercentiles[pid]?.overall ?? '-'}`);
+            console.log(line.join(' '));
+        }
+
+        // ─────────────────────────────────────────────────────
         // Export JSONs
-        // ═══════════════════════════════════════════════════
-        console.log('\nStep 4.2: Exporting JSONs...');
+        // ─────────────────────────────────────────────────────
+        console.log('\n=== Exporting JSONs ===');
 
-        // 1. players.json
-        const playersJson = players.map(p => ({
+        // 1. player_percentiles_by_surface.json
+        const bySurfaceJson = {};
+        for (const surface of SURFACES) {
+            bySurfaceJson[surface] = { players: surfaceResults[surface] };
+        }
+        // Include "All" bucket
+        bySurfaceJson['All'] = { players: allPercentiles };
+
+        fs.writeFileSync(
+            path.join(PUBLIC_DIR, 'player_percentiles_by_surface.json'),
+            JSON.stringify(bySurfaceJson, null, 2)
+        );
+        console.log(`  ✓ player_percentiles_by_surface.json`);
+
+        // 2. Keep player_percentiles_all.json for backward compatibility
+        fs.writeFileSync(
+            path.join(PUBLIC_DIR, 'player_percentiles_all.json'),
+            JSON.stringify(allPercentiles, null, 2)
+        );
+        console.log(`  ✓ player_percentiles_all.json (backward compat)`);
+
+        // 3. players_v2.json
+        const playersJson = allPlayers.map(p => ({
             player_id: p.player_id,
             full_name: p.player_name,
             last_name: p.player_name.split(' ').pop(),
@@ -395,16 +552,20 @@ async function run() {
         );
         console.log(`  ✓ players_v2.json (${playersJson.length} players)`);
 
-        // 2. player_percentiles_all.json
+        // 4. data_coverage_by_surface.json
+        coverageBySurface['All'] = {
+            total_players: allPlayers.length,
+            eligible_players: allEligibility,
+        };
         fs.writeFileSync(
-            path.join(PUBLIC_DIR, 'player_percentiles_all.json'),
-            JSON.stringify(playerPercentiles, null, 2)
+            path.join(PUBLIC_DIR, 'data_coverage_by_surface.json'),
+            JSON.stringify(coverageBySurface, null, 2)
         );
-        console.log(`  ✓ player_percentiles_all.json`);
+        console.log(`  ✓ data_coverage_by_surface.json`);
 
-        // 3. data_coverage.json
+        // 5. data_coverage.json (backward compat)
         const coverage = {
-            total_players: players.length,
+            total_players: allPlayers.length,
             thresholds: {
                 serve: { min_serve_pts: 200 },
                 return_quality: { min_return_pts: 200 },
@@ -418,7 +579,7 @@ async function run() {
                 efficiency: { min_matches: 20, min_bo3: 10 },
                 aggregate_consistency: { min_matches: 20, min_quality_matches: 10 },
             },
-            eligible_players: eligibilityCounts,
+            eligible_players: allEligibility,
         };
         fs.writeFileSync(
             path.join(PUBLIC_DIR, 'data_coverage.json'),
@@ -426,49 +587,8 @@ async function run() {
         );
         console.log(`  ✓ data_coverage.json`);
 
-        // ═══════════════════════════════════════════════════
-        // Sanity Checks
-        // ═══════════════════════════════════════════════════
-        console.log('\n=== Sanity Checks ===');
+        console.log('\n✅ Surface-aware metrics pipeline complete!');
 
-        const topServers = Object.entries(playerPercentiles)
-            .filter(([_, p]) => p.serve !== null)
-            .sort((a, b) => b[1].serve - a[1].serve)
-            .slice(0, 5);
-        console.log('\n  Top 5 Servers:');
-        for (const [pid, p] of topServers) {
-            const raw = rawMetrics[pid];
-            console.log(`    ${pid}: serve=${p.serve} (raw=${raw.serve?.toFixed(4)})`);
-        }
-
-        const topReturn = Object.entries(playerPercentiles)
-            .filter(([_, p]) => p.return_quality !== null)
-            .sort((a, b) => b[1].return_quality - a[1].return_quality)
-            .slice(0, 5);
-        console.log('\n  Top 5 Returners:');
-        for (const [pid, p] of topReturn) {
-            console.log(`    ${pid}: return=${p.return_quality}`);
-        }
-
-        // Specific player check
-        const checkPlayers = ['carlos_alcaraz', 'novak_djokovic', 'jannik_sinner'];
-        console.log('\n  Key Players:');
-        for (const pid of checkPlayers) {
-            const p = playerPercentiles[pid];
-            if (p) {
-                console.log(`    ${pid}:`);
-                for (const key of metricKeys) {
-                    if (p[key] !== null) console.log(`      ${key}: ${p[key]}`);
-                }
-            }
-        }
-
-        console.log(`\n  Eligibility counts:`);
-        for (const [key, count] of Object.entries(eligibilityCounts)) {
-            console.log(`    ${key}: ${count} / ${players.length} eligible`);
-        }
-
-        console.log('\n✅ Checkpoints 3 & 4 complete!');
     } catch (err) {
         console.error('Error:', err.message, err.stack);
         throw err;

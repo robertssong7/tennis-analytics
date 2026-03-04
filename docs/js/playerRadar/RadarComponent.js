@@ -1,15 +1,20 @@
 // docs/js/playerRadar/RadarComponent.js
-// v2: Uses pre-computed percentiles from player_percentiles_all.json
-// Hexagon radar with 6 axes
+// v3: Surface-aware radar — reads player_percentiles_by_surface.json
 
-let cachedPercentiles = null;
+let cachedSurfaceData = null;
 let radarChartInstance = null;
 
+async function loadSurfacePercentiles() {
+    if (cachedSurfaceData) return cachedSurfaceData;
+    const resp = await fetch('./data/player_percentiles_by_surface.json');
+    cachedSurfaceData = await resp.json();
+    return cachedSurfaceData;
+}
+
+// Backward compat: loadPercentiles returns "All" bucket
 async function loadPercentiles() {
-    if (cachedPercentiles) return cachedPercentiles;
-    const resp = await fetch('./data/player_percentiles_all.json');
-    cachedPercentiles = await resp.json();
-    return cachedPercentiles;
+    const data = await loadSurfacePercentiles();
+    return data?.All?.players || {};
 }
 
 const RADAR_AXES = [
@@ -27,22 +32,39 @@ function makePlayerId(name) {
         .replace(/\s+/g, '_');
 }
 
+/**
+ * Get the current surface from the player dashboard's surface toggle.
+ * Returns capitalized key: 'Hard', 'Clay', 'Grass', or 'All'.
+ */
+function getCurrentSurface() {
+    // Check active surface button in the player surface toggle
+    const activeBtn = document.querySelector('#playerSurfaceToggle .surface-btn.active');
+    if (activeBtn) {
+        const s = activeBtn.dataset.surface || 'all';
+        if (s === 'all') return 'All';
+        return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    }
+    return 'All';
+}
+
 export async function renderRadar(containerId, dataPackages) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    const percentiles = await loadPercentiles();
+    const surfaceData = await loadSurfacePercentiles();
 
     // Get player name from the page
     const playerName = window.currentPlayer || document.querySelector('.player-name')?.textContent;
     if (!playerName) return;
 
     const playerId = makePlayerId(playerName);
-    const playerPct = percentiles[playerId];
+    const surface = getCurrentSurface();
+    const bucket = surfaceData?.[surface]?.players || surfaceData?.All?.players || {};
+    const playerPct = bucket[playerId];
 
     if (!playerPct) {
         container.innerHTML = `<div style="color: #94a3b8; text-align: center; padding: 40px 20px; font-size: 14px;">
-            Percentile data not available for this player.</div>`;
+            Percentile data not available for this player${surface !== 'All' ? ` on ${surface}` : ''}.</div>`;
         return;
     }
 
@@ -50,11 +72,12 @@ export async function renderRadar(containerId, dataPackages) {
     const nonNull = RADAR_AXES.filter(a => playerPct[a.key] !== null && playerPct[a.key] !== undefined).length;
     if (nonNull < 3) {
         container.innerHTML = `<div style="color: #94a3b8; text-align: center; padding: 40px 20px; font-size: 14px;">
-            Not enough data for radar (${nonNull}/6 axes available).</div>`;
+            Not enough data for radar (${nonNull}/6 axes available${surface !== 'All' ? ` on ${surface}` : ''}).</div>`;
         return;
     }
 
     // Build HTML
+    const surfaceLabel = surface !== 'All' ? ` — ${surface}` : '';
     container.innerHTML = `
         <div style="position: relative; padding: 16px;">
             <div class="radar-info-btn" title="" style="
@@ -66,7 +89,7 @@ export async function renderRadar(containerId, dataPackages) {
                 border: 1px solid #475569; z-index: 5;
             ">i</div>
             <h3 style="margin: 0 0 12px 0; color: #f8fafc; font-size: 16px; font-weight: 600;">
-                Tour Percentile Radar
+                Tour Percentile Radar${surfaceLabel}
             </h3>
             <div style="height: 300px;">
                 <canvas id="player-radar-canvas"></canvas>

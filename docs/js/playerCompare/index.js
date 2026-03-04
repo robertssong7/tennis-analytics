@@ -182,19 +182,21 @@ export async function mountCompareFeature() {
 
         // Mount Surface Toggle
         compareSurfaceToggle = createSurfaceToggle('compare-surface-toggle-mount', async (newSurface) => {
-            setCompareSurface(newSurface);
-            await initCompareData(newSurface);
+            // Capitalize to match JSON keys: Hard, Clay, Grass, All
+            const surfKey = newSurface === 'all' ? 'All'
+                : newSurface.charAt(0).toUpperCase() + newSurface.slice(1).toLowerCase();
+            setCompareSurface(surfKey);
             // Update subtitle
             const label = document.getElementById('compare-surface-label');
             if (label) {
-                label.textContent = newSurface === 'all' ? 'All surfaces' : `${newSurface} courts`;
+                label.textContent = surfKey === 'All' ? 'All surfaces' : `${surfKey} courts`;
             }
             updateUI();
         });
     }
 
-    // Pre-fetch Data offline safely
-    await initCompareData('all');
+    // Pre-fetch Data
+    await initCompareData('All');
 }
 
 export function openModal() {
