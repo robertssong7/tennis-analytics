@@ -59,23 +59,49 @@ export async function renderMatchupExplorer(containerId, playerId, surface = 'Al
     let currentTab = 'difficult';
 
     function render() {
-        const list = currentTab === 'difficult' ? surfData.difficult : surfData.favorable;
-
-        container.innerHTML = `
-            <div class="matchup-explorer">
-                <div class="matchup-tabs">
-                    <button class="matchup-tab ${currentTab === 'difficult' ? 'active' : ''}" data-tab="difficult" style="${currentTab === 'difficult' ? 'color:#ef4444; border-bottom-color:#ef4444;' : ''}">
-                        Toughest Matchups
-                    </button>
-                    <button class="matchup-tab ${currentTab === 'favorable' ? 'active' : ''}" data-tab="favorable" style="${currentTab === 'favorable' ? 'color:#22c55e; border-bottom-color:#22c55e;' : ''}">
-                        Most Favorable
-                    </button>
+        if (isHome) {
+            container.innerHTML = `
+                <div class="matchup-legend" style="display:flex; justify-content:center; gap:16px; font-size:11px; color:#64748b; margin-bottom:12px; background:rgba(255,255,255,0.6); padding:8px; border-radius:8px;">
+                    <span><strong style="color:#0f172a;">%</strong> = Predicted Win Probability</span>
+                    <span><strong style="color:#0f172a;">Confidence (LOW/HIGH)</strong> = Based on sample size</span>
                 </div>
-                <div class="matchup-list-container">
-                    ${(isHome ? (list || []).slice(0, 3) : (list || [])).map((m, i) => renderMatchupRow(m, i, currentTab, isHome)).join('')}
+                <div class="matchup-explorer-home" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+                    <div class="matchup-explorer" style="background:#0f172a; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
+                        <div style="padding:12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13px; font-weight:800; color:#ef4444; text-transform:uppercase; letter-spacing:0.5px; text-align:center;">
+                            Toughest Matchups
+                        </div>
+                        <div class="matchup-list-container" style="max-height:none;">
+                            ${(surfData.difficult || []).slice(0, 3).map((m, i) => renderMatchupRow(m, i, 'difficult', true)).join('')}
+                        </div>
+                    </div>
+                    <div class="matchup-explorer" style="background:#0f172a; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
+                        <div style="padding:12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13px; font-weight:800; color:#22c55e; text-transform:uppercase; letter-spacing:0.5px; text-align:center;">
+                            Most Favorable
+                        </div>
+                        <div class="matchup-list-container" style="max-height:none;">
+                            ${(surfData.favorable || []).slice(0, 3).map((m, i) => renderMatchupRow(m, i, 'favorable', true)).join('')}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        } else {
+            const list = currentTab === 'difficult' ? surfData.difficult : surfData.favorable;
+            container.innerHTML = `
+                <div class="matchup-explorer">
+                    <div class="matchup-tabs">
+                        <button class="matchup-tab ${currentTab === 'difficult' ? 'active' : ''}" data-tab="difficult" style="${currentTab === 'difficult' ? 'color:#ef4444; border-bottom-color:#ef4444;' : ''}">
+                            Toughest Matchups
+                        </button>
+                        <button class="matchup-tab ${currentTab === 'favorable' ? 'active' : ''}" data-tab="favorable" style="${currentTab === 'favorable' ? 'color:#22c55e; border-bottom-color:#22c55e;' : ''}">
+                            Most Favorable
+                        </button>
+                    </div>
+                    <div class="matchup-list-container">
+                        ${(list || []).map((m, i) => renderMatchupRow(m, i, currentTab, false)).join('')}
+                    </div>
+                </div>
+            `;
+        }
 
         // Tab click handlers
         container.querySelectorAll('.matchup-tab').forEach(btn => {

@@ -1,0 +1,64 @@
+﻿[dotenv@17.3.1] injecting env (5) from .env -- tip: ≡ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+=== match table columns ===
+  id (uuid)
+  date (date)
+  event (character varying)
+  event_round (character varying)
+  first_player_name (character varying)
+  second_player_name (character varying)
+  surface (character varying)
+  best_of (integer)
+  p1_hand (character varying)
+  p2_hand (character varying)
+
+=== Sample match rows ===
+  {"id":"3f847fcb-a7c4-59a9-8b6c-81f310d3d685","date":"2025-02-13T07:00:00.000Z","event":"Buenos_Aires","event_round":"R16","first_player_name":"Diego_Schwartzman","second_player_name":"Pedro_Martinez","surface":"Clay","best_of":3,"p1_hand":"R","p2_hand":"R"}
+  {"id":"2fef0f74-d611-5b37-b594-790e7fc6cfe0","date":"2025-01-08T07:00:00.000Z","event":"Auckland","event_round":"R16","first_player_name":"Gael_Monfils","second_player_name":"Jan_Lennard_Struff","surface":"Hard","best_of":3,"p1_hand":"R","p2_hand":"R"}
+  {"id":"45772e4d-79e4-55e2-bd1d-0671106cb42e","date":"2024-09-22T06:00:00.000Z","event":"Chengdu","event_round":"QF","first_player_name":"Adrian_Mannarino","second_player_name":"Lorenzo_Musetti","surface":"Hard","best_of":3,"p1_hand":"L","p2_hand":"R"}
+  {"id":"a70b6260-821e-54a4-80eb-9f9daeae4dd4","date":"2024-07-15T06:00:00.000Z","event":"Newport","event_round":"R32","first_player_name":"Radu_Albot","second_player_name":"Maxime_Cressy","surface":"Grass","best_of":3,"p1_hand":"R","p2_hand":"R"}
+  {"id":"8f323f8f-3983-575c-bf14-4299b05a9d92","date":"2024-05-27T06:00:00.000Z","event":"Roland_Garros","event_round":"R128","first_player_name":"Max_Purcell","second_player_name":"Henri_Squire","surface":"Clay","best_of":5,"p1_hand":"R","p2_hand":"R"}
+
+=== Known outcome checks ===
+
+=== Set-level data: 1990 US Open F (Sampras won) ===
+  Andre Agassi set1: serve_pts=40 total_won~27
+  Andre Agassi set2: serve_pts=35 total_won~25
+  Andre Agassi set3: serve_pts=24 total_won~21
+  Pete Sampras set1: serve_pts=23 total_won~36
+  Pete Sampras set2: serve_pts=21 total_won~31
+  Pete Sampras set3: serve_pts=28 total_won~31
+
+=== cs_players columns ===
+  player_id (text)
+  player_name_raw (text)
+  player_name_display (text)
+  last_name (text)
+
+=== cs_players sample ===
+  {"player_id":"guillermo_vilas","player_name_raw":"Guillermo Vilas","player_name_display":"Guillermo Vilas","last_name":"Vilas"}
+  {"player_id":"gabriele_felline","player_name_raw":"Gabriele Felline","player_name_display":"Gabriele Felline","last_name":"Felline"}
+  {"player_id":"farrukh_dustov","player_name_raw":"Farrukh Dustov","player_name_display":"Farrukh Dustov","last_name":"Dustov"}
+  {"player_id":"dustin_brown","player_name_raw":"Dustin Brown","player_name_display":"Dustin Brown","last_name":"Brown"}
+  {"player_id":"guillermo_canas","player_name_raw":"Guillermo Canas","player_name_display":"Guillermo Canas","last_name":"Canas"}
+
+=== point table columns ===
+  number (integer)
+  game_score (character varying)
+  match_id (uuid)
+  set1 (integer)
+  set2 (integer)
+  gm1 (integer)
+  gm2 (integer)
+  player_won (integer)
+  serve_number (smallint)
+  is_ace (boolean)
+  is_double_fault (boolean)
+
+=== point sample ===
+  {"number":169,"game_score":"40-15","match_id":"776b65a7-a841-510d-9bee-53d78042b2b4","set1":null,"set2":null,"gm1":null,"gm2":null,"player_won":null,"serve_number":null,"is_ace":false,"is_double_fault":false}
+  {"number":153,"game_score":"2-2","match_id":"e9b751ac-38cd-5adc-a26e-10f43d1433e9","set1":null,"set2":null,"gm1":null,"gm2":null,"player_won":null,"serve_number":null,"is_ace":false,"is_double_fault":false}
+  {"number":169,"game_score":"40-30","match_id":"e8dbdc47-d063-54da-9cb4-cb0b5b6a2ab4","set1":null,"set2":null,"gm1":null,"gm2":null,"player_won":null,"serve_number":null,"is_ace":false,"is_double_fault":false}
+
+=== Total stats 1990 US Open F ===
+  Andre Agassi: serve_won=56 ret_won=17 total=73
+  Pete Sampras: serve_won=55 ret_won=43 total=98

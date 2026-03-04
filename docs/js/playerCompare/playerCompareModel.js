@@ -175,13 +175,22 @@ export function buildCompareProfile(playerId) {
 // ═══════════════════════════════════════════════════════════════
 // Match History — extracts from H2H data
 // ═══════════════════════════════════════════════════════════════
-export async function fetchH2H(playerAId, playerBId) {
-    const key = [playerAId, playerBId].sort().join('_vs_');
+export async function fetchH2H(pA, pB) {
+    if (!pA || !pB) return null;
+    const cacheKey = [pA, pB].sort().join('-vs-');
+    if (h2hCache[cacheKey]) return h2hCache[cacheKey];
+
     try {
-        const resp = await fetch(`data/h2h/${key}.json`);
+        const sortedKey = [pA, pB].sort().join('_vs_');
+        const url = `data/h2h/${sortedKey}.json`;
+        const resp = await fetch(url);
         if (!resp.ok) return null;
-        return await resp.json();
-    } catch {
+        const data = await resp.json();
+
+        h2hCache[cacheKey] = data;
+        return data;
+    } catch (e) {
+        console.error("Error fetching H2H data:", e);
         return null;
     }
 }

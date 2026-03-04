@@ -206,6 +206,10 @@ async function run() {
         playerLookup[p.player_id] = p;
     }
 
+    const playerEras = fs.existsSync(path.join(DATA_DIR, 'player_eras.json'))
+        ? JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'player_eras.json'), 'utf8'))
+        : {};
+
     // Get all player IDs from "All" surface
     const allPlayers = Object.keys(percentilesBySurface.All?.players || {});
     console.log(`  ${allPlayers.length} players in dataset`);
@@ -247,9 +251,14 @@ async function run() {
 
             // Score against each opponent
             const matchups = [];
+            const eraX = playerEras[pid]?.era_bucket;
 
             for (const opId of allPlayers) {
                 if (opId === pid) continue;
+
+                // Restrict to same era bucket
+                const eraY = playerEras[opId]?.era_bucket;
+                if (!eraX || !eraY || eraX !== eraY) continue;
 
                 const pY = bucket[opId] || allBucket[opId];
                 if (!pY) continue;

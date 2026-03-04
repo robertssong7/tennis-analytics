@@ -21,7 +21,7 @@ export function initHomeScreen() {
     if (compareBtn) {
         compareBtn.addEventListener('click', async () => {
             try {
-                const { mountCompareFeature, openModal } = await import('./js/playerCompare/index.js?v=srf2');
+                const { mountCompareFeature, openModal } = await import('./playerCompare/index.js?v=srf2');
                 await mountCompareFeature();
                 openModal();
             } catch (err) {
@@ -63,28 +63,23 @@ async function renderHomeMatchups() {
 
     // Header for the widget
     container.innerHTML = `
-        <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end;">
+        <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;">
             <div>
                 <div style="font-size:16px;color:#38bdf8;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:6px;">Featured Player</div>
                 <div style="font-size:24px;font-weight:900;color:#0f172a;">${displayName}</div>
             </div>
-            <div>
-                <select id="home-featured-surface-select" style="padding:6px 12px; border-radius:8px; border:1px solid #cbd5e1; font-size:14px; color:#334155; font-weight:600; cursor:pointer; background:#fff;">
-                    <option value="All" ${window._homeMatchupSurface === 'All' ? 'selected' : ''}>All Surfaces</option>
-                    <option value="Hard" ${window._homeMatchupSurface === 'Hard' ? 'selected' : ''}>Hard</option>
-                    <option value="Clay" ${window._homeMatchupSurface === 'Clay' ? 'selected' : ''}>Clay</option>
-                    <option value="Grass" ${window._homeMatchupSurface === 'Grass' ? 'selected' : ''}>Grass</option>
-                </select>
-            </div>
+            <div id="home-featured-surface-toggle-mount" style="background:#fff; border-radius:12px; padding:4px; box-shadow:0 4px 12px rgba(0,0,0,0.05);"></div>
         </div>
         <div id="home-featured-matchups"></div>
     `;
 
-    // Bind event listener to the dropdown
-    const surfaceSelect = document.getElementById('home-featured-surface-select');
-    if (surfaceSelect) {
-        surfaceSelect.addEventListener('change', async (e) => {
-            window._homeMatchupSurface = e.target.value;
+    try {
+        const { createSurfaceToggle } = await import('./SurfaceToggle.js?v=home2');
+
+        createSurfaceToggle('home-featured-surface-toggle-mount', async (newSurface) => {
+            const surfKey = newSurface === 'all' ? 'All' : newSurface.charAt(0).toUpperCase() + newSurface.slice(1).toLowerCase();
+            window._homeMatchupSurface = surfKey;
+
             const target = document.getElementById('home-featured-matchups');
             if (target) {
                 target.innerHTML = '<div style="padding: 20px; text-align: center; color: #64748b;">Loading matchups...</div>';
@@ -96,6 +91,8 @@ async function renderHomeMatchups() {
                 }
             }
         });
+    } catch (e) {
+        console.error("Failed to load Surface Toggle for home:", e);
     }
 
     try {
