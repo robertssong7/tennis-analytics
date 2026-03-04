@@ -41,6 +41,42 @@ export function initHomeScreen() {
             }
         });
     }
+
+    // ─── Render Featured Matchups in Hero Right Panel ───
+    renderHomeMatchups();
+}
+
+async function renderHomeMatchups() {
+    const container = document.getElementById('matchup-explorer-home');
+    if (!container) return;
+
+    let featuredPlayer = 'carlos_alcaraz'; // Default
+    try {
+        const stored = localStorage.getItem('tennisIQ_lastPlayer');
+        if (stored) featuredPlayer = stored;
+    } catch (e) { }
+
+    const displayName = featuredPlayer.replace(/_/g, ' ').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+
+    // Header for the widget
+    container.innerHTML = `
+        <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;">
+            <div>
+                <div style="font-size:11px;color:#38bdf8;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px;">Featured Player</div>
+                <div style="font-size:18px;font-weight:800;color:#f8fafc;">${displayName}</div>
+            </div>
+            <div style="font-size:12px;color:#64748b;">All Surfaces</div>
+        </div>
+        <div id="home-featured-matchups"></div>
+    `;
+
+    try {
+        const { renderMatchupExplorer, injectMatchupStyles } = await import('./matchups/MatchupExplorer.js');
+        injectMatchupStyles();
+        await renderMatchupExplorer('home-featured-matchups', featuredPlayer, 'All');
+    } catch (err) {
+        console.error('Failed to render home matchups:', err);
+    }
 }
 
 export function destroyHomeScreen() {

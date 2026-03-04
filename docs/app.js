@@ -271,6 +271,11 @@ async function loadPlayer(name) {
     showLoading();
     homeScreen.style.display = 'none';
 
+    // Save as last selected player for the home screen featured view
+    try {
+        localStorage.setItem('tennisIQ_lastPlayer', name);
+    } catch (e) { }
+
     // Mount surface toggle if not already
     await mountPlayerSurfaceToggle();
 
