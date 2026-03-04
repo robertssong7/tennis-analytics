@@ -8,7 +8,6 @@ let modalRoot = null;
 let playerAId = null;
 let playerBId = null;
 let compareSurfaceToggle = null;
-let currentH2HData = null;
 
 // CSS Injected Once
 const STYLES = `
@@ -62,28 +61,60 @@ const STYLES = `
 }
 .swap-btn:hover { background: #334155; color: #f8fafc; }
 
-.compare-h2h-section {
-    padding: 0 40px; margin-bottom: 16px;
-}
-.h2h-bar {
-    display: flex; align-items: center; justify-content: center; gap: 24px;
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px; padding: 14px 24px;
-}
-.h2h-record {
-    display: flex; align-items: center; gap: 16px;
-}
-.h2h-number {
-    font-size: 32px; font-weight: 900; font-family: 'Inter', sans-serif; line-height: 1;
-}
-.h2h-vs {
-    font-size: 14px; color: #64748b; font-weight: 600;
-}
-.h2h-recent {
-    font-size: 12px; color: #94a3b8; text-align: center; margin-top: 8px;
-}
+.compare-bars-section { padding: 0 40px 20px 40px; }
 
-.compare-bars-section { padding: 0 40px 40px 40px; }
+/* ── Match History Section ── */
+.match-history-section {
+    padding: 0 40px 40px 40px;
+}
+.match-history-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: background 0.2s;
+    user-select: none;
+}
+.match-history-toggle:hover { background: rgba(255,255,255,0.06); }
+.match-history-toggle-label {
+    font-size: 13px; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.match-history-toggle-icon {
+    font-size: 12px; color: #64748b; transition: transform 0.2s;
+}
+.match-history-toggle-icon.expanded { transform: rotate(180deg); }
+.match-history-list {
+    display: none; margin-top: 8px;
+}
+.match-history-list.expanded { display: block; }
+.matchup-row {
+    display: grid; grid-template-columns: 100px 1fr 50px 60px 30px;
+    gap: 8px; align-items: center; padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 12px;
+}
+.matchup-row:hover { background: rgba(255,255,255,0.02); }
+.matchup-date { color: #64748b; font-size: 11px; }
+.matchup-tourney { color: #cbd5e1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.matchup-round { color: #94a3b8; text-align: center; }
+.matchup-surface {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 6px;
+    border-radius: 4px; text-align: center; color: #fff;
+}
+.matchup-winner { font-size: 14px; text-align: center; }
+
+/* ── Attribute Tooltip ── */
+.attr-label-tooltip {
+    position: relative;
+}
+.attr-label-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    background: #1e293b; color: #e2e8f0; font-size: 11px; font-weight: 400;
+    padding: 6px 10px; border-radius: 6px; border: 1px solid #334155;
+    white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s;
+    z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    max-width: 280px; white-space: normal; text-align: center; line-height: 1.3;
+    margin-bottom: 6px;
+}
+.attr-label-tooltip:hover::after { opacity: 1; }
 
 @media (max-width: 900px) {
     .compare-top-row {
@@ -91,8 +122,8 @@ const STYLES = `
         gap: 16px;
         padding: 16px;
     }
-    .compare-bars-section { padding: 0 16px 24px 16px; }
-    .compare-h2h-section { padding: 0 16px; }
+    .compare-bars-section { padding: 0 16px 16px 16px; }
+    .match-history-section { padding: 0 16px 24px 16px; }
     .swap-btn { margin: 10px auto; }
 }
 `;
@@ -117,13 +148,11 @@ export async function mountCompareFeature() {
         btn.style.whiteSpace = 'nowrap';
         btn.addEventListener('click', openModal);
 
-        // Ensure parent is a flex row so they sit next to each other
         const parent = searchContainer.parentNode;
         parent.style.display = 'flex';
         parent.style.alignItems = 'center';
         parent.style.justifyContent = 'center';
 
-        // Insert it right after the search container
         parent.insertBefore(btn, searchContainer.nextSibling);
     }
 
@@ -165,11 +194,11 @@ export async function mountCompareFeature() {
                     </div>
                 </div>
 
-                <div class="compare-h2h-section" id="compare-h2h-section" style="display:none;"></div>
-
                 <div class="compare-bars-section">
                     <div id="compare-bars-container"></div>
                 </div>
+
+                <div class="match-history-section" id="match-history-section"></div>
             </div>
         `;
         document.body.appendChild(modalRoot);
@@ -179,7 +208,6 @@ export async function mountCompareFeature() {
         modalRoot.addEventListener('click', (e) => {
             if (e.target === modalRoot) closeModal();
         });
-        // ESC key closes modal
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && modalRoot && modalRoot.style.display === 'flex') {
                 closeModal();
@@ -187,17 +215,13 @@ export async function mountCompareFeature() {
         });
         document.getElementById('compare-swap-btn').addEventListener('click', handleSwap);
 
-        // Setup Typeaheads
         setupTypeahead('compare-search-a', 'compare-results-a', 'left');
         setupTypeahead('compare-search-b', 'compare-results-b', 'right');
 
-        // Mount Surface Toggle
         compareSurfaceToggle = createSurfaceToggle('compare-surface-toggle-mount', async (newSurface) => {
-            // Capitalize to match JSON keys: Hard, Clay, Grass, All
             const surfKey = newSurface === 'all' ? 'All'
                 : newSurface.charAt(0).toUpperCase() + newSurface.slice(1).toLowerCase();
             setCompareSurface(surfKey);
-            // Update subtitle
             const label = document.getElementById('compare-surface-label');
             if (label) {
                 label.textContent = surfKey === 'All' ? 'All surfaces' : `${surfKey} courts`;
@@ -206,23 +230,20 @@ export async function mountCompareFeature() {
         });
     }
 
-    // Pre-fetch Data
     await initCompareData('All');
 }
 
 export function openModal() {
     if (!modalRoot) return;
 
-    // Auto-populate Player A from the currently loaded player dashboard
     const searchInput = document.getElementById('player-search');
     if (searchInput && searchInput.value.trim()) {
         const name = searchInput.value.trim();
-        // Match makePlayerId format: lowercase, remove punctuation, spaces to underscores
         playerAId = name.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
     }
 
     modalRoot.style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
     updateUI();
 }
 
@@ -268,45 +289,45 @@ async function updateUI() {
     renderCompareRadar('compare-radar-canvas', pA, pB);
     renderCompareBars('compare-bars-container', pA, pB);
 
-    // H2H section
-    await renderH2H(playerAId, playerBId);
+    // Match History (replaces old H2H section)
+    await renderMatchHistory(playerAId, playerBId);
 }
 
-async function renderH2H(aId, bId) {
-    const section = document.getElementById('compare-h2h-section');
+// ═══════════════════════════════════════════════════════════════
+// Match History — Expandable / Collapsible
+// ═══════════════════════════════════════════════════════════════
+async function renderMatchHistory(aId, bId) {
+    const section = document.getElementById('match-history-section');
     if (!section) return;
 
     if (!aId || !bId) {
-        section.style.display = 'none';
+        section.innerHTML = '';
         return;
     }
 
     const h2h = await fetchH2H(aId, bId);
-    if (!h2h || h2h.totalMatches === 0) {
-        section.style.display = 'block';
-        section.innerHTML = `
-            <div style="text-align:center; color:#64748b; font-size:13px; padding:12px 0;">
-                No recorded matches found in dataset
-            </div>
-        `;
-        return;
-    }
 
     // Figure out which side is A and B in the H2H data
-    const isAFirst = h2h.playerA === aId;
-    const matches = (h2h.matches || []).map(m => ({
+    const isAFirst = h2h?.playerA === aId;
+    const matches = h2h ? (h2h.matches || []).map(m => ({
         ...m,
         winner: isAFirst ? m.winner : (m.winner === 'A' ? 'B' : m.winner === 'B' ? 'A' : null)
-    }));
+    })) : [];
 
     // Filter by current surface if applicable
-    const currentSurface = document.querySelector('.compare-surface-toggle .surface-btn.active')?.dataset?.surface;
+    const currentSurfaceBtn = document.querySelector('.compare-surface-toggle .surface-btn.active');
+    const currentSurface = currentSurfaceBtn?.dataset?.surface;
     const filtered = (currentSurface && currentSurface !== 'all')
         ? matches.filter(m => m.surface && m.surface.toLowerCase() === currentSurface.toLowerCase())
         : matches;
 
-    const MAX_VISIBLE = 5;
-    const showAll = filtered.length <= MAX_VISIBLE;
+    const matchCount = filtered.length;
+    const winsA = filtered.filter(m => m.winner === 'A').length;
+    const winsB = filtered.filter(m => m.winner === 'B').length;
+
+    const recordText = matchCount > 0
+        ? `${winsA} – ${winsB}`
+        : 'No matches in dataset';
 
     const formatMatch = (m, idx) => {
         const date = m.date ? new Date(m.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
@@ -314,11 +335,10 @@ async function renderH2H(aId, bId) {
         const winnerLabel = m.winner === 'A' ? '◀' : m.winner === 'B' ? '▶' : '—';
         const surfaceColors = { Hard: '#1d4ed8', Clay: '#dc2626', Grass: '#16a34a' };
         const surfaceBg = surfaceColors[m.surface] || '#475569';
-        const hidden = (!showAll && idx >= MAX_VISIBLE) ? 'style="display:none;"' : '';
         return `
-            <div class="matchup-row" data-matchup-idx="${idx}" ${hidden}>
+            <div class="matchup-row">
                 <span class="matchup-date">${date}</span>
-                <span class="matchup-tourney">${m.tournament || 'Unknown'}</span>
+                <span class="matchup-tourney">${(m.tournament || 'Unknown').replace(/_/g, ' ')}</span>
                 <span class="matchup-round">${m.round || ''}</span>
                 <span class="matchup-surface" style="background:${surfaceBg};">${m.surface || '?'}</span>
                 <span class="matchup-winner" style="color:${winnerColor};">${winnerLabel}</span>
@@ -326,14 +346,36 @@ async function renderH2H(aId, bId) {
         `;
     };
 
-    section.style.display = 'block';
     section.innerHTML = `
-        <div class="matchup-header">Tournament Matchups (${filtered.length})</div>
-        <div class="matchup-list">
-            ${filtered.map((m, i) => formatMatch(m, i)).join('')}
+        <div class="match-history-toggle" id="match-history-toggle">
+            <span class="match-history-toggle-label">Match History (${matchCount}) ${matchCount > 0 ? '— ' + recordText : ''}</span>
+            <span class="match-history-toggle-icon" id="match-history-icon">▼</span>
         </div>
-        ${!showAll ? `<button class="matchup-expand-btn" onclick="this.style.display='none'; this.parentNode.querySelectorAll('.matchup-row[style*=none]').forEach(r => r.style.display = '');">Show all ${filtered.length} matches ▾</button>` : ''}
+        <div class="match-history-list" id="match-history-list">
+            ${matchCount > 0
+            ? filtered.map((m, i) => formatMatch(m, i)).join('')
+            : '<div style="text-align:center; color:#475569; font-size:12px; padding:16px;">No head-to-head matches recorded in the charting dataset</div>'
+        }
+        </div>
     `;
+
+    // Toggle expand/collapse
+    const toggle = document.getElementById('match-history-toggle');
+    const list = document.getElementById('match-history-list');
+    const icon = document.getElementById('match-history-icon');
+
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            const isExpanded = list.classList.contains('expanded');
+            if (isExpanded) {
+                list.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                list.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        });
+    }
 }
 
 function setupTypeahead(inputId, resultsId, side) {
@@ -365,7 +407,6 @@ function setupTypeahead(inputId, resultsId, side) {
         }
     });
 
-    // Close on click outside
     document.addEventListener('click', (e) => {
         if (e.target !== input && e.target !== results) {
             results.style.display = 'none';

@@ -1,15 +1,78 @@
+import { METRIC_DEFS } from './playerCompareModel.js';
+
 export function renderCompareBars(containerId, playerA, playerB) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
     container.innerHTML = '';
 
-    // We expect both players to have the exact same attributes array definition
-    // fallback gracefully if one is missing
     const attributesDef = playerA ? playerA.attributes : (playerB ? playerB.attributes : []);
-
     if (attributesDef.length === 0) return;
 
+    // ── Info panel toggle button (top-right) ──
+    const headerRow = document.createElement('div');
+    headerRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;';
+
+    const title = document.createElement('div');
+    title.style.cssText = 'font-size:13px; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;';
+    title.textContent = 'Attributes';
+
+    const infoBtn = document.createElement('button');
+    infoBtn.className = 'attr-info-btn';
+    infoBtn.innerHTML = 'ⓘ';
+    infoBtn.title = 'Show all attribute descriptions';
+    infoBtn.style.cssText = `
+        background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.25);
+        color: #94a3b8; font-size: 18px; cursor: pointer; width: 32px; height: 32px;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s ease; line-height: 1;
+    `;
+    infoBtn.addEventListener('mouseenter', () => { infoBtn.style.color = '#f8fafc'; infoBtn.style.borderColor = 'rgba(248,250,252,0.4)'; });
+    infoBtn.addEventListener('mouseleave', () => { infoBtn.style.color = '#94a3b8'; infoBtn.style.borderColor = 'rgba(148,163,184,0.25)'; });
+
+    headerRow.appendChild(title);
+    headerRow.appendChild(infoBtn);
+    container.appendChild(headerRow);
+
+    // ── Info panel (hidden by default) ──
+    const infoPanel = document.createElement('div');
+    infoPanel.className = 'attr-info-panel';
+    infoPanel.style.cssText = `
+        display: none; background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+        padding: 16px; margin-bottom: 16px; max-height: 320px; overflow-y: auto;
+    `;
+    infoPanel.innerHTML = `
+        <div style="font-size:14px; font-weight:700; color:#f8fafc; margin-bottom:10px;">Attribute Guide</div>
+        ${METRIC_DEFS.map(def => `
+            <div style="margin-bottom:8px; display:flex; gap:8px; align-items:flex-start;">
+                <span style="font-size:12px; font-weight:700; color:#38bdf8; min-width:100px; flex-shrink:0;">${def.label}</span>
+                <span style="font-size:12px; color:#94a3b8; line-height:1.4;">${def.description}</span>
+            </div>
+        `).join('')}
+        <div style="margin-top:10px; font-size:11px; color:#475569;">All values are percentiles (1–100) relative to the tour.</div>
+    `;
+    container.appendChild(infoPanel);
+
+    let infoPanelOpen = false;
+    infoBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        infoPanelOpen = !infoPanelOpen;
+        infoPanel.style.display = infoPanelOpen ? 'block' : 'none';
+        infoBtn.style.background = infoPanelOpen ? 'rgba(56,189,248,0.15)' : 'rgba(148,163,184,0.1)';
+        infoBtn.style.color = infoPanelOpen ? '#38bdf8' : '#94a3b8';
+    });
+
+    // Close info panel on outside click
+    document.addEventListener('click', (e) => {
+        if (infoPanelOpen && !infoPanel.contains(e.target) && e.target !== infoBtn) {
+            infoPanelOpen = false;
+            infoPanel.style.display = 'none';
+            infoBtn.style.background = 'rgba(148,163,184,0.1)';
+            infoBtn.style.color = '#94a3b8';
+        }
+    });
+
+    // ── Attribute Bars ──
     const wrapper = document.createElement('div');
     wrapper.className = 'compare-bars-wrapper';
     wrapper.style.display = 'flex';
@@ -17,7 +80,7 @@ export function renderCompareBars(containerId, playerA, playerB) {
     wrapper.style.gap = '12px';
     wrapper.style.width = '100%';
 
-    attributesDef.forEach((attr, idx) => {
+    attributesDef.forEach((attr) => {
         const valA = playerA ? playerA.attributes.find(a => a.key === attr.key)?.value : null;
         const valB = playerB ? playerB.attributes.find(a => a.key === attr.key)?.value : null;
 
@@ -28,7 +91,7 @@ export function renderCompareBars(containerId, playerA, playerB) {
         row.style.width = '100%';
         row.style.position = 'relative';
 
-        // Label Center
+        // Label Center — hoverable with tooltip
         const labelDiv = document.createElement('div');
         labelDiv.style.flex = '0 0 120px';
         labelDiv.style.textAlign = 'center';
@@ -36,12 +99,22 @@ export function renderCompareBars(containerId, playerA, playerB) {
         labelDiv.style.fontWeight = '600';
         labelDiv.style.color = '#cbd5e1';
         labelDiv.style.zIndex = '2';
+        labelDiv.style.cursor = 'help';
+        labelDiv.style.position = 'relative';
+
+        // Get description from METRIC_DEFS
+        const metricDef = METRIC_DEFS.find(d => d.key === attr.key);
+        const desc = metricDef?.description || '';
 
         let labelText = attr.label;
         if (attr.note) {
             labelText += ` <span style="color:#64748b; font-size:10px; font-weight:normal;">(${attr.note})</span>`;
         }
         labelDiv.innerHTML = labelText;
+
+        // Custom tooltip via data attribute + CSS
+        labelDiv.setAttribute('data-tooltip', desc);
+        labelDiv.classList.add('attr-label-tooltip');
 
         // Player A Side (Left)
         const leftSide = document.createElement('div');
@@ -66,11 +139,10 @@ export function renderCompareBars(containerId, playerA, playerB) {
         barAFill.style.top = '0';
         barAFill.style.height = '100%';
         barAFill.style.width = `${valAObj}%`;
-        barAFill.style.background = '#38bdf8'; // Blue
+        barAFill.style.background = '#38bdf8';
         barAFill.style.borderRadius = '4px 0 0 4px';
-        barAFill.style.transition = 'width 0.4s easeOut';
+        barAFill.style.transition = 'width 0.4s ease-out';
 
-        // Render Value Number Float
         const numA = document.createElement('span');
         numA.style.marginLeft = '8px';
         numA.style.fontSize = '13px';
@@ -105,9 +177,9 @@ export function renderCompareBars(containerId, playerA, playerB) {
         barBFill.style.top = '0';
         barBFill.style.height = '100%';
         barBFill.style.width = `${valBObj}%`;
-        barBFill.style.background = '#f43f5e'; // Red
+        barBFill.style.background = '#f43f5e';
         barBFill.style.borderRadius = '0 4px 4px 0';
-        barBFill.style.transition = 'width 0.4s easeOut';
+        barBFill.style.transition = 'width 0.4s ease-out';
 
         const numB = document.createElement('span');
         numB.style.marginRight = '8px';
@@ -127,7 +199,7 @@ export function renderCompareBars(containerId, playerA, playerB) {
 
         wrapper.appendChild(row);
 
-        // Highlight Winner Logic (Optional Chrome effect)
+        // Highlight Winner
         if (valA !== null && valB !== null && valA !== valB) {
             const isAWinner = valA > valB;
             if (isAWinner) {

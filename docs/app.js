@@ -156,7 +156,7 @@ function getFilters() {
 async function init() {
     try {
         // Mount FIFA-Style Compare Feature
-        import('./js/playerCompare/index.js?v=srf2').then(mod => {
+        import('./js/playerCompare/index.js?v=srf3').then(mod => {
             mod.mountCompareFeature();
         }).catch(err => console.error("Compare Map Init Failed:", err));
 
@@ -326,6 +326,18 @@ async function loadPlayer(name) {
         renderRallyComfort(rallyComfort);
         renderPressureState(pressureState);
         renderOpponentShifts(opponentShifts);
+
+        // Matchup Predictions
+        try {
+            const { renderMatchupExplorer, injectMatchupStyles } = await import('./js/matchups/MatchupExplorer.js');
+            injectMatchupStyles();
+            const matchupSection = document.getElementById('matchup-section');
+            if (matchupSection) matchupSection.style.display = 'block';
+            await renderMatchupExplorer('matchup-explorer-player', name,
+                currentSurface === 'all' ? 'All' : currentSurface.charAt(0).toUpperCase() + currentSurface.slice(1));
+        } catch (matchupErr) {
+            console.error('Matchup Explorer failed (non-blocking):', matchupErr);
+        }
 
         dashboard.classList.remove('hidden');
         setupAccordions();

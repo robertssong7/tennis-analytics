@@ -462,6 +462,22 @@
       </div>
     </section>
 
+    <!-- ═════ Matchup Predictions ═════ -->
+    <section class="data-card" id="matchup-section" style="display:none;">
+      <button class="accordion-btn" aria-expanded="true" aria-controls="matchup-content">
+        <div class="header-text">
+          <h3><span class="card-icon">🔮</span> Matchup Predictions</h3>
+          <p class="card-subtitle home-section-label"
+            style="color:#2563EB;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;">Predictive Intelligence
+          </p>
+        </div>
+        <span class="accordion-icon">▼</span>
+      </button>
+      <div class="card-content" id="matchup-content">
+        <div id="matchup-explorer-player"></div>
+      </div>
+    </section>
+
   </main>
 
 
@@ -499,8 +515,9 @@
         </div>
       </div>
 
-      <!-- Right Panel (60%) — empty for now -->
+      <!-- Right Panel (60%) — featured player matchups -->
       <div class="hero-right">
+        <div id="matchup-explorer-home" style="width:100%;"></div>
       </div>
     </section>
 
