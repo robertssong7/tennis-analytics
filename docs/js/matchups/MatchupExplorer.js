@@ -71,7 +71,7 @@ export async function renderMatchupExplorer(containerId, playerId, surface = 'Al
                             Toughest Matchups
                         </div>
                         <div class="matchup-list-container" style="max-height:none;">
-                            ${(surfData.difficult || []).slice(0, 3).map((m, i) => renderMatchupRow(m, i, 'difficult', true)).join('')}
+                            ${surfData && surfData.difficult ? surfData.difficult.slice(0, 3).map((m, i) => renderMatchupRow(m, i, 'difficult', true)).join('') : '<div style="padding:12px; color:#64748b; text-align:center;">No data</div>'}
                         </div>
                     </div>
                     <div class="matchup-explorer" style="background:#0f172a; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
@@ -79,13 +79,13 @@ export async function renderMatchupExplorer(containerId, playerId, surface = 'Al
                             Most Favorable
                         </div>
                         <div class="matchup-list-container" style="max-height:none;">
-                            ${(surfData.favorable || []).slice(0, 3).map((m, i) => renderMatchupRow(m, i, 'favorable', true)).join('')}
+                            ${surfData && surfData.favorable ? surfData.favorable.slice(0, 3).map((m, i) => renderMatchupRow(m, i, 'favorable', true)).join('') : '<div style="padding:12px; color:#64748b; text-align:center;">No data</div>'}
                         </div>
                     </div>
                 </div>
             `;
         } else {
-            const list = currentTab === 'difficult' ? surfData.difficult : surfData.favorable;
+            const list = currentTab === 'difficult' ? surfData?.difficult : surfData?.favorable;
             container.innerHTML = `
                 <div class="matchup-explorer">
                     <div class="matchup-tabs">

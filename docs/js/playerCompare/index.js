@@ -117,6 +117,13 @@ const STYLES = `
 }
 .attr-label-tooltip:hover::after { opacity: 1; }
 
+.info-overlay-popup {
+    position: absolute; background: #1e293b; color: #f8fafc; padding: 12px;
+    border-radius: 8px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    font-size: 11px; z-index: 9999; max-width: 300px; line-height: 1.4;
+    display: none; pointer-events: none; white-space: pre-wrap;
+}
+
 @media (max-width: 900px) {
     .compare-top-row {
         grid-template-columns: 1fr;
@@ -308,8 +315,8 @@ async function renderMatchHistory(aId, bId) {
 
     const h2h = await fetchH2H(aId, bId);
 
-    // Figure out which side is A and B in the H2H data
-    const isAFirst = h2h?.playerA === aId;
+    // Figure out which side is A and B in the H2H data (Handle case sensitivity from JSON)
+    const isAFirst = h2h?.playerA?.toLowerCase() === aId?.toLowerCase();
     const matches = h2h ? (h2h.matches || []).map(m => ({
         ...m,
         winner: isAFirst ? m.winner : (m.winner === 'A' ? 'B' : m.winner === 'B' ? 'A' : null)

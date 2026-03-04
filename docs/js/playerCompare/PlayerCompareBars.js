@@ -34,43 +34,55 @@ export function renderCompareBars(containerId, playerA, playerB) {
     headerRow.appendChild(infoBtn);
     container.appendChild(headerRow);
 
-    // ── Info panel (hidden by default) ──
+    // ── Info panel (hidden by default, floating) ──
     const infoPanel = document.createElement('div');
-    infoPanel.className = 'attr-info-panel';
-    infoPanel.style.cssText = `
-        display: none; background: #1e293b; border: 1px solid #334155; border-radius: 10px;
-        padding: 16px; margin-bottom: 16px; max-height: 320px; overflow-y: auto;
-    `;
+    infoPanel.className = 'info-overlay-popup';
     infoPanel.innerHTML = `
         <div style="font-size:14px; font-weight:700; color:#f8fafc; margin-bottom:10px;">Attribute Guide</div>
         ${METRIC_DEFS.map(def => `
             <div style="margin-bottom:8px; display:flex; gap:8px; align-items:flex-start;">
-                <span style="font-size:12px; font-weight:700; color:#38bdf8; min-width:100px; flex-shrink:0;">${def.label}</span>
+                <span style="font-size:12px; font-weight:700; color:#38bdf8; min-width:80px; flex-shrink:0;">${def.label}</span>
                 <span style="font-size:12px; color:#94a3b8; line-height:1.4;">${def.description}</span>
             </div>
         `).join('')}
         <div style="margin-top:10px; font-size:11px; color:#475569;">All values are percentiles (1–100) relative to the tour.</div>
     `;
-    container.appendChild(infoPanel);
 
-    let infoPanelOpen = false;
-    infoBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        infoPanelOpen = !infoPanelOpen;
-        infoPanel.style.display = infoPanelOpen ? 'block' : 'none';
-        infoBtn.style.background = infoPanelOpen ? 'rgba(56,189,248,0.15)' : 'rgba(148,163,184,0.1)';
-        infoBtn.style.color = infoPanelOpen ? '#38bdf8' : '#94a3b8';
+    // Append to body so it escapes the container overflow formatting
+    document.body.appendChild(infoPanel);
+
+    infoBtn.addEventListener('mouseenter', (e) => {
+        infoBtn.style.color = '#f8fafc';
+        infoBtn.style.borderColor = 'rgba(248,250,252,0.4)';
+
+        const rect = infoBtn.getBoundingClientRect();
+        infoPanel.style.display = 'block';
+
+        // Position it right below or above the button
+        let topPos = rect.bottom + window.scrollY + 10;
+        let leftPos = rect.right + window.scrollX - 300; // Align right edge roughly
+
+        // Ensure it doesn't go off screen left
+        if (leftPos < 20) leftPos = 20;
+
+        infoPanel.style.top = `${topPos}px`;
+        infoPanel.style.left = `${leftPos}px`;
     });
 
-    // Close info panel on outside click
-    document.addEventListener('click', (e) => {
-        if (infoPanelOpen && !infoPanel.contains(e.target) && e.target !== infoBtn) {
-            infoPanelOpen = false;
-            infoPanel.style.display = 'none';
-            infoBtn.style.background = 'rgba(148,163,184,0.1)';
-            infoBtn.style.color = '#94a3b8';
+    infoBtn.addEventListener('mouseleave', () => {
+        infoBtn.style.color = '#94a3b8';
+        infoBtn.style.borderColor = 'rgba(148,163,184,0.25)';
+        infoPanel.style.display = 'none';
+    });
+
+    // Cleanup when container is rewritten/unmounted
+    const observer = new MutationObserver(() => {
+        if (!document.body.contains(container)) {
+            if (infoPanel.parentNode) infoPanel.parentNode.removeChild(infoPanel);
+            observer.disconnect();
         }
     });
+    observer.observe(document.body, { childList: true, subtree: true });
 
     // ── Attribute Bars ──
     const wrapper = document.createElement('div');

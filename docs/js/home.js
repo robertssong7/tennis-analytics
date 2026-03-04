@@ -16,16 +16,15 @@ export function initHomeScreen() {
         });
     }
 
-    // "Compare players" CTA → open compare modal
+    // "Compare players" CTA → proxy to navbar compare button
     const compareBtn = document.getElementById('cta-compare-btn');
     if (compareBtn) {
-        compareBtn.addEventListener('click', async () => {
-            try {
-                const { mountCompareFeature, openModal } = await import('./playerCompare/index.js?v=srf2');
-                await mountCompareFeature();
-                openModal();
-            } catch (err) {
-                console.error('Failed to open compare modal from home:', err);
+        compareBtn.addEventListener('click', () => {
+            const navBtn = document.getElementById('compare-nav-btn');
+            if (navBtn) {
+                navBtn.click();
+            } else {
+                console.error("Navigation compare button not found/loaded yet.");
             }
         });
     }

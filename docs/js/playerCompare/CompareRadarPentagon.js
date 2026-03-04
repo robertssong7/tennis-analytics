@@ -155,7 +155,7 @@ export function renderCompareRadar(canvasId, playerA, playerB) {
         infoBtn = document.createElement('div');
         infoBtn.className = 'radar-info-btn';
         infoBtn.innerHTML = 'i';
-        infoBtn.title = Object.entries(AXIS_INFO).map(([k, v]) => `${v}`).join('\n\n');
+
         Object.assign(infoBtn.style, {
             position: 'absolute', top: '10px', right: '10px',
             width: '24px', height: '24px', borderRadius: '50%',
@@ -164,7 +164,41 @@ export function renderCompareRadar(canvasId, playerA, playerB) {
             fontSize: '12px', fontWeight: 'bold', cursor: 'help',
             border: '1px solid #475569', zIndex: '5',
         });
+
         container.style.position = 'relative';
         container.appendChild(infoBtn);
+
+        // Use the same floating overlay logic
+        const infoPanel = document.createElement('div');
+        infoPanel.className = 'info-overlay-popup';
+        infoPanel.innerHTML = `
+            <div style="font-size:14px; font-weight:700; color:#f8fafc; margin-bottom:10px;">Radar Axes Guide</div>
+            ${Object.entries(AXIS_INFO).map(([k, v]) => `
+                <div style="margin-bottom:8px; display:flex; gap:8px; align-items:flex-start;">
+                    <span style="font-size:12px; color:#94a3b8; line-height:1.4;">• ${v}</span>
+                </div>
+            `).join('')}
+        `;
+        document.body.appendChild(infoPanel);
+
+        infoBtn.addEventListener('mouseenter', () => {
+            infoBtn.style.color = '#f8fafc';
+            infoBtn.style.background = '#475569';
+            infoPanel.style.display = 'block';
+
+            const rect = infoBtn.getBoundingClientRect();
+            let topPos = rect.bottom + window.scrollY + 10;
+            let leftPos = rect.right + window.scrollX - 300;
+            if (leftPos < 20) leftPos = 20;
+
+            infoPanel.style.top = `${topPos}px`;
+            infoPanel.style.left = `${leftPos}px`;
+        });
+
+        infoBtn.addEventListener('mouseleave', () => {
+            infoBtn.style.color = '#cbd5e1';
+            infoBtn.style.background = '#334155';
+            infoPanel.style.display = 'none';
+        });
     }
 }
