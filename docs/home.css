@@ -39,8 +39,12 @@
 }
 
 .hero-left {
-    flex: 0 0 40%;
-    max-width: 560px;
+    flex: 0 0 45%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .hero-right {
@@ -72,7 +76,8 @@
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
-    margin-bottom: 16px;
+    justify-content: center;
+    margin-bottom: 24px;
 }
 
 .cta-primary {
@@ -147,7 +152,8 @@
 .trust-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
+    justify-content: center;
 }
 
 .trust-chip {
@@ -196,8 +202,12 @@
     background: #fff;
     border: 1px solid #E2E8F0;
     border-radius: 16px;
-    padding: 28px 24px;
+    padding: 32px 24px;
     transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .step-card:hover {
@@ -206,9 +216,13 @@
     transform: translateY(-2px);
 }
 
-.step-icon {
-    font-size: 28px;
-    margin-bottom: 14px;
+.step-icon-img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .step-title {

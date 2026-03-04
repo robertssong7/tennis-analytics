@@ -58,22 +58,51 @@ async function renderHomeMatchups() {
 
     const displayName = featuredPlayer.replace(/_/g, ' ').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
 
+    // Render the initial surface state
+    window._homeMatchupSurface = window._homeMatchupSurface || 'All';
+
     // Header for the widget
     container.innerHTML = `
-        <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;">
+        <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end;">
             <div>
-                <div style="font-size:11px;color:#38bdf8;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px;">Featured Player</div>
-                <div style="font-size:18px;font-weight:800;color:#f8fafc;">${displayName}</div>
+                <div style="font-size:16px;color:#38bdf8;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:6px;">Featured Player</div>
+                <div style="font-size:24px;font-weight:900;color:#0f172a;">${displayName}</div>
             </div>
-            <div style="font-size:12px;color:#64748b;">All Surfaces</div>
+            <div>
+                <select id="home-featured-surface-select" style="padding:6px 12px; border-radius:8px; border:1px solid #cbd5e1; font-size:14px; color:#334155; font-weight:600; cursor:pointer; background:#fff;">
+                    <option value="All" ${window._homeMatchupSurface === 'All' ? 'selected' : ''}>All Surfaces</option>
+                    <option value="Hard" ${window._homeMatchupSurface === 'Hard' ? 'selected' : ''}>Hard</option>
+                    <option value="Clay" ${window._homeMatchupSurface === 'Clay' ? 'selected' : ''}>Clay</option>
+                    <option value="Grass" ${window._homeMatchupSurface === 'Grass' ? 'selected' : ''}>Grass</option>
+                </select>
+            </div>
         </div>
         <div id="home-featured-matchups"></div>
     `;
 
+    // Bind event listener to the dropdown
+    const surfaceSelect = document.getElementById('home-featured-surface-select');
+    if (surfaceSelect) {
+        surfaceSelect.addEventListener('change', async (e) => {
+            window._homeMatchupSurface = e.target.value;
+            const target = document.getElementById('home-featured-matchups');
+            if (target) {
+                target.innerHTML = '<div style="padding: 20px; text-align: center; color: #64748b;">Loading matchups...</div>';
+                try {
+                    const { renderMatchupExplorer } = await import('./matchups/MatchupExplorer.js');
+                    await renderMatchupExplorer('home-featured-matchups', featuredPlayer, window._homeMatchupSurface, true);
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        });
+    }
+
     try {
         const { renderMatchupExplorer, injectMatchupStyles } = await import('./matchups/MatchupExplorer.js');
         injectMatchupStyles();
-        await renderMatchupExplorer('home-featured-matchups', featuredPlayer, 'All');
+        // pass a true flag to indicate it's the home screen (so we limit to top 3 and add UX refinements)
+        await renderMatchupExplorer('home-featured-matchups', featuredPlayer, window._homeMatchupSurface, true);
     } catch (err) {
         console.error('Failed to render home matchups:', err);
     }

@@ -26,7 +26,7 @@ async function fetchMatchups(playerId) {
 // ═══════════════════════════════════════════════════════════════
 // Render Matchup Explorer into a container
 // ═══════════════════════════════════════════════════════════════
-export async function renderMatchupExplorer(containerId, playerId, surface = 'All') {
+export async function renderMatchupExplorer(containerId, playerId, surface = 'All', isHome = false) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -64,15 +64,15 @@ export async function renderMatchupExplorer(containerId, playerId, surface = 'Al
         container.innerHTML = `
             <div class="matchup-explorer">
                 <div class="matchup-tabs">
-                    <button class="matchup-tab ${currentTab === 'difficult' ? 'active' : ''}" data-tab="difficult">
-                        🔴 Toughest Matchups
+                    <button class="matchup-tab ${currentTab === 'difficult' ? 'active' : ''}" data-tab="difficult" style="${currentTab === 'difficult' ? 'color:#ef4444; border-bottom-color:#ef4444;' : ''}">
+                        Toughest Matchups
                     </button>
-                    <button class="matchup-tab ${currentTab === 'favorable' ? 'active' : ''}" data-tab="favorable">
-                        🟢 Most Favorable
+                    <button class="matchup-tab ${currentTab === 'favorable' ? 'active' : ''}" data-tab="favorable" style="${currentTab === 'favorable' ? 'color:#22c55e; border-bottom-color:#22c55e;' : ''}">
+                        Most Favorable
                     </button>
                 </div>
                 <div class="matchup-list-container">
-                    ${(list || []).map((m, i) => renderMatchupRow(m, i, currentTab)).join('')}
+                    ${(isHome ? (list || []).slice(0, 3) : (list || [])).map((m, i) => renderMatchupRow(m, i, currentTab, isHome)).join('')}
                 </div>
             </div>
         `;
@@ -101,7 +101,7 @@ export async function renderMatchupExplorer(containerId, playerId, surface = 'Al
     render();
 }
 
-function renderMatchupRow(matchup, index, tab) {
+function renderMatchupRow(matchup, index, tab, isHome = false) {
     const { opponentName, pWin, confidence, reasons } = matchup;
     const pWinDisplay = Math.round(pWin * 100);
     const barWidth = pWinDisplay;
@@ -131,9 +131,9 @@ function renderMatchupRow(matchup, index, tab) {
                 <span class="matchup-confidence" style="background:${confidenceBadge.bg}; color:${confidenceBadge.color};">
                     ${confidenceBadge.label}
                 </span>
-                <span class="matchup-chevron">▾</span>
+                <span class="matchup-chevron ${isHome ? 'expanded' : ''}">▾</span>
             </div>
-            <div class="matchup-reasons">
+            <div class="matchup-reasons ${isHome ? 'expanded' : ''}">
                 ${(reasons || []).map(r => `<div class="matchup-reason">→ ${r}</div>`).join('')}
             </div>
         </div>

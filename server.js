@@ -895,19 +895,19 @@ app.get('/api/h2h/:playerA/:playerB', async (req, res) => {
     const result = await pool.query(`
       WITH h2h_matches AS (
         SELECT m.id, m.date, m.event, m.event_round, m.surface,
-               m.first_player_name, m.second_player_name
+               m.first_player_name, m.second_player_name, m.score
         FROM match m
         WHERE (m.first_player_name = $1 AND m.second_player_name = $2)
            OR (m.first_player_name = $2 AND m.second_player_name = $1)
       ),
       match_points AS (
-        SELECT h.id, h.date, h.event, h.event_round, h.surface,
+        SELECT h.id, h.date, h.event, h.event_round, h.surface, h.score,
                h.first_player_name, h.second_player_name,
                SUM(CASE WHEN p.player_won = 1 THEN 1 ELSE 0 END) AS p1_pts,
                SUM(CASE WHEN p.player_won = 2 THEN 1 ELSE 0 END) AS p2_pts
         FROM h2h_matches h
         JOIN point p ON p.match_id = h.id
-        GROUP BY h.id, h.date, h.event, h.event_round, h.surface,
+        GROUP BY h.id, h.date, h.event, h.event_round, h.surface, h.score,
                  h.first_player_name, h.second_player_name
       )
       SELECT *, CASE WHEN p1_pts > p2_pts THEN first_player_name ELSE second_player_name END AS probable_winner
@@ -936,7 +936,7 @@ app.get('/api/h2h/:playerA/:playerB', async (req, res) => {
         tournament: eventName || null,
         round: r.event_round || null,
         surface: r.surface || null,
-        score: null,
+        score: r.score || "Score unavailable",
         winner: whoWon
       });
     }

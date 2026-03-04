@@ -86,8 +86,8 @@ const STYLES = `
 }
 .match-history-list.expanded { display: block; }
 .matchup-row {
-    display: grid; grid-template-columns: 100px 1fr 50px 60px 30px;
-    gap: 8px; align-items: center; padding: 8px 12px;
+    display: grid; grid-template-columns: 80px 1fr 50px 60px 160px 1fr;
+    gap: 8px; align-items: center; padding: 10px 12px;
     border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 12px;
 }
 .matchup-row:hover { background: rgba(255,255,255,0.02); }
@@ -98,7 +98,8 @@ const STYLES = `
     font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 6px;
     border-radius: 4px; text-align: center; color: #fff;
 }
-.matchup-winner { font-size: 14px; text-align: center; }
+.matchup-score { font-size: 12px; color: #cbd5e1; font-family: 'JetBrains Mono', monospace; text-align: center; }
+.matchup-winner { font-size: 12px; font-weight: 700; text-align: right; }
 
 /* ── Attribute Tooltip ── */
 .attr-label-tooltip {
@@ -111,7 +112,7 @@ const STYLES = `
     padding: 6px 10px; border-radius: 6px; border: 1px solid #334155;
     white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s;
     z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    max-width: 280px; white-space: normal; text-align: center; line-height: 1.3;
+    max-width: 25vw; min-width: 180px; white-space: normal; text-align: center; line-height: 1.3;
     margin-bottom: 6px;
 }
 .attr-label-tooltip:hover::after { opacity: 1; }
@@ -329,19 +330,25 @@ async function renderMatchHistory(aId, bId) {
         ? `${winsA} – ${winsB}`
         : 'No matches in dataset';
 
+    const formatName = (id) => id.split('_').map(w => w.charAt(0).toUpperCase() + w.substr(1)).join(' ');
+    const aName = formatName(aId);
+    const bName = formatName(bId);
+
     const formatMatch = (m, idx) => {
         const date = m.date ? new Date(m.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
         const winnerColor = m.winner === 'A' ? '#38bdf8' : m.winner === 'B' ? '#f43f5e' : '#94a3b8';
-        const winnerLabel = m.winner === 'A' ? '◀' : m.winner === 'B' ? '▶' : '—';
+        const winnerNameStr = m.winner === 'A' ? `◀ ${aName}` : m.winner === 'B' ? `${bName} ▶` : '—';
         const surfaceColors = { Hard: '#1d4ed8', Clay: '#dc2626', Grass: '#16a34a' };
         const surfaceBg = surfaceColors[m.surface] || '#475569';
+
         return `
             <div class="matchup-row">
                 <span class="matchup-date">${date}</span>
                 <span class="matchup-tourney">${(m.tournament || 'Unknown').replace(/_/g, ' ')}</span>
                 <span class="matchup-round">${m.round || ''}</span>
                 <span class="matchup-surface" style="background:${surfaceBg};">${m.surface || '?'}</span>
-                <span class="matchup-winner" style="color:${winnerColor};">${winnerLabel}</span>
+                <span class="matchup-score">${m.score || 'Score unavailable'}</span>
+                <span class="matchup-winner" style="color:${winnerColor};">${winnerNameStr}</span>
             </div>
         `;
     };
