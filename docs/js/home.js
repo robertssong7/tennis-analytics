@@ -43,6 +43,11 @@ export function initHomeScreen() {
 
     // ─── Render Featured Matchups in Hero Right Panel ───
     renderHomeMatchups();
+
+    // ─── Mount Court Speed Dashboard ───
+    import('./courtSpeed/CourtSpeedDashboard.js?v=cs2').then(mod => {
+        mod.mountCourtSpeedDashboard('court-speed-app-mount');
+    }).catch(err => console.error("Failed to mount Court Speed Dashboard:", err));
 }
 
 async function renderHomeMatchups() {
