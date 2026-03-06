@@ -38,7 +38,7 @@ export async function mountCourtSpeedDashboard(containerId) {
             <div id="court-speed-surface-toggle" style="background:#fff; border-radius:12px; padding:4px; box-shadow:0 4px 12px rgba(0,0,0,0.05);"></div>
         </div>
         
-        <div id="court-speed-content" style="background:#0f172a; border-radius:12px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); border:1px solid #1e293b;"></div>
+        <div id="court-speed-content" style="background:#ffffff; border-radius:12px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border:1px solid #e2e8f0;"></div>
         
         <div class="cpi-legend" style="display:flex; align-items:center; justify-content:center; gap: 8px; margin-top: 16px; flex-wrap:wrap; font-size:11px; font-weight:600; color:#64748b;">
             <div style="display:flex; align-items:center; gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#ef4444;"></div> &lt;30 Slow</div>
@@ -88,14 +88,14 @@ function renderContent() {
         const tbodyRows = tourney.history.map(h => {
             const hCpiInfo = getCPICategory(h.cpi);
             return `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <td style="padding:10px 12px; color:#cbd5e1; font-weight:600;">${tourney.tournament}</td>
-                    <td style="padding:10px 12px; color:#94a3b8;">${h.year}</td>
-                    <td style="padding:10px 12px; color:#f8fafc;">
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding:10px 12px; color:#334155; font-weight:600;">${tourney.tournament}</td>
+                    <td style="padding:10px 12px; color:#64748b;">${h.year}</td>
+                    <td style="padding:10px 12px; color:#0f172a;">
                         <span style="background:${hCpiInfo.bg}; color:${hCpiInfo.color}; padding: 2px 8px; border-radius:4px; font-weight:800;">${h.cpi.toFixed(1)}</span>
                     </td>
-                    <td style="padding:10px 12px; color:#94a3b8;">${h.aceRate}</td>
-                    <td style="padding:10px 12px; color:#94a3b8;">${h.rallyLength}</td>
+                    <td style="padding:10px 12px; color:#475569;">${h.aceRate}</td>
+                    <td style="padding:10px 12px; color:#475569;">${h.rallyLength}</td>
                 </tr>
             `;
         }).join('');
@@ -104,11 +104,11 @@ function renderContent() {
             <div style="margin-bottom: 24px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
                     <div>
-                        <div style="display:inline-block; padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.1); color:#fff; font-size:11px; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px;">${tourney.surface}</div>
-                        <h3 style="margin:0; font-size:20px; color:#f8fafc;">${tourney.tournament}</h3>
+                        <div style="display:inline-block; padding:2px 8px; border-radius:4px; background:#e2e8f0; color:#334155; font-size:11px; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px;">${tourney.surface}</div>
+                        <h3 style="margin:0; font-size:20px; color:#0f172a;">${tourney.tournament}</h3>
                     </div>
                     <div style="text-align:right;">
-                        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Average Pace (CPI)</div>
+                        <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Average Pace (CPI)</div>
                         <div style="display:inline-block; background:${cpiInfo.bg}; color:${cpiInfo.color}; border: 1px solid ${cpiInfo.color}; padding: 4px 12px; border-radius:6px; font-weight:800; font-size:18px;">
                             ${tourney.overallSpeedRating.toFixed(1)} • ${cpiInfo.label}
                         </div>
@@ -116,19 +116,15 @@ function renderContent() {
                 </div>
 
                 <!-- Aggregates Row -->
-                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom: 20px;">
-                    <div style="background: rgba(255,255,255,0.03); padding:12px; border-radius:8px; border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Conditions</div>
-                        <div style="font-size:13px; color:#cbd5e1; font-weight:600;">${tourney.tempAirDensity}</div>
-                        <div style="font-size:12px; color:#94a3b8; margin-top:2px;">Altitude: ${tourney.altitude}</div>
+                <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; margin-bottom: 20px;">
+                    <div style="background: #f8fafc; padding:10px; border-radius:8px; border: 1px solid #e2e8f0;">
+                        <div style="font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Conditions</div>
+                        <div style="font-size:12px; color:#0f172a; font-weight:600;">${tourney.tempAirDensity}</div>
+                        <div style="font-size:11px; color:#475569; margin-top:2px;">Altitude: ${tourney.altitude}</div>
                     </div>
-                    <div style="background: rgba(255,255,255,0.03); padding:12px; border-radius:8px; border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Date</div>
-                        <div style="font-size:14px; color:#cbd5e1; font-weight:600;">${tourney.month}</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.03); padding:12px; border-radius:8px; border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Ball Used</div>
-                        <div style="font-size:14px; color:#cbd5e1; font-weight:600;">${tourney.ballType}</div>
+                    <div style="background: #f8fafc; padding:10px; border-radius:8px; border: 1px solid #e2e8f0;">
+                        <div style="font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Ball Used</div>
+                        <div style="font-size:13px; color:#0f172a; font-weight:600;">${tourney.ballType}</div>
                     </div>
                 </div>
                 
@@ -136,12 +132,12 @@ function renderContent() {
                 <div style="overflow-x:auto;">
                     <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
                         <thead>
-                            <tr style="border-bottom: 2px solid rgba(255,255,255,0.1);">
-                                <th style="padding:10px 12px; color:#64748b; font-weight:600;">Tournament</th>
-                                <th style="padding:10px 12px; color:#64748b; font-weight:600;">Year</th>
-                                <th style="padding:10px 12px; color:#64748b; font-weight:600;">CPI Avg</th>
-                                <th style="padding:10px 12px; color:#64748b; font-weight:600;">Ace Rate</th>
-                                <th style="padding:10px 12px; color:#64748b; font-weight:600;">Rally Len</th>
+                            <tr style="border-bottom: 2px solid #e2e8f0;">
+                                <th style="padding:10px 12px; color:#475569; font-weight:700;">Tournament</th>
+                                <th style="padding:10px 12px; color:#475569; font-weight:700;">Year</th>
+                                <th style="padding:10px 12px; color:#475569; font-weight:700;">CPI Avg</th>
+                                <th style="padding:10px 12px; color:#475569; font-weight:700;">Ace Rate</th>
+                                <th style="padding:10px 12px; color:#475569; font-weight:700;">Rally Len</th>
                             </tr>
                         </thead>
                         <tbody>

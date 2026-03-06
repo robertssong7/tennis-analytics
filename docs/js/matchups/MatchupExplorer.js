@@ -145,10 +145,30 @@ function renderMatchupRow(matchup, index, tab, isHome = false) {
 
     return `
         <div class="matchup-item">
-            <div class="matchup-row-main" style="cursor:pointer;">
+            <div class="matchup-row-main" style="cursor:pointer; ${isHome ? 'padding: 12px; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.06);' : ''}">
                 <span class="matchup-rank" style="color:${tab === 'difficult' ? '#f43f5e' : '#22c55e'}; font-weight:900; font-size:13px; min-width:24px; text-align:center;">
-                    ${index + 1}
+                    ${isHome ? '#' : ''}${index + 1}
                 </span>
+                
+                ${isHome ? `
+                <div style="flex:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-weight:700; font-size:14px; color:#f8fafc;">${opponentName}</span>
+                        <span style="background:${confidenceBadge.bg}; color:${confidenceBadge.color}; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700; text-transform:uppercase;">
+                            ${confidenceBadge.label}
+                        </span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:12px; font-weight:800; color:${barColor}; width:32px;">${pWinDisplay}%</span>
+                        <div style="flex:1; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                            <div style="height:100%; width:${barWidth}%; background:${barColor}; border-radius:3px;"></div>
+                        </div>
+                    </div>
+                    <div class="matchup-reasons ${isHome ? 'expanded' : ''}" style="margin-top:6px;">
+                        ${(reasons || []).map(r => `<div style="font-size:11px; margin-top:6px; color:#cbd5e1; border-left:2px solid ${barColor}; padding-left:8px;">${r}</div>`).join('')}
+                    </div>
+                </div>
+                ` : `
                 <span class="matchup-opponent-name">${opponentName}</span>
                 <div class="matchup-pwin-bar">
                     <div class="matchup-pwin-fill" style="width:${barWidth}%; background:${barColor};"></div>
@@ -157,11 +177,15 @@ function renderMatchupRow(matchup, index, tab, isHome = false) {
                 <span class="matchup-confidence" style="background:${confidenceBadge.bg}; color:${confidenceBadge.color};">
                     ${confidenceBadge.label}
                 </span>
-                <span class="matchup-chevron ${isHome ? 'expanded' : ''}">▾</span>
+                <span class="matchup-chevron">▾</span>
+                `}
             </div>
-            <div class="matchup-reasons ${isHome ? 'expanded' : ''}">
+            
+            ${!isHome ? `
+            <div class="matchup-reasons">
                 ${(reasons || []).map(r => `<div class="matchup-reason">→ ${r}</div>`).join('')}
             </div>
+            ` : ''}
         </div>
     `;
 }

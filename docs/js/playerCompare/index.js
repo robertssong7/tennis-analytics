@@ -346,15 +346,21 @@ async function renderMatchHistory(aId, bId) {
         const winnerColor = m.winner === 'A' ? '#38bdf8' : m.winner === 'B' ? '#f43f5e' : '#94a3b8';
         const winnerNameStr = m.winner === 'A' ? `◀ ${aName}` : m.winner === 'B' ? `${bName} ▶` : '—';
         const surfaceColors = { Hard: '#1d4ed8', Clay: '#dc2626', Grass: '#16a34a' };
-        const surfaceBg = surfaceColors[m.surface] || '#475569';
+
+        // Safe access to prevent silent render fails
+        const safeSurface = m.surface || '?';
+        const surfaceBg = surfaceColors[safeSurface] || '#475569';
+        const safeTourn = (m.tournament || 'Unknown').replace(/_/g, ' ');
+        const safeRound = m.round || '-';
+        const safeScore = m.score || 'Score unavailable';
 
         return `
             <div class="matchup-row">
                 <span class="matchup-date">${date}</span>
-                <span class="matchup-tourney">${(m.tournament || 'Unknown').replace(/_/g, ' ')}</span>
-                <span class="matchup-round">${m.round || ''}</span>
-                <span class="matchup-surface" style="background:${surfaceBg};">${m.surface || '?'}</span>
-                <span class="matchup-score">${m.score || 'Score unavailable'}</span>
+                <span class="matchup-tourney">${safeTourn}</span>
+                <span class="matchup-round">${safeRound}</span>
+                <span class="matchup-surface" style="background:${surfaceBg};">${safeSurface}</span>
+                <span class="matchup-score">${safeScore}</span>
                 <span class="matchup-winner" style="color:${winnerColor};">${winnerNameStr}</span>
             </div>
         `;

@@ -6,39 +6,168 @@
         "month": "March",
         "altitude": "42m",
         "tempAirDensity": "Hot / Low Density",
-        "overallSpeedRating": 27.2,
-        "speedCategory": "Slow",
+        "overallSpeedRating": 33.5,
+        "speedCategory": "Medium Slow",
         "ballType": "Penn ATP",
         "history": [
             {
                 "year": 2024,
-                "cpi": 27.2,
-                "aceRate": "6.8%",
-                "rallyLength": "4.6"
+                "cpi": 36.9,
+                "aceRate": "8.5%",
+                "rallyLength": "4.40"
             },
             {
                 "year": 2023,
-                "cpi": 27.5,
-                "aceRate": "6.7%",
-                "rallyLength": "4.7"
-            },
-            {
-                "year": 2022,
-                "cpi": 27.1,
-                "aceRate": "6.9%",
-                "rallyLength": "4.6"
-            },
-            {
-                "year": 2021,
-                "cpi": 27.4,
-                "aceRate": "6.5%",
-                "rallyLength": "4.8"
+                "cpi": 35.4,
+                "aceRate": "8.1%",
+                "rallyLength": "4.66"
             },
             {
                 "year": 2019,
-                "cpi": 28.0,
-                "aceRate": "7.1%",
-                "rallyLength": "4.5"
+                "cpi": 36.3,
+                "aceRate": "8.5%",
+                "rallyLength": "4.09"
+            },
+            {
+                "year": 2018,
+                "cpi": 27.9,
+                "aceRate": "10.1%",
+                "rallyLength": "4.41"
+            },
+            {
+                "year": 2017,
+                "cpi": 27.4,
+                "aceRate": "9.9%",
+                "rallyLength": "4.41"
+            }
+        ]
+    },
+    {
+        "id": "madrid_masters",
+        "tournament": "Madrid Open",
+        "surface": "Clay",
+        "month": "May",
+        "altitude": "667m",
+        "tempAirDensity": "Warm / Thin Air",
+        "overallSpeedRating": 25.5,
+        "speedCategory": "Slow",
+        "ballType": "Dunlop ATP",
+        "history": [
+            {
+                "year": 2024,
+                "cpi": 27.0,
+                "aceRate": "7.3%",
+                "rallyLength": "4.54"
+            },
+            {
+                "year": 2023,
+                "cpi": 26.6,
+                "aceRate": "8.8%",
+                "rallyLength": "3.74"
+            },
+            {
+                "year": 2019,
+                "cpi": 31.7,
+                "aceRate": "9.9%",
+                "rallyLength": "3.70"
+            },
+            {
+                "year": 2018,
+                "cpi": 21.6,
+                "aceRate": "8.8%",
+                "rallyLength": "3.80"
+            },
+            {
+                "year": 2017,
+                "cpi": 20.9,
+                "aceRate": "9.5%",
+                "rallyLength": "3.80"
+            }
+        ]
+    },
+    {
+        "id": "wimbledon",
+        "tournament": "Wimbledon Championships",
+        "surface": "Grass",
+        "month": "July",
+        "altitude": "32m",
+        "tempAirDensity": "Mild / Dense Air",
+        "overallSpeedRating": 35.6,
+        "speedCategory": "Medium",
+        "ballType": "Slazenger Wimbledon",
+        "history": [
+            {
+                "year": 2024,
+                "cpi": 35.5,
+                "aceRate": "12.1%",
+                "rallyLength": "3.74"
+            },
+            {
+                "year": 2023,
+                "cpi": 35.5,
+                "aceRate": "10.5%",
+                "rallyLength": "3.56"
+            },
+            {
+                "year": 2019,
+                "cpi": 34.2,
+                "aceRate": "11.2%",
+                "rallyLength": "3.51"
+            },
+            {
+                "year": 2018,
+                "cpi": 36.0,
+                "aceRate": "12.9%",
+                "rallyLength": "3.51"
+            },
+            {
+                "year": 2017,
+                "cpi": 37.0,
+                "aceRate": "11.3%",
+                "rallyLength": "3.60"
+            }
+        ]
+    },
+    {
+        "id": "us_open",
+        "tournament": "US Open",
+        "surface": "Hard",
+        "month": "September",
+        "altitude": "10m",
+        "tempAirDensity": "Hot / Dense Air",
+        "overallSpeedRating": 38.0,
+        "speedCategory": "Medium",
+        "ballType": "Wilson US Open",
+        "history": [
+            {
+                "year": 2024,
+                "cpi": 42.8,
+                "aceRate": "11.4%",
+                "rallyLength": "3.76"
+            },
+            {
+                "year": 2023,
+                "cpi": 40.0,
+                "aceRate": "9.9%",
+                "rallyLength": "3.65"
+            },
+            {
+                "year": 2022,
+                "cpi": 38.0,
+                "aceRate": "10.2%",
+                "rallyLength": "3.60"
+            },
+            {
+                "year": 2019,
+                "cpi": 35.5,
+                "aceRate": "11.1%",
+                "rallyLength": "3.56"
+            },
+            {
+                "year": 2017,
+                "cpi": 35.7,
+                "aceRate": "10.3%",
+                "rallyLength": "3.50"
             }
         ]
     }
