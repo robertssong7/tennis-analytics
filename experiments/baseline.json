@@ -1,8 +1,8 @@
 {
-  "brier_score": 0.2571,
-  "calibration_error": 0.1247,
+  "brier_score": 0.2544,
+  "calibration_error": 0.1142,
   "n_matches": 386,
   "surface": "hard",
   "date": "2026-03-12",
-  "notes": "Baseline locked after symmetric-pair calibration fix. Model: XGBoost + sigmoid Platt scaling, 83741 hard court training matches (≤ 2022-12-31), 6 Elo features."
+  "notes": "Retrained with player_profiles JOIN: added p1/p2 serve_wide_pct, first_serve_won, bp_save_pct, return_win_rate, rally_win_rate alongside 6 Elo features (16 total). XGBoost + sigmoid Platt scaling. 83741 hard court training matches (≤ 2022-12-31); 25502 winner profiles, 15416 loser profiles via LEFT JOIN."
 }

@@ -38,11 +38,20 @@ TRAINING_CUTOFF = "2022-12-31"
 SURFACE = "hard"
 MODEL_DIR = Path("models/hard")
 
-# evaluate.py builds X with exactly these column names in this order
+# evaluate.py builds X with exactly these column names in this order.
+# Elo features come from the players table; profile features come from
+# player_profiles (written by feature_engine.py).  p1 = focal player,
+# p2 = opponent.  Both perspectives are present in the symmetric dataset.
 FEATURE_COLS = [
-    "winner_elo", "loser_elo",
-    "winner_elo_hard", "loser_elo_hard",
+    # Elo
+    "winner_elo", "loser_elo", "winner_elo_hard", "loser_elo_hard",
     "elo_diff", "elo_diff_hard",
+    # Focal-player profile
+    "p1_serve_wide_pct", "p1_first_serve_won", "p1_bp_save_pct",
+    "p1_return_win_rate", "p1_rally_win_rate",
+    # Opponent profile
+    "p2_serve_wide_pct", "p2_first_serve_won", "p2_bp_save_pct",
+    "p2_return_win_rate", "p2_rally_win_rate",
 ]
 
 SHOT_CLASSES = [
@@ -57,6 +66,10 @@ SHOT_CLASSES = [
 # ─────────────────────────────────────────────────────────────
 
 def load_training_matches(conn) -> pd.DataFrame:
+    """Load matches with Elo + player_profiles features.
+    LEFT JOIN on profiles so all Elo-valid matches are kept;
+    missing profile values fill to 0 in build_symmetric_dataset.
+    """
     with conn.cursor() as cur:
         cur.execute("""
             SELECT
@@ -65,10 +78,26 @@ def load_training_matches(conn) -> pd.DataFrame:
                 pw.elo_display  AS w_elo,
                 pl.elo_display  AS l_elo,
                 pw.elo_hard     AS w_elo_hard,
-                pl.elo_hard     AS l_elo_hard
+                pl.elo_hard     AS l_elo_hard,
+                -- Winner profile (may be NULL for players with < 15 charted matches)
+                ppw.serve_wide_pct  AS w_serve_wide_pct,
+                ppw.first_serve_won AS w_first_serve_won,
+                ppw.bp_save_pct     AS w_bp_save_pct,
+                (ppw.feature_vector->>'return_win_rate')::float AS w_return_win_rate,
+                ppw.winner_rate     AS w_rally_win_rate,
+                -- Loser profile
+                ppl.serve_wide_pct  AS l_serve_wide_pct,
+                ppl.first_serve_won AS l_first_serve_won,
+                ppl.bp_save_pct     AS l_bp_save_pct,
+                (ppl.feature_vector->>'return_win_rate')::float AS l_return_win_rate,
+                ppl.winner_rate     AS l_rally_win_rate
             FROM matches m
             JOIN players pw ON m.winner_id = pw.player_id
             JOIN players pl ON m.loser_id  = pl.player_id
+            LEFT JOIN player_profiles ppw
+                   ON ppw.player_id = m.winner_id AND ppw.surface = %s
+            LEFT JOIN player_profiles ppl
+                   ON ppl.player_id = m.loser_id  AND ppl.surface = %s
             WHERE m.match_date <= %s
               AND LOWER(m.surface) = %s
               AND m.winner_id IS NOT NULL
@@ -77,12 +106,14 @@ def load_training_matches(conn) -> pd.DataFrame:
               AND pl.elo_display IS NOT NULL
               AND pw.elo_hard    IS NOT NULL
               AND pl.elo_hard    IS NOT NULL
-        """, (TRAINING_CUTOFF, SURFACE))
+        """, (SURFACE, SURFACE, TRAINING_CUTOFF, SURFACE))
         cols = [d[0] for d in cur.description]
         rows = cur.fetchall()
 
     df = pd.DataFrame(rows, columns=cols)
-    logger.info("Loaded %d training matches (hard court, ≤ %s)", len(df), TRAINING_CUTOFF)
+    n_with_profile = df["w_serve_wide_pct"].notna().sum()
+    logger.info("Loaded %d training matches (hard court, ≤ %s); %d winner profiles, %d loser profiles",
+                len(df), TRAINING_CUTOFF, n_with_profile, df["l_serve_wide_pct"].notna().sum())
     return df
 
 
@@ -93,33 +124,39 @@ def load_training_matches(conn) -> pd.DataFrame:
 def build_symmetric_dataset(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     """
     Build a balanced training set where every match appears twice:
-      - Winner perspective  → label 1  (higher elo_diff should → higher P)
-      - Loser perspective   → label 0  (same match, roles swapped)
+      - Winner perspective  (p1=winner, p2=loser)  → label 1
+      - Loser perspective   (p1=loser,  p2=winner) → label 0
 
     Column names match evaluate.py's feature matrix exactly so XGBoost
-    stores the right feature names for inference.
+    stores the right feature names for inference.  Profile features fill to
+    0 for the ~97% of matches without charted data (LEFT JOIN).
     """
-    # Winner perspective (label = 1)
-    pos = pd.DataFrame({
-        "winner_elo":      df["w_elo"].values,
-        "loser_elo":       df["l_elo"].values,
-        "winner_elo_hard": df["w_elo_hard"].values,
-        "loser_elo_hard":  df["l_elo_hard"].values,
-    })
-    pos["elo_diff"]      = pos["winner_elo"] - pos["loser_elo"]
-    pos["elo_diff_hard"] = pos["winner_elo_hard"] - pos["loser_elo_hard"]
-    pos["y"] = 1
+    def _make_half(focal_pfx, opp_pfx, label):
+        d = pd.DataFrame({
+            "winner_elo":         df[f"{focal_pfx}_elo"].values,
+            "loser_elo":          df[f"{opp_pfx}_elo"].values,
+            "winner_elo_hard":    df[f"{focal_pfx}_elo_hard"].values,
+            "loser_elo_hard":     df[f"{opp_pfx}_elo_hard"].values,
+            # focal profile
+            "p1_serve_wide_pct":  df[f"{focal_pfx}_serve_wide_pct"].values,
+            "p1_first_serve_won": df[f"{focal_pfx}_first_serve_won"].values,
+            "p1_bp_save_pct":     df[f"{focal_pfx}_bp_save_pct"].values,
+            "p1_return_win_rate": df[f"{focal_pfx}_return_win_rate"].values,
+            "p1_rally_win_rate":  df[f"{focal_pfx}_rally_win_rate"].values,
+            # opponent profile
+            "p2_serve_wide_pct":  df[f"{opp_pfx}_serve_wide_pct"].values,
+            "p2_first_serve_won": df[f"{opp_pfx}_first_serve_won"].values,
+            "p2_bp_save_pct":     df[f"{opp_pfx}_bp_save_pct"].values,
+            "p2_return_win_rate": df[f"{opp_pfx}_return_win_rate"].values,
+            "p2_rally_win_rate":  df[f"{opp_pfx}_rally_win_rate"].values,
+        })
+        d["elo_diff"]      = d["winner_elo"] - d["loser_elo"]
+        d["elo_diff_hard"] = d["winner_elo_hard"] - d["loser_elo_hard"]
+        d["y"] = label
+        return d
 
-    # Loser perspective (label = 0): swap player A ↔ B
-    neg = pd.DataFrame({
-        "winner_elo":      df["l_elo"].values,
-        "loser_elo":       df["w_elo"].values,
-        "winner_elo_hard": df["l_elo_hard"].values,
-        "loser_elo_hard":  df["w_elo_hard"].values,
-    })
-    neg["elo_diff"]      = neg["winner_elo"] - neg["loser_elo"]
-    neg["elo_diff_hard"] = neg["winner_elo_hard"] - neg["loser_elo_hard"]
-    neg["y"] = 0
+    pos = _make_half("w", "l", 1)   # winner as focal player
+    neg = _make_half("l", "w", 0)   # loser  as focal player
 
     train = pd.concat([pos, neg], ignore_index=True).fillna(0)
     X = train[FEATURE_COLS]

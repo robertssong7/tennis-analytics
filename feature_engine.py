@@ -451,8 +451,14 @@ def validate_features(features: List[dict]) -> dict:
     df = pd.DataFrame(features)
     issues = []
 
+    # fifa_rating is intentionally NULL for players whose Elo never reached the
+    # FIFA scale minimum — exclude it from null-rate and NaN checks.
+    numeric_cols = [
+        c for c in df.select_dtypes(include=[np.number]).columns
+        if c != "fifa_rating"
+    ]
+
     # Null rate check
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
     for col in numeric_cols:
         null_rate = df[col].isna().mean()
         if null_rate > 0.05:

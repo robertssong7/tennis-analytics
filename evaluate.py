@@ -83,15 +83,31 @@ def _load_validation_data(surface: str):
                 pw.elo_display AS winner_elo,
                 pl.elo_display AS loser_elo,
                 pw.elo_hard    AS winner_elo_hard,
-                pl.elo_hard    AS loser_elo_hard
+                pl.elo_hard    AS loser_elo_hard,
+                -- Winner profile (NULL when player has < 15 charted matches)
+                ppw.serve_wide_pct  AS w_serve_wide_pct,
+                ppw.first_serve_won AS w_first_serve_won,
+                ppw.bp_save_pct     AS w_bp_save_pct,
+                (ppw.feature_vector->>'return_win_rate')::float AS w_return_win_rate,
+                ppw.winner_rate     AS w_rally_win_rate,
+                -- Loser profile
+                ppl.serve_wide_pct  AS l_serve_wide_pct,
+                ppl.first_serve_won AS l_first_serve_won,
+                ppl.bp_save_pct     AS l_bp_save_pct,
+                (ppl.feature_vector->>'return_win_rate')::float AS l_return_win_rate,
+                ppl.winner_rate     AS l_rally_win_rate
             FROM matches m
             JOIN players pw ON m.winner_id = pw.player_id
             JOIN players pl ON m.loser_id  = pl.player_id
+            LEFT JOIN player_profiles ppw
+                   ON ppw.player_id = m.winner_id AND ppw.surface = %s
+            LEFT JOIN player_profiles ppl
+                   ON ppl.player_id = m.loser_id  AND ppl.surface = %s
             WHERE m.match_date >= %s
               AND m.match_date <= %s
               AND m.has_charting = TRUE
               AND LOWER(m.surface) = %s
-        """, (EVAL_START, EVAL_END, surface.lower()))
+        """, (surface.lower(), surface.lower(), EVAL_START, EVAL_END, surface.lower()))
         cols = [d[0] for d in cur.description]
         match_rows = cur.fetchall()
 
@@ -131,17 +147,44 @@ def compute_brier_score(model, matches_df: pd.DataFrame) -> dict:
         return {"brier_score": None, "calibration_error": None, "n_matches": 0}
 
     # Build symmetric match pairs so calibration has balanced labels.
-    # Winner perspective (label=1): features as stored
-    X_win = matches_df[["winner_elo", "loser_elo", "winner_elo_hard", "loser_elo_hard"]].copy()
-    X_win["elo_diff"]      = X_win["winner_elo"] - X_win["loser_elo"]
-    X_win["elo_diff_hard"] = X_win["winner_elo_hard"] - X_win["loser_elo_hard"]
+    # Column layout must match FEATURE_COLS in scripts/train_model.py exactly.
+    def _make_half(df, focal_w):
+        """focal_w=True → focal player is the stored winner; else loser."""
+        if focal_w:
+            p1_pfx, p2_pfx = "w", "l"
+            elo_a, elo_b   = "winner_elo", "loser_elo"
+            hard_a, hard_b = "winner_elo_hard", "loser_elo_hard"
+        else:
+            p1_pfx, p2_pfx = "l", "w"
+            elo_a, elo_b   = "loser_elo", "winner_elo"
+            hard_a, hard_b = "loser_elo_hard", "winner_elo_hard"
+        we  = df[elo_a].values;  le  = df[elo_b].values
+        wh  = df[hard_a].values; lh  = df[hard_b].values
+        def _prof(col):
+            return df[col].values if col in df.columns else np.zeros(len(df))
+        # Column order must match FEATURE_COLS in scripts/train_model.py exactly
+        d = pd.DataFrame({
+            "winner_elo":         we,
+            "loser_elo":          le,
+            "winner_elo_hard":    wh,
+            "loser_elo_hard":     lh,
+            "elo_diff":           we - le,
+            "elo_diff_hard":      wh - lh,
+            "p1_serve_wide_pct":  _prof(f"{p1_pfx}_serve_wide_pct"),
+            "p1_first_serve_won": _prof(f"{p1_pfx}_first_serve_won"),
+            "p1_bp_save_pct":     _prof(f"{p1_pfx}_bp_save_pct"),
+            "p1_return_win_rate": _prof(f"{p1_pfx}_return_win_rate"),
+            "p1_rally_win_rate":  _prof(f"{p1_pfx}_rally_win_rate"),
+            "p2_serve_wide_pct":  _prof(f"{p2_pfx}_serve_wide_pct"),
+            "p2_first_serve_won": _prof(f"{p2_pfx}_first_serve_won"),
+            "p2_bp_save_pct":     _prof(f"{p2_pfx}_bp_save_pct"),
+            "p2_return_win_rate": _prof(f"{p2_pfx}_return_win_rate"),
+            "p2_rally_win_rate":  _prof(f"{p2_pfx}_rally_win_rate"),
+        })
+        return d
 
-    # Loser perspective (label=0): swap player roles
-    X_los = matches_df[["loser_elo", "winner_elo", "loser_elo_hard", "winner_elo_hard"]].copy()
-    X_los.columns = ["winner_elo", "loser_elo", "winner_elo_hard", "loser_elo_hard"]
-    X_los["elo_diff"]      = X_los["winner_elo"] - X_los["loser_elo"]
-    X_los["elo_diff_hard"] = X_los["winner_elo_hard"] - X_los["loser_elo_hard"]
-
+    X_win = _make_half(matches_df, focal_w=True)   # winner as focal → label 1
+    X_los = _make_half(matches_df, focal_w=False)  # loser  as focal → label 0
     X = pd.concat([X_win, X_los], ignore_index=True).fillna(0)
     y_true = np.array([1] * len(matches_df) + [0] * len(matches_df), dtype=float)
 
