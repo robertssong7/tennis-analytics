@@ -103,7 +103,12 @@ def main():
     parser.add_argument("--date", help="Filter to YYYYMMDD date (default: today)")
     args = parser.parse_args()
 
-    filter_date = args.date or datetime.now().strftime("%Y%m%d")
+    raw_date = args.date or datetime.now().strftime("%Y%m%d")
+    # Normalise to ISO prefix (YYYY-MM-DD) so it matches isoformat timestamps in log.jsonl
+    if len(raw_date) == 8 and raw_date.isdigit():
+        filter_date = f"{raw_date[:4]}-{raw_date[4:6]}-{raw_date[6:8]}"
+    else:
+        filter_date = raw_date
     exps     = load_experiments(filter_date)
     baseline = load_baseline()
 

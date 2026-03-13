@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import psycopg2
+from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -245,47 +246,65 @@ def normalize_name(name: str) -> str:
 # Database helpers
 # ─────────────────────────────────────────────────────────────
 
-def get_or_create_player(conn, name: str, hand: str = None, height: int = None) -> int:
-    """Return player_id for name, creating if necessary."""
-    normalized = normalize_name(name)
+def reconnect(db_url: str) -> psycopg2.extensions.connection:
+    """Open a fresh database connection."""
+    return psycopg2.connect(db_url, connect_timeout=30)
+
+
+def bulk_upsert_players(conn, player_map: dict) -> dict:
+    """
+    Insert all players in one statement, return {normalized_name: player_id}.
+    player_map: {normalized_name: (hand, height)}
+    """
+    if not player_map:
+        return {}
+    rows = [(name, hand, ht) for name, (hand, ht) in player_map.items()]
     with conn.cursor() as cur:
-        cur.execute("SELECT player_id FROM players WHERE name = %s", (normalized,))
-        row = cur.fetchone()
-        if row:
-            return row[0]
-        # Check variants
-        cur.execute(
-            "SELECT player_id FROM players WHERE %s = ANY(name_variants)",
-            (normalized,)
+        execute_values(
+            cur,
+            "INSERT INTO players (name, hand, height_cm) VALUES %s ON CONFLICT (name) DO NOTHING",
+            rows,
         )
-        row = cur.fetchone()
-        if row:
-            return row[0]
-        # Create new
         cur.execute(
-            """INSERT INTO players (name, hand, height_cm)
-               VALUES (%s, %s, %s) RETURNING player_id""",
-            (normalized, hand, height)
+            "SELECT name, player_id FROM players WHERE name = ANY(%s)",
+            (list(player_map.keys()),),
         )
-        player_id = cur.fetchone()[0]
+        return {row[0]: row[1] for row in cur.fetchall()}
+
+
+def bulk_upsert_tournaments(conn, tourn_map: dict) -> dict:
+    """
+    Insert all tournaments in one statement, return {name: tournament_id}.
+    tourn_map: {name: surface}
+    """
+    if not tourn_map:
+        return {}
+    rows = list(tourn_map.items())
+    with conn.cursor() as cur:
+        execute_values(
+            cur,
+            "INSERT INTO tournaments (name, surface) VALUES %s ON CONFLICT (name) DO NOTHING",
+            rows,
+        )
+        cur.execute(
+            "SELECT name, tournament_id FROM tournaments WHERE name = ANY(%s)",
+            (list(tourn_map.keys()),),
+        )
+        return {row[0]: row[1] for row in cur.fetchall()}
+
+
+def get_or_create_player(conn, name: str, hand: str = None, height: int = None) -> int:
+    """Single-player upsert (used by MCP loader)."""
+    ids = bulk_upsert_players(conn, {normalize_name(name): (hand, height)})
     conn.commit()
-    return player_id
+    return ids[normalize_name(name)]
 
 
 def get_or_create_tournament(conn, name: str, surface: str = None) -> int:
-    """Return tournament_id, creating if necessary."""
-    with conn.cursor() as cur:
-        cur.execute("SELECT tournament_id FROM tournaments WHERE name = %s", (name,))
-        row = cur.fetchone()
-        if row:
-            return row[0]
-        cur.execute(
-            "INSERT INTO tournaments (name, surface) VALUES (%s, %s) RETURNING tournament_id",
-            (name, surface)
-        )
-        tid = cur.fetchone()[0]
+    """Single-tournament upsert (used by MCP loader)."""
+    ids = bulk_upsert_tournaments(conn, {name: surface})
     conn.commit()
-    return tid
+    return ids[name]
 
 
 # ─────────────────────────────────────────────────────────────
@@ -295,11 +314,11 @@ def get_or_create_tournament(conn, name: str, surface: str = None) -> int:
 def clone_or_update(url: str, target: Path):
     if target.exists():
         logger.info("Updating %s...", target)
-        subprocess.run(["git", "pull"], cwd=target, capture_output=True)
+        subprocess.run(["/usr/bin/git", "pull"], cwd=target, capture_output=True)
     else:
         logger.info("Cloning %s...", url)
         target.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["git", "clone", "--depth=1", url, str(target)], check=True)
+        subprocess.run(["/usr/bin/git", "clone", "--depth=1", url, str(target)], check=True)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -335,34 +354,61 @@ def load_atp_matches(conn, unmatched_log: list):
                 seen_keys.add(key)
                 batch.append(parsed)
 
-            for m in batch:
-                try:
-                    w_id = get_or_create_player(
-                        conn, m["winner_name"],
-                        hand=m.get("winner_hand"), height=m.get("winner_ht")
-                    )
-                    l_id = get_or_create_player(
-                        conn, m["loser_name"],
-                        hand=m.get("loser_hand"), height=m.get("loser_ht")
-                    )
-                    t_id = get_or_create_tournament(conn, m["tournament"], m.get("surface"))
+            if not batch:
+                logger.info("  Done %s: 0 inserted", fpath.name)
+                continue
 
-                    with conn.cursor() as cur:
-                        cur.execute("""
-                            INSERT INTO matches
-                                (tournament_id, match_date, round, surface,
-                                 winner_id, loser_id, score, source)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                            ON CONFLICT DO NOTHING
-                        """, (
-                            t_id, m["match_date"], m["round"], m.get("surface"),
-                            w_id, l_id, m.get("score"), m["source"]
-                        ))
-                    conn.commit()
-                    total_loaded += 1
-                except Exception as e:
-                    unmatched_log.append({"file": str(fpath.name), "error": str(e), "match": m})
-                    total_skipped += 1
+            try:
+                # Collect unique players and tournaments across the whole file
+                player_map = {}
+                for m in batch:
+                    wn = normalize_name(m["winner_name"])
+                    ln = normalize_name(m["loser_name"])
+                    if wn not in player_map:
+                        player_map[wn] = (m.get("winner_hand"), m.get("winner_ht"))
+                    if ln not in player_map:
+                        player_map[ln] = (m.get("loser_hand"), m.get("loser_ht"))
+                tourn_map = {m["tournament"]: m.get("surface") for m in batch}
+
+                player_ids = bulk_upsert_players(conn, player_map)
+                tourn_ids  = bulk_upsert_tournaments(conn, tourn_map)
+
+                match_rows = []
+                for m in batch:
+                    wn  = normalize_name(m["winner_name"])
+                    ln  = normalize_name(m["loser_name"])
+                    w_id = player_ids.get(wn)
+                    l_id = player_ids.get(ln)
+                    t_id = tourn_ids.get(m["tournament"])
+                    if not w_id or not l_id or not t_id:
+                        total_skipped += 1
+                        continue
+                    match_rows.append((
+                        t_id, m["match_date"], m["round"], m.get("surface"),
+                        w_id, l_id, m.get("score"), m["source"]
+                    ))
+
+                with conn.cursor() as cur:
+                    execute_values(
+                        cur,
+                        """INSERT INTO matches
+                               (tournament_id, match_date, round, surface,
+                                winner_id, loser_id, score, source)
+                           VALUES %s ON CONFLICT DO NOTHING""",
+                        match_rows,
+                    )
+                conn.commit()
+                file_loaded = len(match_rows)
+                total_loaded += file_loaded
+                logger.info("  Done %s: %d inserted", fpath.name, file_loaded)
+            except Exception as e:
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+                unmatched_log.append({"file": str(fpath.name), "error": str(e)})
+                logger.error("  Error in %s: %s", fpath.name, e)
+                total_skipped += len(batch)
 
     logger.info("ATP matches: %d loaded, %d skipped", total_loaded, total_skipped)
     return total_loaded
@@ -379,57 +425,100 @@ def load_mcp_matches(conn, unmatched_log: list) -> int:
         logger.warning("MCP matches file not found: %s", mcp_matches_file)
         return 0
 
-    total = 0
+    batch = []
     with open(mcp_matches_file, encoding="utf-8", errors="replace") as f:
         reader = csv.DictReader(f)
         for row in reader:
+            match_id_str = row.get("match_id", "")
+            # Use the dedicated Date column (YYYYMMDD) — more reliable than parsing match_id
+            date_str = row.get("Date", "").strip()
+            if len(date_str) != 8 or not date_str.isdigit():
+                continue
             try:
-                match_id_str = row.get("match_id", "")
-                # Parse date from match_id: YYYYMMDD-...
-                date_part = match_id_str[:8] if len(match_id_str) >= 8 else ""
-                if not date_part.isdigit():
-                    continue
-                match_date = date(int(date_part[:4]),
-                                  int(date_part[4:6]),
-                                  int(date_part[6:8]))
+                match_date = date(int(date_str[:4]),
+                                  int(date_str[4:6]),
+                                  int(date_str[6:8]))
+            except ValueError:
+                continue
 
-                player1 = normalize_name(row.get("player1", ""))
-                player2 = normalize_name(row.get("player2", ""))
-                tournament = row.get("tournament", "").strip()
-                surface_raw = row.get("surface", "").strip().lower()
-                surface = get_surface_for_tournament(tournament) or surface_raw or None
-                winner_num = row.get("winner", "1")
+            # Actual column names from charting-m-matches.csv
+            player1 = normalize_name(row.get("Player 1", ""))
+            player2 = normalize_name(row.get("Player 2", ""))
+            if not player1 or not player2:
+                continue
 
-                if not player1 or not player2:
-                    continue
+            tournament  = row.get("Tournament", "").strip()
+            surface_raw = row.get("Surface", "").strip().lower()
+            surface     = get_surface_for_tournament(tournament) or surface_raw or None
+            round_name  = row.get("Round", "").strip()
+            hand1       = row.get("Pl 1 hand", "").strip() or None
+            hand2       = row.get("Pl 2 hand", "").strip() or None
 
-                winner_name = player1 if winner_num == "1" else player2
-                loser_name  = player2 if winner_num == "1" else player1
+            # In MCP men's data, Player 1 is always the winner
+            winner_name = player1
+            loser_name  = player2
 
-                w_id = get_or_create_player(conn, winner_name)
-                l_id = get_or_create_player(conn, loser_name)
-                t_id = get_or_create_tournament(conn, tournament, surface)
+            batch.append({
+                "match_id_str": match_id_str,
+                "match_date":   match_date,
+                "tournament":   tournament,
+                "surface":      surface,
+                "round":        round_name,
+                "winner_name":  winner_name,
+                "loser_name":   loser_name,
+                "hand1":        hand1,
+                "hand2":        hand2,
+            })
 
-                with conn.cursor() as cur:
-                    cur.execute("""
-                        INSERT INTO matches
-                            (tournament_id, match_date, surface, winner_id, loser_id,
-                             has_charting, source)
-                        VALUES (%s, %s, %s, %s, %s, TRUE, 'mcp')
-                        ON CONFLICT DO NOTHING
-                        RETURNING match_id
-                    """, (t_id, match_date, surface, w_id, l_id))
-                    result = cur.fetchone()
-                    if result:
-                        total += 1
-                        # Store MCP match_id for later point loading
-                        cur.execute(
-                            "UPDATE matches SET source = %s WHERE match_id = %s",
-                            (f"mcp:{match_id_str}", result[0])
-                        )
-                conn.commit()
-            except Exception as e:
-                unmatched_log.append({"file": "charting-m-matches.csv", "error": str(e)})
+    if not batch:
+        logger.info("MCP matches: 0 loaded")
+        return 0
+
+    try:
+        # Build player map with handedness from MCP
+        player_map = {}
+        for m in batch:
+            wn, ln = m["winner_name"], m["loser_name"]
+            if wn not in player_map:
+                player_map[wn] = (m["hand1"], None)
+            if ln not in player_map:
+                player_map[ln] = (m["hand2"], None)
+        tourn_map = {m["tournament"]: m["surface"] for m in batch}
+
+        player_ids = bulk_upsert_players(conn, player_map)
+        tourn_ids  = bulk_upsert_tournaments(conn, tourn_map)
+
+        match_rows = []
+        for m in batch:
+            w_id = player_ids.get(m["winner_name"])
+            l_id = player_ids.get(m["loser_name"])
+            t_id = tourn_ids.get(m["tournament"])
+            if not w_id or not l_id or not t_id:
+                continue
+            match_rows.append((
+                t_id, m["match_date"], m["round"], m["surface"],
+                w_id, l_id, f"mcp:{m['match_id_str']}"
+            ))
+
+        with conn.cursor() as cur:
+            execute_values(
+                cur,
+                """INSERT INTO matches
+                       (tournament_id, match_date, round, surface, winner_id, loser_id,
+                        has_charting, source)
+                   VALUES %s ON CONFLICT DO NOTHING""",
+                [(t, d, r, s, w, l, True, src) for t, d, r, s, w, l, src in match_rows],
+            )
+        conn.commit()
+        total = len(match_rows)
+    except Exception as e:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        unmatched_log.append({"file": "charting-m-matches.csv", "error": str(e)})
+        logger.error("MCP load error: %s", e)
+        total = 0
 
     logger.info("MCP matches: %d loaded", total)
     return total
@@ -559,7 +648,7 @@ def main():
         logger.error("DATABASE_URL not set in .env")
         sys.exit(1)
 
-    conn = psycopg2.connect(db_url)
+    conn = psycopg2.connect(db_url, connect_timeout=30)
 
     if args.phase in ("init", "sync"):
         clone_or_update(SACKMANN_ATP_URL, ATP_DIR)
@@ -572,7 +661,12 @@ def main():
         conn.commit()
 
         unmatched = []
+        # Reconnect after schema DDL to get a clean transaction state
+        conn.close()
+        conn = reconnect(db_url)
         n_atp = load_atp_matches(conn, unmatched)
+        conn.close()
+        conn = reconnect(db_url)
         n_mcp = load_mcp_matches(conn, unmatched)
 
         if unmatched:

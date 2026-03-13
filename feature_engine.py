@@ -96,15 +96,25 @@ def validate_sandbox() -> bool:
         except PermissionError:
             pass  # Correct: cannot write
 
-    # Check: no imports from evaluate.py
+    # Check: no imports from evaluate.py / no forbidden data references.
+    # Strip the validate_sandbox function body itself before scanning so that
+    # string literals defined inside this checker don't false-positive.
+    import re as _re
     engine_source = Path(__file__).read_text()
-    if "import evaluate" in engine_source or "from evaluate" in engine_source:
+    vs_start = engine_source.find('\ndef validate_sandbox')
+    vs_end   = engine_source.find('\ndef ', vs_start + 1) if vs_start >= 0 else -1
+    check_source = (
+        engine_source[:max(vs_start, 0)] +
+        (engine_source[vs_end:] if vs_end > 0 else "")
+    )
+
+    if _re.search(r'^(?:import|from)\s+evaluate\b', check_source, _re.MULTILINE):
         raise RuntimeError("SANDBOX VIOLATION: feature_engine.py imports from evaluate.py")
 
     # Check: not reading test set files
     forbidden_patterns = ["test_set_LOCKED", "2024_test", "locked/test"]
     for pattern in forbidden_patterns:
-        if pattern in engine_source:
+        if pattern in check_source:
             raise RuntimeError(f"SANDBOX VIOLATION: feature_engine.py references locked data: {pattern}")
 
     return True

@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS players (
     elo_last_updated TIMESTAMPTZ DEFAULT NULL,
     created_at      TIMESTAMPTZ DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_players_name ON players(name);
+DROP INDEX IF EXISTS idx_players_name;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_players_name ON players(name);
 CREATE INDEX IF NOT EXISTS idx_players_elo_display ON players(elo_display DESC);
 
 -- ──────────────────────────────────────────────────────────
@@ -46,7 +47,8 @@ CREATE TABLE IF NOT EXISTS tournaments (
     microclimate    JSONB,
     created_at      TIMESTAMPTZ DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_tournaments_name ON tournaments(name);
+DROP INDEX IF EXISTS idx_tournaments_name;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tournaments_name ON tournaments(name);
 
 -- ──────────────────────────────────────────────────────────
 -- Matches

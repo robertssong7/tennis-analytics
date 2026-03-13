@@ -1,12 +1,8 @@
 {
-  "_note": "Populate after Phase 4 evaluation harness is run. Never overwrite once set.",
-  "brier_score": null,
-  "calibration_error": null,
-  "next_shot_acc_k2": null,
-  "next_shot_acc_k4": null,
-  "n_matches": null,
-  "n_points": null,
+  "brier_score": 0.2571,
+  "calibration_error": 0.1247,
+  "n_matches": 386,
   "surface": "hard",
-  "eval_period": "2023-01-01 to 2023-12-31",
-  "established_at": null
+  "date": "2026-03-12",
+  "notes": "Baseline locked after symmetric-pair calibration fix. Model: XGBoost + sigmoid Platt scaling, 83741 hard court training matches (≤ 2022-12-31), 6 Elo features."
 }

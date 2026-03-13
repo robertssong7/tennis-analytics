@@ -581,61 +581,81 @@ def load_matches_from_db(conn) -> List[dict]:
 
 def write_elo_to_db(conn, engine: EloEngine):
     """Write Elo results back to the players table and elo_history table."""
+    from psycopg2.extras import execute_values
+
+    # ── 1. Batch-update players via VALUES ──────────────────────
+    player_rows = []
+    for player_id, p in engine.players.items():
+        s = engine.get_player_summary(player_id)
+        player_rows.append((
+            s["elo_overall"], s["elo_hard"], s["elo_clay"], s["elo_grass"],
+            s["elo_display"], s["fifa_rating"], s["card_tier"],
+            s["elo_peak"], s["elo_peak_date"], s["elo_match_count"],
+            int(player_id),
+        ))
+
     with conn.cursor() as cur:
-        # Update players table
-        for player_id, p in engine.players.items():
-            summary = engine.get_player_summary(player_id)
-            cur.execute("""
-                UPDATE players SET
-                    elo_overall      = %s,
-                    elo_hard         = %s,
-                    elo_clay         = %s,
-                    elo_grass        = %s,
-                    elo_display      = %s,
-                    fifa_rating      = %s,
-                    card_tier        = %s,
-                    elo_peak         = %s,
-                    elo_peak_date    = %s,
-                    elo_match_count  = %s,
-                    elo_last_updated = NOW()
-                WHERE player_id = %s
-            """, (
-                summary["elo_overall"],
-                summary["elo_hard"],
-                summary["elo_clay"],
-                summary["elo_grass"],
-                summary["elo_display"],
-                summary["fifa_rating"],
-                summary["card_tier"],
-                summary["elo_peak"],
-                summary["elo_peak_date"],
-                summary["elo_match_count"],
+        execute_values(
+            cur,
+            """
+            UPDATE players AS tgt SET
+                elo_overall     = v.elo_overall::float,
+                elo_hard        = v.elo_hard::float,
+                elo_clay        = v.elo_clay::float,
+                elo_grass       = v.elo_grass::float,
+                elo_display     = v.elo_display::float,
+                fifa_rating     = v.fifa_rating::int,
+                card_tier       = v.card_tier,
+                elo_peak        = v.elo_peak::float,
+                elo_peak_date   = v.elo_peak_date::date,
+                elo_match_count = v.elo_match_count::int,
+                elo_last_updated = NOW()
+            FROM (VALUES %s) AS v(
+                elo_overall, elo_hard, elo_clay, elo_grass,
+                elo_display, fifa_rating, card_tier,
+                elo_peak, elo_peak_date, elo_match_count,
+                player_id
+            )
+            WHERE tgt.player_id = v.player_id::int
+            """,
+            player_rows,
+            page_size=500,
+        )
+    conn.commit()
+    logger.info("Players Elo updated (%d rows).", len(player_rows))
+
+    # ── 2. Batch-insert elo_history ──────────────────────────────
+    history_rows = []
+    for player_id, p in engine.players.items():
+        for h in p.history:
+            history_rows.append((
                 player_id,
+                h.get("match_id"),
+                h.get("match_date"),
+                h.get("surface"),
+                h.get("elo_before"),
+                h.get("elo_after"),
+                h.get("opponent_elo"),
+                h.get("tournament_level"),
+                h.get("k_factor"),
             ))
 
-        # Write elo_history
-        for player_id, p in engine.players.items():
-            for h in p.history:
-                cur.execute("""
-                    INSERT INTO elo_history
-                        (player_id, match_id, match_date, surface,
-                         elo_before, elo_after, opponent_elo,
-                         tournament_level, k_factor)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    ON CONFLICT DO NOTHING
-                """, (
-                    player_id,
-                    h.get("match_id"),
-                    h.get("match_date"),
-                    h.get("surface"),
-                    h.get("elo_before"),
-                    h.get("elo_after"),
-                    h.get("opponent_elo"),
-                    h.get("tournament_level"),
-                    h.get("k_factor"),
-                ))
+    CHUNK = 5000
+    with conn.cursor() as cur:
+        for i in range(0, len(history_rows), CHUNK):
+            execute_values(
+                cur,
+                """INSERT INTO elo_history
+                       (player_id, match_id, match_date, surface,
+                        elo_before, elo_after, opponent_elo,
+                        tournament_level, k_factor)
+                   VALUES %s ON CONFLICT DO NOTHING""",
+                history_rows[i : i + CHUNK],
+                page_size=CHUNK,
+            )
+            conn.commit()
+            logger.info("  elo_history: %d/%d rows written", min(i + CHUNK, len(history_rows)), len(history_rows))
 
-    conn.commit()
     logger.info("Elo data written to database.")
 
 
@@ -691,6 +711,8 @@ def main():
 
     engine = EloEngine()
 
+    player_names: Dict[str, str] = {}
+
     if args.from_json:
         # Load from JSON file (for testing without DB)
         with open(args.from_json) as f:
@@ -703,9 +725,15 @@ def main():
             import psycopg2
             from dotenv import load_dotenv
             load_dotenv()
-            conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+            conn = psycopg2.connect(os.getenv("DATABASE_URL"), connect_timeout=30)
             matches = load_matches_from_db(conn)
             logger.info("Loaded %d matches from database", len(matches))
+
+            # Fetch player names for display
+            with conn.cursor() as cur:
+                cur.execute("SELECT player_id::text, name FROM players")
+                player_names = {row[0]: row[1] for row in cur.fetchall()}
+
             engine.process_all(matches)
             write_elo_to_db(conn, engine)
             conn.close()
@@ -716,15 +744,17 @@ def main():
 
     # Print top players
     top = engine.get_top_players(n=args.top)
-    print(f"\n{'═'*60}")
-    print(f"TOP {args.top} PLAYERS BY ELO")
-    print(f"{'═'*60}")
+    print(f"\n{'═'*62}")
+    print(f"  TOP {args.top} PLAYERS BY ELO")
+    print(f"{'═'*62}")
+    print(f"  {'#':>2}  {'Name':<28} {'Elo':>5}  {'FIFA':>4}  {'Tier':<10}  {'n':>5}")
+    print(f"  {'─'*58}")
     for p in top:
         tier = (p.get("card_tier") or "unrated").upper()
+        name = player_names.get(str(p["player_id"]), f"id:{p['player_id']}")
+        fifa = str(p.get("fifa_rating") or "—")
         print(
-            f"#{p['rank']:2d}  {p['player_id']:<30} "
-            f"Elo={p['elo_display']:.0f}  FIFA={p.get('fifa_rating') or '—':>3}  "
-            f"[{tier}]  n={p['elo_match_count']}"
+            f"  #{p['rank']:2d}  {name:<28} {p['elo_display']:>5.0f}  {fifa:>4}  [{tier:<9}]  {p['elo_match_count']:>5}"
         )
 
     # Validation
