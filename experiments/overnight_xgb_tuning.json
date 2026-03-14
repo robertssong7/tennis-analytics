@@ -1,8 +1,8 @@
 {
-  "total_experiments": 495,
-  "best_brier": 0.20647473522448034,
-  "baseline_brier": 0.2080842483395858,
-  "improvement": 0.0016095131151054598,
+  "total_experiments": 363,
+  "best_brier": 0.21147767354307756,
+  "baseline_brier": 0.21227585411491248,
+  "improvement": 0.0007981805718349222,
   "best_params": {
     "n_estimators": 300,
     "max_depth": 6,
@@ -14,3970 +14,2914 @@
     "reg_alpha": 0.0,
     "reg_lambda": 1.0
   },
-  "keeps": 2,
-  "reverts": 492,
-  "neutrals": 1,
+  "keeps": 1,
+  "reverts": 0,
+  "neutrals": 362,
   "all_experiments": [
     {
       "exp": 1,
-      "param": "learning_rate",
-      "value": 0.05,
-      "brier": 0.2091728278265547,
-      "delta": 0.001088579486968888,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 1.0,
+      "brier": 0.21233582162744993,
+      "delta": 5.996751253745103e-05,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 2,
-      "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20821219616142853,
-      "delta": 0.00012794782184272213,
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
       "decision": "NEUTRAL"
     },
     {
       "exp": 3,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "KEEP"
+      "param": "learning_rate",
+      "value": 0.05,
+      "brier": 0.21314736290889655,
+      "delta": 0.000871508793984066,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 4,
-      "param": "reg_alpha",
-      "value": 1.0,
-      "brier": 0.20706124156742067,
-      "delta": -0.0010230067721651304,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 6,
+      "brier": 0.21147767354307756,
+      "delta": -0.0007981805718349222,
+      "decision": "KEEP"
     },
     {
       "exp": 5,
-      "param": "reg_alpha",
-      "value": 0.75,
-      "brier": 0.20704777947466246,
-      "delta": -0.00103646886492334,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 4,
+      "brier": 0.21231240098706214,
+      "delta": 3.654687214965646e-05,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 6,
-      "param": "reg_alpha",
-      "value": 0.85,
-      "brier": 0.20708098201998318,
-      "delta": -0.0010032663196026248,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 7,
+      "brier": 0.21135579312978384,
+      "delta": -0.0009200609851286456,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 7,
       "param": "reg_alpha",
-      "value": 0.65,
-      "brier": 0.20706541373989484,
-      "delta": -0.0010188345996909598,
-      "decision": "REVERT"
+      "value": 0.5,
+      "brier": 0.2114562604406541,
+      "delta": -0.0008195936742583787,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 8,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20704615746173716,
-      "delta": -0.0010380908778486464,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 7,
+      "brier": 0.21135579312978384,
+      "delta": -0.0009200609851286456,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 9,
-      "param": "max_depth",
-      "value": 6,
-      "brier": 0.20647473522448034,
-      "delta": -0.0016095131151054598,
-      "decision": "KEEP"
+      "param": "reg_alpha",
+      "value": 1.0,
+      "brier": 0.21146108838657462,
+      "delta": -0.0008147657283378573,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 10,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 0.2,
+      "brier": 0.21147949285246534,
+      "delta": -0.0007963612624471428,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 11,
-      "param": "min_child_weight",
-      "value": 4,
-      "brier": 0.20646089604901785,
-      "delta": -0.0016233522905679532,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 0.3,
+      "brier": 0.21149029640140382,
+      "delta": -0.0007855577135086611,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 12,
-      "param": "min_child_weight",
-      "value": 4,
-      "brier": 0.20646089604901785,
-      "delta": -0.0016233522905679532,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 8,
+      "brier": 0.21135827132751084,
+      "delta": -0.000917582787401644,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 13,
       "param": "reg_alpha",
       "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "brier": 0.2114562604406541,
+      "delta": -0.0008195936742583787,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 14,
-      "param": "reg_alpha",
-      "value": 0.3,
-      "brier": 0.2064362564043357,
-      "delta": -0.001647991935250115,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 7,
+      "brier": 0.21135579312978384,
+      "delta": -0.0009200609851286456,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 15,
-      "param": "reg_alpha",
-      "value": 0.7,
-      "brier": 0.20642527790900522,
-      "delta": -0.0016589704305805808,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 9,
+      "brier": 0.211457670824479,
+      "delta": -0.0008181832904334829,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 16,
-      "param": "reg_alpha",
-      "value": 0.6,
-      "brier": 0.20644187679699696,
-      "delta": -0.0016423715425888386,
-      "decision": "REVERT"
+      "param": "learning_rate",
+      "value": 0.08,
+      "brier": 0.21157776411978566,
+      "delta": -0.0006980899951268271,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 17,
       "param": "reg_alpha",
-      "value": 0.4,
-      "brier": 0.20643954693538688,
-      "delta": -0.0016447014041989227,
-      "decision": "REVERT"
+      "value": 1.0,
+      "brier": 0.21146108838657462,
+      "delta": -0.0008147657283378573,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 18,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 1.5,
+      "brier": 0.21145279868566866,
+      "delta": -0.0008230554292438241,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 19,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 2.0,
+      "brier": 0.21143259389271718,
+      "delta": -0.0008432602221953023,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 20,
       "param": "reg_alpha",
-      "value": 0.35,
-      "brier": 0.20642392371896914,
-      "delta": -0.00166032462061666,
-      "decision": "REVERT"
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 21,
       "param": "reg_alpha",
-      "value": 0.45,
-      "brier": 0.20643507829910188,
-      "delta": -0.0016491700404839271,
-      "decision": "REVERT"
+      "value": 3.0,
+      "brier": 0.21142233035456293,
+      "delta": -0.000853523760349556,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 22,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 23,
       "param": "reg_alpha",
-      "value": 0.25,
-      "brier": 0.20646985876207843,
-      "delta": -0.0016143895775073691,
-      "decision": "REVERT"
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 24,
-      "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 0.5,
+      "brier": 0.21147637111034415,
+      "delta": -0.0007994830045683354,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 25,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 2.0,
+      "brier": 0.21143259389271718,
+      "delta": -0.0008432602221953023,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 26,
       "param": "reg_alpha",
-      "value": 0.75,
-      "brier": 0.20643233569054809,
-      "delta": -0.0016519126490377178,
-      "decision": "REVERT"
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 27,
-      "param": "reg_alpha",
-      "value": 1.0,
-      "brier": 0.20641919172998976,
-      "delta": -0.0016650566095960384,
-      "decision": "REVERT"
+      "param": "min_child_weight",
+      "value": 3,
+      "brier": 0.2114937422563653,
+      "delta": -0.0007821118585471798,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 28,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 1.5,
+      "brier": 0.21145279868566866,
+      "delta": -0.0008230554292438241,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 29,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 3.0,
+      "brier": 0.21142233035456293,
+      "delta": -0.000853523760349556,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 30,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 3.5,
+      "brier": 0.21142521931508584,
+      "delta": -0.0008506347998266384,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 31,
       "param": "reg_alpha",
-      "value": 0.25,
-      "brier": 0.20646985876207843,
-      "delta": -0.0016143895775073691,
-      "decision": "REVERT"
+      "value": 2.0,
+      "brier": 0.21143259389271718,
+      "delta": -0.0008432602221953023,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 32,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 33,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 34,
-      "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 1.0,
+      "brier": 0.2114862043261618,
+      "delta": -0.0007896497887506793,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 35,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 36,
       "param": "reg_alpha",
-      "value": 0.18,
-      "brier": 0.2064460051272005,
-      "delta": -0.0016382432123853152,
-      "decision": "REVERT"
+      "value": 3.0,
+      "brier": 0.21142233035456293,
+      "delta": -0.000853523760349556,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 37,
       "param": "reg_alpha",
-      "value": 0.12,
-      "brier": 0.2064377923136461,
-      "delta": -0.0016464560259397132,
-      "decision": "REVERT"
+      "value": 2.0,
+      "brier": 0.21143259389271718,
+      "delta": -0.0008432602221953023,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 38,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 39,
       "param": "reg_alpha",
-      "value": 0.05,
-      "brier": 0.20645195105425196,
-      "delta": -0.0016322972853338447,
-      "decision": "REVERT"
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 40,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 1.0,
+      "brier": 0.2114862043261618,
+      "delta": -0.0007896497887506793,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 41,
-      "param": "learning_rate",
-      "value": 0.05,
-      "brier": 0.20699265781904386,
-      "delta": -0.0010915905205419463,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 1.5,
+      "brier": 0.21145279868566866,
+      "delta": -0.0008230554292438241,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 42,
       "param": "reg_alpha",
-      "value": 0.08,
-      "brier": 0.2064517013616276,
-      "delta": -0.0016325469779581991,
-      "decision": "REVERT"
+      "value": 3.0,
+      "brier": 0.21142233035456293,
+      "delta": -0.000853523760349556,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 43,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 3.5,
+      "brier": 0.21142521931508584,
+      "delta": -0.0008506347998266384,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 44,
       "param": "reg_alpha",
-      "value": 0.03,
-      "brier": 0.20647294754526244,
-      "delta": -0.001611300794323367,
-      "decision": "REVERT"
+      "value": 2.0,
+      "brier": 0.21143259389271718,
+      "delta": -0.0008432602221953023,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 45,
       "param": "reg_alpha",
-      "value": 0.05,
-      "brier": 0.20645195105425196,
-      "delta": -0.0016322972853338447,
-      "decision": "REVERT"
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 46,
       "param": "reg_alpha",
-      "value": 0.12,
-      "brier": 0.2064377923136461,
-      "delta": -0.0016464560259397132,
-      "decision": "REVERT"
+      "value": 2.5,
+      "brier": 0.21141262377457073,
+      "delta": -0.0008632303403417474,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 47,
-      "param": "gamma",
+      "param": "reg_lambda",
       "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "brier": 0.21149380382369332,
+      "delta": -0.0007820502912191662,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 48,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 1.5,
+      "brier": 0.21145279868566866,
+      "delta": -0.0008230554292438241,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 49,
       "param": "reg_alpha",
-      "value": 0.08,
-      "brier": 0.2064517013616276,
-      "delta": -0.0016325469779581991,
-      "decision": "REVERT"
+      "value": 3.0,
+      "brier": 0.21142233035456293,
+      "delta": -0.000853523760349556,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 50,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 3.5,
+      "brier": 0.21142521931508584,
+      "delta": -0.0008506347998266384,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 51,
       "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "value": 2.0,
+      "brier": 0.21143259389271718,
+      "delta": -0.0008432602221953023,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 52,
       "param": "reg_alpha",
-      "value": 0.25,
-      "brier": 0.20646985876207843,
-      "delta": -0.0016143895775073691,
-      "decision": "REVERT"
+      "value": 4.0,
+      "brier": 0.21140329914014844,
+      "delta": -0.0008725549747640449,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 53,
       "param": "reg_alpha",
-      "value": 0.12,
-      "brier": 0.2064377923136461,
-      "delta": -0.0016464560259397132,
-      "decision": "REVERT"
+      "value": 4.5,
+      "brier": 0.21139697793248705,
+      "delta": -0.0008788761824254365,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 54,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 5.0,
+      "brier": 0.2113750520578792,
+      "delta": -0.0009008020570332731,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 55,
       "param": "reg_alpha",
-      "value": 0.08,
-      "brier": 0.2064517013616276,
-      "delta": -0.0016325469779581991,
-      "decision": "REVERT"
+      "value": 5.5,
+      "brier": 0.21138231374630323,
+      "delta": -0.0008935403686092525,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 56,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.2,
+      "brier": 0.21137764163937686,
+      "delta": -0.0008982124755356202,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 57,
       "param": "reg_alpha",
-      "value": 0.05,
-      "brier": 0.20645195105425196,
-      "delta": -0.0016322972853338447,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 58,
       "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "value": 5.4,
+      "brier": 0.2113919370985046,
+      "delta": -0.0008839170164078869,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 59,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 5.1,
+      "brier": 0.21138922113303157,
+      "delta": -0.0008866329818809082,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 60,
       "param": "reg_alpha",
-      "value": 0.12,
-      "brier": 0.2064377923136461,
-      "delta": -0.0016464560259397132,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 61,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 62,
-      "param": "gamma",
-      "value": 1.0,
-      "brier": 0.20644529328101582,
-      "delta": -0.0016389550585699797,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 63,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.2,
+      "brier": 0.21137764163937686,
+      "delta": -0.0008982124755356202,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 64,
-      "param": "reg_lambda",
-      "value": 0.5,
-      "brier": 0.20645834578868527,
-      "delta": -0.001625902550900532,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.4,
+      "brier": 0.2113919370985046,
+      "delta": -0.0008839170164078869,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 65,
       "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "value": 5.5,
+      "brier": 0.21138231374630323,
+      "delta": -0.0008935403686092525,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 66,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 5.1,
+      "brier": 0.21138922113303157,
+      "delta": -0.0008866329818809082,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 67,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 68,
       "param": "reg_alpha",
-      "value": 0.12,
-      "brier": 0.2064377923136461,
-      "delta": -0.0016464560259397132,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 69,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.2,
+      "brier": 0.21137764163937686,
+      "delta": -0.0008982124755356202,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 70,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.4,
+      "brier": 0.2113919370985046,
+      "delta": -0.0008839170164078869,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 71,
       "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 72,
-      "param": "reg_alpha",
-      "value": 0.18,
-      "brier": 0.2064460051272005,
-      "delta": -0.0016382432123853152,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 73,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 74,
       "param": "reg_alpha",
-      "value": 0.25,
-      "brier": 0.20646985876207843,
-      "delta": -0.0016143895775073691,
-      "decision": "REVERT"
+      "value": 5.1,
+      "brier": 0.21138922113303157,
+      "delta": -0.0008866329818809082,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 75,
       "param": "reg_alpha",
-      "value": 0.12,
-      "brier": 0.2064377923136461,
-      "delta": -0.0016464560259397132,
-      "decision": "REVERT"
+      "value": 5.2,
+      "brier": 0.21137764163937686,
+      "delta": -0.0008982124755356202,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 76,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.4,
+      "brier": 0.2113919370985046,
+      "delta": -0.0008839170164078869,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 77,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.5,
+      "brier": 0.21138231374630323,
+      "delta": -0.0008935403686092525,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 78,
       "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "value": 5.0,
+      "brier": 0.2113750520578792,
+      "delta": -0.0009008020570332731,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 79,
       "param": "reg_alpha",
-      "value": 0.18,
-      "brier": 0.2064460051272005,
-      "delta": -0.0016382432123853152,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 80,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 5.1,
+      "brier": 0.21138922113303157,
+      "delta": -0.0008866329818809082,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 81,
       "param": "reg_alpha",
-      "value": 0.12,
-      "brier": 0.2064377923136461,
-      "delta": -0.0016464560259397132,
-      "decision": "REVERT"
+      "value": 5.2,
+      "brier": 0.21137764163937686,
+      "delta": -0.0008982124755356202,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 82,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 83,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.4,
+      "brier": 0.2113919370985046,
+      "delta": -0.0008839170164078869,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 84,
       "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 85,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 86,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 5.5,
+      "brier": 0.21138231374630323,
+      "delta": -0.0008935403686092525,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 87,
       "param": "reg_alpha",
-      "value": 0.25,
-      "brier": 0.20646985876207843,
-      "delta": -0.0016143895775073691,
-      "decision": "REVERT"
+      "value": 5.2,
+      "brier": 0.21137764163937686,
+      "delta": -0.0008982124755356202,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 88,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 89,
-      "param": "reg_alpha",
-      "value": 0.05,
-      "brier": 0.20645195105425196,
-      "delta": -0.0016322972853338447,
-      "decision": "REVERT"
+      "param": "reg_lambda",
+      "value": 0.5,
+      "brier": 0.21149380382369332,
+      "delta": -0.0007820502912191662,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 90,
       "param": "reg_alpha",
-      "value": 0.01,
-      "brier": 0.20647493448696408,
-      "delta": -0.0016093138526217243,
-      "decision": "REVERT"
+      "value": 5.4,
+      "brier": 0.2113919370985046,
+      "delta": -0.0008839170164078869,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 91,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.35,
+      "brier": 0.21137757470626284,
+      "delta": -0.0008982794086496437,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 92,
-      "param": "reg_lambda",
-      "value": 0.5,
-      "brier": 0.20645834578868527,
-      "delta": -0.001625902550900532,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.45,
+      "brier": 0.21139117970314544,
+      "delta": -0.0008846744117670391,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 93,
-      "param": "learning_rate",
-      "value": 0.05,
-      "brier": 0.20699265781904386,
-      "delta": -0.0010915905205419463,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 94,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 95,
-      "param": "reg_lambda",
-      "value": 0.3,
-      "brier": 0.20645036871532377,
-      "delta": -0.0016338796242620357,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.25,
+      "brier": 0.21137877264821103,
+      "delta": -0.0008970814667014493,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 96,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 97,
       "param": "reg_alpha",
-      "value": 1.0,
-      "brier": 0.20641919172998976,
-      "delta": -0.0016650566095960384,
-      "decision": "REVERT"
+      "value": 5.4,
+      "brier": 0.2113919370985046,
+      "delta": -0.0008839170164078869,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 98,
       "param": "reg_alpha",
-      "value": 0.3,
-      "brier": 0.2064362564043357,
-      "delta": -0.001647991935250115,
-      "decision": "REVERT"
+      "value": 5.35,
+      "brier": 0.21137757470626284,
+      "delta": -0.0008982794086496437,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 99,
-      "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "param": "learning_rate",
+      "value": 0.08,
+      "brier": 0.21157776411978566,
+      "delta": -0.0006980899951268271,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 100,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.3,
+      "brier": 0.21137175616014772,
+      "delta": -0.0009040979547647598,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 101,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.32,
+      "brier": 0.21137353144678253,
+      "delta": -0.0009023226681299512,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 102,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 5.25,
+      "brier": 0.21137877264821103,
+      "delta": -0.0008970814667014493,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 103,
       "param": "reg_alpha",
-      "value": 0.4,
-      "brier": 0.20643954693538688,
-      "delta": -0.0016447014041989227,
-      "decision": "REVERT"
+      "value": 5.4,
+      "brier": 0.2113919370985046,
+      "delta": -0.0008839170164078869,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 104,
       "param": "reg_alpha",
-      "value": 0.3,
-      "brier": 0.2064362564043357,
-      "delta": -0.001647991935250115,
-      "decision": "REVERT"
+      "value": 5.31,
+      "brier": 0.21137423590841023,
+      "delta": -0.0009016182065022527,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 105,
-      "param": "reg_alpha",
-      "value": 0.6,
-      "brier": 0.20644187679699696,
-      "delta": -0.0016423715425888386,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 0.5,
+      "brier": 0.21147637111034415,
+      "delta": -0.0007994830045683354,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 106,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 5.35,
+      "brier": 0.21137757470626284,
+      "delta": -0.0008982794086496437,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 107,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.28,
+      "brier": 0.21138256862213833,
+      "delta": -0.0008932854927741485,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 108,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 5.32,
+      "brier": 0.21137353144678253,
+      "delta": -0.0009023226681299512,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 109,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 5.33,
+      "brier": 0.2113851050829315,
+      "delta": -0.0008907490319809697,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 110,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.35,
+      "brier": 0.21137757470626284,
+      "delta": -0.0008982794086496437,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 111,
-      "param": "reg_alpha",
-      "value": 0.3,
-      "brier": 0.2064362564043357,
-      "delta": -0.001647991935250115,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 112,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 5.32,
+      "brier": 0.21137353144678253,
+      "delta": -0.0009023226681299512,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 113,
-      "param": "learning_rate",
-      "value": 0.05,
-      "brier": 0.20699265781904386,
-      "delta": -0.0010915905205419463,
-      "decision": "REVERT"
+      "param": "reg_lambda",
+      "value": 2.5,
+      "brier": 0.21146789805666052,
+      "delta": -0.0008079560582519574,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 114,
       "param": "reg_alpha",
-      "value": 0.25,
-      "brier": 0.20646985876207843,
-      "delta": -0.0016143895775073691,
-      "decision": "REVERT"
+      "value": 5.34,
+      "brier": 0.21138408478610193,
+      "delta": -0.0008917693288105488,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 115,
       "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "value": 5.5,
+      "brier": 0.21138231374630323,
+      "delta": -0.0008935403686092525,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 116,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 5.6,
+      "brier": 0.211381938279079,
+      "delta": -0.0008939158358334809,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 117,
       "param": "reg_alpha",
-      "value": 0.12,
-      "brier": 0.2064377923136461,
-      "delta": -0.0016464560259397132,
-      "decision": "REVERT"
+      "value": 5.8,
+      "brier": 0.21137506167432016,
+      "delta": -0.000900792440592324,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 118,
       "param": "reg_alpha",
-      "value": 0.18,
-      "brier": 0.2064460051272005,
-      "delta": -0.0016382432123853152,
-      "decision": "REVERT"
+      "value": 6.0,
+      "brier": 0.21138090649965458,
+      "delta": -0.0008949476152579072,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 119,
-      "param": "reg_lambda",
-      "value": 0.5,
-      "brier": 0.20645834578868527,
-      "delta": -0.001625902550900532,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.8,
+      "brier": 0.21137506167432016,
+      "delta": -0.000900792440592324,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 120,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.9,
+      "brier": 0.21138019371211778,
+      "delta": -0.0008956604027947068,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 121,
       "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "value": 5.7,
+      "brier": 0.21138702168783496,
+      "delta": -0.0008888324270775183,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 122,
-      "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "param": "learning_rate",
+      "value": 0.08,
+      "brier": 0.21157776411978566,
+      "delta": -0.0006980899951268271,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 123,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 5.8,
+      "brier": 0.21137506167432016,
+      "delta": -0.000900792440592324,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 124,
       "param": "reg_alpha",
-      "value": 0.25,
-      "brier": 0.20646985876207843,
-      "delta": -0.0016143895775073691,
-      "decision": "REVERT"
+      "value": 5.8,
+      "brier": 0.21137506167432016,
+      "delta": -0.000900792440592324,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 125,
       "param": "reg_alpha",
-      "value": 0.05,
-      "brier": 0.20645195105425196,
-      "delta": -0.0016322972853338447,
-      "decision": "REVERT"
+      "value": 5.75,
+      "brier": 0.21139319565152861,
+      "delta": -0.0008826584633838674,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 126,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.9,
+      "brier": 0.21138019371211778,
+      "delta": -0.0008956604027947068,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 127,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.85,
+      "brier": 0.2113960430509534,
+      "delta": -0.0008798110639590684,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 128,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
+      "param": "learning_rate",
+      "value": 0.09,
+      "brier": 0.211530273099762,
+      "delta": -0.0007455810151504871,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 129,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 5.8,
+      "brier": 0.21137506167432016,
+      "delta": -0.000900792440592324,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 130,
       "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "value": 5.95,
+      "brier": 0.21137147798191794,
+      "delta": -0.0009043761329945443,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 131,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 5.75,
+      "brier": 0.21139319565152861,
+      "delta": -0.0008826584633838674,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 132,
       "param": "reg_alpha",
-      "value": 0.25,
-      "brier": 0.20646985876207843,
-      "delta": -0.0016143895775073691,
-      "decision": "REVERT"
+      "value": 5.9,
+      "brier": 0.21138019371211778,
+      "delta": -0.0008956604027947068,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 133,
       "param": "reg_alpha",
-      "value": 0.12,
-      "brier": 0.2064377923136461,
-      "delta": -0.0016464560259397132,
-      "decision": "REVERT"
+      "value": 5.85,
+      "brier": 0.2113960430509534,
+      "delta": -0.0008798110639590684,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 134,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.0,
+      "brier": 0.21138090649965458,
+      "delta": -0.0008949476152579072,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 135,
-      "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "param": "reg_lambda",
+      "value": 2.5,
+      "brier": 0.21146789805666052,
+      "delta": -0.0008079560582519574,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 136,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.2,
+      "brier": 0.21138249345310997,
+      "delta": -0.0008933606618025114,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 137,
       "param": "reg_alpha",
-      "value": 0.05,
-      "brier": 0.20645195105425196,
-      "delta": -0.0016322972853338447,
-      "decision": "REVERT"
+      "value": 6.1,
+      "brier": 0.21138066707328515,
+      "delta": -0.0008951870416273322,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 138,
       "param": "reg_alpha",
-      "value": 0.08,
-      "brier": 0.2064517013616276,
-      "delta": -0.0016325469779581991,
-      "decision": "REVERT"
+      "value": 6.05,
+      "brier": 0.21137477036096,
+      "delta": -0.0009010837539524807,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 139,
       "param": "reg_alpha",
-      "value": 0.12,
-      "brier": 0.2064377923136461,
-      "delta": -0.0016464560259397132,
-      "decision": "REVERT"
+      "value": 6.15,
+      "brier": 0.211384745156052,
+      "delta": -0.0008911089588604926,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 140,
       "param": "reg_alpha",
-      "value": 0.15,
-      "brier": 0.20642786284120926,
-      "delta": -0.0016563854983765447,
-      "decision": "REVERT"
+      "value": 6.0,
+      "brier": 0.21138090649965458,
+      "delta": -0.0008949476152579072,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 141,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 6.05,
+      "brier": 0.21137477036096,
+      "delta": -0.0009010837539524807,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 142,
-      "param": "reg_alpha",
-      "value": 0.25,
-      "brier": 0.20646985876207843,
-      "delta": -0.0016143895775073691,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 143,
-      "param": "reg_lambda",
-      "value": 0.5,
-      "brier": 0.20645834578868527,
-      "delta": -0.001625902550900532,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.2,
+      "brier": 0.21138249345310997,
+      "delta": -0.0008933606618025114,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 144,
       "param": "reg_alpha",
-      "value": 0.08,
-      "brier": 0.2064517013616276,
-      "delta": -0.0016325469779581991,
-      "decision": "REVERT"
+      "value": 6.1,
+      "brier": 0.21138066707328515,
+      "delta": -0.0008951870416273322,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 145,
       "param": "reg_alpha",
-      "value": 0.05,
-      "brier": 0.20645195105425196,
-      "delta": -0.0016322972853338447,
-      "decision": "REVERT"
+      "value": 6.15,
+      "brier": 0.211384745156052,
+      "delta": -0.0008911089588604926,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 146,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.0,
+      "brier": 0.21138090649965458,
+      "delta": -0.0008949476152579072,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 147,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 6.25,
+      "brier": 0.21137360294477991,
+      "delta": -0.0009022511701325675,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 148,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.3,
+      "brier": 0.21137070675464412,
+      "delta": -0.0009051473602683657,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 149,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.35,
+      "brier": 0.21137844499966604,
+      "delta": -0.0008974091152464392,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 150,
-      "param": "learning_rate",
-      "value": 0.15,
-      "brier": 0.20636274157869547,
-      "delta": -0.0017215067608903345,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.32,
+      "brier": 0.2113692324178773,
+      "delta": -0.0009066216970351759,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 151,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 6.28,
+      "brier": 0.21137583465430684,
+      "delta": -0.0009000194606056389,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 152,
-      "param": "gamma",
-      "value": 1.0,
-      "brier": 0.20644529328101582,
-      "delta": -0.0016389550585699797,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 153,
-      "param": "reg_lambda",
-      "value": 0.5,
-      "brier": 0.20645834578868527,
-      "delta": -0.001625902550900532,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.3,
+      "brier": 0.21137070675464412,
+      "delta": -0.0009051473602683657,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 154,
       "param": "reg_alpha",
-      "value": 1.0,
-      "brier": 0.20641919172998976,
-      "delta": -0.0016650566095960384,
-      "decision": "REVERT"
+      "value": 6.25,
+      "brier": 0.21137360294477991,
+      "delta": -0.0009022511701325675,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 155,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.35,
+      "brier": 0.21137844499966604,
+      "delta": -0.0008974091152464392,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 156,
-      "param": "learning_rate",
-      "value": 0.05,
-      "brier": 0.20699265781904386,
-      "delta": -0.0010915905205419463,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.32,
+      "brier": 0.2113692324178773,
+      "delta": -0.0009066216970351759,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 157,
       "param": "reg_alpha",
-      "value": 2.0,
-      "brier": 0.2064025524537525,
-      "delta": -0.0016816958858333064,
-      "decision": "REVERT"
+      "value": 6.28,
+      "brier": 0.21137583465430684,
+      "delta": -0.0009000194606056389,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 158,
       "param": "reg_alpha",
-      "value": 1.5,
-      "brier": 0.20640415962852945,
-      "delta": -0.001680088711056349,
-      "decision": "REVERT"
+      "value": 6.3,
+      "brier": 0.21137070675464412,
+      "delta": -0.0009051473602683657,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 159,
-      "param": "reg_alpha",
-      "value": 1.2,
-      "brier": 0.20640649363813887,
-      "delta": -0.0016777547014469318,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 0.5,
+      "brier": 0.21147637111034415,
+      "delta": -0.0007994830045683354,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 160,
       "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
+      "value": 6.25,
+      "brier": 0.21137360294477991,
+      "delta": -0.0009022511701325675,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 161,
       "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
+      "value": 6.35,
+      "brier": 0.21137844499966604,
+      "delta": -0.0008974091152464392,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 162,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.3,
+      "brier": 0.21137070675464412,
+      "delta": -0.0009051473602683657,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 163,
       "param": "reg_alpha",
-      "value": 4.0,
-      "brier": 0.20636309636042613,
-      "delta": -0.001721151979159674,
-      "decision": "REVERT"
+      "value": 6.2,
+      "brier": 0.21138249345310997,
+      "delta": -0.0008933606618025114,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 164,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.25,
+      "brier": 0.21137360294477991,
+      "delta": -0.0009022511701325675,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 165,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 166,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.3,
+      "brier": 0.21137070675464412,
+      "delta": -0.0009051473602683657,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 167,
       "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
+      "value": 6.3,
+      "brier": 0.21137070675464412,
+      "delta": -0.0009051473602683657,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 168,
       "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
+      "value": 6.35,
+      "brier": 0.21137844499966604,
+      "delta": -0.0008974091152464392,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 169,
       "param": "reg_alpha",
-      "value": 4.0,
-      "brier": 0.20636309636042613,
-      "delta": -0.001721151979159674,
-      "decision": "REVERT"
+      "value": 6.25,
+      "brier": 0.21137360294477991,
+      "delta": -0.0009022511701325675,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 170,
       "param": "reg_alpha",
-      "value": 4.5,
-      "brier": 0.20638302861839652,
-      "delta": -0.0017012197211892788,
-      "decision": "REVERT"
+      "value": 6.3,
+      "brier": 0.21137070675464412,
+      "delta": -0.0009051473602683657,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 171,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 0.5,
+      "brier": 0.21147637111034415,
+      "delta": -0.0007994830045683354,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 172,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.3,
+      "brier": 0.21137070675464412,
+      "delta": -0.0009051473602683657,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 173,
       "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
+      "value": 6.28,
+      "brier": 0.21137583465430684,
+      "delta": -0.0009000194606056389,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 174,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.35,
+      "brier": 0.21137844499966604,
+      "delta": -0.0008974091152464392,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 175,
       "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 176,
       "param": "reg_alpha",
-      "value": 4.0,
-      "brier": 0.20636309636042613,
-      "delta": -0.001721151979159674,
-      "decision": "REVERT"
+      "value": 6.2,
+      "brier": 0.21138249345310997,
+      "delta": -0.0008933606618025114,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 177,
-      "param": "reg_alpha",
-      "value": 3.8,
-      "brier": 0.20639218756805713,
-      "delta": -0.0016920607715286695,
-      "decision": "REVERT"
+      "param": "min_child_weight",
+      "value": 3,
+      "brier": 0.2114937422563653,
+      "delta": -0.0007821118585471798,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 178,
       "param": "reg_alpha",
-      "value": 4.5,
-      "brier": 0.20638302861839652,
-      "delta": -0.0017012197211892788,
-      "decision": "REVERT"
+      "value": 6.0,
+      "brier": 0.21138090649965458,
+      "delta": -0.0008949476152579072,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 179,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 1.5,
+      "brier": 0.21150211597671795,
+      "delta": -0.0007737381381945352,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 180,
       "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
+      "value": 5.5,
+      "brier": 0.21138231374630323,
+      "delta": -0.0008935403686092525,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 181,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.8,
+      "brier": 0.21137506167432016,
+      "delta": -0.000900792440592324,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 182,
       "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "value": 6.2,
+      "brier": 0.21138249345310997,
+      "delta": -0.0008933606618025114,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 183,
       "param": "reg_alpha",
-      "value": 3.3,
-      "brier": 0.20637328155432985,
-      "delta": -0.0017109667852559518,
-      "decision": "REVERT"
+      "value": 6.1,
+      "brier": 0.21138066707328515,
+      "delta": -0.0008951870416273322,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 184,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 5.9,
+      "brier": 0.21138019371211778,
+      "delta": -0.0008956604027947068,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 185,
-      "param": "reg_alpha",
-      "value": 3.8,
-      "brier": 0.20639218756805713,
-      "delta": -0.0016920607715286695,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 186,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 4,
+      "brier": 0.21231240098706214,
+      "delta": 3.654687214965646e-05,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 187,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.8,
+      "brier": 0.21137506167432016,
+      "delta": -0.000900792440592324,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 188,
       "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
+      "value": 5.7,
+      "brier": 0.21138702168783496,
+      "delta": -0.0008888324270775183,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 189,
       "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "value": 6.0,
+      "brier": 0.21138090649965458,
+      "delta": -0.0008949476152579072,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 190,
       "param": "reg_alpha",
-      "value": 3.7,
-      "brier": 0.2063801794135295,
-      "delta": -0.0017040689260562902,
-      "decision": "REVERT"
+      "value": 5.9,
+      "brier": 0.21138019371211778,
+      "delta": -0.0008956604027947068,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 191,
       "param": "reg_alpha",
-      "value": 3.3,
-      "brier": 0.20637328155432985,
-      "delta": -0.0017109667852559518,
-      "decision": "REVERT"
+      "value": 5.85,
+      "brier": 0.2113960430509534,
+      "delta": -0.0008798110639590684,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 192,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "param": "learning_rate",
+      "value": 0.08,
+      "brier": 0.21157776411978566,
+      "delta": -0.0006980899951268271,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 193,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 5.95,
+      "brier": 0.21137147798191794,
+      "delta": -0.0009043761329945443,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 194,
       "param": "reg_alpha",
-      "value": 3.45,
-      "brier": 0.20637745521746811,
-      "delta": -0.001706793122117689,
-      "decision": "REVERT"
+      "value": 5.88,
+      "brier": 0.21138529774486656,
+      "delta": -0.0008905563700459251,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 195,
       "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "value": 5.92,
+      "brier": 0.21137478025436807,
+      "delta": -0.0009010738605444157,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 196,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.0,
+      "brier": 0.21138090649965458,
+      "delta": -0.0008949476152579072,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 197,
       "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
+      "value": 5.85,
+      "brier": 0.2113960430509534,
+      "delta": -0.0008798110639590684,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 198,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "learning_rate",
+      "value": 0.085,
+      "brier": 0.2115437883153739,
+      "delta": -0.0007320657995385782,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 199,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 5.92,
+      "brier": 0.21137478025436807,
+      "delta": -0.0009010738605444157,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 200,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 5.92,
+      "brier": 0.21137478025436807,
+      "delta": -0.0009010738605444157,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 201,
       "param": "reg_alpha",
-      "value": 3.3,
-      "brier": 0.20637328155432985,
-      "delta": -0.0017109667852559518,
-      "decision": "REVERT"
+      "value": 5.95,
+      "brier": 0.21137147798191794,
+      "delta": -0.0009043761329945443,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 202,
       "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "value": 6.0,
+      "brier": 0.21138090649965458,
+      "delta": -0.0008949476152579072,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 203,
       "param": "reg_alpha",
-      "value": 3.7,
-      "brier": 0.2063801794135295,
-      "delta": -0.0017040689260562902,
-      "decision": "REVERT"
+      "value": 5.93,
+      "brier": 0.21138548933799664,
+      "delta": -0.0008903647769158418,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 204,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 5.95,
+      "brier": 0.21137147798191794,
+      "delta": -0.0009043761329945443,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 205,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_lambda",
+      "value": 0.5,
+      "brier": 0.21149380382369332,
+      "delta": -0.0007820502912191662,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 206,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 5.9,
+      "brier": 0.21138019371211778,
+      "delta": -0.0008956604027947068,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 207,
       "param": "reg_alpha",
-      "value": 3.3,
-      "brier": 0.20637328155432985,
-      "delta": -0.0017109667852559518,
-      "decision": "REVERT"
+      "value": 5.94,
+      "brier": 0.21138211425584794,
+      "delta": -0.0008937398590645462,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 208,
       "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
+      "value": 5.92,
+      "brier": 0.21137478025436807,
+      "delta": -0.0009010738605444157,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 209,
-      "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 210,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 5.91,
+      "brier": 0.21137940532872002,
+      "delta": -0.0008964487861924664,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 211,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.93,
+      "brier": 0.21138548933799664,
+      "delta": -0.0008903647769158418,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 212,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 5.9,
+      "brier": 0.21138019371211778,
+      "delta": -0.0008956604027947068,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 213,
       "param": "reg_alpha",
-      "value": 3.3,
-      "brier": 0.20637328155432985,
-      "delta": -0.0017109667852559518,
-      "decision": "REVERT"
+      "value": 5.92,
+      "brier": 0.21137478025436807,
+      "delta": -0.0009010738605444157,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 214,
       "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
+      "value": 6.0,
+      "brier": 0.21138090649965458,
+      "delta": -0.0008949476152579072,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 215,
-      "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "param": "learning_rate",
+      "value": 0.08,
+      "brier": 0.21157776411978566,
+      "delta": -0.0006980899951268271,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 216,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 5.92,
+      "brier": 0.21137478025436807,
+      "delta": -0.0009010738605444157,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 217,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 5.92,
+      "brier": 0.21137478025436807,
+      "delta": -0.0009010738605444157,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 218,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 5.5,
+      "brier": 0.21138231374630323,
+      "delta": -0.0008935403686092525,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 219,
       "param": "reg_alpha",
-      "value": 3.3,
-      "brier": 0.20637328155432985,
-      "delta": -0.0017109667852559518,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 220,
       "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
+      "value": 5.92,
+      "brier": 0.21137478025436807,
+      "delta": -0.0009010738605444157,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 221,
-      "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "param": "learning_rate",
+      "value": 0.05,
+      "brier": 0.21191124271395234,
+      "delta": -0.0003646114009601409,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 222,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 5.92,
+      "brier": 0.21137478025436807,
+      "delta": -0.0009010738605444157,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 223,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.2,
+      "brier": 0.21138249345310997,
+      "delta": -0.0008933606618025114,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 224,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 5.5,
+      "brier": 0.21138231374630323,
+      "delta": -0.0008935403686092525,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 225,
       "param": "reg_alpha",
-      "value": 3.3,
-      "brier": 0.20637328155432985,
-      "delta": -0.0017109667852559518,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 226,
       "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
+      "value": 6.0,
+      "brier": 0.21138090649965458,
+      "delta": -0.0008949476152579072,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 227,
-      "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "param": "learning_rate",
+      "value": 0.08,
+      "brier": 0.21157776411978566,
+      "delta": -0.0006980899951268271,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 228,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 229,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 230,
       "param": "reg_alpha",
-      "value": 3.7,
-      "brier": 0.2063801794135295,
-      "delta": -0.0017040689260562902,
-      "decision": "REVERT"
+      "value": 7.5,
+      "brier": 0.21138417949936592,
+      "delta": -0.0008916746155465671,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 231,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 232,
       "param": "reg_alpha",
-      "value": 3.55,
-      "brier": 0.2063721440951145,
-      "delta": -0.0017121042444712964,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 233,
       "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "value": 7.2,
+      "brier": 0.21138370137239293,
+      "delta": -0.000892152742519553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 234,
       "param": "reg_alpha",
-      "value": 3.65,
-      "brier": 0.2063409479485194,
-      "delta": -0.0017433003910664047,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 235,
       "param": "reg_alpha",
-      "value": 3.75,
-      "brier": 0.20640587334077956,
-      "delta": -0.0016783749988062424,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 236,
-      "param": "reg_alpha",
-      "value": 3.7,
-      "brier": 0.2063801794135295,
-      "delta": -0.0017040689260562902,
-      "decision": "REVERT"
+      "param": "learning_rate",
+      "value": 0.08,
+      "brier": 0.21157776411978566,
+      "delta": -0.0006980899951268271,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 237,
       "param": "reg_alpha",
-      "value": 3.65,
-      "brier": 0.2063409479485194,
-      "delta": -0.0017433003910664047,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 238,
       "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 239,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.5,
+      "brier": 0.21138417949936592,
+      "delta": -0.0008916746155465671,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 240,
       "param": "reg_alpha",
-      "value": 3.68,
-      "brier": 0.20637637218710422,
-      "delta": -0.00170787615248158,
-      "decision": "REVERT"
+      "value": 6.7,
+      "brier": 0.21135675937079182,
+      "delta": -0.0009190947441206632,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 241,
       "param": "reg_alpha",
-      "value": 3.63,
-      "brier": 0.20637496736355784,
-      "delta": -0.0017092809760279604,
-      "decision": "REVERT"
+      "value": 6.6,
+      "brier": 0.21137880110739818,
+      "delta": -0.0008970530075143035,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 242,
       "param": "reg_alpha",
-      "value": 3.7,
-      "brier": 0.2063801794135295,
-      "delta": -0.0017040689260562902,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 243,
-      "param": "reg_alpha",
-      "value": 3.65,
-      "brier": 0.2063409479485194,
-      "delta": -0.0017433003910664047,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 244,
       "param": "reg_alpha",
-      "value": 3.66,
-      "brier": 0.20633252165518812,
-      "delta": -0.0017517266843976864,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 245,
       "param": "reg_alpha",
-      "value": 3.67,
-      "brier": 0.20635967616388615,
-      "delta": -0.0017245721756996568,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 246,
       "param": "reg_alpha",
-      "value": 3.66,
-      "brier": 0.20633252165518812,
-      "delta": -0.0017517266843976864,
-      "decision": "REVERT"
+      "value": 6.7,
+      "brier": 0.21135675937079182,
+      "delta": -0.0009190947441206632,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 247,
       "param": "reg_alpha",
-      "value": 3.65,
-      "brier": 0.2063409479485194,
-      "delta": -0.0017433003910664047,
-      "decision": "REVERT"
+      "value": 6.6,
+      "brier": 0.21137880110739818,
+      "delta": -0.0008970530075143035,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 248,
       "param": "reg_alpha",
-      "value": 3.66,
-      "brier": 0.20633252165518812,
-      "delta": -0.0017517266843976864,
-      "decision": "REVERT"
+      "value": 6.75,
+      "brier": 0.2113694196109437,
+      "delta": -0.0009064345039687949,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 249,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.72,
+      "brier": 0.2113762764436471,
+      "delta": -0.0008995776712653891,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 250,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 6.65,
+      "brier": 0.21137030229551865,
+      "delta": -0.000905551819393835,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 251,
-      "param": "reg_alpha",
-      "value": 3.66,
-      "brier": 0.20633252165518812,
-      "delta": -0.0017517266843976864,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 1.5,
+      "brier": 0.21150211597671795,
+      "delta": -0.0007737381381945352,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 252,
       "param": "reg_alpha",
-      "value": 3.65,
-      "brier": 0.2063409479485194,
-      "delta": -0.0017433003910664047,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 253,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.78,
+      "brier": 0.21137535432836388,
+      "delta": -0.0009004997865486031,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 254,
       "param": "reg_alpha",
-      "value": 3.66,
-      "brier": 0.20633252165518812,
-      "delta": -0.0017517266843976864,
-      "decision": "REVERT"
+      "value": 6.75,
+      "brier": 0.2113694196109437,
+      "delta": -0.0009064345039687949,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 255,
       "param": "reg_alpha",
-      "value": 3.66,
-      "brier": 0.20633252165518812,
-      "delta": -0.0017517266843976864,
-      "decision": "REVERT"
+      "value": 6.82,
+      "brier": 0.2113718587189616,
+      "delta": -0.000903995395950874,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 256,
       "param": "reg_alpha",
-      "value": 3.67,
-      "brier": 0.20635967616388615,
-      "delta": -0.0017245721756996568,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 257,
       "param": "reg_alpha",
-      "value": 3.65,
-      "brier": 0.2063409479485194,
-      "delta": -0.0017433003910664047,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 258,
       "param": "reg_alpha",
-      "value": 3.66,
-      "brier": 0.20633252165518812,
-      "delta": -0.0017517266843976864,
-      "decision": "REVERT"
+      "value": 6.76,
+      "brier": 0.2113718324634456,
+      "delta": -0.0009040216514668853,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 259,
       "param": "reg_alpha",
-      "value": 3.66,
-      "brier": 0.20633252165518812,
-      "delta": -0.0017517266843976864,
-      "decision": "REVERT"
+      "value": 6.75,
+      "brier": 0.2113694196109437,
+      "delta": -0.0009064345039687949,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 260,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
+      "param": "reg_lambda",
+      "value": 0.5,
+      "brier": 0.21149380382369332,
+      "delta": -0.0007820502912191662,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 261,
       "param": "reg_alpha",
-      "value": 3.66,
-      "brier": 0.20633252165518812,
-      "delta": -0.0017517266843976864,
-      "decision": "REVERT"
+      "value": 6.7,
+      "brier": 0.21135675937079182,
+      "delta": -0.0009190947441206632,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 262,
       "param": "reg_alpha",
-      "value": 3.65,
-      "brier": 0.2063409479485194,
-      "delta": -0.0017433003910664047,
-      "decision": "REVERT"
+      "value": 6.65,
+      "brier": 0.21137030229551865,
+      "delta": -0.000905551819393835,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 263,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 264,
       "param": "reg_alpha",
-      "value": 3.8,
-      "brier": 0.20639218756805713,
-      "delta": -0.0016920607715286695,
-      "decision": "REVERT"
+      "value": 6.72,
+      "brier": 0.2113762764436471,
+      "delta": -0.0008995776712653891,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 265,
       "param": "reg_alpha",
-      "value": 3.7,
-      "brier": 0.2063801794135295,
-      "delta": -0.0017040689260562902,
-      "decision": "REVERT"
+      "value": 6.75,
+      "brier": 0.2113694196109437,
+      "delta": -0.0009064345039687949,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 266,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 267,
       "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "value": 7.2,
+      "brier": 0.21138370137239293,
+      "delta": -0.000892152742519553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 268,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 269,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 270,
       "param": "reg_alpha",
-      "value": 3.3,
-      "brier": 0.20637328155432985,
-      "delta": -0.0017109667852559518,
-      "decision": "REVERT"
+      "value": 6.85,
+      "brier": 0.21137170291563048,
+      "delta": -0.0009041511992819995,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 271,
       "param": "reg_alpha",
-      "value": 3.7,
-      "brier": 0.2063801794135295,
-      "delta": -0.0017040689260562902,
-      "decision": "REVERT"
+      "value": 6.75,
+      "brier": 0.2113694196109437,
+      "delta": -0.0009064345039687949,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 272,
       "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
+      "value": 6.78,
+      "brier": 0.21137535432836388,
+      "delta": -0.0009004997865486031,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 273,
-      "param": "reg_lambda",
-      "value": 0.5,
-      "brier": 0.20645834578868527,
-      "delta": -0.001625902550900532,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 274,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.76,
+      "brier": 0.2113718324634456,
+      "delta": -0.0009040216514668853,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 275,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_lambda",
+      "value": 0.5,
+      "brier": 0.21149380382369332,
+      "delta": -0.0007820502912191662,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 276,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.75,
+      "brier": 0.2113694196109437,
+      "delta": -0.0009064345039687949,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 277,
       "param": "reg_alpha",
-      "value": 3.3,
-      "brier": 0.20637328155432985,
-      "delta": -0.0017109667852559518,
-      "decision": "REVERT"
+      "value": 6.82,
+      "brier": 0.2113718587189616,
+      "delta": -0.000903995395950874,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 278,
       "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "value": 6.78,
+      "brier": 0.21137535432836388,
+      "delta": -0.0009004997865486031,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 279,
       "param": "reg_alpha",
-      "value": 3.7,
-      "brier": 0.2063801794135295,
-      "delta": -0.0017040689260562902,
-      "decision": "REVERT"
+      "value": 6.74,
+      "brier": 0.21137387875918565,
+      "delta": -0.0009019753557268362,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 280,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 281,
-      "param": "reg_lambda",
+      "param": "gamma",
       "value": 0.5,
-      "brier": 0.20645834578868527,
-      "delta": -0.001625902550900532,
-      "decision": "REVERT"
+      "brier": 0.21147637111034415,
+      "delta": -0.0007994830045683354,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 282,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.85,
+      "brier": 0.21137170291563048,
+      "delta": -0.0009041511992819995,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 283,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.82,
+      "brier": 0.2113718587189616,
+      "delta": -0.000903995395950874,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 284,
       "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 285,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.75,
+      "brier": 0.2113694196109437,
+      "delta": -0.0009064345039687949,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 286,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 287,
       "param": "reg_lambda",
-      "value": 0.5,
-      "brier": 0.20645834578868527,
-      "delta": -0.001625902550900532,
-      "decision": "REVERT"
+      "value": 2.5,
+      "brier": 0.21146789805666052,
+      "delta": -0.0008079560582519574,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 288,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 289,
       "param": "reg_alpha",
-      "value": 3.4,
-      "brier": 0.20637710206645213,
-      "delta": -0.001707146273133675,
-      "decision": "REVERT"
+      "value": 7.1,
+      "brier": 0.21137235482099723,
+      "delta": -0.0009034992939152553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 290,
       "param": "reg_alpha",
-      "value": 3.6,
-      "brier": 0.2063582875695019,
-      "delta": -0.001725960770083912,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 291,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 292,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 293,
-      "param": "reg_alpha",
-      "value": 3.7,
-      "brier": 0.2063801794135295,
-      "delta": -0.0017040689260562902,
-      "decision": "REVERT"
+      "param": "reg_lambda",
+      "value": 0.5,
+      "brier": 0.21149380382369332,
+      "delta": -0.0007820502912191662,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 294,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 7.1,
+      "brier": 0.21137235482099723,
+      "delta": -0.0009034992939152553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 295,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 7.2,
+      "brier": 0.21138370137239293,
+      "delta": -0.000892152742519553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 296,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 297,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 298,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 7.3,
+      "brier": 0.21137160141915767,
+      "delta": -0.0009042526957548092,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 299,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 300,
       "param": "reg_alpha",
-      "value": 4.0,
-      "brier": 0.20636309636042613,
-      "delta": -0.001721151979159674,
-      "decision": "REVERT"
+      "value": 7.1,
+      "brier": 0.21137235482099723,
+      "delta": -0.0009034992939152553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 301,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
+      "param": "reg_lambda",
+      "value": 0.5,
+      "brier": 0.21149380382369332,
+      "delta": -0.0007820502912191662,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 302,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 303,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 304,
-      "param": "gamma",
-      "value": 1.0,
-      "brier": 0.20644529328101582,
-      "delta": -0.0016389550585699797,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.7,
+      "brier": 0.21135675937079182,
+      "delta": -0.0009190947441206632,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 305,
       "param": "reg_alpha",
-      "value": 2.0,
-      "brier": 0.2064025524537525,
-      "delta": -0.0016816958858333064,
-      "decision": "REVERT"
+      "value": 6.6,
+      "brier": 0.21137880110739818,
+      "delta": -0.0008970530075143035,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 306,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 307,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 308,
       "param": "reg_alpha",
-      "value": 4.5,
-      "brier": 0.20638302861839652,
-      "delta": -0.0017012197211892788,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 309,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 0.5,
+      "brier": 0.21147637111034415,
+      "delta": -0.0007994830045683354,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 310,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 7.5,
+      "brier": 0.21138417949936592,
+      "delta": -0.0008916746155465671,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 311,
       "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
+      "value": 7.2,
+      "brier": 0.21138370137239293,
+      "delta": -0.000892152742519553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 312,
-      "param": "gamma",
-      "value": 1.0,
-      "brier": 0.20644529328101582,
-      "delta": -0.0016389550585699797,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.1,
+      "brier": 0.21137235482099723,
+      "delta": -0.0009034992939152553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 313,
       "param": "reg_alpha",
-      "value": 3.75,
-      "brier": 0.20640587334077956,
-      "delta": -0.0016783749988062424,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 314,
       "param": "reg_alpha",
-      "value": 4.0,
-      "brier": 0.20636309636042613,
-      "delta": -0.001721151979159674,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 315,
       "param": "reg_alpha",
-      "value": 4.25,
-      "brier": 0.20636004152732612,
-      "delta": -0.001724206812259682,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 316,
       "param": "reg_alpha",
-      "value": 4.5,
-      "brier": 0.20638302861839652,
-      "delta": -0.0017012197211892788,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 317,
       "param": "reg_alpha",
-      "value": 4.1,
-      "brier": 0.20637804623628783,
-      "delta": -0.0017062021032979713,
-      "decision": "REVERT"
+      "value": 7.1,
+      "brier": 0.21137235482099723,
+      "delta": -0.0009034992939152553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 318,
-      "param": "reg_alpha",
-      "value": 4.0,
-      "brier": 0.20636309636042613,
-      "delta": -0.001721151979159674,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 0.5,
+      "brier": 0.21147637111034415,
+      "delta": -0.0007994830045683354,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 319,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.2,
+      "brier": 0.21138370137239293,
+      "delta": -0.000892152742519553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 320,
-      "param": "learning_rate",
-      "value": 0.12,
-      "brier": 0.20635234632152732,
-      "delta": -0.0017319020180584788,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 321,
-      "param": "learning_rate",
-      "value": 0.11,
-      "brier": 0.20639852619253507,
-      "delta": -0.0016857221470507333,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 322,
-      "param": "learning_rate",
-      "value": 0.09,
-      "brier": 0.20650809746846788,
-      "delta": -0.0015761508711179262,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.3,
+      "brier": 0.21137160141915767,
+      "delta": -0.0009042526957548092,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 323,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.1,
+      "brier": 0.21137235482099723,
+      "delta": -0.0009034992939152553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 324,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 325,
-      "param": "reg_lambda",
-      "value": 0.5,
-      "brier": 0.20645834578868527,
-      "delta": -0.001625902550900532,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 326,
       "param": "reg_alpha",
-      "value": 1.0,
-      "brier": 0.20641919172998976,
-      "delta": -0.0016650566095960384,
-      "decision": "REVERT"
+      "value": 7.5,
+      "brier": 0.21138417949936592,
+      "delta": -0.0008916746155465671,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 327,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 328,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 329,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.2,
+      "brier": 0.21138370137239293,
+      "delta": -0.000892152742519553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 330,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.7,
+      "brier": 0.21135675937079182,
+      "delta": -0.0009190947441206632,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 331,
-      "param": "learning_rate",
-      "value": 0.05,
-      "brier": 0.20699265781904386,
-      "delta": -0.0010915905205419463,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.6,
+      "brier": 0.21137880110739818,
+      "delta": -0.0008970530075143035,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 332,
       "param": "reg_alpha",
-      "value": 0.05,
-      "brier": 0.20645195105425196,
-      "delta": -0.0016322972853338447,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 333,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 6.75,
+      "brier": 0.2113694196109437,
+      "delta": -0.0009064345039687949,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 334,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 335,
-      "param": "reg_alpha",
-      "value": 0.01,
-      "brier": 0.20647493448696408,
-      "delta": -0.0016093138526217243,
-      "decision": "REVERT"
+      "param": "gamma",
+      "value": 1.5,
+      "brier": 0.21150211597671795,
+      "delta": -0.0007737381381945352,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 336,
       "param": "reg_alpha",
-      "value": 0.03,
-      "brier": 0.20647294754526244,
-      "delta": -0.001611300794323367,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 337,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.2,
+      "brier": 0.21138370137239293,
+      "delta": -0.000892152742519553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 338,
       "param": "reg_alpha",
-      "value": 0.05,
-      "brier": 0.20645195105425196,
-      "delta": -0.0016322972853338447,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 339,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.1,
+      "brier": 0.21137235482099723,
+      "delta": -0.0009034992939152553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 340,
-      "param": "gamma",
-      "value": 1.0,
-      "brier": 0.20644529328101582,
-      "delta": -0.0016389550585699797,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 341,
-      "param": "gamma",
-      "value": 0.8,
-      "brier": 0.20645175131196294,
-      "delta": -0.001632497027622859,
-      "decision": "REVERT"
+      "param": "reg_lambda",
+      "value": 0.5,
+      "brier": 0.21149380382369332,
+      "delta": -0.0007820502912191662,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 342,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 343,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.2,
+      "brier": 0.21138370137239293,
+      "delta": -0.000892152742519553,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 344,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 345,
       "param": "reg_alpha",
-      "value": 1.0,
-      "brier": 0.20641919172998976,
-      "delta": -0.0016650566095960384,
-      "decision": "REVERT"
+      "value": 7.5,
+      "brier": 0.21138417949936592,
+      "delta": -0.0008916746155465671,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 346,
       "param": "reg_alpha",
-      "value": 0.3,
-      "brier": 0.2064362564043357,
-      "delta": -0.001647991935250115,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 347,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 348,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 6.5,
+      "brier": 0.21137876595813157,
+      "delta": -0.0008970881567809119,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 349,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 350,
-      "param": "learning_rate",
-      "value": 0.05,
-      "brier": 0.20699265781904386,
-      "delta": -0.0010915905205419463,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 6.6,
+      "brier": 0.21137880110739818,
+      "delta": -0.0008970530075143035,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 351,
       "param": "reg_alpha",
-      "value": 0.2,
-      "brier": 0.20645885195800948,
-      "delta": -0.0016253963815763273,
-      "decision": "REVERT"
+      "value": 6.7,
+      "brier": 0.21135675937079182,
+      "delta": -0.0009190947441206632,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 352,
       "param": "reg_alpha",
-      "value": 0.1,
-      "brier": 0.20645390402737465,
-      "delta": -0.0016303443122111516,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 353,
-      "param": "reg_alpha",
-      "value": 0.3,
-      "brier": 0.2064362564043357,
-      "delta": -0.001647991935250115,
-      "decision": "REVERT"
+      "param": "reg_lambda",
+      "value": 0.5,
+      "brier": 0.21149380382369332,
+      "delta": -0.0007820502912191662,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 354,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 6.75,
+      "brier": 0.2113694196109437,
+      "delta": -0.0009064345039687949,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 355,
       "param": "reg_alpha",
-      "value": 0.7,
-      "brier": 0.20642527790900522,
-      "delta": -0.0016589704305805808,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 356,
       "param": "reg_alpha",
-      "value": 1.0,
-      "brier": 0.20641919172998976,
-      "delta": -0.0016650566095960384,
-      "decision": "REVERT"
+      "value": 6.65,
+      "brier": 0.21137030229551865,
+      "delta": -0.000905551819393835,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 357,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 358,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
+      "param": "reg_alpha",
+      "value": 7.25,
+      "brier": 0.21137152913323573,
+      "delta": -0.0009043249816767518,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 359,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
+      "param": "max_depth",
+      "value": 5,
+      "brier": 0.2117823203849948,
+      "delta": -0.0004935337299176723,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 360,
       "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
+      "value": 7.0,
+      "brier": 0.21136429469495557,
+      "delta": -0.0009115594199569088,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 361,
       "param": "reg_alpha",
-      "value": 0.75,
-      "brier": 0.20643233569054809,
-      "delta": -0.0016519126490377178,
-      "decision": "REVERT"
+      "value": 6.8,
+      "brier": 0.2113699882044737,
+      "delta": -0.0009058659104387856,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 362,
       "param": "reg_alpha",
-      "value": 1.0,
-      "brier": 0.20641919172998976,
-      "delta": -0.0016650566095960384,
-      "decision": "REVERT"
+      "value": 7.5,
+      "brier": 0.21138417949936592,
+      "delta": -0.0008916746155465671,
+      "decision": "NEUTRAL"
     },
     {
       "exp": 363,
       "param": "reg_alpha",
-      "value": 0.25,
-      "brier": 0.20646985876207843,
-      "delta": -0.0016143895775073691,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 364,
-      "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 365,
-      "param": "learning_rate",
-      "value": 0.05,
-      "brier": 0.20699265781904386,
-      "delta": -0.0010915905205419463,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 366,
-      "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 367,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 368,
-      "param": "reg_alpha",
-      "value": 0.75,
-      "brier": 0.20643233569054809,
-      "delta": -0.0016519126490377178,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 369,
-      "param": "reg_alpha",
-      "value": 1.0,
-      "brier": 0.20641919172998976,
-      "delta": -0.0016650566095960384,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 370,
-      "param": "reg_alpha",
-      "value": 1.5,
-      "brier": 0.20640415962852945,
-      "delta": -0.001680088711056349,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 371,
-      "param": "reg_alpha",
-      "value": 2.0,
-      "brier": 0.2064025524537525,
-      "delta": -0.0016816958858333064,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 372,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 373,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 374,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 375,
-      "param": "reg_alpha",
-      "value": 4.0,
-      "brier": 0.20636309636042613,
-      "delta": -0.001721151979159674,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 376,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 377,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 378,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 379,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 380,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 381,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 382,
-      "param": "reg_alpha",
-      "value": 2.0,
-      "brier": 0.2064025524537525,
-      "delta": -0.0016816958858333064,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 383,
-      "param": "reg_alpha",
-      "value": 1.5,
-      "brier": 0.20640415962852945,
-      "delta": -0.001680088711056349,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 384,
-      "param": "gamma",
-      "value": 1.0,
-      "brier": 0.20644529328101582,
-      "delta": -0.0016389550585699797,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 385,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 386,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 387,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 388,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 389,
-      "param": "reg_alpha",
-      "value": 4.0,
-      "brier": 0.20636309636042613,
-      "delta": -0.001721151979159674,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 390,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 391,
-      "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 392,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 393,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 394,
-      "param": "reg_alpha",
-      "value": 2.8,
-      "brier": 0.2064124682145387,
-      "delta": -0.0016717801250470954,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 395,
-      "param": "reg_alpha",
-      "value": 3.8,
-      "brier": 0.20639218756805713,
-      "delta": -0.0016920607715286695,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 396,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 397,
-      "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 398,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 399,
-      "param": "reg_alpha",
-      "value": 2.9,
-      "brier": 0.20638339546530657,
-      "delta": -0.001700852874279235,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 400,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 401,
-      "param": "reg_alpha",
-      "value": 2.8,
-      "brier": 0.2064124682145387,
-      "delta": -0.0016717801250470954,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 402,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 403,
-      "param": "reg_alpha",
-      "value": 3.1,
-      "brier": 0.20637193537397022,
-      "delta": -0.001712312965615581,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 404,
-      "param": "reg_alpha",
-      "value": 2.7,
-      "brier": 0.20640752896591838,
-      "delta": -0.0016767193736674235,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 405,
-      "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 406,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 407,
-      "param": "reg_lambda",
-      "value": 0.5,
-      "brier": 0.20645834578868527,
-      "delta": -0.001625902550900532,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 408,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 409,
-      "param": "reg_alpha",
-      "value": 2.9,
-      "brier": 0.20638339546530657,
-      "delta": -0.001700852874279235,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 410,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 411,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 412,
-      "param": "reg_alpha",
-      "value": 3.2,
-      "brier": 0.20637877919568995,
-      "delta": -0.0017054691438958547,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 413,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 414,
-      "param": "reg_alpha",
-      "value": 3.1,
-      "brier": 0.20637193537397022,
-      "delta": -0.001712312965615581,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 415,
-      "param": "reg_alpha",
-      "value": 3.05,
-      "brier": 0.2063691892034818,
-      "delta": -0.001715059136104008,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 416,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 417,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 418,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 419,
-      "param": "reg_alpha",
-      "value": 2.0,
-      "brier": 0.2064025524537525,
-      "delta": -0.0016816958858333064,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 420,
-      "param": "reg_alpha",
-      "value": 2.75,
-      "brier": 0.2063885010429746,
-      "delta": -0.0016957472966112053,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 421,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 422,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 423,
-      "param": "reg_alpha",
-      "value": 4.0,
-      "brier": 0.20636309636042613,
-      "delta": -0.001721151979159674,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 424,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 425,
-      "param": "reg_alpha",
-      "value": 3.25,
-      "brier": 0.20637500978779574,
-      "delta": -0.00170923855179006,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 426,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 427,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 428,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 429,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 430,
-      "param": "reg_alpha",
-      "value": 3.75,
-      "brier": 0.20640587334077956,
-      "delta": -0.0016783749988062424,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 431,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 432,
-      "param": "reg_alpha",
-      "value": 3.25,
-      "brier": 0.20637500978779574,
-      "delta": -0.00170923855179006,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 433,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 434,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 435,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 436,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 437,
-      "param": "reg_alpha",
-      "value": 2.75,
-      "brier": 0.2063885010429746,
-      "delta": -0.0016957472966112053,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 438,
-      "param": "reg_alpha",
-      "value": 2.2,
-      "brier": 0.20642972689409714,
-      "delta": -0.0016545214454886659,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 439,
-      "param": "reg_alpha",
-      "value": 2.9,
-      "brier": 0.20638339546530657,
-      "delta": -0.001700852874279235,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 440,
-      "param": "gamma",
-      "value": 1.0,
-      "brier": 0.20644529328101582,
-      "delta": -0.0016389550585699797,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 441,
-      "param": "reg_alpha",
-      "value": 2.65,
-      "brier": 0.20637878815093716,
-      "delta": -0.0017054601886486442,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 442,
-      "param": "reg_alpha",
-      "value": 2.6,
-      "brier": 0.20638796383345945,
-      "delta": -0.0016962845061263554,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 443,
-      "param": "reg_alpha",
-      "value": 2.75,
-      "brier": 0.2063885010429746,
-      "delta": -0.0016957472966112053,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 444,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 445,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 446,
-      "param": "reg_alpha",
-      "value": 2.7,
-      "brier": 0.20640752896591838,
-      "delta": -0.0016767193736674235,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 447,
-      "param": "reg_alpha",
-      "value": 2.55,
-      "brier": 0.20637490547728174,
-      "delta": -0.001709342862304064,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 448,
-      "param": "reg_alpha",
-      "value": 2.6,
-      "brier": 0.20638796383345945,
-      "delta": -0.0016962845061263554,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 449,
-      "param": "reg_alpha",
-      "value": 2.52,
-      "brier": 0.20639084674362165,
-      "delta": -0.0016934015959641502,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 450,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 451,
-      "param": "reg_alpha",
-      "value": 2.65,
-      "brier": 0.20637878815093716,
-      "delta": -0.0017054601886486442,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 452,
-      "param": "reg_alpha",
-      "value": 2.58,
-      "brier": 0.2064067395663356,
-      "delta": -0.001677508773250208,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 453,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 454,
-      "param": "reg_alpha",
-      "value": 2.7,
-      "brier": 0.20640752896591838,
-      "delta": -0.0016767193736674235,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 455,
-      "param": "reg_alpha",
-      "value": 2.62,
-      "brier": 0.20639745432514886,
-      "delta": -0.001686794014436943,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 456,
-      "param": "reg_alpha",
-      "value": 2.75,
-      "brier": 0.2063885010429746,
-      "delta": -0.0016957472966112053,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 457,
-      "param": "reg_alpha",
-      "value": 2.8,
-      "brier": 0.2064124682145387,
-      "delta": -0.0016717801250470954,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 458,
-      "param": "reg_alpha",
-      "value": 2.65,
-      "brier": 0.20637878815093716,
-      "delta": -0.0017054601886486442,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 459,
-      "param": "reg_alpha",
-      "value": 2.68,
-      "brier": 0.20637711165357486,
-      "delta": -0.0017071366860109405,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 460,
-      "param": "reg_alpha",
-      "value": 2.7,
-      "brier": 0.20640752896591838,
-      "delta": -0.0016767193736674235,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 461,
-      "param": "reg_alpha",
-      "value": 2.66,
-      "brier": 0.20636719658926736,
-      "delta": -0.0017170517503184435,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 462,
-      "param": "reg_alpha",
-      "value": 2.66,
-      "brier": 0.20636719658926736,
-      "delta": -0.0017170517503184435,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 463,
-      "param": "gamma",
-      "value": 0.5,
-      "brier": 0.20645784648246002,
-      "delta": -0.0016264018571257866,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 464,
-      "param": "reg_alpha",
-      "value": 2.64,
-      "brier": 0.2063935028735122,
-      "delta": -0.0016907454660735899,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 465,
-      "param": "reg_alpha",
-      "value": 2.62,
-      "brier": 0.20639745432514886,
-      "delta": -0.001686794014436943,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 466,
-      "param": "reg_alpha",
-      "value": 2.68,
-      "brier": 0.20637711165357486,
-      "delta": -0.0017071366860109405,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 467,
-      "param": "reg_alpha",
-      "value": 2.7,
-      "brier": 0.20640752896591838,
-      "delta": -0.0016767193736674235,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 468,
-      "param": "reg_alpha",
-      "value": 2.66,
-      "brier": 0.20636719658926736,
-      "delta": -0.0017170517503184435,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 469,
-      "param": "reg_alpha",
-      "value": 2.68,
-      "brier": 0.20637711165357486,
-      "delta": -0.0017071366860109405,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 470,
-      "param": "learning_rate",
-      "value": 0.08,
-      "brier": 0.2065572517524971,
-      "delta": -0.0015269965870887137,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 471,
-      "param": "reg_alpha",
-      "value": 0.5,
-      "brier": 0.20641423350480118,
-      "delta": -0.0016700148347846278,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 472,
-      "param": "reg_alpha",
-      "value": 2.65,
-      "brier": 0.20637878815093716,
-      "delta": -0.0017054601886486442,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 473,
-      "param": "reg_alpha",
-      "value": 1.5,
-      "brier": 0.20640415962852945,
-      "delta": -0.001680088711056349,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 474,
-      "param": "gamma",
-      "value": 1.5,
-      "brier": 0.20644685945447774,
-      "delta": -0.0016373888851080598,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 475,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 476,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 477,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 478,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 479,
-      "param": "reg_alpha",
-      "value": 2.0,
-      "brier": 0.2064025524537525,
-      "delta": -0.0016816958858333064,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 480,
-      "param": "reg_alpha",
-      "value": 1.5,
-      "brier": 0.20640415962852945,
-      "delta": -0.001680088711056349,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 481,
-      "param": "reg_alpha",
-      "value": 3.5,
-      "brier": 0.2063464494831023,
-      "delta": -0.0017377988564835078,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 482,
-      "param": "reg_alpha",
-      "value": 3.0,
-      "brier": 0.2063685114879439,
-      "delta": -0.0017157368516418914,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 483,
-      "param": "gamma",
-      "value": 1.0,
-      "brier": 0.20644529328101582,
-      "delta": -0.0016389550585699797,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 484,
-      "param": "reg_alpha",
-      "value": 4.0,
-      "brier": 0.20636309636042613,
-      "delta": -0.001721151979159674,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 485,
-      "param": "reg_alpha",
-      "value": 2.5,
-      "brier": 0.20639192198836612,
-      "delta": -0.0016923263512196862,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 486,
-      "param": "reg_alpha",
-      "value": 3.75,
-      "brier": 0.20640587334077956,
-      "delta": -0.0016783749988062424,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 487,
-      "param": "max_depth",
-      "value": 5,
-      "brier": 0.20708225584676834,
-      "delta": -0.0010019924928174606,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 488,
-      "param": "reg_alpha",
-      "value": 1.5,
-      "brier": 0.20640415962852945,
-      "delta": -0.001680088711056349,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 489,
-      "param": "reg_alpha",
-      "value": 5.0,
-      "brier": 0.20637288111870455,
-      "delta": -0.0017113672208812492,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 490,
-      "param": "reg_alpha",
-      "value": 6.25,
-      "brier": 0.20636348732289658,
-      "delta": -0.0017207610166892207,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 491,
-      "param": "reg_alpha",
-      "value": 7.5,
-      "brier": 0.20637354813979833,
-      "delta": -0.0017107001997874738,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 492,
-      "param": "reg_alpha",
-      "value": 8.75,
-      "brier": 0.2063622325117239,
-      "delta": -0.0017220158278619113,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 493,
-      "param": "reg_alpha",
-      "value": 6.25,
-      "brier": 0.20636348732289658,
-      "delta": -0.0017207610166892207,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 494,
-      "param": "min_child_weight",
-      "value": 3,
-      "brier": 0.20651340741495103,
-      "delta": -0.0015708409246347754,
-      "decision": "REVERT"
-    },
-    {
-      "exp": 495,
-      "param": "min_child_weight",
-      "value": 2,
-      "brier": 0.2064577025293144,
-      "delta": -0.0016265458102714125,
-      "decision": "REVERT"
+      "value": 6.9,
+      "brier": 0.21138734302557347,
+      "delta": -0.0008885110893390169,
+      "decision": "NEUTRAL"
     }
   ],
-  "timestamp": "2026-03-13T08:29:36.093497"
+  "timestamp": "2026-03-14T08:29:09.441649"
 }
