@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-075",
+  "timestamp": "2026-03-13T14:33:18.103783",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.low_threshold \u2192 20: Low threshold is untested; increasing from 10 to 20 will raise the bar for low-confidence predictions, forcing more predictions into moderate/high bands to improve calibration discrimination and break the 14-experiment plateau where confidence thresholds remain under-optimized.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.252,
+  "brier_delta": -0.0001,
+  "calibration_error": 0.1079,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

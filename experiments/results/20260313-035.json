@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-035",
+  "timestamp": "2026-03-13T13:39:39.943105",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.net_tendency.half_life \u2192 12: Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net approach patterns more heavily, targeting calibration error where stale positional tendencies may be diluting serve-dependent prediction confidence on hard courts.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

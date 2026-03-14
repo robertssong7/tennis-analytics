@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-060",
+  "timestamp": "2026-03-13T14:13:55.287231",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.serve_direction.half_life \u2192 18: Serve direction is the most fundamental serve-dependent feature; aggressive reduction from 36mo to 18mo will weight recent directional patterns more heavily to break the calibration plateau by capturing serve strategy evolution that stale baselines are masking on hard courts.",
+  "decision": "REVERT",
+  "brier_score": 0.2529,
+  "brier_delta": 0.0008,
+  "calibration_error": 0.112,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-091",
+  "timestamp": "2026-03-13T14:53:55.875238",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.min_n_shrinkage \u2192 50: min_n_shrinkage is completely untested; increasing from 30 to 50 will apply Bayesian shrinkage to more observations, reducing overconfidence on sparse hard-court archetype samples and targeting miscalibration signals that have persisted across 23 neutral/revert experiments.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

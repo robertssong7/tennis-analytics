@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-083",
+  "timestamp": "2026-03-13T14:42:11.851733",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.rally_patterns.half_life \u2192 9: Rally patterns decay is completely untested; aggressive reduction from 18mo to 9mo will weight recent rally-construction sequences more heavily to capture tactical adaptation on hard courts where opponents adjust patterns match-to-match, targeting the unexamined temporal weighting in rally structure that masks serve-dependent point-construction signals after 17 consecutive neutral/revert experiments across confidence, cluster, window, and pressure/shot-type decay categories.",
+  "decision": "REVERT",
+  "brier_score": 0.2534,
+  "brier_delta": 0.0013,
+  "calibration_error": 0.1162,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

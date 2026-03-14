@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-010",
+  "timestamp": "2026-03-13T13:03:45.168881",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.high_threshold \u2192 45: High threshold is completely untested; lowering from 60 to 45 will apply stronger regularization to high-confidence archetype-surface predictions where baseline miscalibration may concentrate, extending the successful confidence.low_threshold reduction strategy to the opposite end of the confidence spectrum.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

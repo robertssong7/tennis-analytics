@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-019",
+  "timestamp": "2026-03-12T22:26:28.543964",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.shot_type_mix.half_life \u2192 18: Shot type mix (serve/groundstroke/volley distribution) should decay faster than serve direction but is currently equal to net_tendency at 24mo; reducing to 18mo aligns it with rally_patterns decay, weighting recent tactical adjustments in shot selection over stale historical patterns\u2014decay optimization remains largely untested in this dimension.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

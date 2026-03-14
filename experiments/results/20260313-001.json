@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-001",
+  "timestamp": "2026-03-13T12:51:17.107132",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "cluster.rally_weight \u2192 1.5: Rally patterns are the most dynamic and match-state-dependent signal; increasing rally_weight from 1.0 to 1.5 will strengthen archetype discrimination on in-rally tactical behavior while maintaining serve_weight balance, targeting the untested rally clustering weight dimension that should improve calibration on mid-rally shot predictions where most predictions cluster.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

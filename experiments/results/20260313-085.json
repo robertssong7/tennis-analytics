@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-085",
+  "timestamp": "2026-03-13T14:44:16.382755",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.low_threshold \u2192 20: Confidence thresholds are largely untested (only low_threshold=10 appeared once); increasing low_threshold from 10 to 20 will tighten confidence classification to reduce false-positive high-confidence predictions on hard courts, targeting miscalibration that has remained masked across 19 consecutive experiments in decay, cluster, and window categories.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

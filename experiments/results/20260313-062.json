@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-062",
+  "timestamp": "2026-03-13T14:17:13.334028",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "cluster.serve_weight \u2192 1.5: Serve-weight clustering is untested; increasing from 1.0 to 1.5 will amplify archetype differentiation based on serve patterns, directly targeting hard-court serve-dependent signals that have remained masked across 8 consecutive experiments in decay, confidence, window, and k-value categories.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

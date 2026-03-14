@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-073",
+  "timestamp": "2026-03-13T14:31:03.581604",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.net_tendency.half_life \u2192 12: Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-play patterns more heavily to capture serve-and-volley or approach-shot adaptation on hard courts where net positioning evolves rapidly, targeting the masked tactical signals that have plateaued across 12 consecutive experiments in other decay categories.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

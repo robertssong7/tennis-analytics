@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-029",
+  "timestamp": "2026-03-13T13:33:19.835241",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.low_threshold \u2192 20: Low_threshold is untested; increasing from 10 to 20 will raise the bar for low-confidence predictions, reducing miscalibration on sparse tactical patterns where the model currently over-commits to uncertain serve-dependent forecasts.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

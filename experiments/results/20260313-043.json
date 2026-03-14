@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-043",
+  "timestamp": "2026-03-13T13:48:25.263255",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "window.serve_plus1 \u2192 1: Window parameters untested; reducing serve_plus1 from 2 to 1 will tighten the immediate post-serve context window to isolate serve-dependent second-shot patterns more precisely, directly testing whether coarser temporal resolution breaks the calibration bottleneck where 13 consecutive neutral/revert experiments suggest archetype geometry is overfit to multi-shot windows that dilute serve signal strength.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

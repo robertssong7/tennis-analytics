@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-039",
+  "timestamp": "2026-03-13T13:44:00.758796",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.low_threshold \u2192 20: Low threshold confidence is untested; increasing from 10 to 20 will reduce over-confidence on sparse serve-dependent predictions where insufficient evidence is being masked, directly addressing the calibration error plateau where 11 consecutive neutral/revert experiments suggest the bottleneck is confidence scaling on low-evidence tactical patterns rather than temporal decay or archetype geometry.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

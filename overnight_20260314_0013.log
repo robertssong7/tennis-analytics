@@ -1,0 +1,339 @@
+2026-03-14 00:13:18 INFO ======================================================================
+2026-03-14 00:13:18 INFO TennisIQ Overnight Pattern Pipeline
+2026-03-14 00:13:18 INFO Started: 2026-03-14T00:13:18.438810
+2026-03-14 00:13:18 INFO Stop time: 08:30
+2026-03-14 00:13:18 INFO ======================================================================
+2026-03-14 00:13:18 INFO Phase 1: Loading from checkpoint /Users/robertsong/Documents/tennis-analytics/data/processed/parsed_points.parquet
+2026-03-14 00:13:18 INFO Phase 2: Loading from checkpoint /Users/robertsong/Documents/tennis-analytics/data/processed/player_profiles.parquet
+2026-03-14 00:13:18 INFO Phase 3: Loading from checkpoint /Users/robertsong/Documents/tennis-analytics/data/processed/universal_features.parquet
+2026-03-14 00:13:18 INFO Phase 4: Loading from checkpoint /Users/robertsong/Documents/tennis-analytics/data/processed/expanded_training.pkl
+2026-03-14 00:13:18 INFO Phase 5: Training XGBoost on expanded feature set...
+2026-03-14 00:13:18 INFO   Features: ['surface_code', 'tourney_level_code', 'best_of', 'cpi', 'rank_diff', 'p1_recent_form', 'p2_recent_form', 'p1_h2h_pct', 'p2_h2h_pct', 'p1_serve_wide_pct', 'p2_serve_wide_pct', 'p1_serve_body_pct', 'p2_serve_body_pct', 'p1_serve_t_pct', 'p2_serve_t_pct', 'p1_serve_dir_entropy', 'p2_serve_dir_entropy', 'p1_serve_wide_pct_pressure', 'p2_serve_wide_pct_pressure', 'p1_serve_t_pct_pressure', 'p2_serve_t_pct_pressure', 'p1_serve_dir_entropy_pressure', 'p2_serve_dir_entropy_pressure', 'p1_serve_pressure_kl', 'p2_serve_pressure_kl', 'p1_avg_rally_len_serving', 'p2_avg_rally_len_serving', 'p1_short_rally_pct_serving', 'p2_short_rally_pct_serving', 'p1_long_rally_pct_serving', 'p2_long_rally_pct_serving', 'p1_win_rate_short_rally', 'p2_win_rate_short_rally', 'p1_win_rate_long_rally', 'p2_win_rate_long_rally', 'p1_aggression_index', 'p2_aggression_index', 'p1_ace_rate', 'p2_ace_rate', 'p1_pattern_diversity_2gram', 'p2_pattern_diversity_2gram', 'p1_pattern_diversity_3gram', 'p2_pattern_diversity_3gram', 'p1_win_rate_far_behind', 'p2_win_rate_far_behind', 'p1_win_rate_far_ahead', 'p2_win_rate_far_ahead', 'interact_aggression', 'interact_short_rally', 'style_mismatch', 'p2_style_mismatch', 'style_clash', 'p1_serve_vs_p2_return', 'p2_serve_vs_p1_return', 'pressure_gap', 'form_diff', 'form_product', 'p1_volatility', 'p2_volatility', 'volatility_diff', 'aggression_squared', 'p2_aggression_squared', 'h2h_dominance', 'h2h_rank_interact', 'h2h_form_interact', 'p1_archetype_0_dist', 'p1_archetype_1_dist', 'p1_archetype_2_dist', 'p1_archetype_3_dist', 'p1_archetype_4_dist', 'p2_archetype_0_dist', 'p2_archetype_1_dist', 'p2_archetype_2_dist', 'p2_archetype_3_dist', 'p2_archetype_4_dist', 'p1_intensity', 'p2_intensity', 'fatigue_diff']
+2026-03-14 00:13:18 INFO   Shape: (1883298, 78), label mean: 0.5000
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:13:20] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:13:27] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:13:33] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:13:39] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+2026-03-14 00:13:44 INFO   Fold 1: Brier = 0.2119
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:13:45] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:13:53] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:13:58] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:14:04] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+2026-03-14 00:14:08 INFO   Fold 2: Brier = 0.2126
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:14:10] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:14:17] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:14:23] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:14:28] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+2026-03-14 00:14:33 INFO   Fold 3: Brier = 0.2124
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:14:35] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:14:42] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:14:48] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:14:53] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+2026-03-14 00:14:58 INFO   Fold 4: Brier = 0.2122
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:15:00] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:15:07] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:15:13] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:15:18] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+2026-03-14 00:15:23 INFO   Fold 5: Brier = 0.2123
+2026-03-14 00:15:23 INFO   Mean Brier: 0.2123 (±0.0002)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:15:24] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:15:34] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:15:42] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:15:50] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:15:58] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:16:07] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+2026-03-14 00:16:13 INFO   Saved model: /Users/robertsong/Documents/tennis-analytics/models/hard/expanded_win_prob_model.pkl
+2026-03-14 00:16:13 INFO   Top 15 features:
+2026-03-14 00:16:13 INFO     form_diff: 0.1382
+2026-03-14 00:16:13 INFO     rank_diff: 0.1228
+2026-03-14 00:16:13 INFO     pressure_gap: 0.0847
+2026-03-14 00:16:13 INFO     h2h_rank_interact: 0.0670
+2026-03-14 00:16:13 INFO     p2_serve_vs_p1_return: 0.0613
+2026-03-14 00:16:13 INFO     fatigue_diff: 0.0509
+2026-03-14 00:16:13 INFO     h2h_form_interact: 0.0411
+2026-03-14 00:16:13 INFO     p1_serve_vs_p2_return: 0.0376
+2026-03-14 00:16:13 INFO     p2_intensity: 0.0300
+2026-03-14 00:16:13 INFO     p2_recent_form: 0.0286
+2026-03-14 00:16:13 INFO     p1_intensity: 0.0270
+2026-03-14 00:16:13 INFO     p2_win_rate_short_rally: 0.0213
+2026-03-14 00:16:13 INFO     p1_recent_form: 0.0213
+2026-03-14 00:16:13 INFO     p2_h2h_pct: 0.0135
+2026-03-14 00:16:13 INFO     p1_win_rate_far_ahead: 0.0133
+2026-03-14 00:16:13 INFO   Saved baseline: /Users/robertsong/Documents/tennis-analytics/experiments/expanded_baseline.json
+2026-03-14 00:16:13 INFO   Phase 5 complete: 175s
+2026-03-14 00:16:13 INFO ======================================================================
+2026-03-14 00:16:13 INFO EXPANDED BASELINE: Brier = 0.2123 (original baseline was 0.2544)
+2026-03-14 00:16:13 INFO ======================================================================
+2026-03-14 00:16:13 INFO Phase 6: Starting XGBoost hyperparameter agent loop...
+2026-03-14 00:16:13 INFO   Baseline Brier: 0.2123
+2026-03-14 00:16:13 INFO   Will stop at 08:30 or after 500 experiments
+2026-03-14 00:16:13 INFO Found credentials in environment variables.
+2026-03-14 00:16:13 INFO   Using Bedrock Haiku for experiment proposals
+2026-03-14 00:16:13 INFO ── Experiment 1 ──────────────────────────────
+2026-03-14 00:16:16 INFO   Proposal: reg_alpha = 1.0 (rationale: Current configuration has no L1 regularization (reg_alpha=0.0) and minimal L2 regularization (reg_lambda=1.0). Adding L1 regularization will help reduce overfitting by performing feature selection and shrinking less important feature coefficients to zero. This should improve generalization and lower Brier score, especially given the moderate model complexity (max_depth=4, n_estimators=300).)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:16:17] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:16:23] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:16:28] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:16:32] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:16:38] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:16:45] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:16:49] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:16:54] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:00] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:06] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:11] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:15] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+2026-03-14 00:17:20 INFO   Brier: 0.2123 (Δ = +0.0001 vs baseline, best = 0.2123)
+2026-03-14 00:17:20 INFO   ⚪ NEUTRAL
+2026-03-14 00:17:20 INFO ── Experiment 2 ──────────────────────────────
+2026-03-14 00:17:22 INFO   Proposal: max_depth = 5 (rationale: Current max_depth of 4 may be underfitting given the baseline performance plateau. Increasing to 5 allows slightly more model complexity to capture non-linear patterns in the probability calibration, which should reduce Brier score by improving prediction accuracy without overfitting (max_depth=5 is still conservative). This is a complementary change to the recent reg_alpha experiment and addresses model capacity rather than regularization.)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:23] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:30] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:36] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:41] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:47] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:54] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:17:59] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:18:04] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:18:10] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:18:17] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:18:23] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:18:28] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+2026-03-14 00:18:32 INFO   Brier: 0.2118 (Δ = -0.0005 vs baseline, best = 0.2123)
+2026-03-14 00:18:32 INFO   ⚪ NEUTRAL
+2026-03-14 00:18:32 INFO ── Experiment 3 ──────────────────────────────
+2026-03-14 00:18:35 INFO   Proposal: learning_rate = 0.05 (rationale: Current learning_rate of 0.1 may be causing overshooting in the optimization landscape. Reducing to 0.05 will allow more fine-grained updates and better convergence, particularly given that n_estimators=300 provides sufficient boosting rounds. This conservative reduction often improves Brier score by preventing oscillation around the optimal solution, especially when combined with the current regularization settings.)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:18:36] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:18:43] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:18:48] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:18:53] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:18:59] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:19:05] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:19:10] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:19:15] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:19:21] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:19:27] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:19:32] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:19:37] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+2026-03-14 00:19:42 INFO   Brier: 0.2131 (Δ = +0.0009 vs baseline, best = 0.2123)
+2026-03-14 00:19:42 INFO   ⚪ NEUTRAL
+2026-03-14 00:19:42 INFO ── Experiment 4 ──────────────────────────────
+2026-03-14 00:19:44 INFO   Proposal: max_depth = 6 (rationale: Recent experiment showed max_depth=5 improved Brier score by -0.000494 (best delta observed). Continuing to gradually increase depth from the current 4 should help the model capture more complex patterns while staying within safe regularization bounds. This direction shows promise and warrants further exploration.)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:19:45] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:19:53] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:19:59] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:20:05] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:20:13] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:20:21] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:20:28] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [00:20:34] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)

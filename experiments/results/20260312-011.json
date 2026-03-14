@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-011",
+  "timestamp": "2026-03-12T22:11:29.424017",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "cluster.serve_weight \u2192 1.5: Serve characteristics are the most deterministic player signature; increasing serve_weight from 1.0 to 1.5 will amplify serve pattern clustering to improve archetype discrimination on serve-dependent shot prediction, a high-leverage untested category.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

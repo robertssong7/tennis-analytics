@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-027",
+  "timestamp": "2026-03-13T13:31:15.227314",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "cluster.rally_weight \u2192 1.5: Rally weight clustering is untested; increasing from 1.0 to 1.5 will amplify multi-shot sequence dominance in archetype formation, directly addressing the persistent calibration error where recent neutral decay experiments and the 20260313-026 rally_patterns revert suggest rally structure encoding needs stronger representation in cluster geometry.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

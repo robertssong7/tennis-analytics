@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-014",
+  "timestamp": "2026-03-13T13:12:07.487189",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.net_tendency.half_life \u2192 12: Net tendency (approach/volley frequency) is completely untested and represents high-variance tactical adaptation; aggressive decay from 24mo to 12mo will weight recent surface-specific net play patterns more heavily, directly improving calibration on net-dependent shot sequences where baseline model persists with stale positional tendencies.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

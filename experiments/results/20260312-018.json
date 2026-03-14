@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-018",
+  "timestamp": "2026-03-12T22:24:44.619652",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.min_n_shrinkage \u2192 50: Increase Bayesian shrinkage threshold from 30 to 50 to apply stronger regularization on sparse player samples, reducing overfitting on low-volume archetypes and improving calibration stability\u2014confidence thresholds remain largely untested and this targets the most conservative shrinkage target.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

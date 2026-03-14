@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-056",
+  "timestamp": "2026-03-13T14:08:07.001784",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "window.rally_pattern \u2192 2: Rally pattern window is untested; reducing from 3 to 2 will tighten sequence coupling to directly test whether over-windowing is diluting serve-dependent confidence signals on hard courts where rally structure decays rapidly.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

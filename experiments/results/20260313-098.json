@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-098",
+  "timestamp": "2026-03-13T15:05:40.920382",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.serve_direction.half_life \u2192 18: Serve direction is the only decay parameter untested; aggressive reduction from 36mo to 18mo will weight recent serving patterns more heavily to capture tactical serve placement adaptation on hard courts where first-serve direction against specific opponents shifts rapidly within matches.",
+  "decision": "REVERT",
+  "brier_score": 0.2529,
+  "brier_delta": 0.0008,
+  "calibration_error": 0.112,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-013",
+  "timestamp": "2026-03-12T22:14:54.828944",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "cluster.rally_weight \u2192 1.5: Rally pattern clustering is untested; increasing rally_weight from 1.0 to 1.5 amplifies multi-shot tactical sequences in archetype discrimination, complementing the serve-weight boost to improve shot prediction calibration on rally-dependent decisions.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-018",
+  "timestamp": "2026-03-13T13:18:42.163346",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "cluster.rally_weight \u2192 0.7: Rally weighting in clustering is completely untested; reducing from 1.0 to 0.7 will de-emphasize multi-shot sequence similarity relative to serve patterns, creating more serve-dominant archetypes that may reduce calibration error on the serve-dependent predictions where baseline model shows persistent miscalibration.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

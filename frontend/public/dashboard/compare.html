@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TennisIQ — Compare Players</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9E5DC;--bg-alt:#DDD9CF;--ink:#1A2634;--ink-mid:#3D4F5E;--ink-soft:#7A8A96;--accent:#4A7C6F;--accent-light:#6FAF9E;--warm:#C4A97D;--card-bg:#F4F1EB;--card-dark:#243447;--border:rgba(26,38,52,0.1);--red-soft:#C4573A;--p1:#4A7C6F;--p2:#C4573A;}
+*{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:0 52px;height:74px;background:rgba(233,229,220,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);}.logo-mark{width:38px;height:38px;background:var(--ink);border-radius:50%;position:relative;overflow:hidden;}.logo-mark::before{content:'';position:absolute;width:21px;height:21px;border:2.5px solid var(--bg);border-radius:50%;clip-path:polygon(0 0,50% 0,50% 100%,0 100%);top:50%;left:50%;transform:translate(-50%,-50%);}.logo-mark::after{content:'';position:absolute;width:17px;height:1.5px;background:var(--bg);transform:rotate(-35deg);top:50%;left:50%;margin-left:-8px;}.logo-text{font-family:'Playfair Display',serif;font-size:18px;}.nav-links{display:flex;align-items:center;gap:32px;margin-left:auto;}.nav-links a{text-decoration:none;color:var(--ink-mid);font-size:14px;transition:color 0.2s;}.nav-links a:hover{color:var(--ink);}
+.page{padding:100px 9% 40px;max-width:1100px;margin:0 auto;}
+.pt{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;margin-bottom:6px;}.ps{font-size:14px;color:var(--ink-soft);margin-bottom:24px;}
+.irow{display:grid;grid-template-columns:1fr 44px 1fr;gap:14px;align-items:center;margin-bottom:24px;}.pinp{display:flex;align-items:center;background:var(--card-bg);border:1.5px solid var(--border);border-radius:12px;padding:0 16px;height:48px;transition:all 0.2s;}.pinp:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,124,111,0.08);}.pinp input{border:none;background:transparent;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);width:100%;}.pinp input::placeholder{color:var(--ink-soft);}.swap{width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--ink-mid);transition:all 0.2s;}.swap:hover{background:var(--accent);color:white;border-color:var(--accent);}
+#content{min-height:300px;}
+.loading{text-align:center;padding:60px;color:var(--ink-soft);}.empty{text-align:center;padding:40px;color:var(--ink-soft);font-size:14px;}
+.footer{background:var(--ink);padding:28px 9%;display:flex;align-items:center;justify-content:space-between;margin-top:40px;}.footer-logo{display:flex;align-items:center;gap:10px;color:rgba(233,229,220,.7);font-family:'Playfair Display',serif;font-size:15px;}.footer-note{font-family:'DM Mono',monospace;font-size:10.5px;color:rgba(233,229,220,.3);}
+</style>
+</head>
+<body>
+<nav><a href="index.html" class="nav-logo"><div class="logo-mark"></div><span class="logo-text">TennisIQ</span></a><div class="nav-links"><a href="index.html">Home</a><a href="tournament.html">Tournaments</a><a href="#">About</a></div></nav>
+<div class="page">
+<div class="pt">Compare Players</div>
+<div class="ps">Head-to-head matchup analysis powered by shot-level charting data.</div>
+<div class="irow"><div class="pinp"><input type="text" placeholder="Search Player A..." id="i1"/></div><button class="swap" id="sw">&#8644;</button><div class="pinp"><input type="text" placeholder="Search Player B..." id="i2"/></div></div>
+<div id="content"><div class="empty">Enter two player names and press Enter to compare.</div></div>
+</div>
+<div class="footer"><div class="footer-logo"><div class="logo-mark"></div>TennisIQ</div><div class="footer-note">Built on TennisAbstract charting data</div></div>
+<script>
+const API='http://localhost:8000/api/v2',params=new URLSearchParams(location.search);
+let n1=params.get('p1')||'',n2=params.get('p2')||'';
+document.getElementById('i1').value=n1;document.getElementById('i2').value=n2;
+function pct(v){return(v*100).toFixed(1)+'%';}function ini(n){return n.split(' ').map(w=>w[0]).join('');}
+document.getElementById('sw').addEventListener('click',()=>{const a=document.getElementById('i1'),b=document.getElementById('i2'),t=a.value;a.value=b.value;b.value=t;if(a.value&&b.value)go();});
+[document.getElementById('i1'),document.getElementById('i2')].forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter'){const a=document.getElementById('i1').value.trim(),b=document.getElementById('i2').value.trim();if(a&&b)go();}}));
+async function go(){const a=document.getElementById('i1').value.trim(),b=document.getElementById('i2').value.trim(),c=document.getElementById('content');c.innerHTML='<div class="loading">Loading matchup...</div>';
+try{const[r1,r2,mr]=await Promise.all([fetch(`${API}/player/${encodeURIComponent(a)}`),fetch(`${API}/player/${encodeURIComponent(b)}`),fetch(`${API}/matchup?p1=${encodeURIComponent(a)}&p2=${encodeURIComponent(b)}`)]);
+if(!r1.ok||!r2.ok){c.innerHTML='<div class="empty">One or both players not found.</div>';return;}
+const p1=await r1.json(),p2=await r2.json();let mu=null;if(mr.ok)mu=await mr.json();
+const pr1=p1.profile||{},pr2=p2.profile||{},bp1=p1.break_points||{},bp2=p2.break_points||{};
+const rate=p=>{const pr=p.profile||{},bp=p.break_points||{};return Math.min(99,Math.round(60+(pr.aggression_index||0.5)*15+(pr.win_rate_short_rally||0.5)*12+(bp.saved_pct||0.5)*10+(pr.ace_rate||0.03)*80+(pr.win_rate_far_behind||0.5)*8));};
+const ra1=rate(p1),ra2=rate(p2);
+const attrs=[{n:'Serve (Ace Rate)',v1:pr1.ace_rate||0,v2:pr2.ace_rate||0,mx:.15,f:pct},{n:'Aggression',v1:pr1.aggression_index||0,v2:pr2.aggression_index||0,mx:1,f:pct},{n:'Short Rally Win',v1:pr1.win_rate_short_rally||0,v2:pr2.win_rate_short_rally||0,mx:1,f:pct},{n:'Long Rally Win',v1:pr1.win_rate_long_rally||0,v2:pr2.win_rate_long_rally||0,mx:1,f:pct},{n:'BP Saved',v1:bp1.saved_pct||0,v2:bp2.saved_pct||0,mx:1,f:pct},{n:'BP Converted',v1:bp1.converted_pct||0,v2:bp2.converted_pct||0,mx:1,f:pct},{n:'Far Behind Win',v1:pr1.win_rate_far_behind||0,v2:pr2.win_rate_far_behind||0,mx:1,f:pct},{n:'Pattern Diversity',v1:pr1.pattern_diversity_2gram||0,v2:pr2.pattern_diversity_2gram||0,mx:5,f:v=>v.toFixed(2)}];
+let h2h='';if(mu&&mu.matches){h2h=`<div style="margin-top:24px;"><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">H2H Matches (${mu.charted_matches} charted · ${mu.total_points} pts)</div>${mu.matches.map(m=>`<div style="display:flex;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;gap:12px;"><span style="flex:1;font-weight:500;">${m.tournament}</span><span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-soft);">${m.date}</span><span style="font-family:'DM Mono',monospace;font-size:10px;">${m.surface}</span><span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-soft);">${m.round}</span><span style="font-family:'DM Mono',monospace;font-size:10px;">${m.p1_pts}-${m.p2_pts} pts</span></div>`).join('')}</div>`;}
+c.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+<div style="background:var(--card-dark);border-radius:14px;padding:22px;text-align:center;color:white;"><div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent-light),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin:0 auto 10px;">${ini(p1.name)}</div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;">${p1.name}</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);margin:4px 0 12px;">${p1.charted_matches} matches</div><div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:rgba(74,124,111,0.2);border:1px solid rgba(74,124,111,0.3);"><span style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;">${ra1}</span><span style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);">Overall</span></div></div>
+<div style="background:var(--card-dark);border-radius:14px;padding:22px;text-align:center;color:white;"><div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#E88A6A,var(--red-soft));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin:0 auto 10px;">${ini(p2.name)}</div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;">${p2.name}</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);margin:4px 0 12px;">${p2.charted_matches} matches</div><div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:rgba(196,87,58,0.2);border:1px solid rgba(196,87,58,0.3);"><span style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;">${ra2}</span><span style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);">Overall</span></div></div>
+</div>
+<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Attributes</div>
+${attrs.map(at=>{const w1=Math.min(100,(at.v1/at.mx)*100),w2=Math.min(100,(at.v2/at.mx)*100),b1=at.v1>=at.v2,b2=at.v2>at.v1;return`<div style="display:grid;grid-template-columns:55px 1fr 100px 1fr 55px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+<div style="font-family:'DM Mono',monospace;font-size:13px;text-align:right;font-weight:500;color:${b1?'var(--p1)':'var(--ink-mid)'};">${at.f(at.v1)}</div>
+<div style="height:8px;background:var(--bg-alt);border-radius:4px;overflow:hidden;position:relative;"><div style="position:absolute;right:0;top:0;height:100%;width:${w1}%;background:var(--p1);border-radius:4px;"></div></div>
+<div style="text-align:center;font-size:11px;font-weight:500;color:var(--ink-mid);">${at.n}</div>
+<div style="height:8px;background:var(--bg-alt);border-radius:4px;overflow:hidden;position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:${w2}%;background:var(--p2);border-radius:4px;"></div></div>
+<div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:${b2?'var(--p2)':'var(--ink-mid)'};">${at.f(at.v2)}</div></div>`;}).join('')}${h2h}`;
+}catch(e){c.innerHTML='<div class="empty">Error loading. Make sure API is running on port 8000.</div>';}}
+if(n1&&n2)go();
+</script>
+</body>
+</html>

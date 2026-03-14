@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-095",
+  "timestamp": "2026-03-13T15:02:03.205607",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.low_threshold \u2192 20: Low threshold is completely untested; increasing from 10 to 20 will raise the confidence gate for sparse archetype samples, reducing false-positive high-confidence predictions that inflate Brier score on hard courts where archetype coverage is uneven.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

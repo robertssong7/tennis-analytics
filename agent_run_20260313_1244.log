@@ -1,0 +1,123 @@
+2026-03-13 12:44:27,958 INFO TennisIQ agent starting — will stop at 02:30 local time
+2026-03-13 12:44:27,958 INFO Dry run: False | Model: us.anthropic.claude-haiku-4-5-20251001-v1:0
+2026-03-13 12:44:30,152 INFO ── Experiment 1 ──────────────────────────────
+2026-03-13 12:44:30,355 INFO Calling Haiku for experiment proposal...
+2026-03-13 12:44:30,356 WARNING Model us.anthropic.claude-haiku-4-5-20251001-v1:0 failed (Unable to locate credentials), trying fallback anthropic.claude-3-haiku-20240307-v1:0
+Traceback (most recent call last):
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/run_agent.py", line 66, in call_haiku
+    resp = client.invoke_model(
+        modelId=model_id,
+    ...<2 lines>...
+        body=body,
+    )
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/client.py", line 602, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/client.py", line 1060, in _make_api_call
+    http, parsed_response = self._make_request(
+                            ~~~~~~~~~~~~~~~~~~^
+        operation_model, request_dict, request_context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/client.py", line 1084, in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/endpoint.py", line 119, in make_request
+    return self._send_request(request_dict, operation_model)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/endpoint.py", line 196, in _send_request
+    request = self.create_request(request_dict, operation_model)
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/endpoint.py", line 132, in create_request
+    self._event_emitter.emit(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        event_name,
+        ^^^^^^^^^^^
+        request=request,
+        ^^^^^^^^^^^^^^^^
+        operation_name=operation_model.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/hooks.py", line 412, in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/hooks.py", line 256, in emit
+    return self._emit(event_name, kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/hooks.py", line 239, in _emit
+    response = handler(**kwargs)
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/signers.py", line 108, in handler
+    return self.sign(operation_name, request)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/signers.py", line 200, in sign
+    auth.add_auth(request)
+    ~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/auth.py", line 429, in add_auth
+    raise NoCredentialsError()
+botocore.exceptions.NoCredentialsError: Unable to locate credentials
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/run_agent.py", line 537, in <module>
+    main()
+    ~~~~^^
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/run_agent.py", line 414, in main
+    raw_proposal = call_haiku(client, args.model, system, propose_user, max_tokens=256)
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/run_agent.py", line 78, in call_haiku
+    resp = client.invoke_model(
+        modelId=FALLBACK_MODEL_ID,
+    ...<2 lines>...
+        body=body,
+    )
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/client.py", line 602, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/client.py", line 1060, in _make_api_call
+    http, parsed_response = self._make_request(
+                            ~~~~~~~~~~~~~~~~~~^
+        operation_model, request_dict, request_context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/client.py", line 1084, in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/endpoint.py", line 119, in make_request
+    return self._send_request(request_dict, operation_model)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/endpoint.py", line 196, in _send_request
+    request = self.create_request(request_dict, operation_model)
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/endpoint.py", line 132, in create_request
+    self._event_emitter.emit(
+    ~~~~~~~~~~~~~~~~~~~~~~~~^
+        event_name,
+        ^^^^^^^^^^^
+        request=request,
+        ^^^^^^^^^^^^^^^^
+        operation_name=operation_model.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/hooks.py", line 412, in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/hooks.py", line 256, in emit
+    return self._emit(event_name, kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/hooks.py", line 239, in _emit
+    response = handler(**kwargs)
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/signers.py", line 108, in handler
+    return self.sign(operation_name, request)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/signers.py", line 200, in sign
+    auth.add_auth(request)
+    ~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/botocore/auth.py", line 429, in add_auth
+    raise NoCredentialsError()
+botocore.exceptions.NoCredentialsError: Unable to locate credentials

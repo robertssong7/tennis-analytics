@@ -1,66 +1,34 @@
 # TennisIQ — Overnight Summary (2026-03-12)
 
-**Experiments run:** 5 (including baseline confirmation run 001)
-**KEEP / REVERT / NEUTRAL:** 0 / 1 / 4
+**Experiments run:** 20
+**KEEP / REVERT / NEUTRAL:** 0 / 1 / 19
 
 ## All Experiments
 
 | ID | Decision | Brier Δ | Description |
 |---|---|---|---|
-| 20260312-001 | ❌ REVERT | +0.0000 | pressure_win_rate half_life 12→9mo |
-| 20260312-002 | ⚪ NEUTRAL | +0.0000 | serve_direction half_life 36→24mo |
-| 20260312-003 | ⚪ NEUTRAL | +0.0000 | rally_pattern_window 3→4 shots |
-| 20260312-004 | ⚪ NEUTRAL | +0.0000 | min_n_shrinkage 30→20 |
-| 20260312-005 | ⚪ NEUTRAL | +0.0000 | k 7→5 archetype clusters |
+| 20260312-007 | ⚪ NEUTRAL | +0.0000 | confidence.min_n_shrinkage → 50: Only 30% of matches have charted profiles; raising Bayesian shrinkage threshold from 30 to 50 will apply stronger archetype priors to low-sample players, reducing overfitting and improving calibration on sparse player profiles. |
+| 20260312-008 | ⚪ NEUTRAL | +0.0000 | decay.pressure_win_rate.half_life → 8: Clutch performance (BP save %, pressure win rate) evolves faster than serve patterns; shortening half-life from 12 to 8 months will weight recent high-stakes performance more heavily, improving calibration on pressure-dependent shot selection in tight matches. |
+| 20260312-009 | ⚪ NEUTRAL | +0.0000 | decay.shot_type_mix.half_life → 18: Shot type distribution (forehand/backhand/volley mix) likely evolves faster than serve direction but slower than pressure performance; reducing from 24mo to 18mo will weight recent tactical adjustments more heavily, improving calibration on shot selection in evolving match conditions. |
+| 20260312-010 | ⚪ NEUTRAL | +0.0000 | confidence.low_threshold → 20: Raise low_threshold from 15 to 20 to exclude more low-sample players from archetype profiles, reducing noisy predictions on sparse data and improving calibration—untested category with high leverage. |
+| 20260312-011 | ⚪ NEUTRAL | +0.0000 | cluster.serve_weight → 1.5: Serve characteristics are the most deterministic player signature; increasing serve_weight from 1.0 to 1.5 will amplify serve pattern clustering to improve archetype discrimination on serve-dependent shot prediction, a high-leverage untested category. |
+| 20260312-012 | ⚪ NEUTRAL | +0.0000 | decay.net_tendency.half_life → 36: Net approach tendency is a tactical pattern that evolves slower than pressure-based shot selection but faster than serve direction; extending from 24mo to 36mo will weight historical net-play consistency more heavily, improving calibration on volley/net-dependent predictions while remaining untested. |
+| 20260312-013 | ⚪ NEUTRAL | +0.0000 | cluster.rally_weight → 1.5: Rally pattern clustering is untested; increasing rally_weight from 1.0 to 1.5 amplifies multi-shot tactical sequences in archetype discrimination, complementing the serve-weight boost to improve shot prediction calibration on rally-dependent decisions. |
+| 20260312-014 | ⚪ NEUTRAL | +0.0000 | window.serve_plus1 → 3: Window parameters remain untested; expanding serve-plus-one context from 2 to 3 shots will capture richer post-serve tactical sequences (serve→return→third shot) to improve short-rally calibration on serve-dependent patterns. |
+| 20260312-015 | ⚪ NEUTRAL | +0.0000 | window.rally_pattern → 4: Window parameters are largely untested; expanding rally_pattern context from 3 to 4 shots will capture deeper tactical sequences in mid-rally decisions, complementing recent serve-weight and rally-weight clustering boosts to improve multi-shot calibration. |
+| 20260312-016 | ❌ REVERT | +0.0002 | decay.serve_direction.half_life → 24: Serve direction is the most stable player signature but current 36mo half-life may be over-weighting stale patterns; reducing to 24mo will better capture recent tactical adjustments (slice/flat/kick distribution changes) while remaining slower-decaying than shot mix, targeting untested decay optimization. |
+| 20260312-017 | ⚪ NEUTRAL | +0.0000 | decay.pressure_win_rate.half_life → 6: Pressure-based win rate is the most dynamic player performance signal; aggressive decay from 12mo to 6mo will weight recent match conditions and form more heavily, improving calibration on high-leverage shot predictions in critical moments—decay optimization remains largely untested. |
+| 20260312-018 | ⚪ NEUTRAL | +0.0000 | confidence.min_n_shrinkage → 50: Increase Bayesian shrinkage threshold from 30 to 50 to apply stronger regularization on sparse player samples, reducing overfitting on low-volume archetypes and improving calibration stability—confidence thresholds remain largely untested and this targets the most conservative shrinkage target. |
+| 20260312-019 | ⚪ NEUTRAL | +0.0000 | decay.shot_type_mix.half_life → 18: Shot type mix (serve/groundstroke/volley distribution) should decay faster than serve direction but is currently equal to net_tendency at 24mo; reducing to 18mo aligns it with rally_patterns decay, weighting recent tactical adjustments in shot selection over stale historical patterns—decay optimization remains largely untested in this dimension. |
+| 20260312-020 | ⚪ NEUTRAL | +0.0000 | decay.error_rate.half_life → 6: Error rate is the most volatile and predictive unforced-error signal; aggressive decay from 12mo to 6mo will weight recent form and surface-specific error patterns more heavily, improving calibration on mistake-prone rally positions—error_rate decay remains completely untested. |
+| 20260312-021 | ⚪ NEUTRAL | +0.0000 | decay.net_tendency.half_life → 18: Net tendency (volley/baseline aggression) should decay faster than serve direction but currently equals shot_type_mix at 24mo; reducing to 18mo will weight recent tactical adjustments in net approach patterns over stale historical behavior, targeting the one decay parameter completely untested. |
+| 20260312-022 | ⚪ NEUTRAL | +0.0000 | cluster.k → 5: Reduce cluster count from 7 to 5 to decrease archetype fragmentation and improve calibration through stronger Bayesian regularization on sparse clusters—clustering remains entirely untested despite being core to pattern prediction. |
+| 20260312-023 | ⚪ NEUTRAL | +0.0000 | cluster.serve_weight → 1.5: Serve patterns are the most stable player signature and foundational to archetype formation; increasing serve_weight from 1.0 to 1.5 will strengthen clustering discrimination on serve characteristics while maintaining rally_weight balance, targeting the untested clustering weight dimension that likely improves calibration on high-leverage opening shots. |
+| 20260312-024 | ⚪ NEUTRAL | +0.0000 | confidence.moderate_threshold → 45: Moderate threshold has never been tested; increasing from 30 to 45 will better separate moderate-confidence predictions from high-confidence ones, improving calibration granularity on mid-range forecast probabilities where most shot predictions cluster. |
+| 20260312-025 | ⚪ NEUTRAL | +0.0000 | window.serve_plus1 → 1: Serve+1 window has never been tested; reducing from 2 to 1 will tighten the temporal context window for immediate post-serve shot predictions, potentially improving calibration by reducing noise from stale serve-response patterns and weighting only the most proximal serve-outcome pair. |
+| 20260312-026 | ⚪ NEUTRAL | +0.0000 | decay.pressure_win_rate.half_life → 6: Pressure win rate (high-stakes performance delta) is the most volatile signal and remains completely untested; aggressive decay from 12mo to 6mo will weight recent clutch performance and surface-specific pressure responses more heavily, improving calibration on match-critical shot predictions. |
 
 ## Baseline Reference
-- Brier score:        0.2571
-- Calibration error:  0.1247
-- n_matches:          386 (2023 hard court, MCP-charted)
+- Brier=0.2544 | cal_error=0.1142 | n=386
 
-## Root Cause: Missing Feedback Loop
-
-**All 5 experiments produced Brier Δ=0.0000.** This is not noise — it is a
-structural gap in the current loop:
-
-```
-feature_engine.py → player_profiles table
-                                          ← NOT READ HERE
-train_model.py    → XGBoost on Elo only → win_prob_model.pkl
-evaluate.py       → loads win_prob_model.pkl + Elo from players table
-```
-
-`feature_engine.py` writes serve %, rally patterns, pressure win rates, and
-archetype clusters to `player_profiles`. But `train_model.py` ignores that
-table entirely — it trains XGBoost on 6 Elo-derived columns only. So no
-change to `feature_engine.py` can move the Brier score until `train_model.py`
-is updated to JOIN `player_profiles` into the feature matrix.
-
-The next_shot_acc_k2/k4 are null because `next_shot_model.pkl` is still the
-DummyClassifier placeholder — it was never trained on actual rally sequences.
-
-## Infrastructure: CONFIRMED WORKING ✅
-
-The full loop ran cleanly end-to-end:
-- feature_engine.py completes in ~90s on M2 (30-min limit: not reached)
-- evaluate.py writes _last_eval.json correctly and gates on cal_error ≤ 0.15
-- log_result.py reads _last_eval.json, computes Brier Δ vs baseline, appends to log.jsonl
-- morning_report.py renders the table correctly (date format bug fixed)
-
-## Recommended Next Steps (priority order)
-
-1. **Close the win-prob loop**: Update `train_model.py` to LEFT JOIN
-   `player_profiles` and add columns like `serve_wide_pct`, `first_serve_won`,
-   `bp_save_pct`, `return_win_rate` to FEATURE_COLS. Expected Brier improvement:
-   0.005–0.015 (based on published results for serve-stat augmented Elo models).
-
-2. **Train a real next_shot_model**: The 1.22M points are in the DB and
-   `rally_sequence` fields are populated. A simple bigram logistic regression on
-   the training-period points would unlock next_shot_acc_k2/k4 and give
-   feature_engine.py parameters a real secondary metric to optimize.
-
-3. **Fix the --validate NaN gate**: 2 players always fail validation due to
-   NULL `fifa_rating`. Either exclude `fifa_rating` from the numeric validation
-   check or fill NULL fifa_ratings during the Elo write step.
-
-_Generated 2026-03-12T20:48:00 — 5 experiments, 0 improvements, loop confirmed_
+_Generated 2026-03-12T22:38:30.301021_

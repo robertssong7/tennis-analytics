@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-016",
+  "timestamp": "2026-03-12T22:21:14.395912",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.serve_direction.half_life \u2192 24: Serve direction is the most stable player signature but current 36mo half-life may be over-weighting stale patterns; reducing to 24mo will better capture recent tactical adjustments (slice/flat/kick distribution changes) while remaining slower-decaying than shot mix, targeting untested decay optimization.",
+  "decision": "REVERT",
+  "brier_score": 0.2546,
+  "brier_delta": 0.0002,
+  "calibration_error": 0.1168,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

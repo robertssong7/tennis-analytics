@@ -1,0 +1,119 @@
+2026-03-12 23:55:37 INFO ======================================================================
+2026-03-12 23:55:37 INFO TennisIQ Overnight Pattern Pipeline
+2026-03-12 23:55:37 INFO Started: 2026-03-12T23:55:37.216320
+2026-03-12 23:55:37 INFO Stop time: 08:30
+2026-03-12 23:55:37 INFO ======================================================================
+2026-03-12 23:55:37 INFO Phase 1: Loading from checkpoint /Users/robertsong/Documents/tennis-analytics/data/processed/parsed_points.parquet
+2026-03-12 23:55:38 INFO Phase 2: Loading from checkpoint /Users/robertsong/Documents/tennis-analytics/data/processed/player_profiles.parquet
+2026-03-12 23:55:38 INFO Phase 3: Building universal match features...
+/Users/robertsong/Documents/tennis-analytics/scripts/overnight_pattern_pipeline.py:622: UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
+  matches_df = pd.read_sql(matches_sql, conn)
+2026-03-12 23:55:39 WARNING   DB unavailable (column m.tourney_date does not exist
+LINE 2:         SELECT m.match_id, m.tourney_date, m.surface, m.tour...
+                                   ^
+), loading from CSV...
+2026-03-12 23:55:39 INFO   Loading 160 CSV files from /Users/robertsong/Documents/tennis-analytics/data/sackmann/tennis_atp
+2026-03-12 23:55:41 INFO   Loaded 968048 matches
+2026-03-12 23:55:41 INFO   Computing recent form...
+2026-03-12 23:56:37 INFO   Phase 3 complete: 968048 matches with universal features in 59s
+2026-03-12 23:56:37 ERROR Pipeline failed: ("Could not convert 'Wimbledon' with type str: tried to convert to double", 'Conversion failed for column tourney_id with type object')
+Traceback (most recent call last):
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/overnight_pattern_pipeline.py", line 1311, in main
+    matches_df = phase3_universal_features()
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/overnight_pattern_pipeline.py", line 703, in phase3_universal_features
+    matches_df.to_parquet(checkpoint, index=False)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pandas/core/frame.py", line 3135, in to_parquet
+    return to_parquet(
+        self,
+    ...<7 lines>...
+        **kwargs,
+    )
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pandas/io/parquet.py", line 490, in to_parquet
+    impl.write(
+    ~~~~~~~~~~^
+        df,
+        ^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pandas/io/parquet.py", line 191, in write
+    table = self.api.Table.from_pandas(df, **from_pandas_kwargs)
+  File "pyarrow/table.pxi", line 4796, in pyarrow.lib.Table.from_pandas
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pyarrow/pandas_compat.py", line 664, in dataframe_to_arrays
+    arrays[i] = maybe_fut.result()
+                ~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pyarrow/pandas_compat.py", line 639, in convert_column
+    raise e
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pyarrow/pandas_compat.py", line 633, in convert_column
+    result = pa.array(col, type=type_, from_pandas=True, safe=safe)
+  File "pyarrow/array.pxi", line 365, in pyarrow.lib.array
+  File "pyarrow/array.pxi", line 91, in pyarrow.lib._ndarray_to_array
+    check_status(NdarrayToArrow(pool, values, mask, from_pandas,
+  File "pyarrow/error.pxi", line 92, in pyarrow.lib.check_status
+pyarrow.lib.ArrowInvalid: ("Could not convert 'Wimbledon' with type str: tried to convert to double", 'Conversion failed for column tourney_id with type object')
+2026-03-12 23:56:37 INFO Final report written to /Users/robertsong/Documents/tennis-analytics/experiments/overnight_report_20260312.md
+2026-03-12 23:56:37 INFO ======================================================================
+2026-03-12 23:56:37 INFO Pipeline complete: 2026-03-12T23:56:37.373937
+2026-03-12 23:56:37 INFO ======================================================================
+Traceback (most recent call last):
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/overnight_pattern_pipeline.py", line 1350, in <module>
+    main()
+    ~~~~^^
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/overnight_pattern_pipeline.py", line 1311, in main
+    matches_df = phase3_universal_features()
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/overnight_pattern_pipeline.py", line 703, in phase3_universal_features
+    matches_df.to_parquet(checkpoint, index=False)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pandas/core/frame.py", line 3135, in to_parquet
+    return to_parquet(
+        self,
+    ...<7 lines>...
+        **kwargs,
+    )
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pandas/io/parquet.py", line 490, in to_parquet
+    impl.write(
+    ~~~~~~~~~~^
+        df,
+        ^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pandas/io/parquet.py", line 191, in write
+    table = self.api.Table.from_pandas(df, **from_pandas_kwargs)
+  File "pyarrow/table.pxi", line 4796, in pyarrow.lib.Table.from_pandas
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pyarrow/pandas_compat.py", line 664, in dataframe_to_arrays
+    arrays[i] = maybe_fut.result()
+                ~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/_base.py", line 443, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/_base.py", line 395, in __get_result
+    raise self._exception
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pyarrow/pandas_compat.py", line 639, in convert_column
+    raise e
+  File "/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/pyarrow/pandas_compat.py", line 633, in convert_column
+    result = pa.array(col, type=type_, from_pandas=True, safe=safe)
+  File "pyarrow/array.pxi", line 365, in pyarrow.lib.array
+    result = _ndarray_to_array(values, mask, type, c_from_pandas, safe,
+  File "pyarrow/array.pxi", line 91, in pyarrow.lib._ndarray_to_array
+    check_status(NdarrayToArrow(pool, values, mask, from_pandas,
+  File "pyarrow/error.pxi", line 92, in pyarrow.lib.check_status
+pyarrow.lib.ArrowInvalid: ("Could not convert 'Wimbledon' with type str: tried to convert to double", 'Conversion failed for column tourney_id with type object')

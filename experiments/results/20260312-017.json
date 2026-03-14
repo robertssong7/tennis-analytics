@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-017",
+  "timestamp": "2026-03-12T22:22:59.739175",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.pressure_win_rate.half_life \u2192 6: Pressure-based win rate is the most dynamic player performance signal; aggressive decay from 12mo to 6mo will weight recent match conditions and form more heavily, improving calibration on high-leverage shot predictions in critical moments\u2014decay optimization remains largely untested.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

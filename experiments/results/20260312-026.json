@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-026",
+  "timestamp": "2026-03-12T22:38:30.295022",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.pressure_win_rate.half_life \u2192 6: Pressure win rate (high-stakes performance delta) is the most volatile signal and remains completely untested; aggressive decay from 12mo to 6mo will weight recent clutch performance and surface-specific pressure responses more heavily, improving calibration on match-critical shot predictions.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

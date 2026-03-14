@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-016",
+  "timestamp": "2026-03-13T13:15:44.081338",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.min_n_shrinkage \u2192 20: Min shrinkage sample threshold is completely untested; lowering from 30 to 20 will apply Bayesian regularization more aggressively to sparse archetype-surface pairs, directly targeting the calibration error concentration that low_threshold reduction (\u0394=-0.0023) partially addressed.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

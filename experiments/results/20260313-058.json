@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-058",
+  "timestamp": "2026-03-13T14:10:54.245541",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.moderate_threshold \u2192 50: Confidence thresholds are untested; raising moderate_threshold from 30 to 50 will shift more predictions into high-confidence bins, reducing noise-driven calibration error on hard courts where serve-dependent signals are masked by over-moderate classification.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

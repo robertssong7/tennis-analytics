@@ -62,7 +62,7 @@ CLUSTER_CONFIG = {
 # ─────────────────────────────────────────────────────────────
 CONFIDENCE_CONFIG = {
     "min_n_shrinkage":  30,       # Bayesian shrinkage toward prior (min_n)
-    "low_threshold":    15,       # < 15 matches: excluded from predictions
+    "low_threshold":    10,       # < 15 matches: excluded from predictions
     "moderate_threshold": 30,     # 15-29: low confidence
     "high_threshold":   60,       # 30-59: moderate; 60+: high
 }

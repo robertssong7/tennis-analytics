@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-022",
+  "timestamp": "2026-03-13T13:25:18.666915",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "window.serve_plus1 \u2192 1: Serve+1 window is completely untested; reducing from 2 to 1 will tighten the immediate post-serve context window, forcing the model to rely more heavily on serve direction decay patterns rather than diluting signal with broader rally noise, directly addressing the persistent calibration error on serve-dependent predictions.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

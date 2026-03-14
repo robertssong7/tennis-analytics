@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-054",
+  "timestamp": "2026-03-13T14:05:23.687937",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "window.serve_plus1 \u2192 1: Window parameters are completely untested; reducing serve-plus1 from 2 to 1 will tighten serve-followup shot coupling to test whether over-windowing is diluting serve-dependent confidence signals that have resisted 18 consecutive experiments across decay, confidence, and cluster categories.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

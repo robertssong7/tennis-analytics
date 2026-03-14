@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-020",
+  "timestamp": "2026-03-12T22:28:12.480303",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.error_rate.half_life \u2192 6: Error rate is the most volatile and predictive unforced-error signal; aggressive decay from 12mo to 6mo will weight recent form and surface-specific error patterns more heavily, improving calibration on mistake-prone rally positions\u2014error_rate decay remains completely untested.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

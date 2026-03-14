@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-011",
+  "timestamp": "2026-03-13T13:05:37.774998",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.pressure_win_rate.half_life \u2192 6: Pressure win-rate (player clutch performance) is completely untested and represents the highest-volatility form signal; aggressive decay from 12mo to 6mo will weight recent match outcomes under pressure more heavily, directly improving calibration on high-stress shot predictions where baseline model shows persistent miscalibration.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

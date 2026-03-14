@@ -25,7 +25,10 @@ from fastapi.responses import JSONResponse
 load_dotenv()
 logger = logging.getLogger(__name__)
 
+from src.api.pattern_endpoints import router as pattern_router
+
 app = FastAPI(title="TennisIQ API", version="1.0.0")
+app.include_router(pattern_router)
 
 app.add_middleware(
     CORSMiddleware,

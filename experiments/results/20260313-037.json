@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-037",
+  "timestamp": "2026-03-13T13:41:46.488510",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.min_n_shrinkage \u2192 50: Increase Bayesian shrinkage threshold from 30 to 50 observations to apply stronger regularization on low-count tactical patterns, directly reducing calibration error where sparse serve-dependent predictions are over-committing confidence despite insufficient statistical evidence.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

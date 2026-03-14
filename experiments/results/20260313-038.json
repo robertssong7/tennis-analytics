@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-038",
+  "timestamp": "2026-03-13T13:42:53.110510",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.moderate_threshold \u2192 45: Confidence thresholds are untested; increasing moderate_threshold from 30 to 45 will reduce over-confidence on mid-evidence predictions where serve-dependent patterns cluster, directly addressing calibration error plateau where 10 consecutive neutral/revert experiments suggest the bottleneck is prediction certainty scaling rather than feature decay or archetype geometry.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

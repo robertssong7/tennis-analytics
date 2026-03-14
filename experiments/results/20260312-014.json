@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-014",
+  "timestamp": "2026-03-12T22:16:37.489240",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "window.serve_plus1 \u2192 3: Window parameters remain untested; expanding serve-plus-one context from 2 to 3 shots will capture richer post-serve tactical sequences (serve\u2192return\u2192third shot) to improve short-rally calibration on serve-dependent patterns.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

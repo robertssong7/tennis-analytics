@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-036",
+  "timestamp": "2026-03-13T13:40:43.920850",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "cluster.rally_weight \u2192 1.5: Rally weight clustering is untested; increasing from 1.0 to 1.5 will amplify rally pattern dominance alongside serve weight in archetype formation, directly testing whether joint serve+rally geometry improvement can break through the persistent 0.2521 Brier plateau where 9 consecutive neutral/revert experiments suggest calibration error is locked in archetype structure rather than individual feature decay or confidence thresholds.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

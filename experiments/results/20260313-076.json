@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-076",
+  "timestamp": "2026-03-13T14:34:22.847097",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.moderate_threshold \u2192 45: Moderate threshold is completely untested; increasing from 30 to 45 will widen the moderate-confidence band to capture more shot predictions with partial historical support, breaking the calibration plateau by improving discrimination between confident and uncertain predictions where serve-dependent patterns show marginal signal strength.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

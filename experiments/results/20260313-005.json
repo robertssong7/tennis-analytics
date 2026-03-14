@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-005",
+  "timestamp": "2026-03-13T12:56:43.823544",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.rally_patterns.half_life \u2192 12: Rally patterns decay over 18 months but remain completely untested; aggressive acceleration to 12 months will prioritize recent tactical adaptations and match-state-specific sequences over stale historical patterns, improving calibration on the most dynamic in-rally shot predictions where baseline miscalibration persists.",
+  "decision": "REVERT",
+  "brier_score": 0.2556,
+  "brier_delta": 0.0012,
+  "calibration_error": 0.1218,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

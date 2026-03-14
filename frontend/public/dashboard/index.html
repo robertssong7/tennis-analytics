@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TennisIQ — Tennis Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9E5DC;--bg-alt:#DDD9CF;--ink:#1A2634;--ink-mid:#3D4F5E;--ink-soft:#7A8A96;--accent:#4A7C6F;--accent-light:#6FAF9E;--warm:#C4A97D;--card-bg:#F4F1EB;--card-dark:#243447;--border:rgba(26,38,52,0.1);--red-soft:#C4573A;--grass:#5A8A3C;--clay:#C4673A;--hard:#3A6EA5;}
+*{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:0 52px;height:74px;background:rgba(233,229,220,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex-shrink:0;}.logo-mark{width:38px;height:38px;background:var(--ink);border-radius:50%;position:relative;overflow:hidden;}.logo-mark::before{content:'';position:absolute;width:21px;height:21px;border:2.5px solid var(--bg);border-radius:50%;clip-path:polygon(0 0,50% 0,50% 100%,0 100%);top:50%;left:50%;transform:translate(-50%,-50%);}.logo-mark::after{content:'';position:absolute;width:17px;height:1.5px;background:var(--bg);transform:rotate(-35deg);top:50%;left:50%;margin-left:-8px;}.logo-text{font-family:'Playfair Display',serif;font-size:18px;}
+.nav-center{flex:1;display:flex;justify-content:center;padding:0 32px;}.search-wrap{position:relative;width:360px;}.search-bar{display:flex;align-items:center;background:var(--card-bg);border:1.5px solid var(--border);border-radius:100px;padding:0 20px;gap:10px;width:100%;height:42px;transition:all 0.2s;}.search-bar:hover,.search-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,124,111,0.08);}.search-bar input{border:none;background:transparent;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);width:100%;font-weight:400;}.search-bar input::placeholder{color:var(--ink-soft);}
+.search-dd{position:absolute;top:48px;left:0;right:0;background:var(--card-bg);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 12px 32px rgba(26,38,52,0.12);display:none;overflow:hidden;z-index:200;}.search-dd.open{display:block;}.search-item{padding:10px 18px;font-size:13px;cursor:pointer;transition:background 0.15s;display:flex;justify-content:space-between;}.search-item:hover,.search-item.sel{background:var(--bg-alt);}.search-item .si-m{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-soft);}
+.nav-links{display:flex;align-items:center;gap:32px;flex-shrink:0;}.nav-links a{text-decoration:none;color:var(--ink-mid);font-size:14px;font-weight:400;letter-spacing:0.02em;transition:color 0.2s;}.nav-links a:hover{color:var(--ink);}.nav-links .compare-cta{background:var(--accent);color:var(--card-bg);padding:9px 20px;border-radius:100px;font-size:13.5px;box-shadow:0 0 14px rgba(74,124,111,0.3),0 0 5px rgba(74,124,111,0.2);transition:all 0.2s;}.nav-links .compare-cta:hover{box-shadow:0 0 22px rgba(74,124,111,0.5);transform:translateY(-1px);}
+
+.hero{min-height:100vh;padding-top:74px;display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden;}
+.hero-left{display:flex;flex-direction:column;justify-content:center;padding:80px 40px 80px 9%;position:relative;z-index:4;}
+.eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:28px;}.eyebrow-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite;}@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}.eyebrow span{font-size:11px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(48px,5vw,66px);line-height:1.08;font-weight:700;margin-bottom:24px;}.hero-title em{font-style:italic;color:var(--accent);}
+.hero-desc{font-size:16px;line-height:1.8;color:var(--ink-mid);max-width:440px;margin-bottom:40px;}.hero-desc a{color:var(--accent);text-decoration:underline;text-underline-offset:3px;}
+.hero-stats{display:flex;gap:36px;padding-top:32px;border-top:1px solid var(--border);}.stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;}.stat-label{font-size:10.5px;color:var(--ink-soft);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
+
+.hero-right{display:flex;align-items:center;justify-content:center;padding:40px 40px 40px 20px;position:relative;overflow:hidden;}
+.ball{position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 35%,#C8E06A,#9AB830);animation:floatBall linear infinite;opacity:0.1;pointer-events:none;z-index:1;}@keyframes floatBall{0%{transform:translate(0,0);opacity:.1;}50%{transform:translate(12px,-20px);opacity:.16;}100%{transform:translate(0,0);opacity:.1;}}
+.carousel-wrap{position:relative;width:100%;max-width:520px;overflow:hidden;border-radius:18px;}
+.carousel-track{display:flex;transition:transform 0.6s cubic-bezier(0.25,0.1,0.25,1);}
+.fc{flex-shrink:0;width:100%;background:var(--card-bg);border-radius:18px;padding:28px 30px;border:1px solid var(--border);box-shadow:0 16px 48px rgba(26,38,52,0.08);}
+.fc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}.fc-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;}.cdots{display:flex;gap:6px;}.cdot{width:8px;height:8px;border-radius:50%;background:var(--border);cursor:pointer;transition:background 0.3s;}.cdot.on{background:var(--accent);}
+.fc-top{display:flex;align-items:center;margin-bottom:14px;}.fc-av{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent-light),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;color:white;font-weight:700;margin-right:16px;flex-shrink:0;}.fc-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:3px;}.fc-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);}
+.fc-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}.fm-item{text-align:center;}.fm-val{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}.fm-lbl{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--ink-soft);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
+.mu-sec{margin-bottom:10px;}.mu-lbl{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}.mu-lbl.tough{color:var(--red-soft);}.mu-lbl.fav{color:var(--accent);}.mu-row{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--bg);border-radius:8px;margin-bottom:4px;font-size:12.5px;}.mu-row .oname{font-weight:500;width:130px;flex-shrink:0;}.mu-row .reason{font-size:10.5px;color:var(--ink-soft);flex:1;}
+.vp-link{display:block;text-align:center;margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;transition:color 0.2s;}.vp-link:hover{color:var(--ink);}
+
+.tournament-section{background:var(--bg-alt);padding:60px 9%;}
+.section-eyebrow{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px;}.section-eyebrow::after{content:'';flex:0 0 48px;height:1px;background:var(--accent);opacity:0.4;}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(30px,3.5vw,44px);font-weight:700;margin-bottom:8px;}.section-sub{font-size:15px;color:var(--ink-soft);margin-bottom:32px;}
+.t-banner{background:var(--card-dark);border-radius:16px;padding:22px 28px;display:flex;align-items:center;gap:24px;margin-bottom:24px;color:white;flex-wrap:wrap;}
+.t-info h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:4px;}.t-info h3 a{color:white;text-decoration:none;}.t-info h3 a:hover{color:var(--accent-light);}
+.t-details{display:flex;gap:18px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.06em;flex-wrap:wrap;}.t-det{display:flex;flex-direction:column;gap:2px;}.t-det .tv{color:rgba(255,255,255,0.85);font-size:11px;}
+.t-badges{display:flex;gap:8px;margin-left:auto;}.t-badge{padding:4px 12px;border-radius:100px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;}.t-badge.s-hard{background:rgba(58,110,165,0.3);color:#7CB8E8;border:1px solid rgba(58,110,165,0.4);}.t-badge.level{background:rgba(196,169,125,0.25);color:var(--warm);border:1px solid rgba(196,169,125,0.35);}
+.t-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.hm-box,.rp-box{background:var(--card-bg);border-radius:14px;padding:20px;border:1px solid var(--border);}.rp-box{max-height:360px;overflow-y:auto;}.rp-box::-webkit-scrollbar{width:4px;}.rp-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.box-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;}.box-title.accent{color:var(--accent);}.box-title.soft{color:var(--ink-soft);}
+.mi{display:flex;align-items:center;padding:10px 12px;border-radius:10px;background:var(--bg);margin-bottom:6px;cursor:pointer;transition:background 0.2s;}.mi:hover{background:var(--bg-alt);}.mi-p{flex:1;font-size:13px;}.mi-p strong{font-weight:500;}.mi-t{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-soft);}.mi-c{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);margin-left:12px;}
+.rr{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}.rr:last-child{border-bottom:none;}.rr-w{font-weight:500;flex:1;}.rr-s{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-mid);margin:0 10px;}.rr-l{color:var(--ink-soft);flex:1;text-align:right;}.rr-r{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);width:40px;text-align:right;}
+.feed-note{margin-top:10px;font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);}
+
+.analytics-section{padding:80px 9%;}
+.a-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}.a-card{background:var(--card-bg);border-radius:16px;overflow:hidden;border:1px solid rgba(26,38,52,0.07);transition:transform 0.3s,box-shadow 0.3s;cursor:pointer;display:flex;flex-direction:column;text-decoration:none;color:inherit;}.a-card:hover{transform:translateY(-4px);box-shadow:0 24px 48px rgba(26,38,52,0.1);}
+.c-thumb{height:220px;position:relative;overflow:hidden;flex-shrink:0;}.thumb-ath{background:linear-gradient(135deg,var(--card-dark) 60%,#2E4558);}.ath-ring{position:absolute;border:1.5px solid rgba(111,175,158,0.18);border-radius:50%;pointer-events:none;}.ath-chip{position:absolute;background:rgba(244,241,235,0.08);backdrop-filter:blur(6px);border-radius:8px;border:1px solid rgba(255,255,255,0.1);padding:7px 11px;font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.6);line-height:1.3;}.ath-chip .big{font-family:'Playfair Display',serif;font-size:20px;color:white;display:block;line-height:1.1;}
+.thumb-cmp{background:linear-gradient(135deg,var(--card-dark) 50%,#1D3028);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;}.vs-p{display:flex;align-items:center;gap:8px;margin-bottom:6px;}.vs-n{font-size:10px;color:rgba(255,255,255,0.5);}.vs-s{font-family:'Playfair Display',serif;font-size:13px;color:rgba(255,255,255,0.2);}
+.thumb-crt{background:linear-gradient(160deg,var(--card-dark),#0E1E2A);display:flex;align-items:center;justify-content:center;padding:16px;position:relative;}
+.sg{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6px;width:200px;height:165px;position:relative;}.sg-c{border-radius:7px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}.sg-c.grass{background:var(--grass);}.sg-c.clay{background:var(--clay);}.sg-c.hard{background:var(--hard);grid-column:1/3;}.sg-l{position:absolute;bottom:5px;left:8px;font-family:'DM Mono',monospace;font-size:7.5px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:.09em;}.sg-v{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:rgba(255,255,255,0.9);}
+.csq{position:absolute;inset:0;opacity:0.15;}
+.ball-tri{position:absolute;width:7px;height:7px;background:radial-gradient(circle at 35% 35%,#D4EE6B,#9AB830);border-radius:50%;box-shadow:0 0 8px rgba(200,224,106,.8);z-index:5;animation:triB 5s ease-in-out infinite;}@keyframes triB{0%,100%{top:78%;left:40%;}33%{top:22%;left:18%;}66%{top:22%;left:72%;}}
+.c-info{padding:20px 22px;flex:1;display:flex;flex-direction:column;}.c-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:8px;}.c-desc{font-size:13px;color:var(--ink-soft);line-height:1.65;margin-bottom:14px;flex:1;}.c-tags{display:flex;gap:6px;flex-wrap:wrap;}.tag{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:100px;background:rgba(74,124,111,0.1);color:var(--accent);border:1px solid rgba(74,124,111,0.2);}
+
+.footer-band{background:var(--ink);padding:32px 9%;display:flex;align-items:center;justify-content:space-between;}.footer-logo{display:flex;align-items:center;gap:10px;color:rgba(233,229,220,.7);font-family:'Playfair Display',serif;font-size:15px;}.footer-logo .logo-mark{background:rgba(233,229,220,.1);border:1px solid rgba(233,229,220,.2);}.footer-note{font-family:'DM Mono',monospace;font-size:10.5px;color:rgba(233,229,220,.3);}
+</style>
+</head>
+<body>
+<nav>
+<a href="index.html" class="nav-logo"><div class="logo-mark"></div><span class="logo-text">TennisIQ</span></a>
+<div class="nav-center"><div class="search-wrap"><div class="search-bar"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg><input type="text" placeholder="Search a player..." id="si" autocomplete="off"/></div><div class="search-dd" id="sd"></div></div></div>
+<div class="nav-links"><a href="compare.html" class="compare-cta">Compare Players</a><a href="tournament.html">Tournaments</a><a href="#">About</a></div>
+</nav>
+<section class="hero">
+<div class="hero-left">
+<div class="eyebrow"><div class="eyebrow-dot"></div><span>ATP / WTA Intelligence Platform</span></div>
+<h1 class="hero-title">Tennis data,<br><em>re-imagined.</em></h1>
+<p class="hero-desc">Performance metrics, player comparisons, and court intelligence — all in one place. <a href="#">Built by analysts, for fans and coaches who want more than scores.</a></p>
+<div class="hero-stats"><div><div class="stat-num">980+</div><div class="stat-label">Players profiled</div></div><div><div class="stat-num">1.2M</div><div class="stat-label">Points analyzed</div></div><div><div class="stat-num">7,194</div><div class="stat-label">Charted matches</div></div></div>
+</div>
+<div class="hero-right">
+<div class="ball" style="width:20px;height:20px;top:22%;left:8%;animation-duration:13s;"></div>
+<div class="ball" style="width:14px;height:14px;top:68%;left:35%;animation-duration:18s;animation-delay:-6s;"></div>
+<div class="carousel-wrap" id="cw"><div class="carousel-track" id="ct"></div></div>
+</div>
+</section>
+<section class="tournament-section">
+<div class="section-eyebrow">Live Tournament</div>
+<h2 class="section-title">Tournament Feed</h2>
+<p class="section-sub">Headline matchups and results from current tournaments.</p>
+<div class="t-banner">
+<div class="t-info"><h3><a href="tournament.html">Indian Wells Masters</a></h3>
+<div class="t-details"><div class="t-det"><span>DATES</span><span class="tv">Mar 4–15, 2026</span></div><div class="t-det"><span>LOCATION</span><span class="tv">Indian Wells, CA</span></div><div class="t-det"><span>CPI</span><span class="tv">31.7</span></div><div class="t-det"><span>BALL</span><span class="tv">Dunlop</span></div></div></div>
+<div class="t-badges"><span class="t-badge level">Masters 1000</span><span class="t-badge s-hard">Hard Court</span></div>
+</div>
+<div class="t-grid">
+<div class="hm-box"><div class="box-title accent">Headline Matches — Semifinal Day</div>
+<div class="mi"><div class="mi-p"><strong>Alcaraz</strong> vs <strong>Djokovic</strong></div><div class="mi-t">8:00 PM</div><div class="mi-c">Stadium 1</div></div>
+<div class="mi"><div class="mi-p"><strong>Sinner</strong> vs <strong>Medvedev</strong></div><div class="mi-t">5:00 PM</div><div class="mi-c">Stadium 1</div></div>
+<div class="mi"><div class="mi-p"><strong>Sabalenka</strong> vs <strong>Gauff</strong></div><div class="mi-t">3:00 PM</div><div class="mi-c">Stadium 1</div></div>
+<div class="mi"><div class="mi-p"><strong>Swiatek</strong> vs <strong>Zheng</strong></div><div class="mi-t">1:00 PM</div><div class="mi-c">Stadium 2</div></div>
+<div class="mi"><div class="mi-p"><strong>Draper</strong> vs <strong>Fritz</strong></div><div class="mi-t">11:00 AM</div><div class="mi-c">Court 1</div></div>
+<div class="feed-note">Ranked by matchup potential and player rankings. Live data will be wired.</div>
+</div>
+<div class="rp-box"><div class="box-title soft">Yesterday's Results</div>
+<div class="rr"><span class="rr-w">Alcaraz</span><span class="rr-s">6-4 7-5</span><span class="rr-l">Hurkacz</span><span class="rr-r">QF</span></div>
+<div class="rr"><span class="rr-w">Sinner</span><span class="rr-s">7-6 6-3</span><span class="rr-l">Fritz</span><span class="rr-r">QF</span></div>
+<div class="rr"><span class="rr-w">Djokovic</span><span class="rr-s">6-3 6-4</span><span class="rr-l">Rublev</span><span class="rr-r">QF</span></div>
+<div class="rr"><span class="rr-w">Medvedev</span><span class="rr-s">6-7 6-4 6-3</span><span class="rr-l">Zverev</span><span class="rr-r">QF</span></div>
+<div class="rr"><span class="rr-w">Gauff</span><span class="rr-s">6-2 6-4</span><span class="rr-l">Pegula</span><span class="rr-r">QF</span></div>
+<div class="rr"><span class="rr-w">Sabalenka</span><span class="rr-s">7-5 6-1</span><span class="rr-l">Rybakina</span><span class="rr-r">QF</span></div>
+<div class="feed-note">Live results will be wired to tournament data feed.</div>
+</div></div>
+</section>
+<section class="analytics-section">
+<div class="section-eyebrow">Player Analytics</div>
+<h2 class="section-title">Explore the dashboards</h2>
+<p class="section-sub">Detailed performance intelligence across individual athletes, head-to-heads, and court dynamics.</p>
+<div class="a-cards">
+<a href="player.html?player=Carlos+Alcaraz" class="a-card"><div class="c-thumb thumb-ath"><div class="ath-ring" style="width:220px;height:220px;top:-60px;left:-60px;"></div><div class="ath-ring" style="width:130px;height:130px;top:20px;right:0;border-color:rgba(196,169,125,.12);"></div><div class="ath-chip" style="top:14px;left:14px;"><span class="big">49%</span>Aggression</div><div class="ath-chip" style="top:14px;right:14px;"><span class="big">206</span>Matches</div><div class="ath-chip" style="top:50%;left:18%;transform:translateY(-50%);"><span class="big">74%</span>Short Rally Win</div><div class="ath-chip" style="top:50%;right:12%;transform:translateY(-50%);"><span class="big">64%</span>Far Behind Win</div><div class="ath-chip" style="bottom:14px;left:14px;"><span class="big">1.53</span>Serve Entropy</div><div class="ath-chip" style="bottom:14px;right:14px;"><span class="big">3.6%</span>Ace Rate</div></div><div class="c-info"><div class="c-title">Individual Athlete</div><div class="c-desc">Full career breakdown — serve patterns under pressure, rally tendencies, aggression profiles, and score-state analysis for any profiled player.</div><div class="c-tags"><span class="tag">Score-State</span><span class="tag">Serve Patterns</span><span class="tag">Shot Analysis</span></div></div></a>
+<a href="compare.html" class="a-card"><div class="c-thumb thumb-cmp"><div class="vs-p"><span class="vs-n">N. Djokovic</span><span class="vs-s">vs</span><span class="vs-n">C. Alcaraz</span></div><svg viewBox="0 0 200 175" width="200" height="175" style="overflow:visible;"><g fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"><polygon points="100,18 165,55 165,127 100,163 35,127 35,55"/><polygon points="100,40 147,67 147,120 100,147 53,120 53,67"/><polygon points="100,62 130,79 130,113 100,130 70,113 70,79"/></g><polygon points="100,28 162,55 158,132 100,158 38,108 44,48" fill="rgba(74,124,111,0.22)" stroke="#4A7C6F" stroke-width="1.5"/><polygon points="100,42 142,72 126,142 100,148 62,130 74,64" fill="rgba(196,169,125,0.18)" stroke="#C4A97D" stroke-width="1.5"/><circle cx="52" cy="6" r="3.5" fill="#4A7C6F"/><text x="58" y="10" fill="rgba(255,255,255,.55)" font-size="7.5" font-family="'DM Sans',sans-serif">Djokovic</text><circle cx="108" cy="6" r="3.5" fill="#C4A97D"/><text x="114" y="10" fill="rgba(255,255,255,.55)" font-size="7.5" font-family="'DM Sans',sans-serif">Alcaraz</text></svg></div><div class="c-info"><div class="c-title">Compare Players</div><div class="c-desc">Head-to-head matchup analysis — serve direction shifts, rally pattern changes, and pressure behavior when two specific players face each other.</div><div class="c-tags"><span class="tag">Head-to-Head</span><span class="tag">Pattern Shifts</span><span class="tag">FIFA-Style</span></div></div></a>
+<a href="tournament.html" class="a-card"><div class="c-thumb thumb-crt"><div class="sg"><div class="sg-c grass"><svg class="csq" viewBox="0 0 80 80"><rect x="4" y="4" width="72" height="72" fill="none" stroke="white" stroke-width="1.2"/><line x1="4" y1="40" x2="76" y2="40" stroke="white" stroke-width=".8"/></svg><span class="sg-v">30</span><div class="sg-l">Grass Avg CPI</div></div><div class="sg-c clay"><svg class="csq" viewBox="0 0 80 80"><rect x="4" y="4" width="72" height="72" fill="none" stroke="white" stroke-width="1.2"/><line x1="4" y1="40" x2="76" y2="40" stroke="white" stroke-width=".8"/></svg><span class="sg-v">25</span><div class="sg-l">Clay Avg CPI</div></div><div class="sg-c hard"><svg class="csq" viewBox="0 0 160 80"><rect x="4" y="4" width="152" height="72" fill="none" stroke="white" stroke-width="1.2"/><line x1="4" y1="40" x2="156" y2="40" stroke="white" stroke-width=".8"/></svg><span class="sg-v">37</span><div class="sg-l">Hard Avg CPI</div></div><div class="ball-tri"></div></div></div><div class="c-info"><div class="c-title">Court Speed & Intel</div><div class="c-desc">Court Pace Index by tournament and year — how surface speed affects match dynamics, with ball type and elevation data.</div><div class="c-tags"><span class="tag">CPI Data</span><span class="tag">Ball Type</span><span class="tag">14 Tournaments</span></div></div></a>
+</div>
+</section>
+<div class="footer-band"><div class="footer-logo"><div class="logo-mark"></div>TennisIQ</div><div class="footer-note">Built on TennisAbstract charting data · Python · XGBoost · FastAPI</div></div>
+
+<script>
+const API='http://localhost:8000/api/v2';
+const FP=[{name:'Carlos Alcaraz',sub:'206 charted · Right-handed'},{name:'Novak Djokovic',sub:'540 charted · Right-handed'},{name:'Jannik Sinner',sub:'260 charted · Right-handed'},{name:'Roger Federer',sub:'689 charted · Right-handed'},{name:'Rafael Nadal',sub:'416 charted · Left-handed'}];
+let cs=0,autoT,hov=false;
+function pct(v){return(v*100).toFixed(1)+'%';}
+function ini(n){return n.split(' ').map(w=>w[0]).join('');}
+
+async function buildC(){
+  const t=document.getElementById('ct');let html='';
+  for(const fp of FP){
+    let c='';
+    try{const r=await fetch(`${API}/player/${encodeURIComponent(fp.name)}`);if(!r.ok)throw 0;const d=await r.json(),p=d.profile||{},bp=d.break_points||{},ps=((p.serve_wide_pct_pressure||0)-(p.serve_wide_pct||0));
+    c=`<div class="fc-head"><span class="fc-tag">Featured Player</span><div class="cdots">${FP.map((_,i)=>`<div class="cdot${i===FP.indexOf(fp)?' on':''}" onclick="go(${i})"></div>`).join('')}</div></div>
+    <div class="fc-top"><div class="fc-av">${ini(d.name)}</div><div><div class="fc-name">${d.name}</div><div class="fc-sub">${fp.sub}</div></div></div>
+    <div class="fc-meta"><div class="fm-item"><div class="fm-val">${pct(p.aggression_index||0)}</div><div class="fm-lbl">Aggression</div></div><div class="fm-item"><div class="fm-val">${pct(p.win_rate_short_rally||0)}</div><div class="fm-lbl">Short Rally</div></div><div class="fm-item"><div class="fm-val">${pct(bp.saved_pct||0)}</div><div class="fm-lbl">BP Saved</div></div><div class="fm-item"><div class="fm-val">${(p.serve_dir_entropy||0).toFixed(2)}</div><div class="fm-lbl">Entropy</div></div></div>
+    <div class="mu-sec"><div class="mu-lbl tough">Toughest Profiles</div><div class="mu-row"><span class="oname">${((p.win_rate_short_rally||0)-(p.win_rate_long_rally||0))>0.15?'Defensive grinders':'Big servers'}</span><span class="reason">${((p.win_rate_short_rally||0)-(p.win_rate_long_rally||0))>0.15?'Long rally win drops to '+pct(p.win_rate_long_rally||0):'Short rally dominance neutralized'}</span></div></div>
+    <div class="mu-sec"><div class="mu-lbl fav">Key Strength</div><div class="mu-row"><span class="oname">Pressure serving</span><span class="reason">Wide ${ps>0?'+':''}${(ps*100).toFixed(1)}% under BP · Short rally ${pct(p.win_rate_short_rally||0)}</span></div></div>
+    <a href="player.html?player=${encodeURIComponent(d.name)}" class="vp-link">View Full Profile →</a>`;
+    }catch(e){c=`<div class="fc-head"><span class="fc-tag">Featured Player</span></div><div class="fc-top"><div class="fc-av">${ini(fp.name)}</div><div><div class="fc-name">${fp.name}</div><div class="fc-sub">${fp.sub}</div></div></div><div style="padding:30px 0;color:var(--ink-soft);font-size:12px;text-align:center;">Start API for live data</div>`;}
+    html+=`<div class="fc">${c}</div>`;
+  }
+  t.innerHTML=html;t.style.width=`${FP.length*100}%`;t.querySelectorAll('.fc').forEach(c=>c.style.width=`${100/FP.length}%`);
+  startA();
+  const cw=document.getElementById('cw');cw.addEventListener('mouseenter',()=>{hov=true;clearInterval(autoT);});cw.addEventListener('mouseleave',()=>{hov=false;startA();});
+}
+function go(i){cs=i;document.getElementById('ct').style.transform=`translateX(-${i*(100/FP.length)}%)`;document.querySelectorAll('.cdot').forEach((d,j)=>d.classList.toggle('on',j===i));}
+function startA(){clearInterval(autoT);autoT=setInterval(()=>{if(!hov){cs=(cs+1)%FP.length;go(cs);}},6000);}
+
+/* Search autocomplete */
+let st=null,sr=[],si=-1;const sinp=document.getElementById('si'),sdd=document.getElementById('sd');
+sinp.addEventListener('input',()=>{clearTimeout(st);const q=sinp.value.trim();if(q.length<2){sdd.classList.remove('open');return;}
+st=setTimeout(async()=>{try{const r=await fetch(`${API}/search?q=${encodeURIComponent(q)}`);if(!r.ok)return;sr=await r.json();si=0;if(!sr.length){sdd.classList.remove('open');return;}sdd.innerHTML=sr.map((p,i)=>`<div class="search-item${i===0?' sel':''}" data-n="${p.name}">${p.name}<span class="si-m">${p.matches} matches</span></div>`).join('');sdd.classList.add('open');sdd.querySelectorAll('.search-item').forEach(it=>it.addEventListener('click',()=>window.location=`player.html?player=${encodeURIComponent(it.dataset.n)}`));}catch(e){}},200);});
+sinp.addEventListener('keydown',e=>{if(!sdd.classList.contains('open')){if(e.key==='Enter'&&sinp.value.trim())window.location=`player.html?player=${encodeURIComponent(sinp.value.trim())}`;return;}const items=sdd.querySelectorAll('.search-item');if(e.key==='ArrowDown'){e.preventDefault();si=Math.min(si+1,items.length-1);}else if(e.key==='ArrowUp'){e.preventDefault();si=Math.max(si-1,0);}else if(e.key==='Enter'){e.preventDefault();if(si>=0&&items[si])window.location=`player.html?player=${encodeURIComponent(items[si].dataset.n)}`;return;}else if(e.key==='Escape'){sdd.classList.remove('open');return;}items.forEach((it,i)=>it.classList.toggle('sel',i===si));});
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))sdd.classList.remove('open');});
+
+buildC();
+</script>
+</body>
+</html>

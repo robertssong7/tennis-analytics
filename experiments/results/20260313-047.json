@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-047",
+  "timestamp": "2026-03-13T13:54:55.690512",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.moderate_threshold \u2192 45: Moderate threshold is untested; increasing from 30 to 45 will widen the mid-confidence band to reduce over-shrinkage on moderate-evidence serve patterns, directly addressing the persistent calibration plateau where low_threshold experiments and high-threshold untesting suggest the bottleneck is mid-range confidence scaling rather than extreme thresholds.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

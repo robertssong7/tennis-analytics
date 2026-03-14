@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-002",
+  "timestamp": "2026-03-13T12:52:34.731416",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.serve_direction.half_life \u2192 24: Serve direction is the most stable player signature but currently decays over 36 months; accelerating to 24 months will weight recent serve pattern shifts (surface-specific adjustments, tactical evolution) more heavily while remaining conservative, improving calibration on serve-dependent archetype predictions where baseline model shows persistent miscalibration.",
+  "decision": "REVERT",
+  "brier_score": 0.2546,
+  "brier_delta": 0.0002,
+  "calibration_error": 0.1168,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

@@ -1,0 +1,132 @@
+/*!*****************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./src/app/globals.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************/
+/* TennisIQ — Design System */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Color palette */
+  --bg:          #E9E5DC;
+  --bg-alt:      #DDD9CF;
+  --ink:         #1A2634;
+  --ink-mid:     #3D4F5E;
+  --ink-soft:    #7A8A96;
+  --accent:      #4A7C6F;
+  --accent-light: #6FAF9E;
+  --warm:        #C4A97D;
+  --card-bg:     #F4F1EB;
+  --border:      rgba(26,38,52,0.1);
+
+  /* Surface colors */
+  --surface-grass: #5A8A3C;
+  --surface-clay:  #C4673A;
+  --surface-hard:  #3A6EA5;
+
+  /* Card tier colors */
+  --bronze-bg:     #CD7F32;
+  --bronze-border: #8B4513;
+  --silver-bg:     #C0C0C0;
+  --silver-border: #808080;
+  --gold-bg:       #FFD700;
+  --gold-border:   #B8860B;
+  --legendary-glow: #E94560;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', serif;
+}
+
+.mono {
+  font-family: 'DM Mono', monospace;
+}
+
+/* Transitions */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease,
+              box-shadow 0.2s ease, transform 0.2s ease,
+              border-color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Card lift — never scale */
+.card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(26,38,52,0.15);
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--ink);
+  color: var(--bg);
+  border: none;
+  border-radius: 24px;
+  padding: 10px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background: var(--accent);
+}
+
+/* Surface pill */
+.surface-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: white;
+  font-weight: 500;
+}
+.surface-pill.hard  { background: var(--surface-hard); }
+.surface-pill.clay  { background: var(--surface-clay); }
+.surface-pill.grass { background: var(--surface-grass); }
+
+/* Tier badge pill */
+.tier-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+.tier-badge.legendary {
+  background: linear-gradient(135deg, #1A1A2E, #0F3460);
+  color: #E94560;
+  border: 1px solid #E94560;
+}
+.tier-badge.gold    { background: #FFD700; color: #8B6900; border: 1px solid #B8860B; }
+.tier-badge.silver  { background: #C0C0C0; color: #404040; border: 1px solid #808080; }
+.tier-badge.bronze  { background: #CD7F32; color: #fff; border: 1px solid #8B4513; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-alt); }
+::-webkit-scrollbar-thumb { background: var(--ink-soft); border-radius: 3px; }
+

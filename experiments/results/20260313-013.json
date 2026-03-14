@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-013",
+  "timestamp": "2026-03-13T13:09:11.578511",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.serve_direction.half_life \u2192 18: Serve direction is the most stable tactical signature but untested; aggressive decay from 36mo to 18mo will weight recent surface-specific serve patterns more heavily, improving calibration on serve-dependent subsequent shot predictions where baseline model persists with stale historical tendencies.",
+  "decision": "REVERT",
+  "brier_score": 0.2529,
+  "brier_delta": 0.0008,
+  "calibration_error": 0.112,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

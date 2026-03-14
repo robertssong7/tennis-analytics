@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-069",
+  "timestamp": "2026-03-13T14:24:54.919253",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.serve_direction.half_life \u2192 18: Serve direction decay remains untested; aggressive reduction from 36mo to 18mo will weight recent directional tendencies more heavily to capture serve-pattern adaptation on hard courts where opponent-specific positioning evolves rapidly, directly targeting the masked serve-dependent signals that have plateaued across 11 consecutive experiments in other decay, confidence, window, and cluster categories.",
+  "decision": "REVERT",
+  "brier_score": 0.2529,
+  "brier_delta": 0.0008,
+  "calibration_error": 0.112,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

@@ -4,7 +4,7 @@ TennisIQ — Autonomous Research Agent
 scripts/run_agent.py
 
 Calls AWS Bedrock Claude Haiku to propose and evaluate experiments on
-feature_engine.py. Loops until 8:30am local time.
+feature_engine.py. Loops until 2:30am local time.
 
 Cost: ~$0.004 per experiment (2 Haiku calls). 12-18 experiments/night ≈ $0.05-0.10.
 
@@ -25,7 +25,7 @@ import os
 import re
 import subprocess
 import sys
-from datetime import datetime, time as dtime
+from datetime import datetime, time as dtime, timedelta
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -38,7 +38,7 @@ HYPOTHESIS_MD = REPO_ROOT / "experiments" / "hypothesis_log.md"
 BASELINE_JSON = REPO_ROOT / "experiments" / "baseline.json"
 LOG_JSONL     = REPO_ROOT / "experiments" / "log.jsonl"
 
-STOP_TIME = dtime(8, 30)   # 8:30am local
+STOP_TIME = dtime(2, 30)   # 2:30am local
 
 # ─────────────────────────────────────────────────────────────
 # Bedrock client
@@ -278,12 +278,12 @@ Hypothesis log (most recent session):
 PROPOSE_PROMPT = """Propose the single most promising experiment to run next.
 
 Output ONLY a JSON object (no prose before or after) with exactly these keys:
-{
+{{
   "param": "<param_key from registry>",
   "new_value": <number>,
   "rationale": "<one sentence>",
   "expected_delta": "<e.g. -0.003>"
-}
+}}
 
 Valid param keys: {param_keys}
 
@@ -297,7 +297,7 @@ DECIDE_PROMPT = """Experiment result:
   new_value: {new_value}
   Brier:     {brier} (delta {delta:+.4f} vs baseline {baseline_brier})
   Cal error: {cal_error}
-  Gate:      {"PASSED" if cal_ok else "FAILED (cal_error > 0.15 — must REVERT)"}
+  Gate:      {gate}
 
 Decide: output ONLY one of: KEEP / NEUTRAL / REVERT
 Then on a new line: one sentence explanation.
@@ -315,7 +315,12 @@ Rules:
 # ─────────────────────────────────────────────────────────────
 
 def should_stop() -> bool:
-    return datetime.now().time() >= STOP_TIME
+    now = datetime.now()
+    stop_dt = datetime.combine(now.date(), STOP_TIME)
+    # If stop time already passed today, target tomorrow (handles overnight runs)
+    if stop_dt <= now:
+        stop_dt += timedelta(days=1)
+    return now >= stop_dt
 
 
 def update_hypothesis_log(entry: str):
@@ -368,11 +373,11 @@ def main():
                         help="Bedrock model ID")
     parser.add_argument("--region", default=None,
                         help="AWS region (default: AWS_DEFAULT_REGION or us-east-1)")
-    parser.add_argument("--max-experiments", type=int, default=20,
+    parser.add_argument("--max-experiments", type=int, default=500,
                         help="Safety cap on experiment count")
     args = parser.parse_args()
 
-    logger.info("TennisIQ agent starting — will stop at 08:30 local time")
+    logger.info("TennisIQ agent starting — will stop at 02:30 local time")
     logger.info("Dry run: %s | Model: %s", args.dry_run, args.model)
 
     try:
@@ -423,6 +428,11 @@ def main():
 
         desc = f"{param} → {new_value}: {rationale}"
 
+        # Dedup guard: skip if proposed value == current value
+        if param in current_values and str(new_value) == str(current_values[param]):
+            logger.info("SKIP: %s already at %s", param, new_value)
+            continue
+
         if args.dry_run:
             logger.info("[DRY RUN] Would run: %s", desc)
             session_results.append({"exp_id": "DRY", "decision": "DRY", "delta": None, "desc": desc})
@@ -435,15 +445,22 @@ def main():
             logger.error("Invalid proposal: %s — skipping", e)
             continue
 
-        # Step 3: run feature engine
-        if not run_feature_engine():
-            revert_param_change(param, old_str)
-            session_results.append({"exp_id": "ERR", "decision": "REVERT", "delta": None, "desc": desc})
-            continue
+        # Steps 3-5 wrapped in crash-safe revert
+        try:
+            # Step 3: run feature engine
+            if not run_feature_engine():
+                revert_param_change(param, old_str)
+                session_results.append({"exp_id": "ERR", "decision": "REVERT", "delta": None, "desc": desc})
+                continue
 
-        # Step 4: evaluate
-        eval_result = run_evaluate()
-        if eval_result is None:
+            # Step 4: evaluate
+            eval_result = run_evaluate()
+            if eval_result is None:
+                revert_param_change(param, old_str)
+                session_results.append({"exp_id": "ERR", "decision": "REVERT", "delta": None, "desc": desc})
+                continue
+        except Exception as e:
+            logger.error("Crash in steps 3-4, auto-reverting: %s", e)
             revert_param_change(param, old_str)
             session_results.append({"exp_id": "ERR", "decision": "REVERT", "delta": None, "desc": desc})
             continue
@@ -459,7 +476,8 @@ def main():
         decide_user = DECIDE_PROMPT.format(
             param=param, old_value=old_str, new_value=new_str,
             brier=brier, delta=delta or 0, baseline_brier=b_brier,
-            cal_error=cal_error, cal_ok=cal_ok,
+            cal_error=cal_error,
+            gate="PASSED" if cal_ok else "FAILED (cal_error > 0.15 — must REVERT)",
         )
         logger.info("Calling Haiku for decision...")
         raw_decision = call_haiku(client, args.model, system, decide_user, max_tokens=128)
@@ -497,7 +515,7 @@ def main():
         category = param.split(".")[0]
         consecutive_non_keep[category] = 0 if decision == "KEEP" else consecutive_non_keep.get(category, 0) + 1
         update_hypothesis_log(
-            f"**{exp_id}** [{decision}] Brier={brier} Δ={delta:+.4f}\n"
+            f"**{exp_id}** [{decision}] Brier={brier} Δ={delta}\n"
             f"  `{param}` {old_str}→{new_str}: {rationale}\n"
             f"  Cal error: {cal_error}"
         )
@@ -510,7 +528,7 @@ def main():
                     decision, brier or 0, delta or 0, cal_error or 0)
 
     # Done
-    reason = "08:30 stop time" if should_stop() else f"max experiments ({args.max_experiments})"
+    reason = "02:30 stop time" if should_stop() else f"max experiments ({args.max_experiments})"
     logger.info("Agent loop ended: %s. %d experiments run.", reason, len(session_results))
     write_overnight_summary(session_results)
 

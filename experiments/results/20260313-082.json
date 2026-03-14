@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-082",
+  "timestamp": "2026-03-13T14:41:08.576449",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "window.serve_plus1 \u2192 3: Window parameters are completely untested; increasing serve_plus1 window from 2 to 3 will capture longer post-serve shot sequences to improve serve-dependent pattern discrimination where the current 2-shot window may be too narrow to distinguish tactical second-shot responses on hard courts.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

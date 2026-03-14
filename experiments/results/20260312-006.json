@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-006",
+  "timestamp": "2026-03-12T21:57:12.911816",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.serve_direction.half_life \u2192 48: Serve patterns are player-signature traits with multi-year stability; extending half-life from current 48 (after recent neutral at 24) back toward longer memory should weight historical serve consistency more heavily, improving calibration on serve-dependent shot prediction.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2553,
+  "brier_delta": 0.0009,
+  "calibration_error": 0.1231,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

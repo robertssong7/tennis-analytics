@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-051",
+  "timestamp": "2026-03-13T14:01:05.345894",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.serve_direction.half_life \u2192 12: Serve direction decay is untested; aggressive reduction from 36mo to 12mo will weight recent directional serve patterns more heavily, directly targeting calibration where stale serve-direction tendencies may be masking current court-position and opponent-adjustment signals that have resisted 16 consecutive neutral/revert experiments across all other categories.",
+  "decision": "REVERT",
+  "brier_score": 0.2526,
+  "brier_delta": 0.0005,
+  "calibration_error": 0.1071,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

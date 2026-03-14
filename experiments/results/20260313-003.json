@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-003",
+  "timestamp": "2026-03-13T12:53:57.979410",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.error_rate.half_life \u2192 6: Error rate (unforced/forced error volatility) is completely untested and the most volatile reliability signal; aggressive decay from 12mo to 6mo will weight recent surface-specific error patterns and current form more heavily, improving calibration on high-risk shot predictions where errors drive miscalibration.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

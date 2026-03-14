@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-074",
+  "timestamp": "2026-03-13T14:32:15.782842",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.rally_patterns.half_life \u2192 9: Rally patterns decay is untested; aggressive reduction from 18mo to 9mo will weight recent rally structure more heavily to capture serve-dependent rally evolution on hard courts, targeting the masked signals that have plateaued across 13 consecutive experiments in decay, confidence, window, and cluster categories.",
+  "decision": "REVERT",
+  "brier_score": 0.2534,
+  "brier_delta": 0.0013,
+  "calibration_error": 0.1162,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

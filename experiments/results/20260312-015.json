@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-015",
+  "timestamp": "2026-03-12T22:18:22.353253",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "window.rally_pattern \u2192 4: Window parameters are largely untested; expanding rally_pattern context from 3 to 4 shots will capture deeper tactical sequences in mid-rally decisions, complementing recent serve-weight and rally-weight clustering boosts to improve multi-shot calibration.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

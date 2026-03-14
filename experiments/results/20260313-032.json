@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-032",
+  "timestamp": "2026-03-13T13:36:35.115477",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "window.serve_plus1 \u2192 1: Window category is completely untested; reducing serve_plus1 window from 2 to 1 will tighten immediate post-serve sequence encoding to focus on the most predictive single-shot response, targeting calibration error where loose temporal windows may be diluting serve-dependent prediction confidence.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

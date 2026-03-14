@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-008",
+  "timestamp": "2026-03-13T13:00:51.072395",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "confidence.low_threshold \u2192 10: Low threshold is completely untested and controls Bayesian shrinkage aggressiveness on sparse predictions; lowering from 15 to 10 will apply stronger regularization to the highest-miscalibration archetype-surface pairs where baseline model shows persistent overconfidence.",
+  "decision": "KEEP",
+  "brier_score": 0.2521,
+  "brier_delta": -0.0023,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260312-009",
+  "timestamp": "2026-03-12T22:08:05.129998",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.shot_type_mix.half_life \u2192 18: Shot type distribution (forehand/backhand/volley mix) likely evolves faster than serve direction but slower than pressure performance; reducing from 24mo to 18mo will weight recent tactical adjustments more heavily, improving calibration on shot selection in evolving match conditions.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

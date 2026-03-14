@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-090",
+  "timestamp": "2026-03-13T14:52:43.866444",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.shot_type_mix.half_life \u2192 12: Shot type mix decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/slice distributions more heavily to capture tactical adaptation on hard courts where stroke-type selection changes rapidly within matches.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

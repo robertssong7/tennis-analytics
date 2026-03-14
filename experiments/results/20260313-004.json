@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-004",
+  "timestamp": "2026-03-13T12:55:13.227220",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.net_tendency.half_life \u2192 12: Net tendency (player's court positioning and approach-shot patterns) is completely untested; aggressive decay from 24mo to 12mo will weight recent tactical surface adaptations and current form more heavily, improving calibration on net-dependent shot predictions where baseline miscalibration persists.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2544,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1142,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

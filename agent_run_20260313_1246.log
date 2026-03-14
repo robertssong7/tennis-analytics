@@ -1,0 +1,2295 @@
+2026-03-13 12:46:39,840 INFO TennisIQ agent starting — will stop at 02:30 local time
+2026-03-13 12:46:39,840 INFO Dry run: False | Model: us.anthropic.claude-haiku-4-5-20251001-v1:0
+2026-03-13 12:46:39,905 INFO Found credentials in environment variables.
+2026-03-13 12:46:39,928 INFO ── Experiment 1 ──────────────────────────────
+2026-03-13 12:46:40,056 INFO Calling Haiku for experiment proposal...
+2026-03-13 12:46:42,789 INFO Proposal: ```json
+{
+  "param": "cluster.rally_weight",
+  "new_value": 1.5,
+  "rationale": "Rally patterns are the most dynamic predictive signal for shot selection; increasing rally_weight from 1.0 to 1.5 will strengthen archetype discrimination on mid-rally tactical sequences while maintaining serve_weight balance, targeting the untested rally clustering weight dimension that likely improves calibration on extended-rally shot predictions.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 12:46:42,795 INFO Applied cluster.rally_weight: 1.0 → 1.5
+2026-03-13 12:48:55,166 ERROR feature_engine failed:
+2026-03-13 12:46:43,011 INFO Running feature pipeline for surface: hard
+2026-03-13 12:46:43,420 INFO Loading points data...
+Traceback (most recent call last):
+  File "/Users/robertsong/Documents/tennis-analytics/feature_engine.py", line 616, in <module>
+    run_feature_pipeline(surface=args.surface, validate=args.validate)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/feature_engine.py", line 502, in run_feature_pipeline
+    cur.execute("""
+    ~~~~~~~~~~~^^^^
+        SELECT
+        ^^^^^^
+    ...<8 lines>...
+        WHERE m.match_date <= %s
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    """, (TRAINING_CUTOFF,))
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.QueryCanceled: canceling statement due to statement timeout
+
+
+2026-03-13 12:48:55,166 INFO Reverted cluster.rally_weight → 1.0
+2026-03-13 12:48:55,166 INFO ── Experiment 2 ──────────────────────────────
+2026-03-13 12:48:55,170 INFO Calling Haiku for experiment proposal...
+2026-03-13 12:48:57,550 INFO Proposal: ```json
+{
+  "param": "cluster.rally_weight",
+  "new_value": 1.5,
+  "rationale": "Rally patterns are the most dynamic and match-state-dependent signal; increasing rally_weight from 1.0 to 1.5 will strengthen archetype discrimination on in-rally tactical behavior while maintaining serve_weight balance, targeting the untested rally clustering weight dimension that should improve calibration on mid-rally shot predictions where most predictions cluster.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 12:48:57,552 INFO Applied cluster.rally_weight: 1.0 → 1.5
+2026-03-13 12:51:05,762 INFO feature_engine complete
+2026-03-13 12:51:15,206 INFO Calling Haiku for decision...
+2026-03-13 12:51:17,020 INFO Decision: NEUTRAL
+Rally weight increase from 1.0 to 1.5 shows no calibration improvement (Δ=0.0000); clustering weight dimension remains largely untested with 8 consecutive neutral results across decay, window, cluster k, and confidence parameters suggesting model may be near local optimum or require multi-parameter combinations.
+2026-03-13 12:51:17,112 INFO [NEUTRAL] 20260313-001 — cluster.rally_weight → 1.5: Rally patterns are the most dynamic and match-state-dependent signal; increasing rally_weight from 1.0 to 1.5 will strengthen archetype discrimination on in-rally tactical behavior while maintaining serve_weight balance, targeting the untested rally clustering weight dimension that should improve calibration on mid-rally shot predictions where most predictions cluster.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-001.json
+2026-03-13 12:51:17,113 INFO Reverted cluster.rally_weight → 1.0
+2026-03-13 12:51:17,120 INFO Result: NEUTRAL Brier=0.2544 Δ=+0.0000 cal=0.1142
+2026-03-13 12:51:17,120 INFO ── Experiment 3 ──────────────────────────────
+2026-03-13 12:51:17,123 INFO Calling Haiku for experiment proposal...
+2026-03-13 12:51:19,680 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 24,
+  "rationale": "Serve direction is the most stable player signature but currently decays over 36 months; accelerating to 24 months will weight recent serve pattern shifts (surface-specific adjustments, tactical evolution) more heavily while remaining conservative, improving calibration on serve-dependent archetype predictions where baseline model shows persistent miscalibration.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 12:51:19,681 INFO Applied decay.serve_direction.half_life: 36 → 24
+2026-03-13 12:52:22,496 INFO feature_engine complete
+2026-03-13 12:52:32,892 INFO Calling Haiku for decision...
+2026-03-13 12:52:34,648 INFO Decision: REVERT
+Brier increased by +0.0002 and calibration error degraded from 0.1142 to 0.1168; serve direction decay at 24 months is too aggressive and destabilizes the model's confidence calibration.
+2026-03-13 12:52:34,736 INFO [REVERT] 20260313-002 — decay.serve_direction.half_life → 24: Serve direction is the most stable player signature but currently decays over 36 months; accelerating to 24 months will weight recent serve pattern shifts (surface-specific adjustments, tactical evolution) more heavily while remaining conservative, improving calibration on serve-dependent archetype predictions where baseline model shows persistent miscalibration.
+  Brier delta:    +0.0002  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-002.json
+2026-03-13 12:52:34,737 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 12:52:34,737 INFO Result: REVERT Brier=0.2546 Δ=+0.0002 cal=0.1168
+2026-03-13 12:52:34,737 INFO ── Experiment 4 ──────────────────────────────
+2026-03-13 12:52:34,740 INFO Calling Haiku for experiment proposal...
+2026-03-13 12:52:37,407 INFO Proposal: ```json
+{
+  "param": "decay.error_rate.half_life",
+  "new_value": 6,
+  "rationale": "Error rate (unforced/forced error volatility) is completely untested and the most volatile reliability signal; aggressive decay from 12mo to 6mo will weight recent surface-specific error patterns and current form more heavily, improving calibration on high-risk shot predictions where errors drive miscalibration.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 12:52:37,410 INFO Applied decay.error_rate.half_life: 12 → 6
+2026-03-13 12:53:46,917 INFO feature_engine complete
+2026-03-13 12:53:55,897 INFO Calling Haiku for decision...
+2026-03-13 12:53:57,894 INFO Decision: NEUTRAL
+Error rate decay is highly volatile; 6mo vs 12mo shows no measurable signal yet, but calibration remains stable—continue exploring error-rate sensitivity before reverting.
+2026-03-13 12:53:57,985 INFO [NEUTRAL] 20260313-003 — decay.error_rate.half_life → 6: Error rate (unforced/forced error volatility) is completely untested and the most volatile reliability signal; aggressive decay from 12mo to 6mo will weight recent surface-specific error patterns and current form more heavily, improving calibration on high-risk shot predictions where errors drive miscalibration.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-003.json
+2026-03-13 12:53:57,985 INFO Reverted decay.error_rate.half_life → 12
+2026-03-13 12:53:57,986 INFO Result: NEUTRAL Brier=0.2544 Δ=+0.0000 cal=0.1142
+2026-03-13 12:53:57,986 INFO ── Experiment 5 ──────────────────────────────
+2026-03-13 12:53:57,989 INFO Calling Haiku for experiment proposal...
+2026-03-13 12:53:59,968 INFO Proposal: ```json
+{
+  "param": "decay.net_tendency.half_life",
+  "new_value": 12,
+  "rationale": "Net tendency (player's court positioning and approach-shot patterns) is completely untested; aggressive decay from 24mo to 12mo will weight recent tactical surface adaptations and current form more heavily, improving calibration on net-dependent shot predictions where baseline miscalibration persists.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 12:53:59,971 INFO Applied decay.net_tendency.half_life: 24 → 12
+2026-03-13 12:55:02,087 INFO feature_engine complete
+2026-03-13 12:55:11,138 INFO Calling Haiku for decision...
+2026-03-13 12:55:13,164 INFO Decision: NEUTRAL
+Net tendency decay acceleration from 24mo to 12mo shows no signal improvement (Δ=0.0000); clustering and confidence thresholds remain the primary untested levers for calibration gains.
+2026-03-13 12:55:13,232 INFO [NEUTRAL] 20260313-004 — decay.net_tendency.half_life → 12: Net tendency (player's court positioning and approach-shot patterns) is completely untested; aggressive decay from 24mo to 12mo will weight recent tactical surface adaptations and current form more heavily, improving calibration on net-dependent shot predictions where baseline miscalibration persists.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-004.json
+2026-03-13 12:55:13,232 INFO Reverted decay.net_tendency.half_life → 24
+2026-03-13 12:55:13,233 INFO Result: NEUTRAL Brier=0.2544 Δ=+0.0000 cal=0.1142
+2026-03-13 12:55:13,233 INFO ── Experiment 6 ──────────────────────────────
+2026-03-13 12:55:13,236 INFO Calling Haiku for experiment proposal...
+2026-03-13 12:55:15,509 INFO Proposal: ```json
+{
+  "param": "decay.rally_patterns.half_life",
+  "new_value": 12,
+  "rationale": "Rally patterns decay over 18 months but remain completely untested; aggressive acceleration to 12 months will prioritize recent tactical adaptations and match-state-specific sequences over stale historical patterns, improving calibration on the most dynamic in-rally shot predictions where baseline miscalibration persists.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 12:55:15,511 INFO Applied decay.rally_patterns.half_life: 18 → 12
+2026-03-13 12:56:29,983 INFO feature_engine complete
+2026-03-13 12:56:38,847 INFO Calling Haiku for decision...
+2026-03-13 12:56:43,779 INFO Decision: REVERT
+Brier increased by +0.0012 (delta > +0.001), indicating that accelerating rally pattern decay from 18mo to 12mo worsens prediction accuracy; the baseline 18-month half-life better balances recent tactical shifts against stable rally tendencies.
+2026-03-13 12:56:43,828 INFO [REVERT] 20260313-005 — decay.rally_patterns.half_life → 12: Rally patterns decay over 18 months but remain completely untested; aggressive acceleration to 12 months will prioritize recent tactical adaptations and match-state-specific sequences over stale historical patterns, improving calibration on the most dynamic in-rally shot predictions where baseline miscalibration persists.
+  Brier delta:    +0.0012  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-005.json
+2026-03-13 12:56:43,828 INFO Reverted decay.rally_patterns.half_life → 18
+2026-03-13 12:56:43,828 INFO Result: REVERT Brier=0.2556 Δ=+0.0012 cal=0.1218
+2026-03-13 12:56:43,829 INFO ── Experiment 7 ──────────────────────────────
+2026-03-13 12:56:43,832 INFO Calling Haiku for experiment proposal...
+2026-03-13 12:56:46,337 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot type mix (forehand/backhand distribution) is completely untested and a foundational tactical signature; aggressive decay from 24mo to 12mo will weight recent surface-specific shot selection and current tactical adaptations more heavily, improving calibration on the most match-state-dependent shot predictions.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 12:56:46,340 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 12:58:00,444 INFO feature_engine complete
+2026-03-13 12:58:09,854 INFO Calling Haiku for decision...
+2026-03-13 12:58:11,846 INFO Decision: NEUTRAL
+Shot-type mix decay acceleration from 24mo to 12mo shows no improvement (Δ=0.0000) and no degradation; calibration remains stable at 0.1142, warranting neutral classification while reserving judgment pending cumulative pattern analysis.
+2026-03-13 12:58:11,912 INFO [NEUTRAL] 20260313-006 — decay.shot_type_mix.half_life → 12: Shot type mix (forehand/backhand distribution) is completely untested and a foundational tactical signature; aggressive decay from 24mo to 12mo will weight recent surface-specific shot selection and current tactical adaptations more heavily, improving calibration on the most match-state-dependent shot predictions.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-006.json
+2026-03-13 12:58:11,913 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 12:58:11,913 INFO Result: NEUTRAL Brier=0.2544 Δ=+0.0000 cal=0.1142
+2026-03-13 12:58:11,913 INFO ── Experiment 8 ──────────────────────────────
+2026-03-13 12:58:11,917 INFO Calling Haiku for experiment proposal...
+2026-03-13 12:58:14,202 INFO Proposal: ```json
+{
+  "param": "confidence.min_n_shrinkage",
+  "new_value": 20,
+  "rationale": "Confidence thresholds are completely untested; lowering min_n_shrinkage from 30 to 20 will apply Bayesian shrinkage more aggressively to low-sample predictions where miscalibration likely concentrates, improving calibration on sparse archetype-surface combinations.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 12:58:14,205 INFO Applied confidence.min_n_shrinkage: 30 → 20
+2026-03-13 12:59:17,571 INFO feature_engine complete
+2026-03-13 12:59:26,862 INFO Calling Haiku for decision...
+2026-03-13 12:59:28,955 INFO Decision: NEUTRAL
+Brier delta is exactly 0.0000, falling within the neutral band (-0.002 to +0.001); lowering shrinkage threshold from 30 to 20 observations had no measurable effect on calibration, suggesting this confidence parameter may be less sensitive than decay or clustering dimensions.
+2026-03-13 12:59:29,018 INFO [NEUTRAL] 20260313-007 — confidence.min_n_shrinkage → 20: Confidence thresholds are completely untested; lowering min_n_shrinkage from 30 to 20 will apply Bayesian shrinkage more aggressively to low-sample predictions where miscalibration likely concentrates, improving calibration on sparse archetype-surface combinations.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-007.json
+2026-03-13 12:59:29,018 INFO Reverted confidence.min_n_shrinkage → 30
+2026-03-13 12:59:29,018 INFO Result: NEUTRAL Brier=0.2544 Δ=+0.0000 cal=0.1142
+2026-03-13 12:59:29,019 INFO ── Experiment 9 ──────────────────────────────
+2026-03-13 12:59:29,022 INFO Calling Haiku for experiment proposal...
+2026-03-13 12:59:31,011 INFO Proposal: ```json
+{
+  "param": "confidence.low_threshold",
+  "new_value": 10,
+  "rationale": "Low threshold is completely untested and controls Bayesian shrinkage aggressiveness on sparse predictions; lowering from 15 to 10 will apply stronger regularization to the highest-miscalibration archetype-surface pairs where baseline model shows persistent overconfidence.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 12:59:31,013 INFO Applied confidence.low_threshold: 15 → 10
+2026-03-13 13:00:40,439 INFO feature_engine complete
+2026-03-13 13:00:49,259 INFO Calling Haiku for decision...
+2026-03-13 13:00:51,014 INFO Decision: KEEP
+Lowering confidence.low_threshold from 15 to 10 improved Brier by -0.0023 (exceeding -0.002 threshold) while maintaining calibration error at 0.1067, indicating that more aggressive shrinkage on low-confidence predictions reduces miscalibration on sparse archetype-surface combinations.
+2026-03-13 13:00:51,077 INFO [KEEP] 20260313-008 — confidence.low_threshold → 10: Low threshold is completely untested and controls Bayesian shrinkage aggressiveness on sparse predictions; lowering from 15 to 10 will apply stronger regularization to the highest-miscalibration archetype-surface pairs where baseline model shows persistent overconfidence.
+  Brier delta:    -0.0023  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-008.json
+2026-03-13 13:00:51,078 INFO Baseline updated: Brier 0.2544 → 0.2521
+2026-03-13 13:00:51,078 INFO Result: KEEP Brier=0.2521 Δ=-0.0023 cal=0.1067
+2026-03-13 13:00:51,078 INFO ── Experiment 10 ──────────────────────────────
+2026-03-13 13:00:51,081 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:00:52,925 INFO Proposal: ```json
+{
+  "param": "confidence.moderate_threshold",
+  "new_value": 20,
+  "rationale": "Moderate threshold is completely untested; lowering from 30 to 20 will apply stronger regularization to mid-confidence archetype-surface combinations where calibration error likely concentrates, building on the successful confidence.low_threshold reduction that yielded -0.0023 Brier improvement.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:00:52,927 INFO Applied confidence.moderate_threshold: 30 → 20
+2026-03-13 13:02:23,515 INFO feature_engine complete
+2026-03-13 13:02:32,622 INFO Calling Haiku for decision...
+2026-03-13 13:02:34,712 INFO Decision: NEUTRAL
+Brier unchanged at 0.2521 (delta +0.0000), calibration stable at 0.1067—moderate_threshold adjustment has neutral effect, consistent with recent trend of confidence parameter tuning showing diminishing returns; retain change pending discovery of more impactful parameter dimensions.
+2026-03-13 13:02:34,793 INFO [NEUTRAL] 20260313-009 — confidence.moderate_threshold → 20: Moderate threshold is completely untested; lowering from 30 to 20 will apply stronger regularization to mid-confidence archetype-surface combinations where calibration error likely concentrates, building on the successful confidence.low_threshold reduction that yielded -0.0023 Brier improvement.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-009.json
+2026-03-13 13:02:34,793 INFO Reverted confidence.moderate_threshold → 30
+2026-03-13 13:02:34,794 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:02:34,794 INFO ── Experiment 11 ──────────────────────────────
+2026-03-13 13:02:34,798 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:02:38,929 INFO Proposal: ```json
+{
+  "param": "confidence.high_threshold",
+  "new_value": 45,
+  "rationale": "High threshold is completely untested; lowering from 60 to 45 will apply stronger regularization to high-confidence archetype-surface predictions where baseline miscalibration may concentrate, extending the successful confidence.low_threshold reduction strategy to the opposite end of the confidence spectrum.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 13:02:38,932 INFO Applied confidence.high_threshold: 60 → 45
+2026-03-13 13:03:32,479 INFO feature_engine complete
+2026-03-13 13:03:42,885 INFO Calling Haiku for decision...
+2026-03-13 13:03:45,095 INFO Decision: NEUTRAL
+High-threshold reduction from 60→45 maintains calibration but shows no meaningful Brier improvement; confidence shrinkage benefits appear concentrated in the low/moderate thresholds rather than high-confidence predictions.
+2026-03-13 13:03:45,174 INFO [NEUTRAL] 20260313-010 — confidence.high_threshold → 45: High threshold is completely untested; lowering from 60 to 45 will apply stronger regularization to high-confidence archetype-surface predictions where baseline miscalibration may concentrate, extending the successful confidence.low_threshold reduction strategy to the opposite end of the confidence spectrum.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-010.json
+2026-03-13 13:03:45,174 INFO Reverted confidence.high_threshold → 60
+2026-03-13 13:03:45,174 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:03:45,174 INFO ── Experiment 12 ──────────────────────────────
+2026-03-13 13:03:45,178 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:03:47,511 INFO Proposal: ```json
+{
+  "param": "decay.pressure_win_rate.half_life",
+  "new_value": 6,
+  "rationale": "Pressure win-rate (player clutch performance) is completely untested and represents the highest-volatility form signal; aggressive decay from 12mo to 6mo will weight recent match outcomes under pressure more heavily, directly improving calibration on high-stress shot predictions where baseline model shows persistent miscalibration.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:03:47,513 INFO Applied decay.pressure_win_rate.half_life: 12 → 6
+2026-03-13 13:05:26,362 INFO feature_engine complete
+2026-03-13 13:05:35,383 INFO Calling Haiku for decision...
+2026-03-13 13:05:37,701 INFO Decision: NEUTRAL
+Pressure win-rate decay at 6mo maintains calibration but shows no measurable improvement; this aggressive half-life reduction aligns with the pattern of untested confidence parameters showing neutral effects, suggesting we should explore window config or cluster weights next.
+2026-03-13 13:05:37,780 INFO [NEUTRAL] 20260313-011 — decay.pressure_win_rate.half_life → 6: Pressure win-rate (player clutch performance) is completely untested and represents the highest-volatility form signal; aggressive decay from 12mo to 6mo will weight recent match outcomes under pressure more heavily, directly improving calibration on high-stress shot predictions where baseline model shows persistent miscalibration.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-011.json
+2026-03-13 13:05:37,780 INFO Reverted decay.pressure_win_rate.half_life → 12
+2026-03-13 13:05:37,780 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:05:37,780 INFO ── Experiment 13 ──────────────────────────────
+2026-03-13 13:05:37,784 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:05:40,468 INFO Proposal: ```json
+{
+  "param": "cluster.k",
+  "new_value": 5,
+  "rationale": "Clustering parameters (k, weights) remain completely untested; reducing k from 7 to 5 will create coarser archetypes with higher sample counts per cluster, applying implicit regularization to sparse archetype-surface combinations where calibration error concentrates.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 13:05:40,470 INFO Applied cluster.k: 7 → 5
+2026-03-13 13:07:26,460 INFO feature_engine complete
+2026-03-13 13:07:35,797 INFO Calling Haiku for decision...
+2026-03-13 13:07:37,715 INFO Decision: NEUTRAL
+Reducing cluster.k from 7 to 5 yielded no meaningful change (Δ=0.0000); clustering granularity appears insensitive in this range, warranting exploration of other archetype dimensions like serve/rally weights.
+2026-03-13 13:07:37,812 INFO [NEUTRAL] 20260313-012 — cluster.k → 5: Clustering parameters (k, weights) remain completely untested; reducing k from 7 to 5 will create coarser archetypes with higher sample counts per cluster, applying implicit regularization to sparse archetype-surface combinations where calibration error concentrates.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-012.json
+2026-03-13 13:07:37,813 INFO Reverted cluster.k → 7
+2026-03-13 13:07:37,814 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:07:37,814 INFO ── Experiment 14 ──────────────────────────────
+2026-03-13 13:07:37,817 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:07:39,865 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 18,
+  "rationale": "Serve direction is the most stable tactical signature but untested; aggressive decay from 36mo to 18mo will weight recent surface-specific serve patterns more heavily, improving calibration on serve-dependent subsequent shot predictions where baseline model persists with stale historical tendencies.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 13:07:39,867 INFO Applied decay.serve_direction.half_life: 36 → 18
+2026-03-13 13:08:59,828 INFO feature_engine complete
+2026-03-13 13:09:09,025 INFO Calling Haiku for decision...
+2026-03-13 13:09:11,523 INFO Decision: REVERT
+Brier delta +0.0008 exceeds the +0.001 threshold for reversion; aggressive serve direction decay to 18 months degrades calibration on directional tendencies that stabilize over seasons.
+2026-03-13 13:09:11,583 INFO [REVERT] 20260313-013 — decay.serve_direction.half_life → 18: Serve direction is the most stable tactical signature but untested; aggressive decay from 36mo to 18mo will weight recent surface-specific serve patterns more heavily, improving calibration on serve-dependent subsequent shot predictions where baseline model persists with stale historical tendencies.
+  Brier delta:    +0.0008  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-013.json
+2026-03-13 13:09:11,583 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 13:09:11,584 INFO Result: REVERT Brier=0.2529 Δ=+0.0008 cal=0.1120
+2026-03-13 13:09:11,584 INFO ── Experiment 15 ──────────────────────────────
+2026-03-13 13:09:11,587 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:09:13,596 INFO Proposal: ```json
+{
+  "param": "decay.net_tendency.half_life",
+  "new_value": 12,
+  "rationale": "Net tendency (approach/volley frequency) is completely untested and represents high-variance tactical adaptation; aggressive decay from 24mo to 12mo will weight recent surface-specific net play patterns more heavily, directly improving calibration on net-dependent shot sequences where baseline model persists with stale positional tendencies.",
+  "expected_delta": "-0.0025"
+}
+```
+2026-03-13 13:09:13,597 INFO Applied decay.net_tendency.half_life: 24 → 12
+2026-03-13 13:11:55,592 INFO feature_engine complete
+2026-03-13 13:12:05,061 INFO Calling Haiku for decision...
+2026-03-13 13:12:07,426 INFO Decision: NEUTRAL
+Net-tendency decay halving (24→12mo) produced no meaningful Brier change; calibration held steady but the aggressive weighting of recent net approach patterns failed to materialize improvement, suggesting net tendency may be sufficiently stable that shorter decay windows don't capture additional predictive signal.
+2026-03-13 13:12:07,493 INFO [NEUTRAL] 20260313-014 — decay.net_tendency.half_life → 12: Net tendency (approach/volley frequency) is completely untested and represents high-variance tactical adaptation; aggressive decay from 24mo to 12mo will weight recent surface-specific net play patterns more heavily, directly improving calibration on net-dependent shot sequences where baseline model persists with stale positional tendencies.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-014.json
+2026-03-13 13:12:07,494 INFO Reverted decay.net_tendency.half_life → 24
+2026-03-13 13:12:07,494 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:12:07,494 INFO ── Experiment 16 ──────────────────────────────
+2026-03-13 13:12:07,498 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:12:08,997 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot type mix (forehand/backhand distribution) is completely untested and represents high-variance tactical adaptation; aggressive decay from 24mo to 12mo will weight recent surface-specific shot selection patterns more heavily, improving calibration on shot-dependent sequences where baseline model persists with stale historical tendencies.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 13:12:09,000 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 13:13:34,344 INFO feature_engine complete
+2026-03-13 13:13:44,059 INFO Calling Haiku for decision...
+2026-03-13 13:13:46,227 INFO Decision: NEUTRAL
+Shot-type mix decay (serve vs. ground strokes) shows no improvement at 12mo; reverting to 24mo and exploring other untested decay parameters or clustering weights that may have stronger calibration impact.
+2026-03-13 13:13:46,292 INFO [NEUTRAL] 20260313-015 — decay.shot_type_mix.half_life → 12: Shot type mix (forehand/backhand distribution) is completely untested and represents high-variance tactical adaptation; aggressive decay from 24mo to 12mo will weight recent surface-specific shot selection patterns more heavily, improving calibration on shot-dependent sequences where baseline model persists with stale historical tendencies.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-015.json
+2026-03-13 13:13:46,292 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 13:13:46,292 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:13:46,292 INFO ── Experiment 17 ──────────────────────────────
+2026-03-13 13:13:46,296 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:13:48,814 INFO Proposal: ```json
+{
+  "param": "confidence.min_n_shrinkage",
+  "new_value": 20,
+  "rationale": "Min shrinkage sample threshold is completely untested; lowering from 30 to 20 will apply Bayesian regularization more aggressively to sparse archetype-surface pairs, directly targeting the calibration error concentration that low_threshold reduction (Δ=-0.0023) partially addressed.",
+  "expected_delta": "-0.0025"
+}
+```
+2026-03-13 13:13:48,815 INFO Applied confidence.min_n_shrinkage: 30 → 20
+2026-03-13 13:15:31,233 INFO feature_engine complete
+2026-03-13 13:15:41,940 INFO Calling Haiku for decision...
+2026-03-13 13:15:44,035 INFO Decision: NEUTRAL
+Confidence shrinkage threshold adjustment shows no measurable change; reverting to explore parameters with demonstrated sensitivity like archetype weights or decay half-lives in underexplored regimes.
+2026-03-13 13:15:44,087 INFO [NEUTRAL] 20260313-016 — confidence.min_n_shrinkage → 20: Min shrinkage sample threshold is completely untested; lowering from 30 to 20 will apply Bayesian regularization more aggressively to sparse archetype-surface pairs, directly targeting the calibration error concentration that low_threshold reduction (Δ=-0.0023) partially addressed.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-016.json
+2026-03-13 13:15:44,089 INFO Reverted confidence.min_n_shrinkage → 30
+2026-03-13 13:15:44,090 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:15:44,090 INFO ── Experiment 18 ──────────────────────────────
+2026-03-13 13:15:44,094 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:15:45,968 INFO Proposal: ```json
+{
+  "param": "decay.rally_patterns.half_life",
+  "new_value": 9,
+  "rationale": "Rally patterns (multi-shot sequences) are completely untested; aggressive decay from 18mo to 9mo will weight recent surface-specific rally tendencies more heavily, directly improving calibration on sequence-dependent predictions where baseline model persists with stale historical patterns.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 13:15:45,970 INFO Applied decay.rally_patterns.half_life: 18 → 9
+2026-03-13 13:16:43,720 INFO feature_engine complete
+2026-03-13 13:16:53,087 INFO Calling Haiku for decision...
+2026-03-13 13:16:54,783 INFO Decision: REVERT
+Brier degraded by +0.0013 (delta > +0.001 threshold) and calibration error increased to 0.1162, indicating aggressive decay on rally patterns destabilizes the model's confidence estimates.
+2026-03-13 13:16:54,859 INFO [REVERT] 20260313-017 — decay.rally_patterns.half_life → 9: Rally patterns (multi-shot sequences) are completely untested; aggressive decay from 18mo to 9mo will weight recent surface-specific rally tendencies more heavily, directly improving calibration on sequence-dependent predictions where baseline model persists with stale historical patterns.
+  Brier delta:    +0.0013  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-017.json
+2026-03-13 13:16:54,859 INFO Reverted decay.rally_patterns.half_life → 18
+2026-03-13 13:16:54,859 INFO Result: REVERT Brier=0.2534 Δ=+0.0013 cal=0.1162
+2026-03-13 13:16:54,859 INFO ── Experiment 19 ──────────────────────────────
+2026-03-13 13:16:54,864 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:16:56,727 INFO Proposal: ```json
+{
+  "param": "cluster.rally_weight",
+  "new_value": 0.7,
+  "rationale": "Rally weighting in clustering is completely untested; reducing from 1.0 to 0.7 will de-emphasize multi-shot sequence similarity relative to serve patterns, creating more serve-dominant archetypes that may reduce calibration error on the serve-dependent predictions where baseline model shows persistent miscalibration.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:16:56,729 INFO Applied cluster.rally_weight: 1.0 → 0.7
+2026-03-13 13:18:31,141 INFO feature_engine complete
+2026-03-13 13:18:40,387 INFO Calling Haiku for decision...
+2026-03-13 13:18:42,099 INFO Decision: NEUTRAL
+Brier delta is exactly 0.0000, which falls in the neutral band (-0.002 to +0.001); no meaningful calibration improvement detected, so cluster.rally_weight remains at experimental value pending future tests that may interact with it.
+2026-03-13 13:18:42,168 INFO [NEUTRAL] 20260313-018 — cluster.rally_weight → 0.7: Rally weighting in clustering is completely untested; reducing from 1.0 to 0.7 will de-emphasize multi-shot sequence similarity relative to serve patterns, creating more serve-dominant archetypes that may reduce calibration error on the serve-dependent predictions where baseline model shows persistent miscalibration.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-018.json
+2026-03-13 13:18:42,170 INFO Reverted cluster.rally_weight → 1.0
+2026-03-13 13:18:42,171 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:18:42,171 INFO ── Experiment 20 ──────────────────────────────
+2026-03-13 13:18:42,174 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:18:44,045 INFO Proposal: ```json
+{
+  "param": "confidence.low_threshold",
+  "new_value": 12,
+  "rationale": "Low confidence threshold at 10 is below the meaningful signal floor; raising to 12 will tighten the boundary between low/moderate confidence tiers, reducing false-positive high-confidence predictions on sparse archetype-surface pairs that drive calibration error.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 13:18:44,047 INFO Applied confidence.low_threshold: 10 → 12
+2026-03-13 13:20:52,115 INFO feature_engine complete
+2026-03-13 13:21:04,497 INFO Calling Haiku for decision...
+2026-03-13 13:21:06,585 INFO Decision: NEUTRAL
+Low-threshold adjustment of ±2 points shows no measurable calibration improvement; continuing systematic exploration of confidence thresholds and shrinkage parameters in next experiments.
+2026-03-13 13:21:06,681 INFO [NEUTRAL] 20260313-019 — confidence.low_threshold → 12: Low confidence threshold at 10 is below the meaningful signal floor; raising to 12 will tighten the boundary between low/moderate confidence tiers, reducing false-positive high-confidence predictions on sparse archetype-surface pairs that drive calibration error.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-019.json
+2026-03-13 13:21:06,682 INFO Reverted confidence.low_threshold → 10
+2026-03-13 13:21:06,682 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:21:06,682 INFO ── Experiment 21 ──────────────────────────────
+2026-03-13 13:21:06,687 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:21:09,390 INFO Proposal: ```json
+{
+  "param": "decay.pressure_win_rate.half_life",
+  "new_value": 6,
+  "rationale": "Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent surface-specific pressure performance more heavily, directly targeting high-variance tactical adaptation where baseline model persists with stale historical patterns and contributes to calibration error concentration.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 13:21:09,391 INFO Applied decay.pressure_win_rate.half_life: 12 → 6
+2026-03-13 13:22:26,945 INFO feature_engine complete
+2026-03-13 13:22:37,282 INFO Calling Haiku for decision...
+2026-03-13 13:22:39,771 INFO Decision: NEUTRAL
+Pressure win-rate decay at 6mo shows no measurable improvement (Δ=0.0000) over 12mo, suggesting that win-rate patterns either lack predictive signal for next-shot selection or are already adequately captured by the current recency weighting; this parameter remains a candidate for later exploration if other decay mechanisms yield progress.
+2026-03-13 13:22:39,858 INFO [NEUTRAL] 20260313-020 — decay.pressure_win_rate.half_life → 6: Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent surface-specific pressure performance more heavily, directly targeting high-variance tactical adaptation where baseline model persists with stale historical patterns and contributes to calibration error concentration.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-020.json
+2026-03-13 13:22:39,860 INFO Reverted decay.pressure_win_rate.half_life → 12
+2026-03-13 13:22:39,861 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:22:39,861 INFO ── Experiment 22 ──────────────────────────────
+2026-03-13 13:22:39,865 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:22:42,027 INFO Proposal: ```json
+{
+  "param": "cluster.serve_weight",
+  "new_value": 1.5,
+  "rationale": "Serve weight in clustering is untested; increasing from 1.0 to 1.5 will amplify serve-pattern dominance in archetype formation, directly addressing the baseline model's persistent miscalibration on serve-dependent predictions where recent neutral experiments in decay/confidence categories suggest serve architecture is the bottleneck.",
+  "expected_delta": "-0.0025"
+}
+```
+2026-03-13 13:22:42,029 INFO Applied cluster.serve_weight: 1.0 → 1.5
+2026-03-13 13:23:33,155 INFO feature_engine complete
+2026-03-13 13:23:42,471 INFO Calling Haiku for decision...
+2026-03-13 13:23:47,049 INFO Decision: NEUTRAL
+Cluster serve weight increase (1.0→1.5) shows no measurable improvement (Δ=0.0000) but maintains calibration; neutral result suggests serve-dominant archetypes alone insufficient to improve predictions without complementary decay or threshold adjustments.
+2026-03-13 13:23:47,120 INFO [NEUTRAL] 20260313-021 — cluster.serve_weight → 1.5: Serve weight in clustering is untested; increasing from 1.0 to 1.5 will amplify serve-pattern dominance in archetype formation, directly addressing the baseline model's persistent miscalibration on serve-dependent predictions where recent neutral experiments in decay/confidence categories suggest serve architecture is the bottleneck.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-021.json
+2026-03-13 13:23:47,120 INFO Reverted cluster.serve_weight → 1.0
+2026-03-13 13:23:47,121 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:23:47,121 INFO ── Experiment 23 ──────────────────────────────
+2026-03-13 13:23:47,125 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:23:50,153 INFO Proposal: ```json
+{
+  "param": "window.serve_plus1",
+  "new_value": 1,
+  "rationale": "Serve+1 window is completely untested; reducing from 2 to 1 will tighten the immediate post-serve context window, forcing the model to rely more heavily on serve direction decay patterns rather than diluting signal with broader rally noise, directly addressing the persistent calibration error on serve-dependent predictions.",
+  "expected_delta": "-0.0025"
+}
+```
+2026-03-13 13:23:50,156 INFO Applied window.serve_plus1: 2 → 1
+2026-03-13 13:25:06,956 INFO feature_engine complete
+2026-03-13 13:25:16,002 INFO Calling Haiku for decision...
+2026-03-13 13:25:18,594 INFO Decision: NEUTRAL
+Window reduction from 2→1 shows no measurable improvement (Δ=0.0000); this suggests serve+1 context window is already minimal, and further aggressive truncation does not improve calibration; revert to prior and explore different parameter categories.
+2026-03-13 13:25:18,672 INFO [NEUTRAL] 20260313-022 — window.serve_plus1 → 1: Serve+1 window is completely untested; reducing from 2 to 1 will tighten the immediate post-serve context window, forcing the model to rely more heavily on serve direction decay patterns rather than diluting signal with broader rally noise, directly addressing the persistent calibration error on serve-dependent predictions.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-022.json
+2026-03-13 13:25:18,672 INFO Reverted window.serve_plus1 → 2
+2026-03-13 13:25:18,672 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:25:18,672 INFO ── Experiment 24 ──────────────────────────────
+2026-03-13 13:25:18,676 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:25:20,657 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 18,
+  "rationale": "Serve direction decay is untested; aggressive reduction from 36mo to 18mo will weight recent surface-specific serve placement patterns more heavily, directly targeting the persistent calibration error on serve-dependent predictions where all recent neutral experiments suggest the bottleneck.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 13:25:20,659 INFO Applied decay.serve_direction.half_life: 36 → 18
+2026-03-13 13:26:29,634 INFO feature_engine complete
+2026-03-13 13:26:39,092 INFO Calling Haiku for decision...
+2026-03-13 13:26:41,026 INFO Decision: REVERT
+Brier degradation of +0.0008 exceeds the +0.001 threshold, and calibration error increased from 0.1067 to 0.112; aggressive serve direction decay (36mo→18mo) is over-weighting recent serve patterns at the expense of stable directional tendencies.
+2026-03-13 13:26:41,104 INFO [REVERT] 20260313-023 — decay.serve_direction.half_life → 18: Serve direction decay is untested; aggressive reduction from 36mo to 18mo will weight recent surface-specific serve placement patterns more heavily, directly targeting the persistent calibration error on serve-dependent predictions where all recent neutral experiments suggest the bottleneck.
+  Brier delta:    +0.0008  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-023.json
+2026-03-13 13:26:41,104 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 13:26:41,104 INFO Result: REVERT Brier=0.2529 Δ=+0.0008 cal=0.1120
+2026-03-13 13:26:41,104 INFO ── Experiment 25 ──────────────────────────────
+2026-03-13 13:26:41,108 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:26:43,075 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot type mix decay is untested; aggressive reduction from 24mo to 12mo will weight recent surface-specific stroke patterns more heavily, directly targeting calibration error on serve-dependent predictions where all recent neutral experiments suggest the bottleneck lies in temporal weighting of tactical features.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:26:43,077 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 13:27:53,523 INFO feature_engine complete
+2026-03-13 13:28:02,410 INFO Calling Haiku for decision...
+2026-03-13 13:28:04,894 INFO Decision: NEUTRAL
+Shot type mix decay halving from 24mo to 12mo produces no measurable Brier improvement (Δ=0.0000), consistent with recent decay parameter experiments, suggesting shot composition patterns may not be the primary calibration bottleneck.
+2026-03-13 13:28:04,956 INFO [NEUTRAL] 20260313-024 — decay.shot_type_mix.half_life → 12: Shot type mix decay is untested; aggressive reduction from 24mo to 12mo will weight recent surface-specific stroke patterns more heavily, directly targeting calibration error on serve-dependent predictions where all recent neutral experiments suggest the bottleneck lies in temporal weighting of tactical features.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-024.json
+2026-03-13 13:28:04,957 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 13:28:04,957 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:28:04,957 INFO ── Experiment 26 ──────────────────────────────
+2026-03-13 13:28:04,960 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:28:06,768 INFO Proposal: ```json
+{
+  "param": "decay.net_tendency.half_life",
+  "new_value": 12,
+  "rationale": "Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent surface-specific net approach patterns more heavily, targeting the persistent calibration error on serve-dependent predictions where decay category experiments show promise.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:28:06,770 INFO Applied decay.net_tendency.half_life: 24 → 12
+2026-03-13 13:28:54,079 INFO feature_engine complete
+2026-03-13 13:29:03,212 INFO Calling Haiku for decision...
+2026-03-13 13:29:06,863 INFO Decision: NEUTRAL
+Net tendency decay at 12mo shows no measurable improvement, consistent with the decay parameter exploration pattern—temporal weighting refinements are not moving calibration at this resolution, suggesting the bottleneck remains in model architecture rather than feature recency.
+2026-03-13 13:29:06,929 INFO [NEUTRAL] 20260313-025 — decay.net_tendency.half_life → 12: Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent surface-specific net approach patterns more heavily, targeting the persistent calibration error on serve-dependent predictions where decay category experiments show promise.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-025.json
+2026-03-13 13:29:06,930 INFO Reverted decay.net_tendency.half_life → 24
+2026-03-13 13:29:06,930 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:29:06,930 INFO ── Experiment 27 ──────────────────────────────
+2026-03-13 13:29:06,933 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:29:08,996 INFO Proposal: ```json
+{
+  "param": "decay.rally_patterns.half_life",
+  "new_value": 9,
+  "rationale": "Rally patterns decay is untested; aggressive reduction from 18mo to 9mo will weight recent multi-shot sequences more heavily, targeting calibration error where baseline model persists with stale rally structure patterns that dilute serve-dependent prediction confidence.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:29:08,998 INFO Applied decay.rally_patterns.half_life: 18 → 9
+2026-03-13 13:29:59,574 INFO feature_engine complete
+2026-03-13 13:30:09,094 INFO Calling Haiku for decision...
+2026-03-13 13:30:11,465 INFO Decision: REVERT
+Brier degradation of +0.0013 exceeds the +0.001 revert threshold, and calibration error increased to 0.1162; aggressive rally pattern decay shortening is counterproductive.
+2026-03-13 13:30:11,543 INFO [REVERT] 20260313-026 — decay.rally_patterns.half_life → 9: Rally patterns decay is untested; aggressive reduction from 18mo to 9mo will weight recent multi-shot sequences more heavily, targeting calibration error where baseline model persists with stale rally structure patterns that dilute serve-dependent prediction confidence.
+  Brier delta:    +0.0013  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-026.json
+2026-03-13 13:30:11,543 INFO Reverted decay.rally_patterns.half_life → 18
+2026-03-13 13:30:11,543 INFO Result: REVERT Brier=0.2534 Δ=+0.0013 cal=0.1162
+2026-03-13 13:30:11,543 INFO ── Experiment 28 ──────────────────────────────
+2026-03-13 13:30:11,547 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:30:14,021 INFO Proposal: ```json
+{
+  "param": "cluster.rally_weight",
+  "new_value": 1.5,
+  "rationale": "Rally weight clustering is untested; increasing from 1.0 to 1.5 will amplify multi-shot sequence dominance in archetype formation, directly addressing the persistent calibration error where recent neutral decay experiments and the 20260313-026 rally_patterns revert suggest rally structure encoding needs stronger representation in cluster geometry.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:30:14,024 INFO Applied cluster.rally_weight: 1.0 → 1.5
+2026-03-13 13:31:02,877 INFO feature_engine complete
+2026-03-13 13:31:12,809 INFO Calling Haiku for decision...
+2026-03-13 13:31:15,139 INFO Decision: NEUTRAL
+Cluster rally weight increase to 1.5 maintains baseline Brier (Δ=0.0) with perfect calibration (0.1067), indicating rally-pattern weighting in archetypes is not the active constraint—consistent with recent serve-dependent hypothesis, suggesting we should pivot away from clustering parameters toward untested decay or window configurations.
+2026-03-13 13:31:15,235 INFO [NEUTRAL] 20260313-027 — cluster.rally_weight → 1.5: Rally weight clustering is untested; increasing from 1.0 to 1.5 will amplify multi-shot sequence dominance in archetype formation, directly addressing the persistent calibration error where recent neutral decay experiments and the 20260313-026 rally_patterns revert suggest rally structure encoding needs stronger representation in cluster geometry.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-027.json
+2026-03-13 13:31:15,236 INFO Reverted cluster.rally_weight → 1.0
+2026-03-13 13:31:15,236 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:31:15,236 INFO ── Experiment 29 ──────────────────────────────
+2026-03-13 13:31:15,241 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:31:17,597 INFO Proposal: ```json
+{
+  "param": "confidence.min_n_shrinkage",
+  "new_value": 50,
+  "rationale": "Confidence category is untested; increasing min_n_shrinkage from 30 to 50 will apply stronger Bayesian shrinkage to low-sample predictions, directly addressing calibration error where decay/cluster experiments show the bottleneck is overconfidence on sparse tactical patterns rather than temporal weighting.",
+  "expected_delta": "-0.0025"
+}
+```
+2026-03-13 13:31:17,599 INFO Applied confidence.min_n_shrinkage: 30 → 50
+2026-03-13 13:32:06,547 INFO feature_engine complete
+2026-03-13 13:32:16,117 INFO Calling Haiku for decision...
+2026-03-13 13:32:18,440 INFO Decision: NEUTRAL
+Increasing min_n_shrinkage from 30 to 50 produces no change in Brier score (Δ=0.0000), suggesting the shrinkage threshold for Bayesian regularization is not a primary lever at this calibration level; confidence tuning appears saturated and we should pivot to structural parameters.
+2026-03-13 13:32:18,530 INFO [NEUTRAL] 20260313-028 — confidence.min_n_shrinkage → 50: Confidence category is untested; increasing min_n_shrinkage from 30 to 50 will apply stronger Bayesian shrinkage to low-sample predictions, directly addressing calibration error where decay/cluster experiments show the bottleneck is overconfidence on sparse tactical patterns rather than temporal weighting.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-028.json
+2026-03-13 13:32:18,530 INFO Reverted confidence.min_n_shrinkage → 30
+2026-03-13 13:32:18,531 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:32:18,531 INFO ── Experiment 30 ──────────────────────────────
+2026-03-13 13:32:18,536 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:32:20,367 INFO Proposal: ```json
+{
+  "param": "confidence.low_threshold",
+  "new_value": 20,
+  "rationale": "Low_threshold is untested; increasing from 10 to 20 will raise the bar for low-confidence predictions, reducing miscalibration on sparse tactical patterns where the model currently over-commits to uncertain serve-dependent forecasts.",
+  "expected_delta": "-0.0025"
+}
+```
+2026-03-13 13:32:20,370 INFO Applied confidence.low_threshold: 10 → 20
+2026-03-13 13:33:08,901 INFO feature_engine complete
+2026-03-13 13:33:17,907 INFO Calling Haiku for decision...
+2026-03-13 13:33:19,757 INFO Decision: NEUTRAL
+Confidence threshold adjustment produced no measurable improvement; Brier stable at baseline suggests low_threshold=20 does not address the calibration bottleneck where decay and clustering parameters have also plateaued.
+2026-03-13 13:33:19,841 INFO [NEUTRAL] 20260313-029 — confidence.low_threshold → 20: Low_threshold is untested; increasing from 10 to 20 will raise the bar for low-confidence predictions, reducing miscalibration on sparse tactical patterns where the model currently over-commits to uncertain serve-dependent forecasts.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-029.json
+2026-03-13 13:33:19,841 INFO Reverted confidence.low_threshold → 10
+2026-03-13 13:33:19,841 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:33:19,841 INFO ── Experiment 31 ──────────────────────────────
+2026-03-13 13:33:19,845 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:33:22,316 INFO Proposal: ```json
+{
+  "param": "decay.pressure_win_rate.half_life",
+  "new_value": 6,
+  "rationale": "Pressure win rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance patterns more heavily, directly targeting serve-dependent prediction calibration where pressure context may be stale.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:33:22,318 INFO Applied decay.pressure_win_rate.half_life: 12 → 6
+2026-03-13 13:34:14,330 INFO feature_engine complete
+2026-03-13 13:34:23,625 INFO Calling Haiku for decision...
+2026-03-13 13:34:26,014 INFO Decision: NEUTRAL
+Pressure win rate decay halflife reduction 12→6mo produces no measurable Brier improvement (Δ=0.0000), placing it squarely in neutral territory; calibration holds steady at 0.1067, suggesting aggressive pressure weighting may already be optimal or orthogonal to current model bottlenecks.
+2026-03-13 13:34:26,107 INFO [NEUTRAL] 20260313-030 — decay.pressure_win_rate.half_life → 6: Pressure win rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance patterns more heavily, directly targeting serve-dependent prediction calibration where pressure context may be stale.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-030.json
+2026-03-13 13:34:26,107 INFO Reverted decay.pressure_win_rate.half_life → 12
+2026-03-13 13:34:26,108 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:34:26,108 INFO ── Experiment 32 ──────────────────────────────
+2026-03-13 13:34:26,113 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:34:28,878 INFO Proposal: ```json
+{
+  "param": "cluster.serve_weight",
+  "new_value": 1.5,
+  "rationale": "Serve weight clustering is untested; increasing from 1.0 to 1.5 will amplify serve placement and direction dominance in archetype formation, directly addressing persistent calibration error on serve-dependent predictions where 8 recent neutral/revert experiments in decay and confidence categories suggest the bottleneck is archetype geometry rather than temporal weighting.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:34:28,879 INFO Applied cluster.serve_weight: 1.0 → 1.5
+2026-03-13 13:35:19,449 INFO feature_engine complete
+2026-03-13 13:35:28,807 INFO Calling Haiku for decision...
+2026-03-13 13:35:30,524 INFO Decision: NEUTRAL
+Brier unchanged at 0.2521 (delta +0.0000), gate passed; serve_weight increase shows no signal yet but remains within tolerance for continued exploration.
+2026-03-13 13:35:30,612 INFO [NEUTRAL] 20260313-031 — cluster.serve_weight → 1.5: Serve weight clustering is untested; increasing from 1.0 to 1.5 will amplify serve placement and direction dominance in archetype formation, directly addressing persistent calibration error on serve-dependent predictions where 8 recent neutral/revert experiments in decay and confidence categories suggest the bottleneck is archetype geometry rather than temporal weighting.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-031.json
+2026-03-13 13:35:30,612 INFO Reverted cluster.serve_weight → 1.0
+2026-03-13 13:35:30,615 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:35:30,615 INFO ── Experiment 33 ──────────────────────────────
+2026-03-13 13:35:30,619 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:35:32,672 INFO Proposal: ```json
+{
+  "param": "window.serve_plus1",
+  "new_value": 1,
+  "rationale": "Window category is completely untested; reducing serve_plus1 window from 2 to 1 will tighten immediate post-serve sequence encoding to focus on the most predictive single-shot response, targeting calibration error where loose temporal windows may be diluting serve-dependent prediction confidence.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:35:32,674 INFO Applied window.serve_plus1: 2 → 1
+2026-03-13 13:36:23,601 INFO feature_engine complete
+2026-03-13 13:36:32,705 INFO Calling Haiku for decision...
+2026-03-13 13:36:35,038 INFO Decision: NEUTRAL
+Reducing serve_plus1_window from 2→1 shows no improvement in calibration (Δ=0.0000), suggesting single-shot serve context is insufficient; reverting to window=2 for next experiment.
+2026-03-13 13:36:35,120 INFO [NEUTRAL] 20260313-032 — window.serve_plus1 → 1: Window category is completely untested; reducing serve_plus1 window from 2 to 1 will tighten immediate post-serve sequence encoding to focus on the most predictive single-shot response, targeting calibration error where loose temporal windows may be diluting serve-dependent prediction confidence.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-032.json
+2026-03-13 13:36:35,121 INFO Reverted window.serve_plus1 → 2
+2026-03-13 13:36:35,121 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:36:35,121 INFO ── Experiment 34 ──────────────────────────────
+2026-03-13 13:36:35,124 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:36:36,980 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 18,
+  "rationale": "Serve direction decay is untested; aggressive reduction from 36mo to 18mo will weight recent surface-specific serve placement patterns more heavily, targeting calibration error where stale directional tendencies may be diluting serve-dependent prediction confidence on hard courts.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:36:36,982 INFO Applied decay.serve_direction.half_life: 36 → 18
+2026-03-13 13:37:26,117 INFO feature_engine complete
+2026-03-13 13:37:34,831 INFO Calling Haiku for decision...
+2026-03-13 13:37:36,376 INFO Decision: REVERT
+Brier increased by +0.0008 (delta > +0.001), indicating serve direction decay acceleration degrades prediction accuracy; reverting to half_life=36.
+2026-03-13 13:37:36,457 INFO [REVERT] 20260313-033 — decay.serve_direction.half_life → 18: Serve direction decay is untested; aggressive reduction from 36mo to 18mo will weight recent surface-specific serve placement patterns more heavily, targeting calibration error where stale directional tendencies may be diluting serve-dependent prediction confidence on hard courts.
+  Brier delta:    +0.0008  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-033.json
+2026-03-13 13:37:36,458 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 13:37:36,458 INFO Result: REVERT Brier=0.2529 Δ=+0.0008 cal=0.1120
+2026-03-13 13:37:36,458 INFO ── Experiment 35 ──────────────────────────────
+2026-03-13 13:37:36,462 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:37:38,524 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot type mix decay is untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand distribution shifts more heavily, directly targeting calibration error where stale stroke preference patterns may be diluting serve-dependent prediction confidence on hard courts.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:37:38,526 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 13:38:26,591 INFO feature_engine complete
+2026-03-13 13:38:35,726 INFO Calling Haiku for decision...
+2026-03-13 13:38:37,813 INFO Decision: NEUTRAL
+Shot type mix decay reduction from 24mo to 12mo produces no measurable improvement; 9 consecutive neutral/revert experiments across decay, confidence, and cluster categories suggest the calibration bottleneck is structural (archetype geometry or feature encoding) rather than temporal decay rates, warranting pivot to untested categories.
+2026-03-13 13:38:37,893 INFO [NEUTRAL] 20260313-034 — decay.shot_type_mix.half_life → 12: Shot type mix decay is untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand distribution shifts more heavily, directly targeting calibration error where stale stroke preference patterns may be diluting serve-dependent prediction confidence on hard courts.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-034.json
+2026-03-13 13:38:37,893 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 13:38:37,893 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:38:37,893 INFO ── Experiment 36 ──────────────────────────────
+2026-03-13 13:38:37,898 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:38:40,065 INFO Proposal: ```json
+{
+  "param": "decay.net_tendency.half_life",
+  "new_value": 12,
+  "rationale": "Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net approach patterns more heavily, targeting calibration error where stale positional tendencies may be diluting serve-dependent prediction confidence on hard courts.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:38:40,067 INFO Applied decay.net_tendency.half_life: 24 → 12
+2026-03-13 13:39:28,658 INFO feature_engine complete
+2026-03-13 13:39:37,537 INFO Calling Haiku for decision...
+2026-03-13 13:39:39,867 INFO Decision: NEUTRAL
+Net tendency decay halving from 24 to 12 months produced no meaningful change (Δ=0.0000), consistent with 9 consecutive neutral/revert results across decay, cluster, and confidence categories, suggesting the calibration bottleneck lies elsewhere or requires coordinated multi-parameter shifts.
+2026-03-13 13:39:39,949 INFO [NEUTRAL] 20260313-035 — decay.net_tendency.half_life → 12: Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net approach patterns more heavily, targeting calibration error where stale positional tendencies may be diluting serve-dependent prediction confidence on hard courts.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-035.json
+2026-03-13 13:39:39,949 INFO Reverted decay.net_tendency.half_life → 24
+2026-03-13 13:39:39,949 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:39:39,949 INFO ── Experiment 37 ──────────────────────────────
+2026-03-13 13:39:39,954 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:39:42,631 INFO Proposal: ```json
+{
+  "param": "cluster.rally_weight",
+  "new_value": 1.5,
+  "rationale": "Rally weight clustering is untested; increasing from 1.0 to 1.5 will amplify rally pattern dominance alongside serve weight in archetype formation, directly testing whether joint serve+rally geometry improvement can break through the persistent 0.2521 Brier plateau where 9 consecutive neutral/revert experiments suggest calibration error is locked in archetype structure rather than individual feature decay or confidence thresholds.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 13:39:42,633 INFO Applied cluster.rally_weight: 1.0 → 1.5
+2026-03-13 13:40:31,552 INFO feature_engine complete
+2026-03-13 13:40:40,615 INFO Calling Haiku for decision...
+2026-03-13 13:40:43,868 INFO Decision: NEUTRAL
+Rally weight increase from 1.0 to 1.5 shows zero improvement (Δ=0.0000), consistent with 8 prior neutral/revert experiments suggesting the bottleneck is not archetype geometry but likely calibration methodology or feature engineering depth itself.
+2026-03-13 13:40:43,925 INFO [NEUTRAL] 20260313-036 — cluster.rally_weight → 1.5: Rally weight clustering is untested; increasing from 1.0 to 1.5 will amplify rally pattern dominance alongside serve weight in archetype formation, directly testing whether joint serve+rally geometry improvement can break through the persistent 0.2521 Brier plateau where 9 consecutive neutral/revert experiments suggest calibration error is locked in archetype structure rather than individual feature decay or confidence thresholds.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-036.json
+2026-03-13 13:40:43,925 INFO Reverted cluster.rally_weight → 1.0
+2026-03-13 13:40:43,926 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:40:43,926 INFO ── Experiment 38 ──────────────────────────────
+2026-03-13 13:40:43,929 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:40:46,121 INFO Proposal: ```json
+{
+  "param": "confidence.min_n_shrinkage",
+  "new_value": 50,
+  "rationale": "Increase Bayesian shrinkage threshold from 30 to 50 observations to apply stronger regularization on low-count tactical patterns, directly reducing calibration error where sparse serve-dependent predictions are over-committing confidence despite insufficient statistical evidence.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:40:46,123 INFO Applied confidence.min_n_shrinkage: 30 → 50
+2026-03-13 13:41:34,931 INFO feature_engine complete
+2026-03-13 13:41:44,173 INFO Calling Haiku for decision...
+2026-03-13 13:41:46,433 INFO Decision: NEUTRAL
+Increasing min_n_shrinkage from 30 to 50 produces no measurable improvement (Δ=0.0), consistent with the 10 consecutive neutral/revert experiments in decay, confidence, and clustering categories suggesting the calibration bottleneck is structural rather than responsive to individual parameter tuning.
+2026-03-13 13:41:46,494 INFO [NEUTRAL] 20260313-037 — confidence.min_n_shrinkage → 50: Increase Bayesian shrinkage threshold from 30 to 50 observations to apply stronger regularization on low-count tactical patterns, directly reducing calibration error where sparse serve-dependent predictions are over-committing confidence despite insufficient statistical evidence.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-037.json
+2026-03-13 13:41:46,495 INFO Reverted confidence.min_n_shrinkage → 30
+2026-03-13 13:41:46,495 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:41:46,495 INFO ── Experiment 39 ──────────────────────────────
+2026-03-13 13:41:46,498 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:41:48,894 INFO Proposal: ```json
+{
+  "param": "confidence.moderate_threshold",
+  "new_value": 45,
+  "rationale": "Confidence thresholds are untested; increasing moderate_threshold from 30 to 45 will reduce over-confidence on mid-evidence predictions where serve-dependent patterns cluster, directly addressing calibration error plateau where 10 consecutive neutral/revert experiments suggest the bottleneck is prediction certainty scaling rather than feature decay or archetype geometry.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:41:48,895 INFO Applied confidence.moderate_threshold: 30 → 45
+2026-03-13 13:42:42,069 INFO feature_engine complete
+2026-03-13 13:42:51,072 INFO Calling Haiku for decision...
+2026-03-13 13:42:53,035 INFO Decision: NEUTRAL
+Confidence threshold adjustment produces no measurable improvement; 10 consecutive experiments in decay/confidence categories with zero Brier movement suggests fundamental bottleneck is archetype geometry rather than calibration mechanics.
+2026-03-13 13:42:53,115 INFO [NEUTRAL] 20260313-038 — confidence.moderate_threshold → 45: Confidence thresholds are untested; increasing moderate_threshold from 30 to 45 will reduce over-confidence on mid-evidence predictions where serve-dependent patterns cluster, directly addressing calibration error plateau where 10 consecutive neutral/revert experiments suggest the bottleneck is prediction certainty scaling rather than feature decay or archetype geometry.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-038.json
+2026-03-13 13:42:53,116 INFO Reverted confidence.moderate_threshold → 30
+2026-03-13 13:42:53,116 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:42:53,116 INFO ── Experiment 40 ──────────────────────────────
+2026-03-13 13:42:53,119 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:42:55,248 INFO Proposal: ```json
+{
+  "param": "confidence.low_threshold",
+  "new_value": 20,
+  "rationale": "Low threshold confidence is untested; increasing from 10 to 20 will reduce over-confidence on sparse serve-dependent predictions where insufficient evidence is being masked, directly addressing the calibration error plateau where 11 consecutive neutral/revert experiments suggest the bottleneck is confidence scaling on low-evidence tactical patterns rather than temporal decay or archetype geometry.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 13:42:55,250 INFO Applied confidence.low_threshold: 10 → 20
+2026-03-13 13:43:49,167 INFO feature_engine complete
+2026-03-13 13:43:58,367 INFO Calling Haiku for decision...
+2026-03-13 13:44:00,682 INFO Decision: NEUTRAL
+Confidence low_threshold adjustment from 10→20 produced no meaningful change (Δ=0.0000); with 11 consecutive neutral/revert experiments across confidence and cluster categories, switching focus to untested decay parameters or window configurations is warranted.
+2026-03-13 13:44:00,764 INFO [NEUTRAL] 20260313-039 — confidence.low_threshold → 20: Low threshold confidence is untested; increasing from 10 to 20 will reduce over-confidence on sparse serve-dependent predictions where insufficient evidence is being masked, directly addressing the calibration error plateau where 11 consecutive neutral/revert experiments suggest the bottleneck is confidence scaling on low-evidence tactical patterns rather than temporal decay or archetype geometry.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-039.json
+2026-03-13 13:44:00,765 INFO Reverted confidence.low_threshold → 10
+2026-03-13 13:44:00,765 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:44:00,765 INFO ── Experiment 41 ──────────────────────────────
+2026-03-13 13:44:00,768 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:44:04,561 INFO Proposal: ```json
+{
+  "param": "decay.pressure_win_rate.half_life",
+  "new_value": 6,
+  "rationale": "Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance more heavily, directly targeting calibration error where stale pressure-context predictions may be diluting serve-dependent confidence on hard courts.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:44:04,562 INFO Applied decay.pressure_win_rate.half_life: 12 → 6
+2026-03-13 13:44:52,870 INFO feature_engine complete
+2026-03-13 13:45:01,956 INFO Calling Haiku for decision...
+2026-03-13 13:45:03,877 INFO Decision: NEUTRAL
+Pressure win rate decay reduction from 12mo to 6mo produces no measurable change (Δ=0.0000), consistent with 12 consecutive neutral/revert experiments suggesting the calibration error plateau is structural rather than responsive to individual decay parameter tuning.
+2026-03-13 13:45:03,954 INFO [NEUTRAL] 20260313-040 — decay.pressure_win_rate.half_life → 6: Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance more heavily, directly targeting calibration error where stale pressure-context predictions may be diluting serve-dependent confidence on hard courts.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-040.json
+2026-03-13 13:45:03,955 INFO Reverted decay.pressure_win_rate.half_life → 12
+2026-03-13 13:45:03,955 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:45:03,955 INFO ── Experiment 42 ──────────────────────────────
+2026-03-13 13:45:03,959 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:45:06,524 INFO Proposal: ```json
+{
+  "param": "cluster.serve_weight",
+  "new_value": 1.5,
+  "rationale": "Serve weight clustering is untested; increasing from 1.0 to 1.5 will amplify serve-pattern dominance in archetype formation, directly testing whether asymmetric serve emphasis can break through the persistent 0.2521 Brier plateau where 12 consecutive neutral/revert experiments across decay, confidence, and symmetric clustering suggest the bottleneck is serve-centric archetype geometry rather than individual feature signals.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 13:45:06,526 INFO Applied cluster.serve_weight: 1.0 → 1.5
+2026-03-13 13:45:54,018 INFO feature_engine complete
+2026-03-13 13:46:02,960 INFO Calling Haiku for decision...
+2026-03-13 13:46:05,508 INFO Decision: NEUTRAL
+Cluster serve weight adjustment 1.0→1.5 produces no measurable Brier improvement (Δ=0.0000), maintaining the 0.2521 plateau; this is the 12th consecutive neutral/revert, confirming archetype geometry alone cannot break calibration error lock without systematic feature realignment.
+2026-03-13 13:46:05,592 INFO [NEUTRAL] 20260313-041 — cluster.serve_weight → 1.5: Serve weight clustering is untested; increasing from 1.0 to 1.5 will amplify serve-pattern dominance in archetype formation, directly testing whether asymmetric serve emphasis can break through the persistent 0.2521 Brier plateau where 12 consecutive neutral/revert experiments across decay, confidence, and symmetric clustering suggest the bottleneck is serve-centric archetype geometry rather than individual feature signals.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-041.json
+2026-03-13 13:46:05,596 INFO Reverted cluster.serve_weight → 1.0
+2026-03-13 13:46:05,596 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:46:05,596 INFO ── Experiment 43 ──────────────────────────────
+2026-03-13 13:46:05,599 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:46:07,759 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 18,
+  "rationale": "Serve direction decay is untested; aggressive reduction from 36mo to 18mo will weight recent serve-placement patterns more heavily, directly targeting the calibration error plateau where stale directional tendencies may be masking current serve-dependent prediction signals on hard courts.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:46:07,761 INFO Applied decay.serve_direction.half_life: 36 → 18
+2026-03-13 13:46:58,274 INFO feature_engine complete
+2026-03-13 13:47:07,121 INFO Calling Haiku for decision...
+2026-03-13 13:47:09,106 INFO Decision: REVERT
+Brier worsened by +0.0008 and calibration error increased from 0.1067 to 0.112; aggressive serve direction decay (36mo→18mo) is counterproductive on hard courts where serve patterns are stable across time horizons.
+2026-03-13 13:47:09,184 INFO [REVERT] 20260313-042 — decay.serve_direction.half_life → 18: Serve direction decay is untested; aggressive reduction from 36mo to 18mo will weight recent serve-placement patterns more heavily, directly targeting the calibration error plateau where stale directional tendencies may be masking current serve-dependent prediction signals on hard courts.
+  Brier delta:    +0.0008  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-042.json
+2026-03-13 13:47:09,185 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 13:47:09,185 INFO Result: REVERT Brier=0.2529 Δ=+0.0008 cal=0.1120
+2026-03-13 13:47:09,185 INFO ── Experiment 44 ──────────────────────────────
+2026-03-13 13:47:09,189 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:47:11,763 INFO Proposal: ```json
+{
+  "param": "window.serve_plus1",
+  "new_value": 1,
+  "rationale": "Window parameters untested; reducing serve_plus1 from 2 to 1 will tighten the immediate post-serve context window to isolate serve-dependent second-shot patterns more precisely, directly testing whether coarser temporal resolution breaks the calibration bottleneck where 13 consecutive neutral/revert experiments suggest archetype geometry is overfit to multi-shot windows that dilute serve signal strength.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 13:47:11,765 INFO Applied window.serve_plus1: 2 → 1
+2026-03-13 13:48:14,219 INFO feature_engine complete
+2026-03-13 13:48:22,962 INFO Calling Haiku for decision...
+2026-03-13 13:48:25,189 INFO Decision: NEUTRAL
+Serve-plus-1 window reduction from 2→1 shows no improvement (Δ=0.0000); within noise band but no calibration benefit; revert to baseline and switch focus away from window parameters given 13 consecutive neutral/revert experiments across decay, confidence, clustering, and windows.
+2026-03-13 13:48:25,268 INFO [NEUTRAL] 20260313-043 — window.serve_plus1 → 1: Window parameters untested; reducing serve_plus1 from 2 to 1 will tighten the immediate post-serve context window to isolate serve-dependent second-shot patterns more precisely, directly testing whether coarser temporal resolution breaks the calibration bottleneck where 13 consecutive neutral/revert experiments suggest archetype geometry is overfit to multi-shot windows that dilute serve signal strength.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-043.json
+2026-03-13 13:48:25,269 INFO Reverted window.serve_plus1 → 2
+2026-03-13 13:48:25,269 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:48:25,269 INFO ── Experiment 45 ──────────────────────────────
+2026-03-13 13:48:25,273 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:48:27,505 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot type mix decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent serve+rally composition patterns more heavily, directly targeting calibration error where stale tactical mixing may be diluting serve-dependent confidence signals that have resisted 14 consecutive neutral/revert experiments across decay, confidence, clustering, and windowing.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:48:27,507 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 13:50:05,936 INFO feature_engine complete
+2026-03-13 13:50:14,748 INFO Calling Haiku for decision...
+2026-03-13 13:50:17,216 INFO Decision: NEUTRAL
+Shot-type mix decay reduction from 24mo to 12mo produced no measurable improvement; calibration error remains locked at 0.1067, extending the 14-experiment plateau suggesting the bottleneck is not feature recency but archetype geometry or confidence scaling on serve-dependent predictions.
+2026-03-13 13:50:17,296 INFO [NEUTRAL] 20260313-044 — decay.shot_type_mix.half_life → 12: Shot type mix decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent serve+rally composition patterns more heavily, directly targeting calibration error where stale tactical mixing may be diluting serve-dependent confidence signals that have resisted 14 consecutive neutral/revert experiments across decay, confidence, clustering, and windowing.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-044.json
+2026-03-13 13:50:17,297 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 13:50:17,297 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:50:17,297 INFO ── Experiment 46 ──────────────────────────────
+2026-03-13 13:50:17,301 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:50:20,083 INFO Proposal: ```json
+{
+  "param": "cluster.rally_weight",
+  "new_value": 1.5,
+  "rationale": "Rally weight clustering untested; increasing from 1.0 to 1.5 will amplify rally-pattern dominance in archetype formation to test whether rebalancing serve/rally weighting (serve already tested at 1.5) can escape the persistent 0.2521 plateau where 14 consecutive neutral/revert experiments suggest symmetric clustering geometry may be the bottleneck.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:50:20,086 INFO Applied cluster.rally_weight: 1.0 → 1.5
+2026-03-13 13:51:28,427 INFO feature_engine complete
+2026-03-13 13:51:37,435 INFO Calling Haiku for decision...
+2026-03-13 13:51:39,447 INFO Decision: NEUTRAL
+Rally weight clustering remains untested; no meaningful improvement detected, continuing systematic exploration of archetype geometry parameters.
+2026-03-13 13:51:39,526 INFO [NEUTRAL] 20260313-045 — cluster.rally_weight → 1.5: Rally weight clustering untested; increasing from 1.0 to 1.5 will amplify rally-pattern dominance in archetype formation to test whether rebalancing serve/rally weighting (serve already tested at 1.5) can escape the persistent 0.2521 plateau where 14 consecutive neutral/revert experiments suggest symmetric clustering geometry may be the bottleneck.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-045.json
+2026-03-13 13:51:39,527 INFO Reverted cluster.rally_weight → 1.0
+2026-03-13 13:51:39,527 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:51:39,527 INFO ── Experiment 47 ──────────────────────────────
+2026-03-13 13:51:39,530 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:51:41,490 INFO Proposal: ```json
+{
+  "param": "decay.net_tendency.half_life",
+  "new_value": 12,
+  "rationale": "Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-approach patterns more heavily, directly targeting the calibration plateau where stale net-play tendencies may be masking current serve-dependent confidence signals on hard courts where net usage is tactically volatile.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 13:51:41,491 INFO Applied decay.net_tendency.half_life: 24 → 12
+2026-03-13 13:52:50,023 INFO feature_engine complete
+2026-03-13 13:52:59,063 INFO Calling Haiku for decision...
+2026-03-13 13:53:01,847 INFO Decision: NEUTRAL
+Net tendency decay reduction from 24mo to 12mo shows no meaningful improvement; pattern consistent with 15 consecutive neutral/revert experiments across decay, confidence, clustering, and windowing categories—suggests bottleneck is not individual feature recency but rather prediction calibration architecture or archetype geometry constraints.
+2026-03-13 13:53:01,925 INFO [NEUTRAL] 20260313-046 — decay.net_tendency.half_life → 12: Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-approach patterns more heavily, directly targeting the calibration plateau where stale net-play tendencies may be masking current serve-dependent confidence signals on hard courts where net usage is tactically volatile.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-046.json
+2026-03-13 13:53:01,925 INFO Reverted decay.net_tendency.half_life → 24
+2026-03-13 13:53:01,925 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:53:01,925 INFO ── Experiment 48 ──────────────────────────────
+2026-03-13 13:53:01,929 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:53:04,947 INFO Proposal: ```json
+{
+  "param": "confidence.moderate_threshold",
+  "new_value": 45,
+  "rationale": "Moderate threshold is untested; increasing from 30 to 45 will widen the mid-confidence band to reduce over-shrinkage on moderate-evidence serve patterns, directly addressing the persistent calibration plateau where low_threshold experiments and high-threshold untesting suggest the bottleneck is mid-range confidence scaling rather than extreme thresholds.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 13:53:04,948 INFO Applied confidence.moderate_threshold: 30 → 45
+2026-03-13 13:54:44,623 INFO feature_engine complete
+2026-03-13 13:54:53,631 INFO Calling Haiku for decision...
+2026-03-13 13:54:55,627 INFO Decision: NEUTRAL
+Moderate threshold increase from 30→45 produces no measurable Brier improvement (Δ=0.0000); this is the 15th consecutive neutral/revert experiment across confidence, decay, clustering, and windowing, indicating the calibration plateau is structural rather than parameter-tunable.
+2026-03-13 13:54:55,696 INFO [NEUTRAL] 20260313-047 — confidence.moderate_threshold → 45: Moderate threshold is untested; increasing from 30 to 45 will widen the mid-confidence band to reduce over-shrinkage on moderate-evidence serve patterns, directly addressing the persistent calibration plateau where low_threshold experiments and high-threshold untesting suggest the bottleneck is mid-range confidence scaling rather than extreme thresholds.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-047.json
+2026-03-13 13:54:55,697 INFO Reverted confidence.moderate_threshold → 30
+2026-03-13 13:54:55,697 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:54:55,697 INFO ── Experiment 49 ──────────────────────────────
+2026-03-13 13:54:55,701 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:54:57,485 INFO Proposal: ```json
+{
+  "param": "confidence.low_threshold",
+  "new_value": 20,
+  "rationale": "Low threshold is untested at higher values; increasing from 10 to 20 will raise the floor for low-confidence shrinkage, directly testing whether the persistent calibration plateau stems from over-aggressive shrinkage of low-evidence serve predictions that may be artificially compressing confidence spread.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:54:57,486 INFO Applied confidence.low_threshold: 10 → 20
+2026-03-13 13:55:48,544 INFO feature_engine complete
+2026-03-13 13:55:57,283 INFO Calling Haiku for decision...
+2026-03-13 13:55:59,132 INFO Decision: NEUTRAL
+Low-threshold increase from 10→20 produces zero Brier improvement; with 16 consecutive neutral/revert experiments across all parameter families, the model is fundamentally stuck at 0.2521—switching to confidence high_threshold extremes or exploring k-means geometry restructuring is warranted.
+2026-03-13 13:55:59,209 INFO [NEUTRAL] 20260313-048 — confidence.low_threshold → 20: Low threshold is untested at higher values; increasing from 10 to 20 will raise the floor for low-confidence shrinkage, directly testing whether the persistent calibration plateau stems from over-aggressive shrinkage of low-evidence serve predictions that may be artificially compressing confidence spread.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-048.json
+2026-03-13 13:55:59,209 INFO Reverted confidence.low_threshold → 10
+2026-03-13 13:55:59,210 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:55:59,210 INFO ── Experiment 50 ──────────────────────────────
+2026-03-13 13:55:59,213 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:56:01,182 INFO Proposal: ```json
+{
+  "param": "decay.pressure_win_rate.half_life",
+  "new_value": 6,
+  "rationale": "Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance more heavily, directly targeting calibration where stale pressure baseline may be masking serve-dependent confidence signals in clutch moments on hard courts.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:56:01,184 INFO Applied decay.pressure_win_rate.half_life: 12 → 6
+2026-03-13 13:57:19,518 INFO feature_engine complete
+2026-03-13 13:57:28,386 INFO Calling Haiku for decision...
+2026-03-13 13:57:31,394 INFO Decision: NEUTRAL
+Pressure win rate decay is untested at aggressive half-lives; reducing from 12mo to 6mo weights recent high-pressure performance more heavily, but Δ=0.0 suggests pressure-pattern recency does not break through the calibration plateau where 15 consecutive neutral/revert experiments indicate serve/rally/confidence geometry rather than pressure timing is the bottleneck.
+2026-03-13 13:57:31,478 INFO [NEUTRAL] 20260313-049 — decay.pressure_win_rate.half_life → 6: Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance more heavily, directly targeting calibration where stale pressure baseline may be masking serve-dependent confidence signals in clutch moments on hard courts.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-049.json
+2026-03-13 13:57:31,478 INFO Reverted decay.pressure_win_rate.half_life → 12
+2026-03-13 13:57:31,478 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:57:31,478 INFO ── Experiment 51 ──────────────────────────────
+2026-03-13 13:57:31,482 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:57:33,953 INFO Proposal: ```json
+{
+  "param": "cluster.k",
+  "new_value": 5,
+  "rationale": "Cluster count k is untested; reducing from 7 to 5 will force tighter archetype consolidation to test whether oversegmentation is diluting serve-dependent signal strength across 16 runs of stalled calibration, directly addressing whether archetype geometry rather than individual feature decay is the bottleneck.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 13:57:33,953 INFO Applied cluster.k: 7 → 5
+2026-03-13 13:58:58,186 INFO feature_engine complete
+2026-03-13 13:59:07,352 INFO Calling Haiku for decision...
+2026-03-13 13:59:09,599 INFO Decision: NEUTRAL
+Clustering k=5 holds calibration but shows zero Brier improvement; insufficient signal to justify geometric reduction that may oversimplify archetype space after 15 consecutive neutral/revert experiments suggest the plateau requires structural rather than parametric adjustment.
+2026-03-13 13:59:09,688 INFO [NEUTRAL] 20260313-050 — cluster.k → 5: Cluster count k is untested; reducing from 7 to 5 will force tighter archetype consolidation to test whether oversegmentation is diluting serve-dependent signal strength across 16 runs of stalled calibration, directly addressing whether archetype geometry rather than individual feature decay is the bottleneck.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-050.json
+2026-03-13 13:59:09,690 INFO Reverted cluster.k → 7
+2026-03-13 13:59:09,691 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 13:59:09,691 INFO ── Experiment 52 ──────────────────────────────
+2026-03-13 13:59:09,695 INFO Calling Haiku for experiment proposal...
+2026-03-13 13:59:11,848 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 12,
+  "rationale": "Serve direction decay is untested; aggressive reduction from 36mo to 12mo will weight recent directional serve patterns more heavily, directly targeting calibration where stale serve-direction tendencies may be masking current court-position and opponent-adjustment signals that have resisted 16 consecutive neutral/revert experiments across all other categories.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 13:59:11,850 INFO Applied decay.serve_direction.half_life: 36 → 12
+2026-03-13 14:00:52,763 INFO feature_engine complete
+2026-03-13 14:01:02,085 INFO Calling Haiku for decision...
+2026-03-13 14:01:05,260 INFO Decision: REVERT
+Brier degraded by +0.0005 and calibration error increased from 0.1067 to 0.1071; aggressive serve_direction decay reduction to 12mo worsened both metrics, suggesting serve-direction patterns require longer temporal stability on hard courts.
+2026-03-13 14:01:05,351 INFO [REVERT] 20260313-051 — decay.serve_direction.half_life → 12: Serve direction decay is untested; aggressive reduction from 36mo to 12mo will weight recent directional serve patterns more heavily, directly targeting calibration where stale serve-direction tendencies may be masking current court-position and opponent-adjustment signals that have resisted 16 consecutive neutral/revert experiments across all other categories.
+  Brier delta:    +0.0005  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-051.json
+2026-03-13 14:01:05,351 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 14:01:05,352 INFO Result: REVERT Brier=0.2526 Δ=+0.0005 cal=0.1071
+2026-03-13 14:01:05,352 INFO ── Experiment 53 ──────────────────────────────
+2026-03-13 14:01:05,356 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:01:07,359 INFO Proposal: ```json
+{
+  "param": "decay.error_rate.half_life",
+  "new_value": 6,
+  "rationale": "Error rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent unforced-error patterns more heavily, directly targeting calibration where stale error baselines may be masking serve-dependent confidence signals on hard courts where error volatility is high.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:01:07,361 INFO Applied decay.error_rate.half_life: 12 → 6
+2026-03-13 14:02:35,539 INFO feature_engine complete
+2026-03-13 14:02:44,589 INFO Calling Haiku for decision...
+2026-03-13 14:02:46,817 INFO Decision: NEUTRAL
+Delta is +0.0000, within the [-0.002, +0.001] neutral band; decay.error_rate at 6-month half-life shows no measurable improvement over baseline, consistent with 17 consecutive neutral/revert runs suggesting the calibration plateau may not respond to individual decay parameter tuning.
+2026-03-13 14:02:46,898 INFO [NEUTRAL] 20260313-052 — decay.error_rate.half_life → 6: Error rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent unforced-error patterns more heavily, directly targeting calibration where stale error baselines may be masking serve-dependent confidence signals on hard courts where error volatility is high.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-052.json
+2026-03-13 14:02:46,899 INFO Reverted decay.error_rate.half_life → 12
+2026-03-13 14:02:46,899 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:02:46,899 INFO ── Experiment 54 ──────────────────────────────
+2026-03-13 14:02:46,903 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:02:49,072 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot type mix decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/volley patterns more heavily, directly targeting the persistent calibration plateau where stale shot-selection tendencies may be masking serve-dependent confidence signals on hard courts where tactical shot mix is highly volatile.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:02:49,074 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 14:03:44,541 INFO feature_engine complete
+2026-03-13 14:03:53,630 INFO Calling Haiku for decision...
+2026-03-13 14:03:56,692 INFO Decision: NEUTRAL
+Shot-type decay at 12mo produces no improvement over baseline; with 18 consecutive neutral/revert results across decay, clustering, and confidence categories, the calibration plateau suggests the bottleneck lies outside feature recency tuning.
+2026-03-13 14:03:56,750 INFO [NEUTRAL] 20260313-053 — decay.shot_type_mix.half_life → 12: Shot type mix decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/volley patterns more heavily, directly targeting the persistent calibration plateau where stale shot-selection tendencies may be masking serve-dependent confidence signals on hard courts where tactical shot mix is highly volatile.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-053.json
+2026-03-13 14:03:56,750 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 14:03:56,751 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:03:56,751 INFO ── Experiment 55 ──────────────────────────────
+2026-03-13 14:03:56,754 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:03:59,744 INFO Proposal: ```json
+{
+  "param": "window.serve_plus1",
+  "new_value": 1,
+  "rationale": "Window parameters are completely untested; reducing serve-plus1 from 2 to 1 will tighten serve-followup shot coupling to test whether over-windowing is diluting serve-dependent confidence signals that have resisted 18 consecutive experiments across decay, confidence, and cluster categories.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:03:59,746 INFO Applied window.serve_plus1: 2 → 1
+2026-03-13 14:05:12,645 INFO feature_engine complete
+2026-03-13 14:05:21,792 INFO Calling Haiku for decision...
+2026-03-13 14:05:23,617 INFO Decision: NEUTRAL
+Window.serve_plus1 reduction to 1 holds calibration steady but produces no predictive gain; neutral result suggests serve+1 sequence window is not the bottleneck in the current calibration plateau.
+2026-03-13 14:05:23,693 INFO [NEUTRAL] 20260313-054 — window.serve_plus1 → 1: Window parameters are completely untested; reducing serve-plus1 from 2 to 1 will tighten serve-followup shot coupling to test whether over-windowing is diluting serve-dependent confidence signals that have resisted 18 consecutive experiments across decay, confidence, and cluster categories.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-054.json
+2026-03-13 14:05:23,694 INFO Reverted window.serve_plus1 → 2
+2026-03-13 14:05:23,695 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:05:23,695 INFO ── Experiment 56 ──────────────────────────────
+2026-03-13 14:05:23,699 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:05:25,865 INFO Proposal: ```json
+{
+  "param": "decay.net_tendency.half_life",
+  "new_value": 12,
+  "rationale": "Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-attack patterns more heavily, directly targeting calibration where stale net-approach tendencies may be masking serve-dependent confidence signals on hard courts where net play is contextual and volatile.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:05:25,868 INFO Applied decay.net_tendency.half_life: 24 → 12
+2026-03-13 14:06:41,665 INFO feature_engine complete
+2026-03-13 14:06:50,429 INFO Calling Haiku for decision...
+2026-03-13 14:06:52,699 INFO Decision: NEUTRAL
+Net-tendency decay reduction from 24→12 months shows no calibration improvement (Δ=0.0000), continuing the plateau across 19 consecutive experiments; reverting to baseline and switching to untested feature combinations.
+2026-03-13 14:06:52,779 INFO [NEUTRAL] 20260313-055 — decay.net_tendency.half_life → 12: Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-attack patterns more heavily, directly targeting calibration where stale net-approach tendencies may be masking serve-dependent confidence signals on hard courts where net play is contextual and volatile.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-055.json
+2026-03-13 14:06:52,780 INFO Reverted decay.net_tendency.half_life → 24
+2026-03-13 14:06:52,780 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:06:52,780 INFO ── Experiment 57 ──────────────────────────────
+2026-03-13 14:06:52,784 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:06:54,751 INFO Proposal: ```json
+{
+  "param": "window.rally_pattern",
+  "new_value": 2,
+  "rationale": "Rally pattern window is untested; reducing from 3 to 2 will tighten sequence coupling to directly test whether over-windowing is diluting serve-dependent confidence signals on hard courts where rally structure decays rapidly.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:06:54,753 INFO Applied window.rally_pattern: 3 → 2
+2026-03-13 14:07:55,464 INFO feature_engine complete
+2026-03-13 14:08:04,505 INFO Calling Haiku for decision...
+2026-03-13 14:08:06,939 INFO Decision: NEUTRAL
+Window parameters are untested; rally_pattern window reduction from 3→2 shows no degradation (Δ=0.0000, cal_error=0.1067), but also no improvement, consistent with 8 consecutive neutral results suggesting the calibration plateau is insensitive to window tightening and may require structural changes to feature weighting or archetype geometry.
+2026-03-13 14:08:07,007 INFO [NEUTRAL] 20260313-056 — window.rally_pattern → 2: Rally pattern window is untested; reducing from 3 to 2 will tighten sequence coupling to directly test whether over-windowing is diluting serve-dependent confidence signals on hard courts where rally structure decays rapidly.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-056.json
+2026-03-13 14:08:07,008 INFO Reverted window.rally_pattern → 3
+2026-03-13 14:08:07,008 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:08:07,008 INFO ── Experiment 58 ──────────────────────────────
+2026-03-13 14:08:07,012 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:08:08,841 INFO Proposal: ```json
+{
+  "param": "confidence.min_n_shrinkage",
+  "new_value": 50,
+  "rationale": "Increase Bayesian shrinkage threshold from 30 to 50 to reduce confidence overfit on small-sample predictions where noise currently dominates hard-court serve-dependency signals.",
+  "expected_delta": "-0.004"
+}
+```
+2026-03-13 14:08:08,842 INFO Applied confidence.min_n_shrinkage: 30 → 50
+2026-03-13 14:08:57,103 INFO feature_engine complete
+2026-03-13 14:09:06,083 INFO Calling Haiku for decision...
+2026-03-13 14:09:07,619 INFO Decision: NEUTRAL
+Brier delta of +0.0000 falls within the neutral band (-0.002 to +0.001); no meaningful improvement but gate passed, so confidence threshold adjustment from 30→50 is tolerable but not advancing the metric.
+2026-03-13 14:09:07,693 INFO [NEUTRAL] 20260313-057 — confidence.min_n_shrinkage → 50: Increase Bayesian shrinkage threshold from 30 to 50 to reduce confidence overfit on small-sample predictions where noise currently dominates hard-court serve-dependency signals.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-057.json
+2026-03-13 14:09:07,694 INFO Reverted confidence.min_n_shrinkage → 30
+2026-03-13 14:09:07,694 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:09:07,694 INFO ── Experiment 59 ──────────────────────────────
+2026-03-13 14:09:07,698 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:09:09,713 INFO Proposal: ```json
+{
+  "param": "confidence.moderate_threshold",
+  "new_value": 50,
+  "rationale": "Confidence thresholds are untested; raising moderate_threshold from 30 to 50 will shift more predictions into high-confidence bins, reducing noise-driven calibration error on hard courts where serve-dependent signals are masked by over-moderate classification.",
+  "expected_delta": "-0.0025"
+}
+```
+2026-03-13 14:09:09,715 INFO Applied confidence.moderate_threshold: 30 → 50
+2026-03-13 14:10:42,432 INFO feature_engine complete
+2026-03-13 14:10:52,078 INFO Calling Haiku for decision...
+2026-03-13 14:10:54,163 INFO Decision: NEUTRAL
+Confidence threshold adjustment shows no meaningful signal; 20 consecutive neutral/revert experiments across all parameter categories suggest the baseline model is at a local plateau requiring structural rather than tuning-based intervention.
+2026-03-13 14:10:54,253 INFO [NEUTRAL] 20260313-058 — confidence.moderate_threshold → 50: Confidence thresholds are untested; raising moderate_threshold from 30 to 50 will shift more predictions into high-confidence bins, reducing noise-driven calibration error on hard courts where serve-dependent signals are masked by over-moderate classification.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-058.json
+2026-03-13 14:10:54,254 INFO Reverted confidence.moderate_threshold → 30
+2026-03-13 14:10:54,254 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:10:54,254 INFO ── Experiment 60 ──────────────────────────────
+2026-03-13 14:10:54,259 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:10:56,005 INFO Proposal: ```json
+{
+  "param": "cluster.k",
+  "new_value": 5,
+  "rationale": "Cluster configuration is completely untested; reducing k from 7 to 5 will consolidate archetype patterns to reduce noise-driven overfitting on hard courts where serve-dependent signals may be diluted across too many clusters.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:10:56,009 INFO Applied cluster.k: 7 → 5
+2026-03-13 14:12:03,539 INFO feature_engine complete
+2026-03-13 14:12:13,066 INFO Calling Haiku for decision...
+2026-03-13 14:12:17,609 INFO Decision: NEUTRAL
+Reducing k from 7 to 5 clusters yields no measurable improvement (Δ=0.0000); with 19 consecutive neutral/revert experiments across all categories, switching focus to interaction effects between decay and window parameters may unlock the plateau.
+2026-03-13 14:12:17,689 INFO [NEUTRAL] 20260313-059 — cluster.k → 5: Cluster configuration is completely untested; reducing k from 7 to 5 will consolidate archetype patterns to reduce noise-driven overfitting on hard courts where serve-dependent signals may be diluted across too many clusters.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-059.json
+2026-03-13 14:12:17,690 INFO Reverted cluster.k → 7
+2026-03-13 14:12:17,690 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:12:17,690 INFO ── Experiment 61 ──────────────────────────────
+2026-03-13 14:12:17,694 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:12:21,984 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 18,
+  "rationale": "Serve direction is the most fundamental serve-dependent feature; aggressive reduction from 36mo to 18mo will weight recent directional patterns more heavily to break the calibration plateau by capturing serve strategy evolution that stale baselines are masking on hard courts.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 14:12:21,985 INFO Applied decay.serve_direction.half_life: 36 → 18
+2026-03-13 14:13:43,484 INFO feature_engine complete
+2026-03-13 14:13:53,552 INFO Calling Haiku for decision...
+2026-03-13 14:13:55,207 INFO Decision: REVERT
+Brier degraded by +0.0008 (delta > +0.001), indicating aggressive serve-direction decay shortening from 36mo to 18mo introduces noise rather than signal on hard courts.
+2026-03-13 14:13:55,293 INFO [REVERT] 20260313-060 — decay.serve_direction.half_life → 18: Serve direction is the most fundamental serve-dependent feature; aggressive reduction from 36mo to 18mo will weight recent directional patterns more heavily to break the calibration plateau by capturing serve strategy evolution that stale baselines are masking on hard courts.
+  Brier delta:    +0.0008  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-060.json
+2026-03-13 14:13:55,294 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 14:13:55,295 INFO Result: REVERT Brier=0.2529 Δ=+0.0008 cal=0.1120
+2026-03-13 14:13:55,295 INFO ── Experiment 62 ──────────────────────────────
+2026-03-13 14:13:55,299 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:13:59,303 INFO Proposal: ```json
+{
+  "param": "decay.pressure_win_rate.half_life",
+  "new_value": 6,
+  "rationale": "Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent clutch performance more heavily to capture contextual pressure-point volatility on hard courts where high-leverage situations drive serve-dependent strategy shifts.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:13:59,306 INFO Applied decay.pressure_win_rate.half_life: 12 → 6
+2026-03-13 14:15:37,961 INFO feature_engine complete
+2026-03-13 14:15:47,481 INFO Calling Haiku for decision...
+2026-03-13 14:15:49,078 INFO Decision: NEUTRAL
+Pressure win-rate decay reduction from 12mo to 6mo produces no measurable improvement (Δ=0.0000), maintaining calibration baseline; switching to untested parameter category.
+2026-03-13 14:15:49,165 INFO [NEUTRAL] 20260313-061 — decay.pressure_win_rate.half_life → 6: Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent clutch performance more heavily to capture contextual pressure-point volatility on hard courts where high-leverage situations drive serve-dependent strategy shifts.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-061.json
+2026-03-13 14:15:49,166 INFO Reverted decay.pressure_win_rate.half_life → 12
+2026-03-13 14:15:49,166 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:15:49,166 INFO ── Experiment 63 ──────────────────────────────
+2026-03-13 14:15:49,171 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:15:51,404 INFO Proposal: ```json
+{
+  "param": "cluster.serve_weight",
+  "new_value": 1.5,
+  "rationale": "Serve-weight clustering is untested; increasing from 1.0 to 1.5 will amplify archetype differentiation based on serve patterns, directly targeting hard-court serve-dependent signals that have remained masked across 8 consecutive experiments in decay, confidence, window, and k-value categories.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:15:51,407 INFO Applied cluster.serve_weight: 1.0 → 1.5
+2026-03-13 14:17:01,960 INFO feature_engine complete
+2026-03-13 14:17:11,209 INFO Calling Haiku for decision...
+2026-03-13 14:17:13,260 INFO Decision: NEUTRAL
+Cluster serve weighting increase from 1.0 to 1.5 shows no improvement; maintaining neutral status after 9 consecutive experiments without meaningful Brier reduction suggests category exhaustion—prepare to switch away from cluster/confidence tuning toward decay parameters with untested ranges.
+2026-03-13 14:17:13,340 INFO [NEUTRAL] 20260313-062 — cluster.serve_weight → 1.5: Serve-weight clustering is untested; increasing from 1.0 to 1.5 will amplify archetype differentiation based on serve patterns, directly targeting hard-court serve-dependent signals that have remained masked across 8 consecutive experiments in decay, confidence, window, and k-value categories.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-062.json
+2026-03-13 14:17:13,341 INFO Reverted cluster.serve_weight → 1.0
+2026-03-13 14:17:13,341 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:17:13,341 INFO ── Experiment 64 ──────────────────────────────
+2026-03-13 14:17:13,346 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:17:15,098 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot type mix decay is untested; aggressive reduction from 24mo to 12mo will weight recent stroke distribution shifts more heavily to capture tactical adaptation patterns on hard courts where serve-dependent shot selection evolves rapidly.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:17:15,100 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 14:18:04,442 INFO feature_engine complete
+2026-03-13 14:18:13,674 INFO Calling Haiku for decision...
+2026-03-13 14:18:16,912 INFO Decision: NEUTRAL
+Shot-type mix decay at 12mo shows no degradation (Brier flat at 0.2521, cal_error stable at 0.1067), but 9 consecutive neutral/revert experiments across decay, confidence, window, and cluster categories suggest the calibration plateau requires a different optimization axis—switching focus to serve-dependent feature interactions or confidence shrinkage magnitude rather than individual decay half-lives.
+2026-03-13 14:18:16,983 INFO [NEUTRAL] 20260313-063 — decay.shot_type_mix.half_life → 12: Shot type mix decay is untested; aggressive reduction from 24mo to 12mo will weight recent stroke distribution shifts more heavily to capture tactical adaptation patterns on hard courts where serve-dependent shot selection evolves rapidly.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-063.json
+2026-03-13 14:18:16,983 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 14:18:16,984 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:18:16,984 INFO ── Experiment 65 ──────────────────────────────
+2026-03-13 14:18:16,988 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:18:18,455 INFO Proposal: ```json
+{
+  "param": "decay.net_tendency.half_life",
+  "new_value": 12,
+  "rationale": "Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net approach patterns more heavily to capture tactical adaptation on hard courts where serve-dependent net strategy evolves rapidly, directly addressing the calibration plateau across 9 consecutive experiments.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:18:18,457 INFO Applied decay.net_tendency.half_life: 24 → 12
+2026-03-13 14:19:11,979 INFO feature_engine complete
+2026-03-13 14:19:21,250 INFO Calling Haiku for decision...
+2026-03-13 14:19:23,099 INFO Decision: NEUTRAL
+Net tendency decay reduction from 24mo to 12mo shows no signal; this tactical feature may be less predictive than serve-direction or pressure metrics on hard courts, warranting a pivot to unexplored feature interactions or confidence boundary refinement.
+2026-03-13 14:19:23,168 INFO [NEUTRAL] 20260313-064 — decay.net_tendency.half_life → 12: Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net approach patterns more heavily to capture tactical adaptation on hard courts where serve-dependent net strategy evolves rapidly, directly addressing the calibration plateau across 9 consecutive experiments.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-064.json
+2026-03-13 14:19:23,169 INFO Reverted decay.net_tendency.half_life → 24
+2026-03-13 14:19:23,169 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:19:23,169 INFO ── Experiment 66 ──────────────────────────────
+2026-03-13 14:19:23,174 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:19:25,249 INFO Proposal: ```json
+{
+  "param": "decay.error_rate.half_life",
+  "new_value": 6,
+  "rationale": "Error rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent unforced errors more heavily to capture opponent-specific weakness exploitation patterns on hard courts where serve-dependent follow-up shot selection depends critically on recent error tendencies.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:19:25,251 INFO Applied decay.error_rate.half_life: 12 → 6
+2026-03-13 14:20:28,082 INFO feature_engine complete
+2026-03-13 14:20:37,648 INFO Calling Haiku for decision...
+2026-03-13 14:20:39,595 INFO Decision: NEUTRAL
+Δ=0.0000 falls within the neutral band (-0.002 to +0.001); error_rate decay shows no movement yet, consistent with 10 consecutive neutral/revert experiments across decay, confidence, window, and cluster categories—pattern suggests fundamental model saturation rather than parameter sensitivity.
+2026-03-13 14:20:39,674 INFO [NEUTRAL] 20260313-065 — decay.error_rate.half_life → 6: Error rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent unforced errors more heavily to capture opponent-specific weakness exploitation patterns on hard courts where serve-dependent follow-up shot selection depends critically on recent error tendencies.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-065.json
+2026-03-13 14:20:39,674 INFO Reverted decay.error_rate.half_life → 12
+2026-03-13 14:20:39,675 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:20:39,675 INFO ── Experiment 67 ──────────────────────────────
+2026-03-13 14:20:39,679 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:20:41,769 INFO Proposal: ```json
+{
+  "param": "confidence.low_threshold",
+  "new_value": 20,
+  "rationale": "Low threshold is untested; increasing from 10 to 20 will reduce false-positive low-confidence predictions on hard courts where borderline predictions are currently misclassified, directly breaking the 9-experiment calibration plateau by tightening confidence boundaries.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:20:41,770 INFO Applied confidence.low_threshold: 10 → 20
+2026-03-13 14:21:26,452 INFO feature_engine complete
+2026-03-13 14:21:35,548 INFO Calling Haiku for decision...
+2026-03-13 14:21:37,603 INFO Decision: NEUTRAL
+Brier delta of +0.0000 falls within the neutral band (-0.002 to +0.001); no meaningful improvement detected, but gate passed safely at calibration_error=0.1067.
+2026-03-13 14:21:37,682 INFO [NEUTRAL] 20260313-066 — confidence.low_threshold → 20: Low threshold is untested; increasing from 10 to 20 will reduce false-positive low-confidence predictions on hard courts where borderline predictions are currently misclassified, directly breaking the 9-experiment calibration plateau by tightening confidence boundaries.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-066.json
+2026-03-13 14:21:37,682 INFO Reverted confidence.low_threshold → 10
+2026-03-13 14:21:37,683 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:21:37,683 INFO ── Experiment 68 ──────────────────────────────
+2026-03-13 14:21:37,687 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:21:39,788 INFO Proposal: ```json
+{
+  "param": "confidence.moderate_threshold",
+  "new_value": 45,
+  "rationale": "Moderate threshold is untested; increasing from 30 to 45 will widen the moderate-confidence band to reduce misclassification of borderline predictions into high-confidence, directly addressing the 10-experiment calibration plateau by improving confidence calibration on hard courts.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 14:21:39,789 INFO Applied confidence.moderate_threshold: 30 → 45
+2026-03-13 14:22:31,098 INFO feature_engine complete
+2026-03-13 14:22:40,401 INFO Calling Haiku for decision...
+2026-03-13 14:22:42,347 INFO Decision: NEUTRAL
+Confidence threshold adjustment produced no measurable improvement; reverting to baseline to preserve statistical clarity while exploring untested parameter spaces.
+2026-03-13 14:22:42,411 INFO [NEUTRAL] 20260313-067 — confidence.moderate_threshold → 45: Moderate threshold is untested; increasing from 30 to 45 will widen the moderate-confidence band to reduce misclassification of borderline predictions into high-confidence, directly addressing the 10-experiment calibration plateau by improving confidence calibration on hard courts.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-067.json
+2026-03-13 14:22:42,412 INFO Reverted confidence.moderate_threshold → 30
+2026-03-13 14:22:42,412 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:22:42,412 INFO ── Experiment 69 ──────────────────────────────
+2026-03-13 14:22:42,416 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:22:44,497 INFO Proposal: ```json
+{
+  "param": "cluster.k",
+  "new_value": 5,
+  "rationale": "Reduce archetype clusters from 7 to 5 to eliminate over-fragmentation noise and force stronger signal aggregation across serve-dependent hard-court patterns, directly addressing the 10-experiment calibration plateau by improving cluster stability.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 14:22:44,498 INFO Applied cluster.k: 7 → 5
+2026-03-13 14:23:38,195 INFO feature_engine complete
+2026-03-13 14:23:47,316 INFO Calling Haiku for decision...
+2026-03-13 14:23:49,503 INFO Decision: NEUTRAL
+Brier delta of +0.0000 falls within the neutral band (−0.002 to +0.001); no meaningful improvement but gate passed, so hold and try a different parameter category.
+2026-03-13 14:23:49,581 INFO [NEUTRAL] 20260313-068 — cluster.k → 5: Reduce archetype clusters from 7 to 5 to eliminate over-fragmentation noise and force stronger signal aggregation across serve-dependent hard-court patterns, directly addressing the 10-experiment calibration plateau by improving cluster stability.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-068.json
+2026-03-13 14:23:49,582 INFO Reverted cluster.k → 7
+2026-03-13 14:23:49,582 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:23:49,582 INFO ── Experiment 70 ──────────────────────────────
+2026-03-13 14:23:49,586 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:23:53,107 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 18,
+  "rationale": "Serve direction decay remains untested; aggressive reduction from 36mo to 18mo will weight recent directional tendencies more heavily to capture serve-pattern adaptation on hard courts where opponent-specific positioning evolves rapidly, directly targeting the masked serve-dependent signals that have plateaued across 11 consecutive experiments in other decay, confidence, window, and cluster categories.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 14:23:53,108 INFO Applied decay.serve_direction.half_life: 36 → 18
+2026-03-13 14:24:43,009 INFO feature_engine complete
+2026-03-13 14:24:52,836 INFO Calling Haiku for decision...
+2026-03-13 14:24:54,854 INFO Decision: REVERT
+Brier degraded by +0.0008 (delta > +0.001), indicating aggressive serve-direction decay hurts hard-court prediction accuracy.
+2026-03-13 14:24:54,925 INFO [REVERT] 20260313-069 — decay.serve_direction.half_life → 18: Serve direction decay remains untested; aggressive reduction from 36mo to 18mo will weight recent directional tendencies more heavily to capture serve-pattern adaptation on hard courts where opponent-specific positioning evolves rapidly, directly targeting the masked serve-dependent signals that have plateaued across 11 consecutive experiments in other decay, confidence, window, and cluster categories.
+  Brier delta:    +0.0008  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-069.json
+2026-03-13 14:24:54,926 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 14:24:54,927 INFO Result: REVERT Brier=0.2529 Δ=+0.0008 cal=0.1120
+2026-03-13 14:24:54,927 INFO ── Experiment 71 ──────────────────────────────
+2026-03-13 14:24:54,930 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:24:56,858 INFO Proposal: ```json
+{
+  "param": "decay.pressure_win_rate.half_life",
+  "new_value": 6,
+  "rationale": "Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance more heavily to capture match-context-dependent shot selection on hard courts where serve-dependent pressure response patterns evolve rapidly.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:24:56,859 INFO Applied decay.pressure_win_rate.half_life: 12 → 6
+2026-03-13 14:26:24,655 INFO feature_engine complete
+2026-03-13 14:26:34,017 INFO Calling Haiku for decision...
+2026-03-13 14:26:37,767 INFO Decision: NEUTRAL
+Pressure win rate decay reduction shows no signal change (Δ=0.0000); calibration holds stable at 0.1067, but without improvement, reverting to baseline 12mo is prudent to preserve parameter simplicity for future multi-parameter interactions.
+2026-03-13 14:26:37,861 INFO [NEUTRAL] 20260313-070 — decay.pressure_win_rate.half_life → 6: Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance more heavily to capture match-context-dependent shot selection on hard courts where serve-dependent pressure response patterns evolve rapidly.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-070.json
+2026-03-13 14:26:37,863 INFO Reverted decay.pressure_win_rate.half_life → 12
+2026-03-13 14:26:37,864 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:26:37,864 INFO ── Experiment 72 ──────────────────────────────
+2026-03-13 14:26:37,871 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:26:39,918 INFO Proposal: ```json
+{
+  "param": "window.serve_plus1",
+  "new_value": 1,
+  "rationale": "Window parameters are completely untested; reducing serve_plus1 window from 2 to 1 will tighten shot-sequence context to immediate post-serve patterns only, isolating core serve-dependent prediction signals masked by the 11-experiment plateau across decay, confidence, and cluster categories.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 14:26:39,920 INFO Applied window.serve_plus1: 2 → 1
+2026-03-13 14:28:39,162 INFO feature_engine complete
+2026-03-13 14:28:47,972 INFO Calling Haiku for decision...
+2026-03-13 14:28:52,016 INFO Decision: NEUTRAL
+Window serve_plus1 reduction from 2 to 1 shows no Brier improvement (delta 0.0000) and calibration remains flat at 0.1067, indicating that tighter serve+1 shot sequencing does not resolve the plateau.
+2026-03-13 14:28:52,096 INFO [NEUTRAL] 20260313-071 — window.serve_plus1 → 1: Window parameters are completely untested; reducing serve_plus1 window from 2 to 1 will tighten shot-sequence context to immediate post-serve patterns only, isolating core serve-dependent prediction signals masked by the 11-experiment plateau across decay, confidence, and cluster categories.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-071.json
+2026-03-13 14:28:52,097 INFO Reverted window.serve_plus1 → 2
+2026-03-13 14:28:52,097 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:28:52,097 INFO ── Experiment 73 ──────────────────────────────
+2026-03-13 14:28:52,101 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:28:55,642 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot type mix decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/volley distributions more heavily to capture opponent-specific tactical adaptation on hard courts where serve-dependent shot selection patterns evolve rapidly, directly targeting the masked signals that have plateaued across 12 consecutive experiments.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:28:55,644 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 14:29:45,807 INFO feature_engine complete
+2026-03-13 14:29:54,567 INFO Calling Haiku for decision...
+2026-03-13 14:29:59,191 INFO Decision: NEUTRAL
+Shot-type mix decay at 12mo produces no measurable improvement (Δ=0.0000), consistent with the 12-experiment plateau; reverting to 24mo preserves the baseline while continuing systematic exploration of untested parameter combinations.
+2026-03-13 14:29:59,270 INFO [NEUTRAL] 20260313-072 — decay.shot_type_mix.half_life → 12: Shot type mix decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/volley distributions more heavily to capture opponent-specific tactical adaptation on hard courts where serve-dependent shot selection patterns evolve rapidly, directly targeting the masked signals that have plateaued across 12 consecutive experiments.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-072.json
+2026-03-13 14:29:59,271 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 14:29:59,271 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:29:59,271 INFO ── Experiment 74 ──────────────────────────────
+2026-03-13 14:29:59,274 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:30:01,033 INFO Proposal: ```json
+{
+  "param": "decay.net_tendency.half_life",
+  "new_value": 12,
+  "rationale": "Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-play patterns more heavily to capture serve-and-volley or approach-shot adaptation on hard courts where net positioning evolves rapidly, targeting the masked tactical signals that have plateaued across 12 consecutive experiments in other decay categories.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:30:01,035 INFO Applied decay.net_tendency.half_life: 24 → 12
+2026-03-13 14:30:51,527 INFO feature_engine complete
+2026-03-13 14:31:00,826 INFO Calling Haiku for decision...
+2026-03-13 14:31:03,497 INFO Decision: NEUTRAL
+Net-tendency decay reduction from 24mo to 12mo produces no meaningful change (Δ=0.0000), remaining locked in the 12-experiment calibration plateau; switching to untested parameter categories next.
+2026-03-13 14:31:03,587 INFO [NEUTRAL] 20260313-073 — decay.net_tendency.half_life → 12: Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-play patterns more heavily to capture serve-and-volley or approach-shot adaptation on hard courts where net positioning evolves rapidly, targeting the masked tactical signals that have plateaued across 12 consecutive experiments in other decay categories.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-073.json
+2026-03-13 14:31:03,588 INFO Reverted decay.net_tendency.half_life → 24
+2026-03-13 14:31:03,588 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:31:03,588 INFO ── Experiment 75 ──────────────────────────────
+2026-03-13 14:31:03,593 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:31:06,775 INFO Proposal: ```json
+{
+  "param": "decay.rally_patterns.half_life",
+  "new_value": 9,
+  "rationale": "Rally patterns decay is untested; aggressive reduction from 18mo to 9mo will weight recent rally structure more heavily to capture serve-dependent rally evolution on hard courts, targeting the masked signals that have plateaued across 13 consecutive experiments in decay, confidence, window, and cluster categories.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 14:31:06,778 INFO Applied decay.rally_patterns.half_life: 18 → 9
+2026-03-13 14:32:04,089 INFO feature_engine complete
+2026-03-13 14:32:13,307 INFO Calling Haiku for decision...
+2026-03-13 14:32:15,692 INFO Decision: REVERT
+Brier degraded by +0.0013 (> +0.001 threshold), and calibration error increased from 0.1067 to 0.1162, indicating that aggressive rally-pattern decay (9mo vs 18mo) over-weights recent patterns at the expense of predictive stability on hard courts.
+2026-03-13 14:32:15,788 INFO [REVERT] 20260313-074 — decay.rally_patterns.half_life → 9: Rally patterns decay is untested; aggressive reduction from 18mo to 9mo will weight recent rally structure more heavily to capture serve-dependent rally evolution on hard courts, targeting the masked signals that have plateaued across 13 consecutive experiments in decay, confidence, window, and cluster categories.
+  Brier delta:    +0.0013  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-074.json
+2026-03-13 14:32:15,790 INFO Reverted decay.rally_patterns.half_life → 18
+2026-03-13 14:32:15,790 INFO Result: REVERT Brier=0.2534 Δ=+0.0013 cal=0.1162
+2026-03-13 14:32:15,790 INFO ── Experiment 76 ──────────────────────────────
+2026-03-13 14:32:15,795 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:32:17,943 INFO Proposal: ```json
+{
+  "param": "confidence.low_threshold",
+  "new_value": 20,
+  "rationale": "Low threshold is untested; increasing from 10 to 20 will raise the bar for low-confidence predictions, forcing more predictions into moderate/high bands to improve calibration discrimination and break the 14-experiment plateau where confidence thresholds remain under-optimized.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:32:17,945 INFO Applied confidence.low_threshold: 10 → 20
+2026-03-13 14:33:03,135 INFO feature_engine complete
+2026-03-13 14:33:16,305 INFO Calling Haiku for decision...
+2026-03-13 14:33:18,054 INFO Decision: NEUTRAL
+Brier delta of -0.0001 falls within the neutral band (-0.002 to +0.001), and calibration remains healthy at 0.1079, so this parameter adjustment produces no meaningful signal for decision-making.
+2026-03-13 14:33:18,109 INFO [NEUTRAL] 20260313-075 — confidence.low_threshold → 20: Low threshold is untested; increasing from 10 to 20 will raise the bar for low-confidence predictions, forcing more predictions into moderate/high bands to improve calibration discrimination and break the 14-experiment plateau where confidence thresholds remain under-optimized.
+  Brier delta:    -0.0001  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-075.json
+2026-03-13 14:33:18,110 INFO Reverted confidence.low_threshold → 10
+2026-03-13 14:33:18,111 INFO Result: NEUTRAL Brier=0.2520 Δ=-0.0001 cal=0.1079
+2026-03-13 14:33:18,111 INFO ── Experiment 77 ──────────────────────────────
+2026-03-13 14:33:18,115 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:33:20,166 INFO Proposal: ```json
+{
+  "param": "confidence.moderate_threshold",
+  "new_value": 45,
+  "rationale": "Moderate threshold is completely untested; increasing from 30 to 45 will widen the moderate-confidence band to capture more shot predictions with partial historical support, breaking the calibration plateau by improving discrimination between confident and uncertain predictions where serve-dependent patterns show marginal signal strength.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:33:20,169 INFO Applied confidence.moderate_threshold: 30 → 45
+2026-03-13 14:34:10,856 INFO feature_engine complete
+2026-03-13 14:34:20,131 INFO Calling Haiku for decision...
+2026-03-13 14:34:22,771 INFO Decision: NEUTRAL
+Confidence moderate threshold adjustment 30→45 maintains calibration but produces no measurable improvement; within noise band and consistent with 15-experiment plateau pattern.
+2026-03-13 14:34:22,853 INFO [NEUTRAL] 20260313-076 — confidence.moderate_threshold → 45: Moderate threshold is completely untested; increasing from 30 to 45 will widen the moderate-confidence band to capture more shot predictions with partial historical support, breaking the calibration plateau by improving discrimination between confident and uncertain predictions where serve-dependent patterns show marginal signal strength.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-076.json
+2026-03-13 14:34:22,855 INFO Reverted confidence.moderate_threshold → 30
+2026-03-13 14:34:22,856 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:34:22,856 INFO ── Experiment 78 ──────────────────────────────
+2026-03-13 14:34:22,861 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:34:24,927 INFO Proposal: ```json
+{
+  "param": "cluster.k",
+  "new_value": 5,
+  "rationale": "Cluster count is completely untested; reducing k from 7 to 5 will consolidate archetypes to eliminate noise and improve signal-to-noise ratio in serve-dependent pattern discrimination on hard courts, directly addressing the 14-experiment plateau where feature aggregation remains under-optimized.",
+  "expected_delta": "-0.0025"
+}
+```
+2026-03-13 14:34:24,930 INFO Applied cluster.k: 7 → 5
+2026-03-13 14:35:14,434 INFO feature_engine complete
+2026-03-13 14:35:23,638 INFO Calling Haiku for decision...
+2026-03-13 14:35:25,645 INFO Decision: NEUTRAL
+Brier unchanged at 0.2521 (delta +0.0000), within neutral band; cluster k remains under-optimized for hard court serve-dependent patterns where archetype discrimination plateaus across 15 consecutive experiments.
+2026-03-13 14:35:25,726 INFO [NEUTRAL] 20260313-077 — cluster.k → 5: Cluster count is completely untested; reducing k from 7 to 5 will consolidate archetypes to eliminate noise and improve signal-to-noise ratio in serve-dependent pattern discrimination on hard courts, directly addressing the 14-experiment plateau where feature aggregation remains under-optimized.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-077.json
+2026-03-13 14:35:25,726 INFO Reverted cluster.k → 7
+2026-03-13 14:35:25,727 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:35:25,727 INFO ── Experiment 79 ──────────────────────────────
+2026-03-13 14:35:25,731 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:35:27,898 INFO Proposal: ```json
+{
+  "param": "cluster.serve_weight",
+  "new_value": 1.5,
+  "rationale": "Serve weight is untested; increasing from 1.0 to 1.5 will amplify serve-pattern archetypes in clustering to prioritize serve-dependent discrimination, breaking the 15-experiment plateau by leveraging the hard-court serve-dominance signal that remains under-weighted in the current archetype model.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:35:27,899 INFO Applied cluster.serve_weight: 1.0 → 1.5
+2026-03-13 14:36:37,895 INFO feature_engine complete
+2026-03-13 14:36:47,111 INFO Calling Haiku for decision...
+2026-03-13 14:36:49,100 INFO Decision: NEUTRAL
+No meaningful change in Brier score (Δ=0.0000); calibration holds steady at 0.1067, but serve-weight upweighting to 1.5 shows no signal improvement on hard courts.
+2026-03-13 14:36:49,143 INFO [NEUTRAL] 20260313-078 — cluster.serve_weight → 1.5: Serve weight is untested; increasing from 1.0 to 1.5 will amplify serve-pattern archetypes in clustering to prioritize serve-dependent discrimination, breaking the 15-experiment plateau by leveraging the hard-court serve-dominance signal that remains under-weighted in the current archetype model.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-078.json
+2026-03-13 14:36:49,143 INFO Reverted cluster.serve_weight → 1.0
+2026-03-13 14:36:49,143 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:36:49,143 INFO ── Experiment 80 ──────────────────────────────
+2026-03-13 14:36:49,146 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:36:51,867 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 18,
+  "rationale": "Serve direction decay is untested; aggressive reduction from 36mo to 18mo will weight recent directional tendencies (wide/body/T) more heavily to capture serve-location adaptation on hard courts where opponent positioning shifts rapidly, targeting the masked directional-discrimination signal that has plateaued across 15 consecutive experiments in other decay, confidence, window, and cluster categories.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:36:51,868 INFO Applied decay.serve_direction.half_life: 36 → 18
+2026-03-13 14:37:41,477 INFO feature_engine complete
+2026-03-13 14:37:50,670 INFO Calling Haiku for decision...
+2026-03-13 14:37:53,205 INFO Decision: REVERT
+Brier degraded by +0.0008 (delta > +0.001 threshold), indicating that accelerating serve-direction decay from 36mo to 18mo over-weights recent noise at the expense of stable serve-pattern signal on hard courts.
+2026-03-13 14:37:53,285 INFO [REVERT] 20260313-079 — decay.serve_direction.half_life → 18: Serve direction decay is untested; aggressive reduction from 36mo to 18mo will weight recent directional tendencies (wide/body/T) more heavily to capture serve-location adaptation on hard courts where opponent positioning shifts rapidly, targeting the masked directional-discrimination signal that has plateaued across 15 consecutive experiments in other decay, confidence, window, and cluster categories.
+  Brier delta:    +0.0008  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-079.json
+2026-03-13 14:37:53,286 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 14:37:53,286 INFO Result: REVERT Brier=0.2529 Δ=+0.0008 cal=0.1120
+2026-03-13 14:37:53,286 INFO ── Experiment 81 ──────────────────────────────
+2026-03-13 14:37:53,290 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:37:55,791 INFO Proposal: ```json
+{
+  "param": "decay.pressure_win_rate.half_life",
+  "new_value": 6,
+  "rationale": "Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance more heavily to capture match-situation adaptation on hard courts where clutch performance patterns shift rapidly, targeting the masked pressure-discrimination signal that has plateaued across 16 consecutive experiments across all other decay categories.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:37:55,792 INFO Applied decay.pressure_win_rate.half_life: 12 → 6
+2026-03-13 14:38:44,754 INFO feature_engine complete
+2026-03-13 14:38:54,159 INFO Calling Haiku for decision...
+2026-03-13 14:38:56,182 INFO Decision: NEUTRAL
+Pressure win-rate decay reduction from 12mo to 6mo shows no measurable signal; staying neutral preserves calibration while exploring alternative decay parameters that may interact more meaningfully with hard-court serve-dependent patterns.
+2026-03-13 14:38:56,272 INFO [NEUTRAL] 20260313-080 — decay.pressure_win_rate.half_life → 6: Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance more heavily to capture match-situation adaptation on hard courts where clutch performance patterns shift rapidly, targeting the masked pressure-discrimination signal that has plateaued across 16 consecutive experiments across all other decay categories.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-080.json
+2026-03-13 14:38:56,273 INFO Reverted decay.pressure_win_rate.half_life → 12
+2026-03-13 14:38:56,274 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:38:56,274 INFO ── Experiment 82 ──────────────────────────────
+2026-03-13 14:38:56,278 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:38:58,640 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot-type mix decay remains completely untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/volley distribution more heavily to capture serve-dependent court positioning adaptation on hard courts, breaking the 16-experiment plateau by targeting the unexamined temporal weighting that masks tactical shot-selection signals.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:38:58,642 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 14:39:49,635 INFO feature_engine complete
+2026-03-13 14:39:59,225 INFO Calling Haiku for decision...
+2026-03-13 14:40:00,960 INFO Decision: NEUTRAL
+Shot type mix decay reduction (24→12mo) holds calibration but shows no predictive improvement; neutral signal warrants retention for potential interaction effects with untested confidence thresholds.
+2026-03-13 14:40:01,047 INFO [NEUTRAL] 20260313-081 — decay.shot_type_mix.half_life → 12: Shot-type mix decay remains completely untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/volley distribution more heavily to capture serve-dependent court positioning adaptation on hard courts, breaking the 16-experiment plateau by targeting the unexamined temporal weighting that masks tactical shot-selection signals.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-081.json
+2026-03-13 14:40:01,049 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 14:40:01,049 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:40:01,049 INFO ── Experiment 83 ──────────────────────────────
+2026-03-13 14:40:01,055 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:40:03,152 INFO Proposal: ```json
+{
+  "param": "window.serve_plus1",
+  "new_value": 3,
+  "rationale": "Window parameters are completely untested; increasing serve_plus1 window from 2 to 3 will capture longer post-serve shot sequences to improve serve-dependent pattern discrimination where the current 2-shot window may be too narrow to distinguish tactical second-shot responses on hard courts.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 14:40:03,154 INFO Applied window.serve_plus1: 2 → 3
+2026-03-13 14:40:57,482 INFO feature_engine complete
+2026-03-13 14:41:06,492 INFO Calling Haiku for decision...
+2026-03-13 14:41:08,500 INFO Decision: NEUTRAL
+Window serve_plus1 adjustment shows no meaningful signal; continuing systematic exploration across untested parameter spaces to break the 17-experiment calibration plateau.
+2026-03-13 14:41:08,584 INFO [NEUTRAL] 20260313-082 — window.serve_plus1 → 3: Window parameters are completely untested; increasing serve_plus1 window from 2 to 3 will capture longer post-serve shot sequences to improve serve-dependent pattern discrimination where the current 2-shot window may be too narrow to distinguish tactical second-shot responses on hard courts.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-082.json
+2026-03-13 14:41:08,584 INFO Reverted window.serve_plus1 → 2
+2026-03-13 14:41:08,585 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:41:08,585 INFO ── Experiment 84 ──────────────────────────────
+2026-03-13 14:41:08,589 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:41:11,265 INFO Proposal: ```json
+{
+  "param": "decay.rally_patterns.half_life",
+  "new_value": 9,
+  "rationale": "Rally patterns decay is completely untested; aggressive reduction from 18mo to 9mo will weight recent rally-construction sequences more heavily to capture tactical adaptation on hard courts where opponents adjust patterns match-to-match, targeting the unexamined temporal weighting in rally structure that masks serve-dependent point-construction signals after 17 consecutive neutral/revert experiments across confidence, cluster, window, and pressure/shot-type decay categories.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:41:11,267 INFO Applied decay.rally_patterns.half_life: 18 → 9
+2026-03-13 14:42:00,753 INFO feature_engine complete
+2026-03-13 14:42:10,082 INFO Calling Haiku for decision...
+2026-03-13 14:42:11,789 INFO Decision: REVERT
+Brier increased by +0.0013 (worse), exceeding the +0.001 threshold for reversion despite gate passage.
+2026-03-13 14:42:11,857 INFO [REVERT] 20260313-083 — decay.rally_patterns.half_life → 9: Rally patterns decay is completely untested; aggressive reduction from 18mo to 9mo will weight recent rally-construction sequences more heavily to capture tactical adaptation on hard courts where opponents adjust patterns match-to-match, targeting the unexamined temporal weighting in rally structure that masks serve-dependent point-construction signals after 17 consecutive neutral/revert experiments across confidence, cluster, window, and pressure/shot-type decay categories.
+  Brier delta:    +0.0013  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-083.json
+2026-03-13 14:42:11,857 INFO Reverted decay.rally_patterns.half_life → 18
+2026-03-13 14:42:11,857 INFO Result: REVERT Brier=0.2534 Δ=+0.0013 cal=0.1162
+2026-03-13 14:42:11,857 INFO ── Experiment 85 ──────────────────────────────
+2026-03-13 14:42:11,861 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:42:14,757 INFO Proposal: ```json
+{
+  "param": "decay.net_tendency.half_life",
+  "new_value": 12,
+  "rationale": "Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-approach patterns more heavily to capture tactical adaptation on hard courts where serve-and-volley tendencies and net positioning shift rapidly, targeting the unexamined temporal weighting in approach-shot discrimination that remains masked after 18 consecutive experiments across other decay, confidence, cluster, and window categories.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:42:14,758 INFO Applied decay.net_tendency.half_life: 24 → 12
+2026-03-13 14:43:03,884 INFO feature_engine complete
+2026-03-13 14:43:13,115 INFO Calling Haiku for decision...
+2026-03-13 14:43:15,278 INFO Decision: NEUTRAL
+Net-tendency decay reduction from 24mo to 12mo produces no measurable Brier improvement (Δ=0.0000), continuing the 18-experiment plateau across decay, confidence, window, and cluster categories; this untested temporal weighting shows no discrimination signal on hard courts and should be reverted to explore orthogonal parameter spaces.
+2026-03-13 14:43:15,344 INFO [NEUTRAL] 20260313-084 — decay.net_tendency.half_life → 12: Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-approach patterns more heavily to capture tactical adaptation on hard courts where serve-and-volley tendencies and net positioning shift rapidly, targeting the unexamined temporal weighting in approach-shot discrimination that remains masked after 18 consecutive experiments across other decay, confidence, cluster, and window categories.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-084.json
+2026-03-13 14:43:15,344 INFO Reverted decay.net_tendency.half_life → 24
+2026-03-13 14:43:15,345 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:43:15,345 INFO ── Experiment 86 ──────────────────────────────
+2026-03-13 14:43:15,349 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:43:17,428 INFO Proposal: ```json
+{
+  "param": "confidence.low_threshold",
+  "new_value": 20,
+  "rationale": "Confidence thresholds are largely untested (only low_threshold=10 appeared once); increasing low_threshold from 10 to 20 will tighten confidence classification to reduce false-positive high-confidence predictions on hard courts, targeting miscalibration that has remained masked across 19 consecutive experiments in decay, cluster, and window categories.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:43:17,430 INFO Applied confidence.low_threshold: 10 → 20
+2026-03-13 14:44:05,392 INFO feature_engine complete
+2026-03-13 14:44:14,541 INFO Calling Haiku for decision...
+2026-03-13 14:44:16,310 INFO Decision: NEUTRAL
+Confidence threshold adjustment shows no meaningful movement; flat performance suggests low_threshold sensitivity is orthogonal to current hard-court prediction bottleneck.
+2026-03-13 14:44:16,389 INFO [NEUTRAL] 20260313-085 — confidence.low_threshold → 20: Confidence thresholds are largely untested (only low_threshold=10 appeared once); increasing low_threshold from 10 to 20 will tighten confidence classification to reduce false-positive high-confidence predictions on hard courts, targeting miscalibration that has remained masked across 19 consecutive experiments in decay, cluster, and window categories.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-085.json
+2026-03-13 14:44:16,389 INFO Reverted confidence.low_threshold → 10
+2026-03-13 14:44:16,389 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:44:16,389 INFO ── Experiment 87 ──────────────────────────────
+2026-03-13 14:44:16,393 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:44:18,664 INFO Proposal: ```json
+{
+  "param": "confidence.moderate_threshold",
+  "new_value": 45,
+  "rationale": "Confidence thresholds remain largely untested (only low_threshold variants tried); increasing moderate_threshold from 30 to 45 will widen the moderate confidence band to reduce over-shrinkage of mid-confidence predictions, targeting miscalibration signals masked across 20 consecutive neutral/revert experiments.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:44:18,665 INFO Applied confidence.moderate_threshold: 30 → 45
+2026-03-13 14:45:09,159 INFO feature_engine complete
+2026-03-13 14:45:18,636 INFO Calling Haiku for decision...
+2026-03-13 14:45:21,748 INFO Decision: NEUTRAL
+Confidence threshold adjustment maintains baseline performance with no meaningful improvement; moderate_threshold 30→45 shows stability but no discrimination gain after 20 consecutive neutral/revert experiments across all parameter categories.
+2026-03-13 14:45:21,832 INFO [NEUTRAL] 20260313-086 — confidence.moderate_threshold → 45: Confidence thresholds remain largely untested (only low_threshold variants tried); increasing moderate_threshold from 30 to 45 will widen the moderate confidence band to reduce over-shrinkage of mid-confidence predictions, targeting miscalibration signals masked across 20 consecutive neutral/revert experiments.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-086.json
+2026-03-13 14:45:21,832 INFO Reverted confidence.moderate_threshold → 30
+2026-03-13 14:45:21,833 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:45:21,833 INFO ── Experiment 88 ──────────────────────────────
+2026-03-13 14:45:21,837 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:45:23,676 INFO Proposal: ```json
+{
+  "param": "cluster.k",
+  "new_value": 5,
+  "rationale": "Cluster count is completely untested; reducing k from 7 to 5 will merge similar archetypes to reduce overfitting and improve calibration on hard courts where serve-dependent patterns may be over-segmented.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 14:45:23,678 INFO Applied cluster.k: 7 → 5
+2026-03-13 14:46:30,430 INFO feature_engine complete
+2026-03-13 14:46:41,654 INFO Calling Haiku for decision...
+2026-03-13 14:46:43,775 INFO Decision: NEUTRAL
+Cluster k reduction from 7 to 5 produces no measurable improvement (Δ=0.0000); maintains baseline calibration but does not advance optimization.
+2026-03-13 14:46:43,842 INFO [NEUTRAL] 20260313-087 — cluster.k → 5: Cluster count is completely untested; reducing k from 7 to 5 will merge similar archetypes to reduce overfitting and improve calibration on hard courts where serve-dependent patterns may be over-segmented.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-087.json
+2026-03-13 14:46:43,843 INFO Reverted cluster.k → 7
+2026-03-13 14:46:43,843 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:46:43,843 INFO ── Experiment 89 ──────────────────────────────
+2026-03-13 14:46:43,848 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:46:47,969 INFO Proposal: ```json
+{
+  "param": "cluster.serve_weight",
+  "new_value": 1.5,
+  "rationale": "Serve weight in clustering is completely untested; increasing from 1.0 to 1.5 will amplify serve-dependent archetype discrimination on hard courts where serve dominance is the primary point-construction differentiator, directly targeting the persistent calibration plateau after 21 neutral/revert experiments across decay, window, confidence, and cluster.k.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 14:46:47,972 INFO Applied cluster.serve_weight: 1.0 → 1.5
+2026-03-13 14:49:03,238 INFO feature_engine complete
+2026-03-13 14:49:12,805 INFO Calling Haiku for decision...
+2026-03-13 14:49:15,321 INFO Decision: NEUTRAL
+Brier delta of +0.0000 falls within the neutral band (−0.002 to +0.001); cluster.serve_weight increase to 1.5 shows no signal of improvement or degradation, maintaining calibration while offering no measurable gain.
+2026-03-13 14:49:15,405 INFO [NEUTRAL] 20260313-088 — cluster.serve_weight → 1.5: Serve weight in clustering is completely untested; increasing from 1.0 to 1.5 will amplify serve-dependent archetype discrimination on hard courts where serve dominance is the primary point-construction differentiator, directly targeting the persistent calibration plateau after 21 neutral/revert experiments across decay, window, confidence, and cluster.k.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-088.json
+2026-03-13 14:49:15,408 INFO Reverted cluster.serve_weight → 1.0
+2026-03-13 14:49:15,409 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:49:15,409 INFO ── Experiment 90 ──────────────────────────────
+2026-03-13 14:49:15,414 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:49:17,678 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 18,
+  "rationale": "Serve direction decay is completely untested; aggressive reduction from 36mo to 18mo will weight recent serve-placement patterns more heavily to capture tactical adaptation on hard courts where serve direction shifts are the primary variance driver, directly targeting the unexamined temporal weighting in serve placement that masks point-construction signals after 22 consecutive neutral/revert experiments.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 14:49:17,681 INFO Applied decay.serve_direction.half_life: 36 → 18
+2026-03-13 14:51:28,530 INFO feature_engine complete
+2026-03-13 14:51:37,692 INFO Calling Haiku for decision...
+2026-03-13 14:51:38,993 INFO Decision: REVERT
+Brier delta +0.0008 exceeds the +0.001 revert threshold, indicating aggressive serve_direction decay (18mo vs 36mo) worsens calibration on hard courts.
+2026-03-13 14:51:39,075 INFO [REVERT] 20260313-089 — decay.serve_direction.half_life → 18: Serve direction decay is completely untested; aggressive reduction from 36mo to 18mo will weight recent serve-placement patterns more heavily to capture tactical adaptation on hard courts where serve direction shifts are the primary variance driver, directly targeting the unexamined temporal weighting in serve placement that masks point-construction signals after 22 consecutive neutral/revert experiments.
+  Brier delta:    +0.0008  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-089.json
+2026-03-13 14:51:39,076 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 14:51:39,076 INFO Result: REVERT Brier=0.2529 Δ=+0.0008 cal=0.1120
+2026-03-13 14:51:39,076 INFO ── Experiment 91 ──────────────────────────────
+2026-03-13 14:51:39,080 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:51:41,246 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot type mix decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/slice distributions more heavily to capture tactical adaptation on hard courts where stroke-type selection changes rapidly within matches.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:51:41,248 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 14:52:32,671 INFO feature_engine complete
+2026-03-13 14:52:41,779 INFO Calling Haiku for decision...
+2026-03-13 14:52:43,811 INFO Decision: NEUTRAL
+Shot-type mix decay at 12mo shows no improvement over 24mo; the parameter remains in neutral territory after 23 consecutive experiments without meaningful gains.
+2026-03-13 14:52:43,871 INFO [NEUTRAL] 20260313-090 — decay.shot_type_mix.half_life → 12: Shot type mix decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/slice distributions more heavily to capture tactical adaptation on hard courts where stroke-type selection changes rapidly within matches.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-090.json
+2026-03-13 14:52:43,871 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 14:52:43,871 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:52:43,871 INFO ── Experiment 92 ──────────────────────────────
+2026-03-13 14:52:43,875 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:52:46,270 INFO Proposal: ```json
+{
+  "param": "confidence.min_n_shrinkage",
+  "new_value": 50,
+  "rationale": "min_n_shrinkage is completely untested; increasing from 30 to 50 will apply Bayesian shrinkage to more observations, reducing overconfidence on sparse hard-court archetype samples and targeting miscalibration signals that have persisted across 23 neutral/revert experiments.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 14:52:46,273 INFO Applied confidence.min_n_shrinkage: 30 → 50
+2026-03-13 14:53:42,804 INFO feature_engine complete
+2026-03-13 14:53:53,829 INFO Calling Haiku for decision...
+2026-03-13 14:53:55,801 INFO Decision: NEUTRAL
+Increasing min_n_shrinkage from 30 to 50 tightens Bayesian shrinkage thresholds with no measurable impact (Δ=0.0000), suggesting the shrinkage mechanism may be insensitive to this parameter range on hard courts or already well-tuned at baseline.
+2026-03-13 14:53:55,880 INFO [NEUTRAL] 20260313-091 — confidence.min_n_shrinkage → 50: min_n_shrinkage is completely untested; increasing from 30 to 50 will apply Bayesian shrinkage to more observations, reducing overconfidence on sparse hard-court archetype samples and targeting miscalibration signals that have persisted across 23 neutral/revert experiments.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-091.json
+2026-03-13 14:53:55,881 INFO Reverted confidence.min_n_shrinkage → 30
+2026-03-13 14:53:55,882 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:53:55,882 INFO ── Experiment 93 ──────────────────────────────
+2026-03-13 14:53:55,886 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:53:57,643 INFO Proposal: ```json
+{
+  "param": "decay.pressure_win_rate.half_life",
+  "new_value": 6,
+  "rationale": "Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance more heavily to capture match-specific momentum and clutch-point patterns on hard courts where psychological state shifts rapidly.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:53:57,644 INFO Applied decay.pressure_win_rate.half_life: 12 → 6
+2026-03-13 14:56:38,564 INFO feature_engine complete
+2026-03-13 14:56:48,266 INFO Calling Haiku for decision...
+2026-03-13 14:56:50,599 INFO Decision: NEUTRAL
+Pressure win-rate decay at 6mo shows no improvement (Δ=0.0000); this marks the 24th consecutive neutral/revert experiment across decay, window, confidence, and cluster categories, indicating we may need to shift focus or revisit parameter interaction effects rather than continue isolated single-parameter tuning.
+2026-03-13 14:56:50,663 INFO [NEUTRAL] 20260313-092 — decay.pressure_win_rate.half_life → 6: Pressure win-rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent high-pressure performance more heavily to capture match-specific momentum and clutch-point patterns on hard courts where psychological state shifts rapidly.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-092.json
+2026-03-13 14:56:50,663 INFO Reverted decay.pressure_win_rate.half_life → 12
+2026-03-13 14:56:50,663 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:56:50,663 INFO ── Experiment 94 ──────────────────────────────
+2026-03-13 14:56:50,667 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:56:52,862 INFO Proposal: ```json
+{
+  "param": "decay.net_tendency.half_life",
+  "new_value": 12,
+  "rationale": "Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-approach patterns more heavily to capture tactical adaptation on hard courts where serve-and-volley or approach-shot frequency shifts are rapid and point-construction critical.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:56:52,864 INFO Applied decay.net_tendency.half_life: 24 → 12
+2026-03-13 14:57:43,066 INFO feature_engine complete
+2026-03-13 14:57:53,051 INFO Calling Haiku for decision...
+2026-03-13 14:57:55,327 INFO Decision: NEUTRAL
+Net tendency decay halving from 24mo to 12mo produces no measurable Brier improvement (delta +0.0000), consistent with 24 consecutive neutral/revert experiments across all parameter categories, indicating the baseline model is locally optimal or the hard-court test set lacks sufficient net-approach variance to discriminate temporal weighting strategies.
+2026-03-13 14:57:55,392 INFO [NEUTRAL] 20260313-093 — decay.net_tendency.half_life → 12: Net tendency decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent net-approach patterns more heavily to capture tactical adaptation on hard courts where serve-and-volley or approach-shot frequency shifts are rapid and point-construction critical.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-093.json
+2026-03-13 14:57:55,393 INFO Reverted decay.net_tendency.half_life → 24
+2026-03-13 14:57:55,393 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 14:57:55,393 INFO ── Experiment 95 ──────────────────────────────
+2026-03-13 14:57:55,396 INFO Calling Haiku for experiment proposal...
+2026-03-13 14:57:57,683 INFO Proposal: ```json
+{
+  "param": "decay.error_rate.half_life",
+  "new_value": 6,
+  "rationale": "Error rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent unforced-error patterns more heavily to capture fatigue and pressure-induced error variance on hard courts where surface-dependent error spikes are rapid and predictive of break-point vulnerability.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 14:57:57,684 INFO Applied decay.error_rate.half_life: 12 → 6
+2026-03-13 15:00:02,809 INFO feature_engine complete
+2026-03-13 15:00:12,393 INFO Calling Haiku for decision...
+2026-03-13 15:00:14,496 INFO Decision: NEUTRAL
+Error-rate decay acceleration (12mo→6mo) shows no calibration movement; reverting to 12mo to preserve baseline while exploring untested confidence and clustering parameters that may address the persistent 0.1067 calibration plateau.
+2026-03-13 15:00:14,559 INFO [NEUTRAL] 20260313-094 — decay.error_rate.half_life → 6: Error rate decay is completely untested; aggressive reduction from 12mo to 6mo will weight recent unforced-error patterns more heavily to capture fatigue and pressure-induced error variance on hard courts where surface-dependent error spikes are rapid and predictive of break-point vulnerability.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-094.json
+2026-03-13 15:00:14,561 INFO Reverted decay.error_rate.half_life → 12
+2026-03-13 15:00:14,561 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 15:00:14,561 INFO ── Experiment 96 ──────────────────────────────
+2026-03-13 15:00:14,566 INFO Calling Haiku for experiment proposal...
+2026-03-13 15:00:17,054 INFO Proposal: ```json
+{
+  "param": "confidence.low_threshold",
+  "new_value": 20,
+  "rationale": "Low threshold is completely untested; increasing from 10 to 20 will raise the confidence gate for sparse archetype samples, reducing false-positive high-confidence predictions that inflate Brier score on hard courts where archetype coverage is uneven.",
+  "expected_delta": "-0.002"
+}
+```
+2026-03-13 15:00:17,056 INFO Applied confidence.low_threshold: 10 → 20
+2026-03-13 15:01:51,607 INFO feature_engine complete
+2026-03-13 15:02:00,899 INFO Calling Haiku for decision...
+2026-03-13 15:02:03,144 INFO Decision: NEUTRAL
+Brier delta is exactly 0.0, within the neutral band (-0.002 to +0.001); confidence.low_threshold adjustment shows no signal yet, consistent with 24 consecutive neutral/revert experiments across all parameter categories.
+2026-03-13 15:02:03,212 INFO [NEUTRAL] 20260313-095 — confidence.low_threshold → 20: Low threshold is completely untested; increasing from 10 to 20 will raise the confidence gate for sparse archetype samples, reducing false-positive high-confidence predictions that inflate Brier score on hard courts where archetype coverage is uneven.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-095.json
+2026-03-13 15:02:03,212 INFO Reverted confidence.low_threshold → 10
+2026-03-13 15:02:03,212 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 15:02:03,212 INFO ── Experiment 97 ──────────────────────────────
+2026-03-13 15:02:03,216 INFO Calling Haiku for experiment proposal...
+2026-03-13 15:02:05,707 INFO Proposal: ```json
+{
+  "param": "cluster.rally_weight",
+  "new_value": 1.5,
+  "rationale": "Rally pattern weighting in clustering is untested; increasing from 1.0 to 1.5 will amplify rally-structure discrimination to capture point-construction sequences on hard courts where baseline rally patterns are more predictive than serve-dominated archetypes, targeting the calibration plateau after 24 consecutive neutral/revert experiments across decay, window, and confidence.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 15:02:05,708 INFO Applied cluster.rally_weight: 1.0 → 1.5
+2026-03-13 15:02:56,514 INFO feature_engine complete
+2026-03-13 15:03:06,948 INFO Calling Haiku for decision...
+2026-03-13 15:03:09,229 INFO Decision: NEUTRAL
+Brier delta is exactly 0.0, falling within the neutral band (-0.002 to +0.001); cluster.rally_weight increase to 1.5 produces no measurable improvement after 24 consecutive neutral/revert experiments, suggesting the archetype clustering mechanism is already saturated or the hard-court dataset lacks sufficient rally-pattern variance to reward weight amplification.
+2026-03-13 15:03:09,291 INFO [NEUTRAL] 20260313-096 — cluster.rally_weight → 1.5: Rally pattern weighting in clustering is untested; increasing from 1.0 to 1.5 will amplify rally-structure discrimination to capture point-construction sequences on hard courts where baseline rally patterns are more predictive than serve-dominated archetypes, targeting the calibration plateau after 24 consecutive neutral/revert experiments across decay, window, and confidence.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-096.json
+2026-03-13 15:03:09,292 INFO Reverted cluster.rally_weight → 1.0
+2026-03-13 15:03:09,292 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 15:03:09,292 INFO ── Experiment 98 ──────────────────────────────
+2026-03-13 15:03:09,296 INFO Calling Haiku for experiment proposal...
+2026-03-13 15:03:10,840 INFO Proposal: ```json
+{
+  "param": "cluster.k",
+  "new_value": 5,
+  "rationale": "Cluster count is completely untested; reducing from 7 to 5 will merge over-fragmented archetypes and reduce sparse-sample miscalibration on hard courts where archetype diversity may be artificially inflated.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 15:03:10,841 INFO Applied cluster.k: 7 → 5
+2026-03-13 15:04:19,524 INFO feature_engine complete
+2026-03-13 15:04:28,893 INFO Calling Haiku for decision...
+2026-03-13 15:04:31,084 INFO Decision: NEUTRAL
+Reducing k from 7 to 5 clusters yields no Brier improvement (Δ=0.0000); gate passes but delta falls in neutral band, warranting archetype-space exploration in orthogonal direction.
+2026-03-13 15:04:31,150 INFO [NEUTRAL] 20260313-097 — cluster.k → 5: Cluster count is completely untested; reducing from 7 to 5 will merge over-fragmented archetypes and reduce sparse-sample miscalibration on hard courts where archetype diversity may be artificially inflated.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-097.json
+2026-03-13 15:04:31,151 INFO Reverted cluster.k → 7
+2026-03-13 15:04:31,151 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 15:04:31,151 INFO ── Experiment 99 ──────────────────────────────
+2026-03-13 15:04:31,155 INFO Calling Haiku for experiment proposal...
+2026-03-13 15:04:33,428 INFO Proposal: ```json
+{
+  "param": "decay.serve_direction.half_life",
+  "new_value": 18,
+  "rationale": "Serve direction is the only decay parameter untested; aggressive reduction from 36mo to 18mo will weight recent serving patterns more heavily to capture tactical serve placement adaptation on hard courts where first-serve direction against specific opponents shifts rapidly within matches.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 15:04:33,429 INFO Applied decay.serve_direction.half_life: 36 → 18
+2026-03-13 15:05:29,285 INFO feature_engine complete
+2026-03-13 15:05:39,096 INFO Calling Haiku for decision...
+2026-03-13 15:05:40,848 INFO Decision: REVERT
+Brier degraded by +0.0008 (delta > +0.001), indicating serve direction decay at 18mo weakens hard-court predictions; reverting to 36mo baseline.
+2026-03-13 15:05:40,927 INFO [REVERT] 20260313-098 — decay.serve_direction.half_life → 18: Serve direction is the only decay parameter untested; aggressive reduction from 36mo to 18mo will weight recent serving patterns more heavily to capture tactical serve placement adaptation on hard courts where first-serve direction against specific opponents shifts rapidly within matches.
+  Brier delta:    +0.0008  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-098.json
+2026-03-13 15:05:40,928 INFO Reverted decay.serve_direction.half_life → 36
+2026-03-13 15:05:40,928 INFO Result: REVERT Brier=0.2529 Δ=+0.0008 cal=0.1120
+2026-03-13 15:05:40,928 INFO ── Experiment 100 ──────────────────────────────
+2026-03-13 15:05:40,933 INFO Calling Haiku for experiment proposal...
+2026-03-13 15:05:46,072 INFO Proposal: ```json
+{
+  "param": "decay.shot_type_mix.half_life",
+  "new_value": 12,
+  "rationale": "Shot-type mix decay is the only untested decay parameter; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/slice distributions more heavily to capture tactical adaptation on hard courts where shot selection variance within pressure sequences is rapid and predictive.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 15:05:46,073 INFO Applied decay.shot_type_mix.half_life: 24 → 12
+2026-03-13 15:07:03,052 INFO feature_engine complete
+2026-03-13 15:07:12,868 INFO Calling Haiku for decision...
+2026-03-13 15:07:14,755 INFO Decision: NEUTRAL
+Shot-type mix decay reduction from 24mo to 12mo produces no measurable improvement; this is the 25th consecutive neutral/revert in decay/window/confidence categories, suggesting the calibration plateau requires a fundamentally different parameter category or feature architecture change.
+2026-03-13 15:07:14,833 INFO [NEUTRAL] 20260313-099 — decay.shot_type_mix.half_life → 12: Shot-type mix decay is the only untested decay parameter; aggressive reduction from 24mo to 12mo will weight recent forehand/backhand/slice distributions more heavily to capture tactical adaptation on hard courts where shot selection variance within pressure sequences is rapid and predictive.
+  Brier delta:    +0.0000  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-099.json
+2026-03-13 15:07:14,834 INFO Reverted decay.shot_type_mix.half_life → 24
+2026-03-13 15:07:14,834 INFO Result: NEUTRAL Brier=0.2521 Δ=+0.0000 cal=0.1067
+2026-03-13 15:07:14,834 INFO ── Experiment 101 ──────────────────────────────
+2026-03-13 15:07:14,838 INFO Calling Haiku for experiment proposal...
+2026-03-13 15:07:17,311 INFO Proposal: ```json
+{
+  "param": "cluster.serve_weight",
+  "new_value": 0.7,
+  "rationale": "Serve weighting in clustering is completely untested; reducing from 1.0 to 0.7 will de-emphasize serve-dominated archetype discrimination and allow rally-structure patterns to emerge as primary clustering driver, addressing the calibration plateau where serve-centric archetypes may be over-fragmenting predictions on hard courts.",
+  "expected_delta": "-0.003"
+}
+```
+2026-03-13 15:07:17,313 INFO Applied cluster.serve_weight: 1.0 → 0.7
+2026-03-13 15:07:38,487 ERROR feature_engine failed:
+2026-03-13 15:07:17,534 INFO Running feature pipeline for surface: hard
+2026-03-13 15:07:17,764 INFO Loading points data...
+Traceback (most recent call last):
+  File "/Users/robertsong/Documents/tennis-analytics/feature_engine.py", line 616, in <module>
+    run_feature_pipeline(surface=args.surface, validate=args.validate)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/robertsong/Documents/tennis-analytics/feature_engine.py", line 502, in run_feature_pipeline
+    cur.execute("""
+    ~~~~~~~~~~~^^^^
+        SELECT
+        ^^^^^^
+    ...<8 lines>...
+        WHERE m.match_date <= %s
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    """, (TRAINING_CUTOFF,))
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: SSL SYSCALL error: EOF detected
+
+
+2026-03-13 15:07:38,488 INFO Reverted cluster.serve_weight → 1.0
+2026-03-13 15:07:38,488 INFO ── Experiment 102 ──────────────────────────────
+2026-03-13 15:07:38,492 INFO Calling Haiku for experiment proposal...
+2026-03-13 15:07:41,342 INFO Proposal: ```json
+{
+  "param": "cluster.serve_weight",
+  "new_value": 1.5,
+  "rationale": "Serve weighting in clustering is completely untested; increasing from 1.0 to 1.5 will amplify serve-pattern discrimination to balance against the recent rally_weight increase, capturing serve-dominated archetype structure on hard courts where first-serve accuracy and serve-direction consistency are primary point-construction drivers.",
+  "expected_delta": "-0.0015"
+}
+```
+2026-03-13 15:07:41,343 INFO Applied cluster.serve_weight: 1.0 → 1.5
+2026-03-13 15:10:00,210 INFO feature_engine complete
+2026-03-13 15:10:01,193 INFO Calling Haiku for decision...
+2026-03-13 15:10:03,408 INFO Decision: REVERT
+Gate failed (calibration error exceeded 0.15 threshold); serve-weight increase to 1.5 destabilized archetype confidence estimates on hard court, reverting to 1.0.
+--- Logging error ---
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/logging/__init__.py", line 1151, in emit
+    msg = self.format(record)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/logging/__init__.py", line 999, in format
+    return fmt.format(record)
+           ~~~~~~~~~~^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/logging/__init__.py", line 712, in format
+    record.message = record.getMessage()
+                     ~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/logging/__init__.py", line 400, in getMessage
+    msg = msg % self.args
+          ~~~~^~~~~~~~~~~
+TypeError: must be real number, not NoneType
+Call stack:
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/run_agent.py", line 537, in <module>
+    main()
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/run_agent.py", line 497, in main
+    logger.warning("Gate failed (cal_error=%.4f > 0.15) — forcing REVERT", cal_error)
+Message: 'Gate failed (cal_error=%.4f > 0.15) — forcing REVERT'
+Arguments: (None,)
+2026-03-13 15:10:03,490 INFO [REVERT] 20260313-100 — cluster.serve_weight → 1.5: Serve weighting in clustering is completely untested; increasing from 1.0 to 1.5 will amplify serve-pattern discrimination to balance against the recent rally_weight increase, capturing serve-dominated archetype structure on hard courts where first-serve accuracy and serve-direction consistency are primary point-construction drivers.
+  Brier delta:    N/A  (lower is better)
+  Next-shot k2:   N/A  (higher is better)
+  Branch: feature/phase-8-agent-loop
+  Logged to: /Users/robertsong/Documents/tennis-analytics/experiments/results/20260313-100.json
+2026-03-13 15:10:03,491 INFO Reverted cluster.serve_weight → 1.0
+Traceback (most recent call last):
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/run_agent.py", line 537, in <module>
+    main()
+    ~~~~^^
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/run_agent.py", line 518, in main
+    f"**{exp_id}** [{decision}] Brier={brier} Δ={delta:+.4f}\n"
+                                                ^^^^^^^^^^^^
+TypeError: unsupported format string passed to NoneType.__format__

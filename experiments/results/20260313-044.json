@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-044",
+  "timestamp": "2026-03-13T13:50:17.290965",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "decay.shot_type_mix.half_life \u2192 12: Shot type mix decay is completely untested; aggressive reduction from 24mo to 12mo will weight recent serve+rally composition patterns more heavily, directly targeting calibration error where stale tactical mixing may be diluting serve-dependent confidence signals that have resisted 14 consecutive neutral/revert experiments across decay, confidence, clustering, and windowing.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

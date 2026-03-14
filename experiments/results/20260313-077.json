@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-077",
+  "timestamp": "2026-03-13T14:35:25.719718",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "cluster.k \u2192 5: Cluster count is completely untested; reducing k from 7 to 5 will consolidate archetypes to eliminate noise and improve signal-to-noise ratio in serve-dependent pattern discrimination on hard courts, directly addressing the 14-experiment plateau where feature aggregation remains under-optimized.",
+  "decision": "NEUTRAL",
+  "brier_score": 0.2521,
+  "brier_delta": 0.0,
+  "calibration_error": 0.1067,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": 386,
+  "surface": "hard"
+}

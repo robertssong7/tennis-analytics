@@ -1,0 +1,15 @@
+{
+  "exp_id": "20260313-100",
+  "timestamp": "2026-03-13T15:10:03.485593",
+  "branch": "feature/phase-8-agent-loop",
+  "description": "cluster.serve_weight \u2192 1.5: Serve weighting in clustering is completely untested; increasing from 1.0 to 1.5 will amplify serve-pattern discrimination to balance against the recent rally_weight increase, capturing serve-dominated archetype structure on hard courts where first-serve accuracy and serve-direction consistency are primary point-construction drivers.",
+  "decision": "REVERT",
+  "brier_score": null,
+  "brier_delta": null,
+  "calibration_error": null,
+  "next_shot_k2": null,
+  "next_shot_k2_delta": null,
+  "next_shot_k4": null,
+  "n_matches": null,
+  "surface": "hard"
+}
