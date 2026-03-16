@@ -116,6 +116,13 @@ def load_sackmann_matches() -> pd.DataFrame:
     # Sort chronologically (this is critical for the rolling pass)
     df = df.sort_values("tourney_date").reset_index(drop=True)
 
+    # Filter to Open Era (1968+) — pre-Open Era data uses different rules,
+    # surfaces, and scoring; it adds noise and pollutes career/H2H counters.
+    n_before = len(df)
+    df = df[df["tourney_date"] >= pd.Timestamp("1968-01-01")].reset_index(drop=True)
+    n_after = len(df)
+    print(f"Open Era filter: removed {n_before - n_after:,} pre-1968 matches, {n_after:,} remaining")
+
     # Ensure numeric types for stats columns
     stat_cols = [
         "w_ace", "w_df", "w_svpt", "w_1stIn", "w_1stWon", "w_2ndWon",
@@ -123,6 +130,7 @@ def load_sackmann_matches() -> pd.DataFrame:
         "l_ace", "l_df", "l_svpt", "l_1stIn", "l_1stWon", "l_2ndWon",
         "l_SvGms", "l_bpSaved", "l_bpFaced",
         "minutes", "winner_rank", "loser_rank", "best_of",
+        "winner_age", "loser_age",
     ]
     for col in stat_cols:
         if col in df.columns:
@@ -433,6 +441,121 @@ class LegacyAccumulator:
 
 
 # ============================================================================
+# H2H helpers
+# ============================================================================
+
+def snapshot_h2h(h2h_state: dict, p1: str, p2: str, surface: str) -> dict:
+    """
+    Snapshot H2H features from p1's perspective BEFORE updating state.
+    h2h_state key: frozenset({player_a, player_b})
+    h2h_state value: list of (winner_name, surface, date) tuples (oldest first)
+
+    NaN convention:
+    - Rate-based features (win_rate, surface_win_rate, recency) are NaN when
+      the denominator is 0 — XGBoost/LGBM handle NaN natively and learn the
+      optimal routing direction. This is strictly better than a fake 0.5.
+    - Count-based features (wins, total) are real zeros — never NaN.
+    - h2h_has_history is a binary flag: 1 if any previous meeting, else 0.
+    """
+    key = frozenset({p1, p2})
+    history = h2h_state.get(key, [])
+
+    h2h_wins_p1 = sum(1 for w, s, d in history if w == p1)
+    h2h_wins_p2 = len(history) - h2h_wins_p1
+    h2h_total = len(history)
+    h2h_has_history = 1.0 if h2h_total > 0 else 0.0
+
+    # Rate features: NaN when no history
+    h2h_win_rate_p1 = h2h_wins_p1 / h2h_total if h2h_total > 0 else float("nan")
+
+    surface_history = [(w, s, d) for w, s, d in history if s == surface]
+    h2h_surface_wins_p1 = sum(1 for w, s, d in surface_history if w == p1)
+    h2h_surface_total = len(surface_history)
+    # NaN when: no history at all, OR history exists but none on this surface
+    h2h_surface_win_rate_p1 = (
+        h2h_surface_wins_p1 / h2h_surface_total
+        if h2h_surface_total > 0
+        else float("nan")
+    )
+
+    # Exponentially weighted recency (decay=0.9, most recent match index=0)
+    # NaN when no history
+    if history:
+        recency_sum = 0.0
+        weight_sum = 0.0
+        for i, (w, s, d) in enumerate(reversed(history)):
+            weight = 0.9 ** i
+            recency_sum += weight * (1.0 if w == p1 else 0.0)
+            weight_sum += weight
+        h2h_recency_p1 = recency_sum / weight_sum
+    else:
+        h2h_recency_p1 = float("nan")
+
+    # Streak: NaN when no history
+    if history:
+        h2h_streak_p1 = 0.0
+        for w, s, d in reversed(history):
+            if w == p1:
+                h2h_streak_p1 += 1
+            else:
+                break
+        h2h_streak_p2 = 0.0
+        for w, s, d in reversed(history):
+            if w == p2:
+                h2h_streak_p2 += 1
+            else:
+                break
+    else:
+        h2h_streak_p1 = float("nan")
+        h2h_streak_p2 = float("nan")
+
+    return {
+        "h2h_wins_p1": float(h2h_wins_p1),
+        "h2h_wins_p2": float(h2h_wins_p2),
+        "h2h_total": float(h2h_total),
+        "h2h_has_history": h2h_has_history,
+        "h2h_win_rate_p1": h2h_win_rate_p1,
+        "h2h_surface_wins_p1": float(h2h_surface_wins_p1),
+        "h2h_surface_total": float(h2h_surface_total),
+        "h2h_surface_win_rate_p1": h2h_surface_win_rate_p1,
+        "h2h_recency_p1": h2h_recency_p1,
+        "h2h_streak_p1": h2h_streak_p1,
+        # Internal fields used only for the flip — not written to feature rows
+        "_h2h_streak_p2": h2h_streak_p2,
+        "_h2h_surface_wins_p2": float(h2h_surface_total - h2h_surface_wins_p1),
+    }
+
+
+def flip_h2h(snap: dict) -> dict:
+    """
+    Flip a winner-as-p1 H2H snapshot to produce the loser-as-p1 equivalent.
+    Every field is explicitly remapped — no implicit pass-through.
+    NaN values stay NaN: do NOT compute (1 - nan), return nan directly.
+    """
+    def _complement(v):
+        """1 - v, but NaN stays NaN."""
+        return float("nan") if (isinstance(v, float) and math.isnan(v)) else 1.0 - v
+
+    return {
+        "h2h_wins_p1": snap["h2h_wins_p2"],
+        "h2h_wins_p2": snap["h2h_wins_p1"],
+        "h2h_total": snap["h2h_total"],
+        "h2h_has_history": snap["h2h_has_history"],  # symmetric
+        "h2h_win_rate_p1": _complement(snap["h2h_win_rate_p1"]),
+        "h2h_surface_wins_p1": snap["_h2h_surface_wins_p2"],
+        "h2h_surface_total": snap["h2h_surface_total"],
+        "h2h_surface_win_rate_p1": _complement(snap["h2h_surface_win_rate_p1"]),
+        "h2h_recency_p1": _complement(snap["h2h_recency_p1"]),
+        "h2h_streak_p1": snap["_h2h_streak_p2"],  # NaN when no history
+    }
+
+
+def strip_h2h_internals(snap: dict) -> dict:
+    """Remove internal _ fields before writing to feature row."""
+    return {k: v for k, v in snap.items() if not k.startswith("_")}
+
+
+# ============================================================================
 # Main chronological pass
 # ============================================================================
 
@@ -466,6 +589,12 @@ def build_features():
     legacy = LegacyAccumulator()
     charted_acc = ChartedAccumulator(window=30)
     attributes: Dict[str, PlayerAttributeAccumulator] = {}
+
+    # H2H state: frozenset({p1, p2}) → [(winner_name, surface, date), ...]
+    h2h_state: Dict = {}
+
+    # Career match counter: player → total matches played so far
+    career_matches: Dict[str, int] = defaultdict(int)
 
     # Helper for name normalization (matches what aggregate_charted_points uses)
     def _norm(name: str) -> str:
@@ -587,6 +716,39 @@ def build_features():
         w_legacy = legacy.snapshot(winner, loser, surface)
         l_legacy = legacy.snapshot(loser, winner, surface)
 
+        # H2H snapshot (winner-as-p1 perspective; flip for loser-as-p1)
+        h2h_snap_wp1 = snapshot_h2h(h2h_state, winner, loser, surface)
+
+        # Age and career features — snapshot counts BEFORE update
+        w_age_raw = row.get("winner_age")
+        l_age_raw = row.get("loser_age")
+        # NaN for missing ages — let XGBoost/LGBM route natively, no fake defaults
+        p1_age = float(w_age_raw) if (w_age_raw is not None and not pd.isna(w_age_raw)) else float("nan")
+        p2_age = float(l_age_raw) if (l_age_raw is not None and not pd.isna(l_age_raw)) else float("nan")
+        # age_diff is NaN if either age is NaN
+        age_diff_wp1 = (p1_age - p2_age) if (not math.isnan(p1_age) and not math.isnan(p2_age)) else float("nan")
+        age_diff_lp1 = (p2_age - p1_age) if (not math.isnan(p1_age) and not math.isnan(p2_age)) else float("nan")
+
+        p1_career_matches = career_matches[winner]
+        p2_career_matches = career_matches[loser]
+
+        age_feats_wp1 = {
+            "p1_age": p1_age,
+            "p2_age": p2_age,
+            "age_diff": age_diff_wp1,
+            "p1_career_matches": float(p1_career_matches),
+            "p2_career_matches": float(p2_career_matches),
+            "career_match_diff": float(p1_career_matches - p2_career_matches),
+        }
+        age_feats_lp1 = {
+            "p1_age": p2_age,
+            "p2_age": p1_age,
+            "age_diff": age_diff_lp1,
+            "p1_career_matches": float(p2_career_matches),
+            "p2_career_matches": float(p1_career_matches),
+            "career_match_diff": float(p2_career_matches - p1_career_matches),
+        }
+
         # Charted features snapshots
         w_charted_snap = charted_acc.snapshot(winner)
         l_charted_snap = charted_acc.snapshot(loser)
@@ -681,6 +843,8 @@ def build_features():
         row_wp1.update(charted_feats_wp1)
         row_wp1.update(legacy_wp1)
         row_wp1.update(wx_wp1)
+        row_wp1.update(strip_h2h_internals(h2h_snap_wp1))
+        row_wp1.update(age_feats_wp1)
 
         # Row 2: loser as p1 (label = 0)
         row_lp1 = {}
@@ -691,6 +855,8 @@ def build_features():
         row_lp1.update(charted_feats_lp1)
         row_lp1.update(legacy_lp1)
         row_lp1.update(wx_lp1)
+        row_lp1.update(flip_h2h(h2h_snap_wp1))
+        row_lp1.update(age_feats_lp1)
 
         feature_rows.append(row_wp1)
         labels.append(1)
@@ -752,6 +918,16 @@ def build_features():
 
         # Legacy accumulators
         legacy.update(winner, loser, surface, match_dict)
+
+        # H2H state update
+        h2h_key = frozenset({winner, loser})
+        if h2h_key not in h2h_state:
+            h2h_state[h2h_key] = []
+        h2h_state[h2h_key].append((winner, surface, match_date))
+
+        # Career match counters
+        career_matches[winner] += 1
+        career_matches[loser] += 1
 
         # Charted accumulator — update only if this match has point-level data
         charted_match = get_charted_for_match(
