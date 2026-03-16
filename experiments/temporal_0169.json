@@ -1,0 +1,12 @@
+{
+  "experiment": 169,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 160 showed n_estimators=750 improved performance by -0.000116. Pushing to maximum range (800) may capture additional ensemble benefit without overfitting risk, especially combined with the max_depth=7 improvements (Exp 163/164: -0.000251).",
+  "elapsed_seconds": 31.551593780517578,
+  "temporal_split": true
+}

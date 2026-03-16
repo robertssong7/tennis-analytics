@@ -1,0 +1,12 @@
+{
+  "experiment": 449,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "Current best is max_depth=7 (Brier=0.185762). Testing smaller depth to reduce overfitting on temporal split and potentially improve generalization to 2023+ matches. Shallower trees often perform better on time-series financial/sports data.",
+  "elapsed_seconds": 25.78454089164734,
+  "temporal_split": true
+}

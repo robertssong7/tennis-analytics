@@ -1,0 +1,88 @@
+Loading 160 Sackmann CSVs...
+Loaded 941,649 matches, 1877-07-09 to 2024-12-18
+Loaded 14 CPI measurements
+Loaded weather cache: 598,649 (date, location) entries
+Aggregating charted points data...
+  Aggregated 7,158 charted matches in 26.5s
+
+============================================================
+WEATHER V2 VALIDATION — Round → actual_match_date
+============================================================
+  US Open                   | level=G | round=R128  | tourney_date=1895-08-20 → actual=1895-08-20 | indoor=False
+  Wimbledon                 | level=G | round=R64   | tourney_date=1878-07-08 → actual=1878-07-10 | indoor=False
+  Wimbledon                 | level=G | round=R32   | tourney_date=1877-07-09 → actual=1877-07-13 | indoor=False
+  Wimbledon                 | level=G | round=QF    | tourney_date=1877-07-09 → actual=1877-07-17 | indoor=False
+  Wimbledon                 | level=G | round=F     | tourney_date=1877-07-09 → actual=1877-07-22 | indoor=False
+============================================================
+
+Processing 941,649 matches chronologically...
+============================================================
+   100,000 / 941,649 | 200,000 features | 77s elapsed | ~644s remaining
+   200,000 / 941,649 | 400,000 features | 115s elapsed | ~426s remaining
+   300,000 / 941,649 | 600,000 features | 161s elapsed | ~344s remaining
+   400,000 / 941,649 | 800,000 features | 207s elapsed | ~281s remaining
+   500,000 / 941,649 | 1,000,000 features | 261s elapsed | ~231s remaining
+   600,000 / 941,649 | 1,200,000 features | 315s elapsed | ~179s remaining
+   700,000 / 941,649 | 1,400,000 features | 374s elapsed | ~129s remaining
+   800,000 / 941,649 | 1,600,000 features | 437s elapsed | ~77s remaining
+   900,000 / 941,649 | 1,800,000 features | 502s elapsed | ~23s remaining
+
+============================================================
+Chronological pass complete: 559.4s
+Processed: 1,883,298 feature rows from 941,649 matches
+Skipped: 0 matches (missing names)
+
+Building DataFrame...
+Feature matrix: 1,883,298 rows × 152 features
+Features: ['surface_code', 'tourney_level_code', 'best_of', 'ball_type', 'match_temp', 'match_humidity', 'match_wind', 'match_precip', 'is_indoor', 'is_extreme_heat', 'is_high_wind', 'is_high_humidity', 'roof_likely_closed', 'imputed_cpi', 'cpi', 'rank_diff', 'p1_elo_all', 'p2_elo_all', 'elo_diff', 'p1_elo_surface']...
+
+Temporal split verification:
+  Train (pre-2023): 1,755,370
+  Test (2023+):     127,928
+
+Saving to /Users/robertsong/Documents/tennis-analytics/data/processed/training_edge_v4.pkl...
+Saved: 2212.7 MB
+Saving player attributes to /Users/robertsong/Documents/tennis-analytics/data/processed/player_attributes_v2.pkl...
+Saved Glicko-2 state: 33916 players
+
+============================================================
+QUICK VALIDATION
+============================================================
+
+Training XGBoost on 1,755,370 rows...
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [22:35:50] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+
+  V4 XGBoost Brier:  0.1830
+  V2 LGBM baseline:  0.1855
+  Delta:             -0.0025
+  IMPROVEMENT — weather v2 + interactions are helping
+
+Top 15 features:
+  elo_surface_diff                    0.3784
+  elo_diff                            0.0405
+  rating_band_overlap                 0.0227
+  rd_diff                             0.0151
+  p2_acute_match_count_7d             0.0144
+  p2_form_3                           0.0140
+  p1_acute_match_count_7d             0.0140
+  tournament_load_30d_diff            0.0135
+  days_rest_diff                      0.0124
+  p1_form_3                           0.0119
+  p2_days_rest                        0.0101
+  p1_days_rest                        0.0096
+  chronic_stress_28d_diff             0.0092
+  form_3_diff                         0.0082
+  tourney_level_code                  0.0077
+
+Model saved to /Users/robertsong/Documents/tennis-analytics/models/hard/best_edge_v2_model.pkl
+
+============================================================
+BUILD COMPLETE
+Total time: 1015.1s (16.9 min)
+Output: /Users/robertsong/Documents/tennis-analytics/data/processed/training_edge_v4.pkl
+Features: 152
+ZERO LEAKAGE: Snapshot before update, temporal split enforced
+============================================================

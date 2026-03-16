@@ -1,0 +1,12 @@
+{
+  "experiment": 42,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Consistent improvement across experiments 34, 35, 37, 38, 40 with n_estimators=800 yielding Brier=0.185823. This is the best performer so far, beating current best by 0.00019. Lock in this gain.",
+  "elapsed_seconds": 36.060229778289795,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 73,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown consistent improvement with \u0394=-0.000251 across multiple experiments (64, 67, 70, 72), making it the most reliably beneficial change. This represents a modest increase from the current depth=6, reducing bias while the subsample/colsample settings control overfitting. Combining with current regularization should yield stable gains on temporal holdout.",
+  "elapsed_seconds": 30.597155809402466,
+  "temporal_split": true
+}

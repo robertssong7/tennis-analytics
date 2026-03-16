@@ -1,0 +1,12 @@
+{
+  "experiment": 489,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 488 shows max_depth=8 achieves Brier=0.185830 (\u0394=-0.000182), which is better than current best of 0.186013. While slightly worse than max_depth=7 (0.185762), it suggests the optimal depth may be between 7-8. Testing max_depth=8 as the new baseline could unlock further improvements when combined with other parameter adjustments in subsequent iterations.",
+  "elapsed_seconds": 33.62848782539368,
+  "temporal_split": true
+}

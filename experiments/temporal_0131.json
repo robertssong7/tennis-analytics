@@ -1,0 +1,12 @@
+{
+  "experiment": 131,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently yields -0.000251 improvement. Increasing n_estimators from 700 to 750 should allow better regularization and smoother gradient updates with the slightly deeper trees, potentially reducing overfitting on temporal split.",
+  "elapsed_seconds": 29.952394008636475,
+  "temporal_split": true
+}

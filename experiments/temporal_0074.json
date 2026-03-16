@@ -1,0 +1,12 @@
+{
+  "experiment": 74,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with n_estimators=700 may be slightly aggressive. Reducing to 0.08 allows for finer gradient steps and better convergence on temporal test data (2023+), potentially reducing overfitting to pre-2023 patterns. Exp 64 showed max_depth=7 as stable improvement (-0.000251); this complements that by tuning the step size.",
+  "elapsed_seconds": 28.552377939224243,
+  "temporal_split": true
+}

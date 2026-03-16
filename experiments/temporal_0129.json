@@ -1,0 +1,12 @@
+{
+  "experiment": 129,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently outperforms baseline by -0.000251 Brier across multiple runs (Exp 119, 120, 122, 123, 125, 127, 128), showing reliable improvement. This is the best validated parameter change so far. Committing this as the new baseline before exploring other dimensions.",
+  "elapsed_seconds": 30.687476873397827,
+  "temporal_split": true
+}

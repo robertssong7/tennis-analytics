@@ -1,0 +1,12 @@
+{
+  "experiment": 10,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 1,
+  "brier": 0.1868678398391901,
+  "delta": 2.1337689361883294e-05,
+  "decision": "NEUTRAL",
+  "rationale": "Experiments 8-9 show consistent improvement trend as min_child_weight decreases (3\u21922 gained -0.00034). Pushing to the lower bound of 1 should continue this pattern, allowing more granular splits that better capture temporal patterns in tennis match outcomes.",
+  "elapsed_seconds": 21.583099842071533,
+  "temporal_split": true
+}

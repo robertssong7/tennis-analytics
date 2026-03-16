@@ -1,0 +1,12 @@
+{
+  "experiment": 141,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 775,
+  "brier": 0.18583140230235054,
+  "delta": -0.00018134358665530814,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 131 showed n_estimators=750 improved Brier by -0.000116. Incrementally increasing to 775 may capture further gains from additional boosting rounds while staying within computational bounds. Combined with max_depth=7 (best recent performer at -0.000251), this explores the n_estimators improvement trajectory.",
+  "elapsed_seconds": 30.687456130981445,
+  "temporal_split": true
+}

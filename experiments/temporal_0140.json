@@ -1,0 +1,12 @@
+{
+  "experiment": 140,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 130, 133, 134, 136 consistently show max_depth=7 achieves Brier=0.185762 (-0.000251 improvement). This is the most reliable improvement signal across multiple runs. Increasing depth from 6 to 7 helps capture more complex match patterns in temporal data without overfitting.",
+  "elapsed_seconds": 30.733744144439697,
+  "temporal_split": true
+}

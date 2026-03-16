@@ -1,0 +1,12 @@
+{
+  "experiment": 409,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate of 0.1 may be too aggressive for temporal data drift. Reducing to 0.08 should improve generalization to 2023+ matches while maintaining reasonable convergence speed. This is a conservative adjustment that pairs well with max_depth=7 (our best performer).",
+  "elapsed_seconds": 28.52634596824646,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 329,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown consistent improvement (\u0394=-0.000251) across multiple experiments (319-322, 325, 328), making it the most reliable positive signal. This modest depth increase from 6 to 7 reduces overfitting while maintaining model complexity appropriate for temporal validation.",
+  "elapsed_seconds": 30.622692108154297,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 250,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current best (Exp 240/243/246/249) uses max_depth=7 with Brier=0.185762. No regularization (reg_alpha=0, reg_lambda=1) may allow overfitting on historical data. Adding L1 regularization should improve generalization to 2023+ temporal test set by feature selection and preventing complex interactions learned from pre-2023 data.",
+  "elapsed_seconds": 28.210012912750244,
+  "temporal_split": true
+}

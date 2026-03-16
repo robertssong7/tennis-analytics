@@ -1,0 +1,12 @@
+{
+  "experiment": 374,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning rate of 0.1 may be causing overshooting in the optimization landscape. Reducing to 0.08 can provide finer-grained updates while maintaining convergence speed. This complements the recent max_depth=7 improvement (Brier=0.185762) by allowing more precise weight adjustments.",
+  "elapsed_seconds": 28.523353099822998,
+  "temporal_split": true
+}

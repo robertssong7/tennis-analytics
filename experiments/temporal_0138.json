@@ -1,0 +1,12 @@
+{
+  "experiment": 138,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently improved Brier by -0.000251. Incrementally increasing to 8 may capture additional tree complexity for temporal patterns in tennis matches while staying within safe regularization bounds.",
+  "elapsed_seconds": 33.595903158187866,
+  "temporal_split": true
+}

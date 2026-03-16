@@ -1,0 +1,12 @@
+{
+  "experiment": 318,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 shows consistent improvement (\u0394=-0.000251). Increasing n_estimators slightly from 700 to 750 may allow better convergence with the optimal depth, potentially capturing more nuanced patterns in the temporal test set without risking overfitting given the regularization already in place.",
+  "elapsed_seconds": 29.860161066055298,
+  "temporal_split": true
+}

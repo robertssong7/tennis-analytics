@@ -1,0 +1,12 @@
+{
+  "experiment": 434,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has consistently shown best Brier score (0.185762) across multiple experiments (424, 425, 426, 428, 431), outperforming current setting (6) and adjacent values (8). This is a confirmed improvement of -0.000251. Making it explicit in the config ensures this better generalization to 2023+ test data.",
+  "elapsed_seconds": 30.69636034965515,
+  "temporal_split": true
+}

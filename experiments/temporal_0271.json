@@ -1,0 +1,12 @@
+{
+  "experiment": 271,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows slight overfitting signals (repeated neutral improvements with max_depth=7). L1 regularization can help prevent overfitting to pre-2023 patterns and improve temporal generalization. Modest reg_alpha value balances regularization without over-constraining.",
+  "elapsed_seconds": 28.204749822616577,
+  "temporal_split": true
+}

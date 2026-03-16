@@ -1,0 +1,12 @@
+{
+  "experiment": 327,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 318 showed n_estimators=750 improved score to 0.185897. Increasing further to max range (800) may capture additional complexity in temporal data with max_depth=7 configuration that's proving optimal.",
+  "elapsed_seconds": 31.484763860702515,
+  "temporal_split": true
+}

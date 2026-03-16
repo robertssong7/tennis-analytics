@@ -1,0 +1,12 @@
+{
+  "experiment": 459,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 450, 452, 455, 456 show max_depth=7-8 consistently achieves best scores (~0.1858). max_depth=8 tied best at 0.185830. Lock in this depth to reduce overfitting risk on temporal 2023+ test set while maintaining predictive power.",
+  "elapsed_seconds": 33.62233901023865,
+  "temporal_split": true
+}

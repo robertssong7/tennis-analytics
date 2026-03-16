@@ -1,0 +1,12 @@
+{
+  "experiment": 62,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 58 and 61 both show max_depth=7 achieves Brier=0.185762, the best score in recent history (-0.000251 improvement). This is consistent across runs and outperforms current depth=6 and nearby values (depth=8 at 0.185830, depth=5 reverted poorly). Deeper trees capture temporal patterns better for 2023+ test data.",
+  "elapsed_seconds": 30.649453163146973,
+  "temporal_split": true
+}

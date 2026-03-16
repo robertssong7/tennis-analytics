@@ -1,0 +1,12 @@
+{
+  "experiment": 48,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 has shown consistent improvement (\u0394=-0.000190) across multiple trials. Incrementally increasing to 820 exploits this trend while staying within range, potentially capturing additional ensemble benefit with marginal computational cost.",
+  "elapsed_seconds": 34.47786211967468,
+  "temporal_split": true
+}

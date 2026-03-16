@@ -1,0 +1,12 @@
+{
+  "experiment": 9,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 2,
+  "brier": 0.18650654800531416,
+  "delta": -0.00033995414451404304,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 8 showed min_child_weight=3 improved Brier by -0.000082. Lower values allow more granular splits on sparse tennis data. Testing min_child_weight=2 should continue this trend while maintaining regularization.",
+  "elapsed_seconds": 21.977672815322876,
+  "temporal_split": true
+}

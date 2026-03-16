@@ -1,0 +1,12 @@
+{
+  "experiment": 487,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current min_child_weight=5 may be too restrictive given max_depth=7 increases complexity. Lowering to 3 allows more granular splits while max_depth=7 has proven beneficial (\u0394=-0.000251). This balances model complexity and regularization.",
+  "elapsed_seconds": 28.005081176757812,
+  "temporal_split": true
+}

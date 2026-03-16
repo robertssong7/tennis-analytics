@@ -1,0 +1,12 @@
+{
+  "experiment": 2,
+  "param": "n_estimators",
+  "old_value": 300,
+  "new_value": 500,
+  "brier": 0.1868465021498282,
+  "delta": -0.000853015881955077,
+  "decision": "KEEP",
+  "rationale": "Current 300 estimators may be underfitting with learning_rate=0.1. Increasing to 500 allows more boosting rounds to capture temporal patterns in 2023+ test data, reducing Brier score. Recent revert to 0.05 suggests we need more iterations to compensate.",
+  "elapsed_seconds": 22.781332969665527,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 359,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 349 showed max_depth=7 consistently achieves best Brier=0.185762 (\u0394=-0.000251), outperforming current max_depth=6 baseline. Multiple replications (Exp 353, 355, 356) confirm stability. This is the strongest identified improvement vector.",
+  "elapsed_seconds": 30.7220561504364,
+  "temporal_split": true
+}

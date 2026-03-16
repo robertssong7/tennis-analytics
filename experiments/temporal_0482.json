@@ -1,0 +1,12 @@
+{
+  "experiment": 482,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has consistently achieved the best Brier score (0.185762) across multiple experiments (472, 473, 474, 479, 481), representing a -0.000251 improvement over baseline. This is the most reliable positive signal in the recent history. Moving from current max_depth=6 to 7 should lock in this demonstrated gain.",
+  "elapsed_seconds": 30.701802015304565,
+  "temporal_split": true
+}

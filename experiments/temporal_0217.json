@@ -1,0 +1,12 @@
+{
+  "experiment": 217,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model has reg_alpha=0 (no L1 regularization). Adding modest L1 regularization can reduce overfitting to pre-2023 patterns and improve temporal generalization to 2023+ matches. max_depth=7 is stabilizing around 0.185762; regularization tuning is next logical direction.",
+  "elapsed_seconds": 28.16569185256958,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 85,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with n_estimators=700 may be too aggressive. Reducing to 0.08 allows for more refined gradient updates over the same number of boosting rounds, potentially improving generalization to 2023+ test data. This conservative adjustment could reduce overfitting while maintaining convergence speed.",
+  "elapsed_seconds": 28.46808671951294,
+  "temporal_split": true
+}

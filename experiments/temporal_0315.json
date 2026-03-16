@@ -1,0 +1,12 @@
+{
+  "experiment": 315,
+  "param": "reg_lambda",
+  "old_value": 1,
+  "new_value": 0.5,
+  "brier": 0.18612809240908054,
+  "delta": 0.00011534652007469393,
+  "decision": "NEUTRAL",
+  "rationale": "Current regularization is minimal (reg_lambda=1, reg_alpha=0). Temporal split tests on future data, making overfitting risk high. Reducing reg_lambda slightly from 1 to 0.5 may improve generalization to 2023+ matches without over-regularizing. max_depth=7 is stable best, so targeting regularization next.",
+  "elapsed_seconds": 27.90464472770691,
+  "temporal_split": true
+}

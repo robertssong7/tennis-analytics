@@ -1,0 +1,12 @@
+{
+  "experiment": 223,
+  "param": "subsample",
+  "old_value": 0.8,
+  "new_value": 0.75,
+  "brier": 0.18636651608198967,
+  "delta": 0.0003537701929838266,
+  "decision": "NEUTRAL",
+  "rationale": "Current subsample=0.8 is relatively high; reducing to 0.75 increases stochasticity and regularization to combat overfitting on temporal split. Recent max_depth=7 improvements suggest room for better generalization via sample subsampling.",
+  "elapsed_seconds": 28.05585479736328,
+  "temporal_split": true
+}

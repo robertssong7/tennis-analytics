@@ -1,0 +1,12 @@
+{
+  "experiment": 333,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 showed -0.00019 improvement. Testing 750 as a middle ground between current best (700) and 800 to find optimal ensemble size without overfitting on temporal split.",
+  "elapsed_seconds": 29.88872981071472,
+  "temporal_split": true
+}

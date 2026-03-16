@@ -1,0 +1,12 @@
+{
+  "experiment": 358,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "max_depth=7 shows consistent small improvements (-0.000251). Testing shallower tree (5) to explore if reduced complexity further improves generalization on 2023+ test set, as current depth may still be slightly overfitting temporal shift.",
+  "elapsed_seconds": 25.889851093292236,
+  "temporal_split": true
+}

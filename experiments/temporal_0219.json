@@ -1,0 +1,12 @@
+{
+  "experiment": 219,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 209, 212, 213, and 216 consistently show max_depth=7 achieves Brier=0.185762, the best score found so far (\u0394=-0.000251). This is a stable, repeatable improvement over the current baseline of 6. Moving from depth 6 to 7 reduces underfitting while maintaining generalization on temporal test split.",
+  "elapsed_seconds": 30.66606903076172,
+  "temporal_split": true
+}

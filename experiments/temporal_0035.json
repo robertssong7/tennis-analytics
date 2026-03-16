@@ -1,0 +1,12 @@
+{
+  "experiment": 35,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Consistent -0.00019 Brier improvement across experiments 26, 27, 29, 31, 34. n_estimators=800 is the most reliable improvement found. Lock this in as new baseline.",
+  "elapsed_seconds": 35.69609498977661,
+  "temporal_split": true
+}

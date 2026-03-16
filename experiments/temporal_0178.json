@@ -1,0 +1,12 @@
+{
+  "experiment": 178,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows stable but marginal improvements with max_depth=7. Adding L1 regularization (reg_alpha) can help reduce overfitting on temporal test data by penalizing feature weights, which is critical for time-series generalization. The baseline has reg_alpha=0, suggesting regularization hasn't been explored.",
+  "elapsed_seconds": 28.11415386199951,
+  "temporal_split": true
+}

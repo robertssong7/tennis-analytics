@@ -1,0 +1,12 @@
+{
+  "experiment": 120,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown the most consistent improvement with \u0394=-0.000251, appearing 5 times in recent experiments with identical results (Exp 111, 114, 116, 117, 119). This consistency indicates stable performance gain. Committing this value allows exploration of complementary regularization parameters to push further.",
+  "elapsed_seconds": 30.641629934310913,
+  "temporal_split": true
+}

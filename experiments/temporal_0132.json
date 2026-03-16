@@ -1,0 +1,12 @@
+{
+  "experiment": 132,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 may be too aggressive for temporal generalization. Reducing to 0.08 should improve regularization and reduce overfitting to pre-2023 patterns while maintaining convergence speed. Combined with max_depth=7 (best performer), this conservative adjustment targets better 2023+ performance.",
+  "elapsed_seconds": 28.515028953552246,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 6,
+  "param": "reg_lambda",
+  "old_value": 1,
+  "new_value": 0.5,
+  "brier": 0.18694746169276155,
+  "delta": 0.00010095954293334874,
+  "decision": "NEUTRAL",
+  "rationale": "Current reg_lambda=1 may be over-regularizing. Temporal split tests generalization to future matches; reducing regularization slightly can improve calibration on 2023+ data while maintaining stability. reg_alpha experiments showed neutral/small positive delta, suggesting regularization space needs refinement.",
+  "elapsed_seconds": 21.441845178604126,
+  "temporal_split": true
+}

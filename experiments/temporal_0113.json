@@ -1,0 +1,12 @@
+{
+  "experiment": 113,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current regularization (reg_alpha=0, reg_lambda=1) may be under-regularizing. Introducing L1 regularization can help reduce overfitting on temporal split by feature selection, potentially improving generalization to 2023+ matches. max_depth=7 has shown consistent ~0.000251 improvement; adding regularization can compound this.",
+  "elapsed_seconds": 28.171797037124634,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 480,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.09,
+  "brier": 0.18645341304958132,
+  "delta": 0.0004406671605754753,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with max_depth=7 shows consistent improvement (Brier=0.185762). Slightly reducing learning_rate to 0.09 may improve generalization on temporal test set by taking smaller, more conservative steps during boosting. This conservative adjustment often reduces overfitting on out-of-distribution 2023+ matches.",
+  "elapsed_seconds": 28.21275520324707,
+  "temporal_split": true
+}

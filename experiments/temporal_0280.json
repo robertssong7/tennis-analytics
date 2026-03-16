@@ -1,0 +1,12 @@
+{
+  "experiment": 280,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 9,
+  "brier": 0.18602347302898609,
+  "delta": 1.0727139980237776e-05,
+  "decision": "NEUTRAL",
+  "rationale": "Gradual depth increase (6\u21927\u21928) shows consistent improvements. max_depth=8 achieved Brier=0.185830. Testing max_depth=9 continues this trend to find optimal complexity for temporal generalization on 2023+ data.",
+  "elapsed_seconds": 36.85758996009827,
+  "temporal_split": true
+}

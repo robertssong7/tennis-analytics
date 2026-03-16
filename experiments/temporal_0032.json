@@ -1,0 +1,12 @@
+{
+  "experiment": 32,
+  "param": "reg_lambda",
+  "old_value": 1,
+  "new_value": 2.0,
+  "brier": 0.1861132170091607,
+  "delta": 0.00010047112015484916,
+  "decision": "NEUTRAL",
+  "rationale": "Current baseline has reg_lambda=1 with no regularization tuning explored yet. Increasing regularization may improve generalization on 2023+ test set by reducing overfitting to pre-2023 training data. Temporal split is prone to distribution shift; stronger L2 penalty could stabilize predictions across time periods.",
+  "elapsed_seconds": 30.01808190345764,
+  "temporal_split": true
+}

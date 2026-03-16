@@ -1,0 +1,12 @@
+{
+  "experiment": 98,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current value of 5 may be too restrictive for a temporal split scenario where recent matches (2023+) may have different patterns. Reducing min_child_weight to 3 allows more flexible leaf nodes to capture temporal dynamics while maintaining regularization. Recent experiments show max_depth=7 consistently improves by -0.000251; lower min_child_weight can complement this by enabling better splits within those deeper trees.",
+  "elapsed_seconds": 27.98154592514038,
+  "temporal_split": true
+}

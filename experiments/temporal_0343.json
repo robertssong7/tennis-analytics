@@ -1,0 +1,12 @@
+{
+  "experiment": 343,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 9,
+  "brier": 0.18602347302898609,
+  "delta": 1.0727139980237776e-05,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown consistent improvement (\u0394=-0.000251) across multiple trials. Exploring deeper trees (max_depth=9) may capture more complex patterns in temporal data while staying within reasonable bounds. Exp 337 (max_depth=8, \u0394=-0.000182) showed slightly worse performance than max_depth=7, suggesting the optimum may be between 7-9. Testing max_depth=9 to find the peak before diminishing returns.",
+  "elapsed_seconds": 36.991235971450806,
+  "temporal_split": true
+}

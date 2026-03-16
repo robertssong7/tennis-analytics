@@ -1,0 +1,12 @@
+{
+  "experiment": 270,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown consistent improvements across multiple experiments (Exp 261, 262, 266, 268), delivering -0.000251 Brier improvement. This is the most reliable signal in recent history. Lock in this value and prepare to tune other parameters.",
+  "elapsed_seconds": 30.641419172286987,
+  "temporal_split": true
+}

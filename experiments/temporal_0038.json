@@ -1,0 +1,12 @@
+{
+  "experiment": 38,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Consistent improvement trend with n_estimators increases (700\u2192750\u2192800 showed gains of -0.000116 and -0.000190). Extending beyond 800 to 850 follows the monotonic improvement pattern, and temporal split validation reduces overfitting risk from additional trees.",
+  "elapsed_seconds": 35.63440775871277,
+  "temporal_split": true
+}

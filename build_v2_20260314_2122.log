@@ -1,0 +1,26 @@
+Loading 160 Sackmann CSVs...
+Loaded 941,649 matches, 1877-07-09 to 2024-12-18
+Loaded 14 CPI measurements
+
+Processing 941,649 matches chronologically...
+============================================================
+Traceback (most recent call last):
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/build_edge_features_v2.py", line 604, in <module>
+    build_features()
+    ~~~~~~~~~~~~~~^^
+  File "/Users/robertsong/Documents/tennis-analytics/scripts/build_edge_features_v2.py", line 476, in build_features
+    update_attributes_from_match(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        attributes[player],
+        ^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        fatigue_snapshot=fatigue_snap,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/robertsong/Documents/tennis-analytics/modules/player_attributes.py", line 527, in update_attributes_from_match
+    tb_count = _count_tiebreaks(score_str)
+  File "/Users/robertsong/Documents/tennis-analytics/modules/player_attributes.py", line 638, in _count_tiebreaks
+    return score_str.count('(')
+           ^^^^^^^^^^^^^^^
+AttributeError: 'float' object has no attribute 'count'

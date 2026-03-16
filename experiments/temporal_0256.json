@@ -1,0 +1,12 @@
+{
+  "experiment": 256,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has consistently delivered the best Brier score (0.185762) across multiple experiments (246, 249, 251, 252, 254), showing -0.000251 improvement over baseline. This is the most reliable performer in recent history. Setting this as the new baseline to explore complementary parameter adjustments.",
+  "elapsed_seconds": 30.729872941970825,
+  "temporal_split": true
+}

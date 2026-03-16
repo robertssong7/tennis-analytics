@@ -1,0 +1,12 @@
+{
+  "experiment": 63,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current setup shows max_depth=7 and n_estimators=800 are optimal. Reducing learning rate from 0.1 to 0.08 with more estimators allows finer gradient steps, potentially improving generalization on temporal test set and reducing overfitting that may be limiting further gains.",
+  "elapsed_seconds": 28.478373050689697,
+  "temporal_split": true
+}

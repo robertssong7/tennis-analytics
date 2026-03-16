@@ -1,0 +1,12 @@
+{
+  "experiment": 467,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows signs of overfitting to pre-2023 data with temporal split degradation. Light L1 regularization (reg_alpha=0.5) can improve generalization to 2023+ test set while maintaining the improvements from max_depth=7. reg_alpha=0 provides no feature selection pressure.",
+  "elapsed_seconds": 28.17422604560852,
+  "temporal_split": true
+}

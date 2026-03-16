@@ -1,0 +1,12 @@
+{
+  "experiment": 230,
+  "param": "colsample_bytree",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.18632088174031947,
+  "delta": 0.00030813585131361787,
+  "decision": "NEUTRAL",
+  "rationale": "Current colsample_bytree=0.8 shows stable but modest gains. Reducing to 0.7 increases feature subsampling variance, which can improve generalization on temporal split (2023+ test data) by reducing overfitting to pre-2023 patterns. This complements the max_depth=7 improvements already found.",
+  "elapsed_seconds": 27.974601984024048,
+  "temporal_split": true
+}

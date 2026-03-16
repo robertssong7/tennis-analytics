@@ -1,0 +1,12 @@
+{
+  "experiment": 265,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.05,
+  "brier": 0.18740972560404592,
+  "delta": 0.0013969797150400753,
+  "decision": "REVERT",
+  "rationale": "Current learning_rate=0.1 with n_estimators=700 may be too aggressive for temporal data. Reducing to 0.05 allows more careful learning from pre-2023 patterns, potentially improving generalization to 2023+ matches. Recent experiments show max_depth=7-8 performs well; a slower learning rate could stabilize predictions in that range.",
+  "elapsed_seconds": 29.92568016052246,
+  "temporal_split": true
+}

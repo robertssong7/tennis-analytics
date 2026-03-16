@@ -1,0 +1,12 @@
+{
+  "experiment": 479,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Experiments 471-474 consistently show max_depth=7 achieves Brier=0.185762, the best score in recent history (-0.000251 improvement). This represents a clear local optimum with multiple confirmations. Locking this value provides a stable foundation for tuning other parameters.",
+  "elapsed_seconds": 30.669467210769653,
+  "temporal_split": true
+}

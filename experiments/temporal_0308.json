@@ -1,0 +1,12 @@
+{
+  "experiment": 308,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "max_depth=7 shows consistent -0.000251 improvement. Testing shallower tree (5) to explore if further regularization helps, as current model may still overfit to pre-2023 patterns. Shallow trees often generalize better to temporal distribution shifts.",
+  "elapsed_seconds": 25.900500059127808,
+  "temporal_split": true
+}

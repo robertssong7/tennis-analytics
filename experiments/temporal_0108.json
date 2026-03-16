@@ -1,0 +1,12 @@
+{
+  "experiment": 108,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has consistently shown the best improvement (\u0394=-0.000251) across multiple experiments (100, 101, 103, 105, 107). This is a reliable signal to lock in this value and build upon it with complementary adjustments to other parameters.",
+  "elapsed_seconds": 30.61198878288269,
+  "temporal_split": true
+}

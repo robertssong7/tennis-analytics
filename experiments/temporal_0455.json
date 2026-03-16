@@ -1,0 +1,12 @@
+{
+  "experiment": 455,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 452-453 show max_depth=8 consistently achieves 0.185830, improving on current best of 0.185762 from max_depth=7. This represents a modest but consistent gain. Deeper tree may better capture temporal patterns in tennis match outcomes while remaining within reasonable regularization bounds.",
+  "elapsed_seconds": 33.61941695213318,
+  "temporal_split": true
+}

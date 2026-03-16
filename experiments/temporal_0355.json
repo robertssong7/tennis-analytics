@@ -1,0 +1,12 @@
+{
+  "experiment": 355,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown the best improvement (\u0394=-0.000251) across multiple experiments (346-349, 353), consistently outperforming the baseline and other depth values tested. This appears to be a stable local optimum worth establishing as the new baseline.",
+  "elapsed_seconds": 30.710727214813232,
+  "temporal_split": true
+}

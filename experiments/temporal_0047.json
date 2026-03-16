@@ -1,0 +1,12 @@
+{
+  "experiment": 47,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 has consistently delivered the best Brier score (-0.000190 improvement) across 5 experiments (37, 38, 40, 42, 45). Incrementally pushing beyond 800 to 820 may capture additional ensemble benefits while staying within the max range, as the temporal split suggests the model could benefit from more boosting iterations to generalize to 2023+ data.",
+  "elapsed_seconds": 32.47239923477173,
+  "temporal_split": true
+}

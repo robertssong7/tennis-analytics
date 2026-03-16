@@ -1,0 +1,12 @@
+{
+  "experiment": 350,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently delivers -0.000251 improvement. Testing max_depth=8 explores the region between current best (7) and neutral (9), likely to yield further gains while maintaining model generalization on temporal split.",
+  "elapsed_seconds": 33.65864896774292,
+  "temporal_split": true
+}

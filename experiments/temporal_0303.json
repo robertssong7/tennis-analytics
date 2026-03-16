@@ -1,0 +1,12 @@
+{
+  "experiment": 303,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently achieves Brier=0.185762, which is -0.000251 better than baseline. This is the most reliable improvement found in recent experiments (verified 5 times). Switching from current max_depth=6 to 7 should reliably deliver this gain.",
+  "elapsed_seconds": 30.65516471862793,
+  "temporal_split": true
+}

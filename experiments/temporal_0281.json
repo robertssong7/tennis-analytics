@@ -1,0 +1,12 @@
+{
+  "experiment": 281,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Experiments 274, 276, and 278 consistently show max_depth=7 achieves Brier=0.185762, the best score in recent history (-0.000251 improvement). This is better than max_depth=6 (current: 0.186013), max_depth=8 (0.185830), and max_depth=9 (0.186023). Depth=7 appears to be the optimal regularization point for this temporal split.",
+  "elapsed_seconds": 30.654778718948364,
+  "temporal_split": true
+}

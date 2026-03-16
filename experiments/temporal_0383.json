@@ -1,0 +1,12 @@
+{
+  "experiment": 383,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently improves Brier by -0.000251. Incrementally testing deeper trees to find optimal complexity-bias tradeoff. Deeper trees may capture temporal patterns in tennis matches better.",
+  "elapsed_seconds": 33.7050359249115,
+  "temporal_split": true
+}

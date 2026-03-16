@@ -1,0 +1,12 @@
+{
+  "experiment": 196,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has consistently delivered the best Brier score (0.185762) across multiple experiments (187, 188, 190, 194), with \u0394=-0.000251 improvement. This is a stable local optimum that outperforms both deeper (max_depth=8: 0.185830) and shallower configurations. Regularization appears sufficient at current levels.",
+  "elapsed_seconds": 30.667680978775024,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 200,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 9,
+  "brier": 0.18602347302898609,
+  "delta": 1.0727139980237776e-05,
+  "decision": "NEUTRAL",
+  "rationale": "Consistent improvement trend with deeper trees (max_depth=7: -0.000251, max_depth=8: -0.000182). Continuing to explore deeper architectures may yield further gains in capturing temporal patterns in tennis matches. Still within safe regularization bounds.",
+  "elapsed_seconds": 36.98215174674988,
+  "temporal_split": true
+}

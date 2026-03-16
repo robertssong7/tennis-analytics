@@ -1,0 +1,12 @@
+{
+  "experiment": 54,
+  "param": "reg_lambda",
+  "old_value": 1,
+  "new_value": 1.5,
+  "brier": 0.18608710172405155,
+  "delta": 7.435583504569743e-05,
+  "decision": "NEUTRAL",
+  "rationale": "Current regularization (reg_lambda=1, reg_alpha=0) may be under-regularizing. n_estimators=800 shows consistent -0.00019 improvement, suggesting model capacity is beneficial but needs stronger regularization to prevent overfitting on temporal split. Incrementally increase reg_lambda to find optimal regularization balance.",
+  "elapsed_seconds": 28.204792022705078,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 22,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Experiments 17-20 consistently show n_estimators=800 achieves Brier=0.185823, the best score observed. This represents a -0.000190 improvement over the current baseline (0.186013). The plateau suggests optimal boosting capacity for temporal generalization.",
+  "elapsed_seconds": 33.42922401428223,
+  "temporal_split": true
+}

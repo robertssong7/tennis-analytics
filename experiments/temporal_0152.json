@@ -1,0 +1,12 @@
+{
+  "experiment": 152,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows stable performance with max_depth=7 as sweet spot. Adding L1 regularization (reg_alpha) can help reduce overfitting on temporal split and improve generalization to 2023+ data without sacrificing calibration.",
+  "elapsed_seconds": 28.14782404899597,
+  "temporal_split": true
+}

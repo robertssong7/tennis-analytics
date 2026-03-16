@@ -1,0 +1,12 @@
+{
+  "experiment": 192,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows slight overfitting tendency with repeated neutral improvements at max_depth=7. L1 regularization (reg_alpha) will help reduce feature weights and improve generalization on temporal test set (2023+). Recent experiments show max_depth=7 is optimal; adding regularization should provide complementary benefit.",
+  "elapsed_seconds": 28.15141987800598,
+  "temporal_split": true
+}

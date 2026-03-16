@@ -1,0 +1,12 @@
+{
+  "experiment": 407,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 9,
+  "brier": 0.18602347302898609,
+  "delta": 1.0727139980237776e-05,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 and max_depth=8 both show consistent improvements over baseline (\u0394=-0.000251 and \u0394=-0.000182). Incrementally increasing to 9 may capture additional tree complexity benefits for temporal generalization without severe overfitting risk, given the regularization in place (min_child_weight=5, reg_lambda=1).",
+  "elapsed_seconds": 37.00637698173523,
+  "temporal_split": true
+}

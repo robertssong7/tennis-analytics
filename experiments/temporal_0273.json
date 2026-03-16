@@ -1,0 +1,12 @@
+{
+  "experiment": 273,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 264 showed max_depth=8 achieved Brier=0.185830 (-0.000182), the best single improvement observed. Exp 266-268 confirmed max_depth=7 at -0.000251, which is better. Testing max_depth=8 again with current best baseline to confirm if it can edge out max_depth=7, given temporal split variance.",
+  "elapsed_seconds": 33.65453290939331,
+  "temporal_split": true
+}

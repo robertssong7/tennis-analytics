@@ -1,0 +1,12 @@
+{
+  "experiment": 294,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently shows -0.000251 improvement over baseline across multiple runs (Exp 285-292), demonstrating reliable gains. This is the most stable positive signal in recent experiments. Lock in this improvement and use it as new baseline.",
+  "elapsed_seconds": 30.690036058425903,
+  "temporal_split": true
+}

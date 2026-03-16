@@ -1,0 +1,12 @@
+{
+  "experiment": 145,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 9,
+  "brier": 0.18602347302898609,
+  "delta": 1.0727139980237776e-05,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 and max_depth=8 both showed improvements over baseline (\u0394=-0.000251 and \u0394=-0.000182). Continuing to explore deeper trees in this direction may yield further gains. max_depth=9 represents the next logical step in this positive trajectory.",
+  "elapsed_seconds": 36.923827171325684,
+  "temporal_split": true
+}

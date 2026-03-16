@@ -1,0 +1,12 @@
+{
+  "experiment": 264,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 259 showed max_depth=8 achieved Brier=0.185830 (\u0394=-0.000182), the second-best result. Combined with n_estimators=750 from Exp 258, this deeper tree with slight regularization may capture temporal patterns better than current max_depth=6.",
+  "elapsed_seconds": 33.62515211105347,
+  "temporal_split": true
+}

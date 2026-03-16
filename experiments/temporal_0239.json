@@ -1,0 +1,12 @@
+{
+  "experiment": 239,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows slight overfitting signals (neutral results clustering around max_depth=7). Introducing L1 regularization will penalize feature weights, reducing complexity and improving generalization on 2023+ test set. Light regularization (0.5) balances improvement without over-constraining.",
+  "elapsed_seconds": 28.11776900291443,
+  "temporal_split": true
+}

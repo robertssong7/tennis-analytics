@@ -1,0 +1,12 @@
+{
+  "experiment": 56,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Experiments 47, 48, 51, 52, 53 consistently show n_estimators=800 achieves best Brier score of 0.185823, a -0.000190 improvement. This is the most reliable positive signal in recent history with multiple confirmations. Lock in this value.",
+  "elapsed_seconds": 32.0650110244751,
+  "temporal_split": true
+}

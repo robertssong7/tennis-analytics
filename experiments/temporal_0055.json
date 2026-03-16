@@ -1,0 +1,12 @@
+{
+  "experiment": 55,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "Current depth of 6 may be causing overfitting on historical data that doesn't generalize to 2023+. Reducing to 5 should improve temporal generalization while maintaining model capacity. Recent experiments show n_estimators=800 is stable at -0.00019, so targeting tree structure complexity next.",
+  "elapsed_seconds": 25.924219131469727,
+  "temporal_split": true
+}

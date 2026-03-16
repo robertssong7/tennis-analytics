@@ -1,0 +1,12 @@
+{
+  "experiment": 12,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1870967529659168,
+  "delta": 0.000250250816088593,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate of 0.1 may be too aggressive for temporal generalization. Reducing to 0.08 should improve regularization while maintaining convergence speed. This is a conservative adjustment paired with min_child_weight=2 (best performer) to reduce overfitting on recent matches.",
+  "elapsed_seconds": 21.867945909500122,
+  "temporal_split": true
+}

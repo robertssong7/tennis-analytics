@@ -1,0 +1,12 @@
+{
+  "experiment": 11,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 2,
+  "brier": 0.18650654800531416,
+  "delta": -0.00033995414451404304,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 9 showed min_child_weight=2 achieved best Brier score (0.186507), outperforming current baseline by -0.00034. This suggests reducing overfitting on individual leaf samples improves temporal generalization. Reverting to this value is the most direct path to improvement.",
+  "elapsed_seconds": 21.82521080970764,
+  "temporal_split": true
+}

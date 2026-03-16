@@ -1,0 +1,12 @@
+{
+  "experiment": 267,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 258 showed n_estimators=750 improved score by -0.000116. Increasing to maximum 800 should provide additional regularization benefit while maintaining the gains from deeper trees (max_depth=7 at -0.000251). This follows the pattern of steady improvement through ensemble size and tree depth tuning.",
+  "elapsed_seconds": 31.5432391166687,
+  "temporal_split": true
+}

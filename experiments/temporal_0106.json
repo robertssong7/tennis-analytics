@@ -1,0 +1,12 @@
+{
+  "experiment": 106,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 96 showed n_estimators=800 improved Brier by -0.000190. Testing 750 may find optimal point between current 700 and 800, potentially yielding better regularization without overfitting.",
+  "elapsed_seconds": 29.86146092414856,
+  "temporal_split": true
+}

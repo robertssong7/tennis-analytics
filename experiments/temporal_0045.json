@@ -1,0 +1,12 @@
+{
+  "experiment": 45,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 has shown consistent small improvements (\u0394=-0.000190) across multiple experiments. Incrementally pushing beyond 800 to 820 may capture further gains from additional boosting iterations while staying within reasonable computational bounds. The temporal split suggests the model benefits from more trees to capture complex match dynamics.",
+  "elapsed_seconds": 35.42241406440735,
+  "temporal_split": true
+}

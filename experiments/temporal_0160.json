@@ -1,0 +1,12 @@
+{
+  "experiment": 160,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has stabilized as optimal (Exp 151,153,155,156,158 all confirm 0.185762). With slightly deeper trees, increasing n_estimators can capture more nuanced patterns in the 2023+ test data without overfitting. Current 700 may be under-utilizing the capacity of depth=7.",
+  "elapsed_seconds": 29.78224277496338,
+  "temporal_split": true
+}

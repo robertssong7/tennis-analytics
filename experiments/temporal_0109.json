@@ -1,0 +1,12 @@
+{
+  "experiment": 109,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently outperforms baseline across multiple experiments (Exp 100, 101, 103, 105, 107, 108) with Brier=0.185762 (-0.000251). This is the most reliable improvement signal. Commit this change to the baseline before exploring other parameters.",
+  "elapsed_seconds": 30.718481302261353,
+  "temporal_split": true
+}

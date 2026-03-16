@@ -1,0 +1,12 @@
+{
+  "experiment": 412,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently shows the best performance (Brier=0.185762, \u0394=-0.000251) across multiple experiments (403, 408, 410, 411). This is a reliable improvement over the current baseline of 6. Lock this in as the new baseline before tuning other parameters.",
+  "elapsed_seconds": 30.809715032577515,
+  "temporal_split": true
+}

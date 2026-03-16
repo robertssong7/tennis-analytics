@@ -1,0 +1,12 @@
+{
+  "experiment": 133,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Consistent improvement across multiple runs (\u0394=-0.000251). Depth=7 outperforms baseline (6) and depth=8. Stabilizing this parameter before exploring regularization adjustments.",
+  "elapsed_seconds": 30.62776231765747,
+  "temporal_split": true
+}

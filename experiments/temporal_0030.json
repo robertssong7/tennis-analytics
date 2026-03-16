@@ -1,0 +1,12 @@
+{
+  "experiment": 30,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "Current depth=6 may be overfitting on pre-2023 data. Reducing to 5 will increase regularization through simpler trees, which should generalize better to 2023+ temporal test set. Recent experiments show n_estimators=800 is consistently best (-0.00019), so reducing tree complexity while maintaining boosting iterations is a complementary regularization strategy.",
+  "elapsed_seconds": 27.482741832733154,
+  "temporal_split": true
+}

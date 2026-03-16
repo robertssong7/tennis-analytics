@@ -1,0 +1,12 @@
+{
+  "experiment": 197,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current value of 5 may be too restrictive, preventing the model from capturing nuanced patterns in tennis matches. Reducing to 3 allows more granular splits while maintaining regularization. This complements the improved max_depth=7 configuration and should reduce overfitting on temporal data.",
+  "elapsed_seconds": 28.033462047576904,
+  "temporal_split": true
+}

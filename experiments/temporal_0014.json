@@ -1,0 +1,12 @@
+{
+  "experiment": 14,
+  "param": "n_estimators",
+  "old_value": 500,
+  "new_value": 700,
+  "brier": 0.18601274588900585,
+  "delta": -0.0008337562608223548,
+  "decision": "KEEP",
+  "rationale": "Exp 13 showed n_estimators=600 improved Brier by -0.000489. Incrementally increasing to 700 should continue capturing model complexity gains with early stopping benefits from temporal validation, while staying within the 100-800 range.",
+  "elapsed_seconds": 28.880439043045044,
+  "temporal_split": true
+}

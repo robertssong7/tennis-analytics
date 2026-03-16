@@ -1,0 +1,12 @@
+{
+  "experiment": 283,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 274, 276, 278, 281 consistently show max_depth=7 delivers best Brier score (0.185762), outperforming deeper trees (max_depth=8,9). This is the most stable and highest-performing parameter tested. Reconfirming this setting.",
+  "elapsed_seconds": 30.64772915840149,
+  "temporal_split": true
+}

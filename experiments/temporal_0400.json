@@ -1,0 +1,12 @@
+{
+  "experiment": 400,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Model shows signs of overfitting with current regularization (reg_alpha=0, reg_lambda=1). L1 regularization can improve generalization on temporal test set by feature selection. Recent experiments show max_depth=7 is optimal; adding L1 penalty should reduce Brier score further.",
+  "elapsed_seconds": 28.159825801849365,
+  "temporal_split": true
+}

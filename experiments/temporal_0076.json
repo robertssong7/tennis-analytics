@@ -1,0 +1,12 @@
+{
+  "experiment": 76,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown consistent improvements (\u0394=-0.000251). Increasing n_estimators to maximum range (800) with this better depth should allow more refined boosting iterations to further reduce Brier score, especially given the temporal split requires robust generalization.",
+  "elapsed_seconds": 31.685815811157227,
+  "temporal_split": true
+}

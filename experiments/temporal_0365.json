@@ -1,0 +1,12 @@
+{
+  "experiment": 365,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current regularization is minimal (alpha=0, lambda=1). Introducing L1 regularization can reduce overfitting on temporal split by feature selection, particularly important when generalizing from pre-2023 to 2023+ matches. max_depth=7 is stable; regularization tuning is next lever.",
+  "elapsed_seconds": 28.20112705230713,
+  "temporal_split": true
+}

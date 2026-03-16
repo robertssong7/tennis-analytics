@@ -1,0 +1,12 @@
+{
+  "experiment": 16,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 775,
+  "brier": 0.18583140230235054,
+  "delta": -0.00018134358665530814,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 15 showed n_estimators=750 improved to 0.185897, continuing the positive trend from higher estimator counts. Incrementally increasing to 775 should capture further ensemble benefits while staying within computational limits.",
+  "elapsed_seconds": 31.409040212631226,
+  "temporal_split": true
+}

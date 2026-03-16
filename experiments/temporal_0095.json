@@ -1,0 +1,12 @@
+{
+  "experiment": 95,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown consistent -0.000251 improvement over baseline across 4 independent trials (Exp 87, 89, 92, 94), indicating robust signal. This is the most reliable improvement identified. Combining with current best n_estimators=750 from Exp 86.",
+  "elapsed_seconds": 30.57442617416382,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 211,
+  "param": "subsample",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.18641689663092267,
+  "delta": 0.00040415074191682554,
+  "decision": "NEUTRAL",
+  "rationale": "Current subsample=0.8 is relatively high. Reducing to 0.7 increases stochasticity and regularization, which should help with temporal generalization on 2023+ test data. Recent experiments show max_depth=7 is optimal; now targeting regularization improvements.",
+  "elapsed_seconds": 28.53944492340088,
+  "temporal_split": true
+}

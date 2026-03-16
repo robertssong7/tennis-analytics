@@ -1,0 +1,12 @@
+{
+  "experiment": 460,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 450 and 456 both show max_depth=7 achieving Brier=0.185762, which is the best result in recent history (\u0394=-0.000251). This consistently outperforms the current baseline and nearby values (depth=8 at 0.185830, depth=9 at 0.186023). Depth=7 appears to be the sweet spot for generalization on 2023+ test data.",
+  "elapsed_seconds": 30.65558099746704,
+  "temporal_split": true
+}

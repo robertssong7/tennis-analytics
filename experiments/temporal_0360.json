@@ -1,0 +1,12 @@
+{
+  "experiment": 360,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 350 showed max_depth=8 achieved best Brier score (0.185830), outperforming current max_depth=6 by -0.000182. Recent experiments confirm max_depth=7 is stable at -0.000251 improvement, but max_depth=8 showed slightly better performance. Increasing depth marginally should capture more complex match patterns in 2023+ data while avoiding overfitting given strong regularization (reg_lambda=1).",
+  "elapsed_seconds": 33.666585206985474,
+  "temporal_split": true
+}

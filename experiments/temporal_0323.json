@@ -1,0 +1,12 @@
+{
+  "experiment": 323,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current value of 5 may be too restrictive for temporal data with evolving player performance patterns. Reducing to 3 allows more granular splits to capture recent match dynamics (2023+) while still preventing overfitting. This complements the beneficial max_depth=7 adjustment (\u0394=-0.000251) and addresses potential underfitting.",
+  "elapsed_seconds": 27.95008897781372,
+  "temporal_split": true
+}

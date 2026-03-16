@@ -1,0 +1,12 @@
+{
+  "experiment": 430,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has converged as the best depth with consistent -0.000251 improvement. Increasing n_estimators slightly from 700 to 750 may allow better regularized learning with the improved depth, potentially capturing more ensemble benefit without overfitting on 2023+ test data.",
+  "elapsed_seconds": 29.85602569580078,
+  "temporal_split": true
+}

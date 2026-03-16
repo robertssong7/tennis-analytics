@@ -1,0 +1,12 @@
+{
+  "experiment": 272,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "max_depth=7 shows consistent improvement (\u0394=-0.000251), suggesting sweet spot is in shallow-to-medium range. Testing shallower depth may reduce overfitting on temporal test set while maintaining generalization. Depth=5 is unexplored and sits between current baseline (6) and best performer (7).",
+  "elapsed_seconds": 25.89276432991028,
+  "temporal_split": true
+}

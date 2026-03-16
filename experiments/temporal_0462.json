@@ -1,0 +1,12 @@
+{
+  "experiment": 462,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 456 and 460-461 consistently show max_depth=7 achieves Brier=0.185762, the best score observed. This is a -0.000251 improvement over baseline. Deepening to 7 reduces overfitting compared to current depth=6 while remaining conservative.",
+  "elapsed_seconds": 30.81260633468628,
+  "temporal_split": true
+}

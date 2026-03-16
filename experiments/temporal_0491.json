@@ -1,0 +1,12 @@
+{
+  "experiment": 491,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows consistent small improvements with max_depth=7 (Brier=0.185762). Adding L1 regularization can help prevent overfitting on 2023+ test data by reducing feature weights, which is particularly valuable in temporal splits where data distribution may shift. Current reg_alpha=0 suggests no L1 penalty; moderate regularization often improves generalization on held-out future data.",
+  "elapsed_seconds": 28.195916175842285,
+  "temporal_split": true
+}

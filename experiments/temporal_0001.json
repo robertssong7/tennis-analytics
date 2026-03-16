@@ -1,0 +1,12 @@
+{
+  "experiment": 1,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.05,
+  "brier": 0.18997539973722588,
+  "delta": 0.0022758817054426006,
+  "decision": "REVERT",
+  "rationale": "Current learning_rate of 0.1 may be too aggressive for temporal data, causing overfitting to pre-2023 patterns. Lower learning_rate (0.05) with increased n_estimators allows more gradual learning and better generalization to 2023+ matches. This is a conservative first step to reduce Brier score on future data.",
+  "elapsed_seconds": 16.62585186958313,
+  "temporal_split": true
+}

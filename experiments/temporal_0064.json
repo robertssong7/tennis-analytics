@@ -1,0 +1,12 @@
+{
+  "experiment": 64,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has consistently delivered the best results (Brier=0.185762, \u0394=-0.000251) across multiple experiments (58, 61, 62). Combined with n_estimators=800 (which also improved performance in exp 56, 59), this represents the most reliable improvement path. Deeper trees (7-8) outperform the baseline (6), suggesting the model benefits from increased complexity for temporal generalization.",
+  "elapsed_seconds": 30.7380428314209,
+  "temporal_split": true
+}

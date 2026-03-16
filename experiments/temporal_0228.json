@@ -1,0 +1,12 @@
+{
+  "experiment": 228,
+  "param": "reg_lambda",
+  "old_value": 1,
+  "new_value": 0.5,
+  "brier": 0.18612809240908054,
+  "delta": 0.00011534652007469393,
+  "decision": "NEUTRAL",
+  "rationale": "Current reg_lambda=1 may be over-regularizing. Temporal split suggests model is slightly underfitting to future data. Reducing regularization while keeping max_depth=7 (best performer) can improve calibration on 2023+ matches without overfitting to historical patterns.",
+  "elapsed_seconds": 27.88219404220581,
+  "temporal_split": true
+}

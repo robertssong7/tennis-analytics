@@ -1,0 +1,12 @@
+{
+  "experiment": 293,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current value of 5 may be too restrictive, preventing the model from learning fine-grained patterns in tennis match outcomes. Reducing to 3 allows more leaf splits while maintaining regularization. Combined with max_depth=7 (which showed -0.000251 improvement), this should reduce overfitting to pre-2023 data and improve 2023+ generalization.",
+  "elapsed_seconds": 27.98884105682373,
+  "temporal_split": true
+}

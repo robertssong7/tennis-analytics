@@ -1,0 +1,12 @@
+{
+  "experiment": 414,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 406 showed max_depth=8 achieved Brier=0.185830, the best result so far (\u0394=-0.000182). This outperformed the current baseline and nearby depths (7, 9). Consolidating this finding with a dedicated run.",
+  "elapsed_seconds": 33.675605058670044,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 373,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown consistent improvement across 5 experiments (Exp 364, 366, 367, 369, 370) with \u0394=-0.000251, making it the most reliably positive adjustment. This modest increase from 6 reduces overfitting on temporal test data while maintaining expressiveness for the 2023+ matches.",
+  "elapsed_seconds": 30.736990213394165,
+  "temporal_split": true
+}

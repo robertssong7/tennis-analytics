@@ -1,0 +1,12 @@
+{
+  "experiment": 80,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows signs of overfitting to pre-2023 data (repeated max_depth=7 improvements plateau at -0.000251). L1 regularization (reg_alpha) can reduce feature complexity and improve temporal generalization. Recent experiments stabilizing around 0.1856 suggest regularization tuning is next logical step.",
+  "elapsed_seconds": 28.106657028198242,
+  "temporal_split": true
+}

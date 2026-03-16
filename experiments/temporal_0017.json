@@ -1,0 +1,12 @@
+{
+  "experiment": 17,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Consistent downward trend in Brier score with increasing n_estimators (750\u21920.185897, 775\u21920.185831). Temporal test set shows model benefits from more boosting rounds without overfitting. Testing max range value should yield further improvement.",
+  "elapsed_seconds": 32.50172710418701,
+  "temporal_split": true
+}

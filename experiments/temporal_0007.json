@@ -1,0 +1,12 @@
+{
+  "experiment": 7,
+  "param": "colsample_bytree",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.18697511766155336,
+  "delta": 0.00012861551172516084,
+  "decision": "NEUTRAL",
+  "rationale": "Recent experiments show minimal sensitivity to regularization (reg_alpha, reg_lambda near baseline). Reducing colsample_bytree from 0.8 to 0.7 increases feature subsampling diversity per tree, which can improve generalization on temporal test set (2023+) without overfitting to pre-2023 patterns. This complements existing subsample=0.8 for row-level regularization.",
+  "elapsed_seconds": 21.52786898612976,
+  "temporal_split": true
+}

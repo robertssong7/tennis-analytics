@@ -1,0 +1,12 @@
+{
+  "experiment": 194,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 187 and 190 both showed max_depth=7 achieves -0.000251 improvement over baseline (best consistent result). This depth provides optimal complexity-bias tradeoff for temporal generalization to 2023+ data without overfitting.",
+  "elapsed_seconds": 30.66832995414734,
+  "temporal_split": true
+}

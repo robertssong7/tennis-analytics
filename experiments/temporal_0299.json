@@ -1,0 +1,12 @@
+{
+  "experiment": 299,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with max_depth=7 achieves Brier=0.185762. Reducing learning_rate slightly to 0.08 may improve generalization on 2023+ test data by preventing overfitting while maintaining convergence with 700 estimators. This is a conservative regularization adjustment targeting temporal stability.",
+  "elapsed_seconds": 28.517791032791138,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 40,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 consistently delivers the best Brier score (0.185823), outperforming the current baseline by -0.000190. Multiple replications (Exp 31, 34, 35, 37, 38) confirm stability. This is the strongest signal in recent experiments.",
+  "elapsed_seconds": 35.675052881240845,
+  "temporal_split": true
+}

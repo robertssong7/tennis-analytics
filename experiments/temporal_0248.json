@@ -1,0 +1,12 @@
+{
+  "experiment": 248,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently achieves -0.000251 improvement. Testing max_depth=8 explores deeper trees between current best (7) and the neutral result at 9, potentially capturing more complex match patterns while maintaining generalization on temporal test set.",
+  "elapsed_seconds": 33.59220576286316,
+  "temporal_split": true
+}

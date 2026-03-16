@@ -1,0 +1,12 @@
+{
+  "experiment": 66,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 consistently shows -0.00019 improvement. Testing 750 balances model complexity and generalization while staying in the improving range, potentially reducing overfitting on temporal test set.",
+  "elapsed_seconds": 29.882447242736816,
+  "temporal_split": true
+}

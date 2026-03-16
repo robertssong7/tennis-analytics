@@ -1,0 +1,12 @@
+{
+  "experiment": 13,
+  "param": "n_estimators",
+  "old_value": 500,
+  "new_value": 600,
+  "brier": 0.1863579718092946,
+  "delta": -0.0004885303405336161,
+  "decision": "NEUTRAL",
+  "rationale": "Current best config (min_child_weight=2) suggests the model benefits from regularization. Increasing n_estimators with lower learning_rate allows for more refined boosting iterations, potentially capturing temporal patterns in tennis data better. The baseline uses 500; scaling to 600 provides marginal complexity increase without overfitting risk given the conservative learning_rate of 0.1.",
+  "elapsed_seconds": 25.080796003341675,
+  "temporal_split": true
+}

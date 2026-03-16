@@ -1,0 +1,12 @@
+{
+  "experiment": 86,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 76 showed n_estimators=800 improved performance (\u0394=-0.000190). Combined with max_depth=7 which gave the best result (\u0394=-0.000251), increasing n_estimators further while maintaining stability should help. 750 balances computational cost with the trend of improvement at higher estimator counts.",
+  "elapsed_seconds": 29.93949818611145,
+  "temporal_split": true
+}

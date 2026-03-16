@@ -1,0 +1,12 @@
+{
+  "experiment": 122,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Experiments 114, 116, 117, 119, 120 consistently show max_depth=7 delivers -0.000251 improvement over baseline. This is the most reliable positive signal in recent history. Lock in this parameter and use it as foundation for tuning other hyperparameters.",
+  "elapsed_seconds": 30.66810417175293,
+  "temporal_split": true
+}

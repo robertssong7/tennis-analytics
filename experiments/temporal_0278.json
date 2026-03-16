@@ -1,0 +1,12 @@
+{
+  "experiment": 278,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has consistently shown the best performance (Brier=0.185762) across multiple experiments (268, 270, 274, 276), with -0.000251 improvement. This is the most reliable signal in recent history. Committing to this depth should lock in gains.",
+  "elapsed_seconds": 30.653210163116455,
+  "temporal_split": true
+}

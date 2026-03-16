@@ -1,0 +1,12 @@
+{
+  "experiment": 46,
+  "param": "colsample_bytree",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.18632088174031947,
+  "delta": 0.00030813585131361787,
+  "decision": "NEUTRAL",
+  "rationale": "Reduce feature sampling to improve generalization on temporal test set. Current 0.8 may be overfitting to pre-2023 patterns. Stronger regularization through lower colsample_bytree often improves out-of-time performance in temporal splits.",
+  "elapsed_seconds": 30.805001974105835,
+  "temporal_split": true
+}

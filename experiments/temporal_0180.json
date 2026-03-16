@@ -1,0 +1,12 @@
+{
+  "experiment": 180,
+  "param": "colsample_bytree",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.18632088174031947,
+  "delta": 0.00030813585131361787,
+  "decision": "NEUTRAL",
+  "rationale": "Current setting (0.8) shows consistent neutral results. Reducing to 0.7 introduces more feature subsampling, which can reduce overfitting on temporal data and improve generalization to 2023+ matches. Recent experiments suggest marginal gains from depth adjustments; feature selection pressure may yield better out-of-sample performance.",
+  "elapsed_seconds": 28.157062292099,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 182,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has demonstrated consistent improvements across multiple experiments (Exp 172, 174, 176, 179, 181), showing the most reliable Brier score reduction of -0.000251. This is the strongest signal in recent history and should be locked in as the new baseline before exploring other parameters.",
+  "elapsed_seconds": 30.689776182174683,
+  "temporal_split": true
+}

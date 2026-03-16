@@ -1,0 +1,12 @@
+{
+  "experiment": 263,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current min_child_weight=5 may be too restrictive, preventing the model from capturing nuanced patterns in tennis outcomes. Reducing to 3 allows more granular splits while maintaining some regularization. This complements the recently validated max_depth=7-8 sweet spot and should reduce overfitting on temporal test data.",
+  "elapsed_seconds": 27.969847202301025,
+  "temporal_split": true
+}

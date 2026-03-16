@@ -1,0 +1,12 @@
+{
+  "experiment": 139,
+  "param": "colsample_bytree",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.18632088174031947,
+  "delta": 0.00030813585131361787,
+  "decision": "NEUTRAL",
+  "rationale": "Current colsample_bytree=0.8 is relatively high. Reducing to 0.7 increases feature subsampling randomness, which can improve generalization on temporal test set (2023+) and reduce overfitting. Recent experiments show max_depth=7 gives consistent -0.000251 improvement; combining with reduced colsample_bytree targets better temporal generalization.",
+  "elapsed_seconds": 28.055620908737183,
+  "temporal_split": true
+}

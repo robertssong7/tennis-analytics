@@ -1,0 +1,12 @@
+{
+  "experiment": 242,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with n_estimators=700 may be causing slight overfitting on temporal split. Reducing to 0.08 allows for more gradual learning with better generalization to 2023+ matches. Recent max_depth=7 improvements (\u0394=-0.000251) suggest model capacity is sufficient; focus should shift to regularization through learning dynamics.",
+  "elapsed_seconds": 28.52325129508972,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 21,
+  "param": "reg_lambda",
+  "old_value": 1,
+  "new_value": 2.0,
+  "brier": 0.1861132170091607,
+  "delta": 0.00010047112015484916,
+  "decision": "NEUTRAL",
+  "rationale": "Model shows consistent improvement with more estimators (n_estimators=800 yields 0.185823), suggesting potential overfitting on temporal test set. Increasing regularization (reg_lambda from 1\u21922) should improve generalization to 2023+ matches while maintaining the boosted performance from higher n_estimators.",
+  "elapsed_seconds": 29.945632934570312,
+  "temporal_split": true
+}

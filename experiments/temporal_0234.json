@@ -1,0 +1,12 @@
+{
+  "experiment": 234,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "max_depth=7 shows consistent -0.000251 improvement over baseline. Testing shallower tree (depth=5) to explore if further regularization reduces overfitting on temporal split, potentially improving generalization to 2023+ data.",
+  "elapsed_seconds": 25.7865149974823,
+  "temporal_split": true
+}

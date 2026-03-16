@@ -1,0 +1,12 @@
+{
+  "experiment": 118,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "Current best (Brier=0.185762) uses max_depth=7. Increasing n_estimators from 700 to 750 may improve generalization on 2023+ test data through better ensemble averaging, addressing potential overfitting while maintaining the improved depth setting.",
+  "elapsed_seconds": 30.018660306930542,
+  "temporal_split": true
+}

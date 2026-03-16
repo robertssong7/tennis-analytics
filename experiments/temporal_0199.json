@@ -1,0 +1,12 @@
+{
+  "experiment": 199,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 198 shows max_depth=8 improved Brier by -0.000182. Combined with Exp 190 (max_depth=7, -0.000251), deeper trees are consistently beneficial. max_depth=8 offers a good balance between model complexity and generalization on temporal test set.",
+  "elapsed_seconds": 33.5647611618042,
+  "temporal_split": true
+}

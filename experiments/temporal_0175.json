@@ -1,0 +1,12 @@
+{
+  "experiment": 175,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 166 showed max_depth=8 achieved Brier=0.185830 (\u0394=-0.000182), which is better than the recent consistent max_depth=7 results (Brier=0.185762). Testing max_depth=8 again to confirm if it can outperform current best and explore if deeper trees better capture temporal patterns in 2023+ data.",
+  "elapsed_seconds": 33.67278599739075,
+  "temporal_split": true
+}

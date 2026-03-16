@@ -1,0 +1,12 @@
+{
+  "experiment": 20,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Experiments 15-18 show consistent improvement trend as n_estimators increases toward 800, with diminishing but positive returns (\u0394=-0.000116 to -0.000190). Setting to 800 captures the best performance observed while staying within parameter bounds.",
+  "elapsed_seconds": 32.90603184700012,
+  "temporal_split": true
+}

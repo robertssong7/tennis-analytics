@@ -1,0 +1,12 @@
+{
+  "experiment": 453,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 452 showed max_depth=8 yields Brier=0.185830 (\u0394=-0.000182), slightly better than current max_depth=6. This represents consistent incremental improvement in the depth direction. Combined with recent max_depth=7 success (\u0394=-0.000251), deeper trees show promise for this temporal split task.",
+  "elapsed_seconds": 33.643770933151245,
+  "temporal_split": true
+}

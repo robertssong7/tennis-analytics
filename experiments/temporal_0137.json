@@ -1,0 +1,12 @@
+{
+  "experiment": 137,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows slight overfitting signals (consistent improvements with deeper trees). L1 regularization (reg_alpha) can help prevent feature noise exploitation on temporal test set by encouraging sparsity. Small value to avoid over-regularization.",
+  "elapsed_seconds": 28.175873041152954,
+  "temporal_split": true
+}

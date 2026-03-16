@@ -1,0 +1,77 @@
+/Users/robertsong/Documents/tennis-analytics/venv/lib/python3.14/site-packages/xgboost/training.py:200: UserWarning: [22:50:04] WARNING: /Users/runner/work/xgboost/xgboost/src/learner.cc:782: 
+Parameters: { "use_label_encoder" } are not used.
+
+  bst.update(dtrain, iteration=i, fobj=obj)
+Loading 160 Sackmann CSVs...
+Loaded 941,649 matches, 1877-07-09 to 2024-12-18
+Loaded 14 CPI measurements
+Aggregating charted points data...
+  Aggregated 7,158 charted matches in 26.7s
+
+Processing 941,649 matches chronologically...
+============================================================
+   100,000 / 941,649 | 200,000 features | 65s elapsed | ~550s remaining
+   200,000 / 941,649 | 400,000 features | 101s elapsed | ~374s remaining
+   300,000 / 941,649 | 600,000 features | 140s elapsed | ~300s remaining
+   400,000 / 941,649 | 800,000 features | 184s elapsed | ~250s remaining
+   500,000 / 941,649 | 1,000,000 features | 236s elapsed | ~208s remaining
+   600,000 / 941,649 | 1,200,000 features | 286s elapsed | ~163s remaining
+   700,000 / 941,649 | 1,400,000 features | 338s elapsed | ~117s remaining
+   800,000 / 941,649 | 1,600,000 features | 396s elapsed | ~70s remaining
+   900,000 / 941,649 | 1,800,000 features | 464s elapsed | ~21s remaining
+
+============================================================
+Chronological pass complete: 492.0s
+Processed: 1,883,298 feature rows from 941,649 matches
+Skipped: 0 matches (missing names)
+
+Building DataFrame...
+Feature matrix: 1,883,298 rows × 137 features
+Features: ['surface_code', 'tourney_level_code', 'best_of', 'ball_type', 'cpi', 'rank_diff', 'p1_elo_all', 'p2_elo_all', 'elo_diff', 'p1_elo_surface', 'p2_elo_surface', 'elo_surface_diff', 'p1_rd_all', 'p2_rd_all', 'rd_diff', 'confidence_gap', 'rating_band_overlap', 'p1_volatility', 'p2_volatility', 'volatility_diff']...
+
+Temporal split verification:
+  Train (pre-2023): 1,755,370
+  Test (2023+):     127,928
+
+Saving to /Users/robertsong/Documents/tennis-analytics/data/processed/training_edge_v2.pkl...
+Saved: 1997.2 MB
+Saving player attributes to /Users/robertsong/Documents/tennis-analytics/data/processed/player_attributes_v2.pkl...
+Saved Glicko-2 state: 33916 players
+
+============================================================
+QUICK VALIDATION
+============================================================
+
+Training XGBoost on 1,755,370 rows...
+
+  V2 XGBoost Brier: 0.1863
+  V1 baseline:      0.1860
+  Delta:             +0.0003
+  ⚠️  Better than original 0.1877 but not beating agent-tuned 0.1860
+
+Top 15 features:
+  elo_surface_diff                    0.4072
+  rating_band_overlap                 0.0293
+  p2_acute_match_count_7d             0.0274
+  p1_acute_match_count_7d             0.0271
+  elo_diff                            0.0223
+  rd_diff                             0.0125
+  p2_form_3                           0.0117
+  p1_form_3                           0.0113
+  h2h_pct_diff                        0.0111
+  chronic_stress_28d_diff             0.0111
+  p2_form_5                           0.0080
+  p1_form_5                           0.0080
+  p2_minutes_14d                      0.0079
+  tournament_load_30d_diff            0.0076
+  p2_tournament_load_30d              0.0076
+
+Model saved to /Users/robertsong/Documents/tennis-analytics/models/hard/best_edge_v2_model.pkl
+
+============================================================
+BUILD COMPLETE
+Total time: 861.5s (14.4 min)
+Output: /Users/robertsong/Documents/tennis-analytics/data/processed/training_edge_v2.pkl
+Features: 137
+ZERO LEAKAGE: Snapshot before update, temporal split enforced
+============================================================

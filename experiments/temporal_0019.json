@@ -1,0 +1,12 @@
+{
+  "experiment": 19,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "Current depth=6 may be overfitting to pre-2023 data. Reducing to 5 should improve temporal generalization while n_estimators=800 provides sufficient model capacity. Shallower trees often perform better on temporal splits.",
+  "elapsed_seconds": 26.57701015472412,
+  "temporal_split": true
+}

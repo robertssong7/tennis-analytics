@@ -1,0 +1,12 @@
+{
+  "experiment": 49,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.09,
+  "brier": 0.18645341304958132,
+  "delta": 0.0004406671605754753,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with n_estimators=800 shows consistent improvement. Slightly reducing learning_rate to 0.09 with more trees can improve generalization on temporal 2023+ test set by reducing overfitting while maintaining convergence. Recent experiments show n_estimators=800 yields Brier=0.185823; fine-tuning learning_rate in this regime often yields marginal gains.",
+  "elapsed_seconds": 28.81512212753296,
+  "temporal_split": true
+}

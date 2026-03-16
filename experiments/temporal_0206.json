@@ -1,0 +1,12 @@
+{
+  "experiment": 206,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with n_estimators=700 may be causing overfitting on temporal split. Reducing to 0.08 allows more gradual learning while maintaining boosting iterations, which often improves generalization to future matches (2023+). Recent experiments show max_depth improvements have plateaued around 7-8; regularization via learning_rate adjustment is a complementary lever.",
+  "elapsed_seconds": 28.49817204475403,
+  "temporal_split": true
+}

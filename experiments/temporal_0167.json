@@ -1,0 +1,12 @@
+{
+  "experiment": 167,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows neutral/minimal improvements with depth and estimator tuning. Introducing L1 regularization (reg_alpha) can help reduce overfitting on temporal shift from pre-2023 to 2023+ data. Light regularization (0.5) balances this without over-constraining.",
+  "elapsed_seconds": 28.150732040405273,
+  "temporal_split": true
+}

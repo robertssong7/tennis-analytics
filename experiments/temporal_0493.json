@@ -1,0 +1,12 @@
+{
+  "experiment": 493,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 shows consistent small improvements with max_depth increases (7-8), suggesting the model may benefit from slower learning to better capture temporal patterns in tennis data. Reducing to 0.08 allows more careful optimization while working with the improved depth configurations (max_depth=7 achieved -0.000251 delta). This conservative adjustment can help stabilize predictions on 2023+ test data.",
+  "elapsed_seconds": 28.551957845687866,
+  "temporal_split": true
+}

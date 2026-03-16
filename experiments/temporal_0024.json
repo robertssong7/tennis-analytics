@@ -1,0 +1,12 @@
+{
+  "experiment": 24,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Consistent monotonic improvement observed from n_estimators=700\u2192800 (\u0394=-0.000190). Testing slightly beyond 800 to find potential plateau or continued gains in the temporal split evaluation.",
+  "elapsed_seconds": 36.244680404663086,
+  "temporal_split": true
+}

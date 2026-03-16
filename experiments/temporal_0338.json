@@ -1,0 +1,12 @@
+{
+  "experiment": 338,
+  "param": "colsample_bytree",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.18632088174031947,
+  "delta": 0.00030813585131361787,
+  "decision": "NEUTRAL",
+  "rationale": "Recent experiments show max_depth=7 consistently outperforms baseline (Brier=0.185762). Current colsample_bytree=0.8 may be too permissive for feature selection. Reducing to 0.7 should increase regularization and reduce overfitting on temporal split, complementing the optimal tree depth. This follows the pattern of successful regularization adjustments.",
+  "elapsed_seconds": 28.12344002723694,
+  "temporal_split": true
+}

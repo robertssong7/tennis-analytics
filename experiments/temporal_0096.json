@@ -1,0 +1,12 @@
+{
+  "experiment": 96,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 86 showed n_estimators=750 improved Brier by -0.000116. Pushing to maximum (800) in this range should provide additional regularization benefit through more boosting rounds, especially when combined with the improved max_depth=7 baseline (-0.000251). The model shows consistent gains with higher estimators.",
+  "elapsed_seconds": 31.605660915374756,
+  "temporal_split": true
+}

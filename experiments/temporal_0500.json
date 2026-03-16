@@ -1,0 +1,12 @@
+{
+  "experiment": 500,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown consistent improvement (-0.000251 \u0394) across multiple trials. Incrementally increasing to 8 should capture more complex feature interactions while remaining within reasonable generalization bounds for temporal validation.",
+  "elapsed_seconds": 33.641252756118774,
+  "temporal_split": true
+}

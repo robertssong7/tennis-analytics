@@ -1,0 +1,12 @@
+{
+  "experiment": 304,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows consistent small improvements with max_depth=7 (Brier=0.185762). Adding L1 regularization can help reduce overfitting to pre-2023 patterns and improve temporal generalization to 2023+ matches, which is critical for this temporal split setup.",
+  "elapsed_seconds": 28.224102020263672,
+  "temporal_split": true
+}

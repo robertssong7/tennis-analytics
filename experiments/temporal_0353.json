@@ -1,0 +1,12 @@
+{
+  "experiment": 353,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown consistent improvement with Brier=0.185762 (\u0394=-0.000251), appearing in 5 recent experiments with identical results. This suggests a local optimum. Combined with current n_estimators=700, this depth provides good bias-variance balance for temporal generalization to 2023+ matches.",
+  "elapsed_seconds": 30.649940013885498,
+  "temporal_split": true
+}

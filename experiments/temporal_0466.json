@@ -1,0 +1,12 @@
+{
+  "experiment": 466,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current value of 5 may be too restrictive for tennis match data. Reducing to 3 allows more flexible tree splits while maintaining regularization. Recent max_depth improvements (max_depth=7 at -0.000251) suggest the model benefits from increased complexity; lower min_child_weight complements this by enabling finer-grained splits. This is a targeted regularization adjustment to prevent underfitting.",
+  "elapsed_seconds": 28.075196027755737,
+  "temporal_split": true
+}

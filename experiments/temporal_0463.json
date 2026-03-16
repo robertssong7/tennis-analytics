@@ -1,0 +1,12 @@
+{
+  "experiment": 463,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "max_depth=7 has shown consistent improvement (\u0394=-0.000251, Brier=0.185762) across multiple runs. Testing max_depth=6 (current baseline) vs 7 suggests exploring the valley between them. However, the pattern shows diminishing returns as depth increases beyond 7. Reducing back to 6 or testing intermediate regularization may reveal overfitting. Actually, reverting to test max_depth=5 to find the optimal shallow depth that generalizes best to 2023+ temporal data.",
+  "elapsed_seconds": 25.86662006378174,
+  "temporal_split": true
+}

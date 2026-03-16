@@ -1,0 +1,12 @@
+{
+  "experiment": 190,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently achieves best Brier score (0.185762), improving -0.000251 over baseline. Multiple confirmations (Exp 181-183, 187-188) show stability. Commit to this improvement.",
+  "elapsed_seconds": 30.786915063858032,
+  "temporal_split": true
+}

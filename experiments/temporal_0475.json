@@ -1,0 +1,12 @@
+{
+  "experiment": 475,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "Current experiments show max_depth=7 is consistently optimal (Brier=0.185762). Increasing n_estimators from 700 to 750 may further reduce overfitting risk on temporal 2023+ test set while maintaining the improved depth. Recent history shows plateau at max_depth=7, suggesting ensemble size tuning is next logical step.",
+  "elapsed_seconds": 29.8589448928833,
+  "temporal_split": true
+}

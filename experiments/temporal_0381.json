@@ -1,0 +1,12 @@
+{
+  "experiment": 381,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Experiments 372-373, 375, 377-379 consistently show max_depth=7 achieves Brier=0.185762 (\u0394=-0.000251), outperforming current depth=6. This is the most reliable improvement in recent history with multiple confirmations. Shallow depths (5) regress performance significantly.",
+  "elapsed_seconds": 30.71630311012268,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 277,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with n_estimators=800 shows marginal gains. Reducing to 0.08 allows better regularization of the boosting process while maintaining sufficient iterations. This conservative decrease often improves generalization on temporal test sets by preventing overfitting to pre-2023 patterns.",
+  "elapsed_seconds": 28.4708411693573,
+  "temporal_split": true
+}

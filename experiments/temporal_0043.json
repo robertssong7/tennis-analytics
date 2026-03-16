@@ -1,0 +1,12 @@
+{
+  "experiment": 43,
+  "param": "reg_lambda",
+  "old_value": 1,
+  "new_value": 0.5,
+  "brier": 0.18612809240908054,
+  "delta": 0.00011534652007469393,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows consistent improvement with n_estimators=800 (Brier=0.185823). Reducing reg_lambda from 1.0 to 0.5 should allow more complex tree interactions while maintaining regularization, addressing potential underfitting on temporal test data. Modest regularization reduction is appropriate given the stable performance plateau.",
+  "elapsed_seconds": 31.422603130340576,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 420,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current max_depth=7 shows consistent improvement (-0.000251). Lower learning rate with more estimators can improve generalization on temporal split by reducing overfitting to pre-2023 patterns. This is safer than further depth increases.",
+  "elapsed_seconds": 28.553099632263184,
+  "temporal_split": true
+}

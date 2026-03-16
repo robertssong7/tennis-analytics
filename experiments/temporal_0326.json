@@ -1,0 +1,12 @@
+{
+  "experiment": 326,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current regularization (alpha=0, lambda=1) may allow overfitting on temporal data. Introducing L1 regularization with modest alpha=0.5 can improve generalization to 2023+ matches by feature selection and reducing spurious patterns learned from pre-2023 data.",
+  "elapsed_seconds": 28.226177215576172,
+  "temporal_split": true
+}

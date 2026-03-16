@@ -1,0 +1,12 @@
+{
+  "experiment": 5,
+  "param": "subsample",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.1872973638695089,
+  "delta": 0.00045086171968070077,
+  "decision": "NEUTRAL",
+  "rationale": "Current subsample=0.8 is relatively high; reducing to 0.7 increases stochasticity and regularization to combat temporal overfitting on recent matches. Recent reversions suggest model sensitivity to generalization; lower subsample improves robustness on future 2023+ data.",
+  "elapsed_seconds": 22.086668014526367,
+  "temporal_split": true
+}

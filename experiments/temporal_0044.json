@@ -1,0 +1,12 @@
+{
+  "experiment": 44,
+  "param": "subsample",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.18641689663092267,
+  "delta": 0.00040415074191682554,
+  "decision": "NEUTRAL",
+  "rationale": "Current subsample=0.8 may allow overfitting to pre-2023 data. Reducing to 0.7 increases stochasticity and regularization, which typically improves temporal generalization. Recent experiments show n_estimators=800 consistently yields -0.00019 improvement; now targeting regularization to push further.",
+  "elapsed_seconds": 31.850850820541382,
+  "temporal_split": true
+}

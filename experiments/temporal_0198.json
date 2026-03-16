@@ -1,0 +1,12 @@
+{
+  "experiment": 198,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 8,
+  "brier": 0.1858304501885612,
+  "delta": -0.00018229570044464571,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 consistently delivers best results (Brier=0.185762, \u0394=-0.000251). Incrementally testing depth=8 to explore if deeper trees capture more temporal patterns in tennis data without overfitting, given the temporal split guards against generalization failure.",
+  "elapsed_seconds": 33.52724289894104,
+  "temporal_split": true
+}

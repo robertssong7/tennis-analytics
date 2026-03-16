@@ -1,0 +1,12 @@
+{
+  "experiment": 65,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows neutral/slightly negative deltas with depth/estimator tuning. Regularization (L1/L2) hasn't been explored yet. Adding L1 regularization can help prevent overfitting on temporal data by penalizing feature complexity, which is critical for time-series generalization to 2023+ matches.",
+  "elapsed_seconds": 28.296825170516968,
+  "temporal_split": true
+}

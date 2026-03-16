@@ -1,0 +1,12 @@
+{
+  "experiment": 444,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 is consistently optimal (Brier=0.185762). Current regularization is minimal (reg_alpha=0, reg_lambda=1). Adding L1 regularization may improve generalization on 2023+ test data by reducing feature complexity and overfitting, particularly useful for temporal distribution shift.",
+  "elapsed_seconds": 28.164631605148315,
+  "temporal_split": true
+}

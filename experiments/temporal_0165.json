@@ -1,0 +1,12 @@
+{
+  "experiment": 165,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.09,
+  "brier": 0.18645341304958132,
+  "delta": 0.0004406671605754753,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning rate of 0.1 with 700 estimators may be slightly aggressive for temporal generalization. Reducing to 0.09 with potential n_estimators increase should improve calibration on future matches (2023+) without overfitting to pre-2023 patterns. Recent experiments show max_depth=7 is stable; focus on regularization via learning rate adjustment.",
+  "elapsed_seconds": 28.25831699371338,
+  "temporal_split": true
+}

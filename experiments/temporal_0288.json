@@ -1,0 +1,12 @@
+{
+  "experiment": 288,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate of 0.1 with 700 estimators may be too aggressive for temporal generalization. Reducing to 0.08 allows for more gradual learning and better calibration on 2023+ test data. max_depth=7 is now confirmed optimal; optimizing learning_rate is next logical step.",
+  "elapsed_seconds": 28.5138840675354,
+  "temporal_split": true
+}

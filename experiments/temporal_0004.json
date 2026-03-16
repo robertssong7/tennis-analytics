@@ -1,0 +1,12 @@
+{
+  "experiment": 4,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18846518982596547,
+  "delta": 0.0016186876761372648,
+  "decision": "REVERT",
+  "rationale": "Current depth of 6 may be causing slight overfitting on pre-2023 data, resulting in degraded temporal generalization to 2023+ matches. Reducing to 5 should improve regularization while maintaining model capacity. Temporal splits are particularly sensitive to overfitting, and shallower trees generalize better across time periods.",
+  "elapsed_seconds": 21.711538791656494,
+  "temporal_split": true
+}

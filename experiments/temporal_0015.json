@@ -1,0 +1,12 @@
+{
+  "experiment": 15,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 13 (n_estimators=600) showed -0.000489 improvement, and current best (Exp 14, n_estimators=700) achieved -0.000834. Increasing slightly to 750 should continue the positive trend of additional boosting rounds improving generalization on temporal test set, while staying within safe regularization bounds.",
+  "elapsed_seconds": 30.4762179851532,
+  "temporal_split": true
+}

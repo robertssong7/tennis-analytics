@@ -1,0 +1,12 @@
+{
+  "experiment": 388,
+  "param": "reg_lambda",
+  "old_value": 1,
+  "new_value": 2.0,
+  "brier": 0.1861132170091607,
+  "delta": 0.00010047112015484916,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows stable but marginal improvements with max_depth=7. Increasing regularization (reg_lambda from 1\u21922) can help reduce overfitting on temporal split by penalizing complex trees more aggressively, potentially improving generalization to 2023+ matches.",
+  "elapsed_seconds": 28.214267253875732,
+  "temporal_split": true
+}

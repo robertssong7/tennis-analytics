@@ -79,7 +79,7 @@ PARAM_RANGES = {
 
 def evaluate(params):
     """Train on pre-2023, evaluate Brier on 2023+. THE ONLY evaluation function."""
-    model = xgb.XGBClassifier(**params, random_state=42)
+    model = xgb.XGBClassifier(**params)
     model.fit(X_train, y_train, verbose=False)
     probs = model.predict_proba(X_test)[:, 1]
     brier = float(np.mean((probs - y_test) ** 2))

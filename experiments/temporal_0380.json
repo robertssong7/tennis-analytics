@@ -1,0 +1,12 @@
+{
+  "experiment": 380,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "Current best is max_depth=7 (Brier=0.185762). Shallow trees may reduce overfitting on temporal data and improve generalization to 2023+ matches. Testing shallower depth to explore underfitting regime.",
+  "elapsed_seconds": 25.862546920776367,
+  "temporal_split": true
+}

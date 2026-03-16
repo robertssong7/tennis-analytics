@@ -1,0 +1,12 @@
+{
+  "experiment": 478,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows signs of overfitting to temporal data with repetitive max_depth=7 experiments yielding identical scores. Introducing L1 regularization will help generalize better to 2023+ unseen matches by penalizing feature weights, addressing potential temporal distribution shift.",
+  "elapsed_seconds": 28.196167945861816,
+  "temporal_split": true
+}

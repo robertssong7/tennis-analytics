@@ -1,0 +1,12 @@
+{
+  "experiment": 336,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 775,
+  "brier": 0.18583140230235054,
+  "delta": -0.00018134358665530814,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 (Exp 327: -0.00019) and n_estimators=750 (Exp 333: -0.00012) both improved performance. Testing 775 as midpoint may find optimal ensemble size without overfitting, building on max_depth=7 improvements.",
+  "elapsed_seconds": 30.724727869033813,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 23,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with n_estimators=800 shows consistent improvement. Reducing to 0.08 allows more refined learning with increased boosting rounds, potentially capturing temporal patterns in 2023+ data better while reducing overfitting risk on the temporal split.",
+  "elapsed_seconds": 31.55151915550232,
+  "temporal_split": true
+}

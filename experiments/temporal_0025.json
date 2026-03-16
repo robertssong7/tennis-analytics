@@ -1,0 +1,12 @@
+{
+  "experiment": 25,
+  "param": "subsample",
+  "old_value": 0.8,
+  "new_value": 0.75,
+  "brier": 0.18636651608198967,
+  "delta": 0.0003537701929838266,
+  "decision": "NEUTRAL",
+  "rationale": "Current subsample=0.8 is relatively high. Reducing to 0.75 increases stochasticity and regularization, which often improves generalization on temporal test splits by reducing overfitting to pre-2023 patterns. Recent experiments show diminishing returns on n_estimators, suggesting regularization tuning is more promising.",
+  "elapsed_seconds": 32.288848876953125,
+  "temporal_split": true
+}

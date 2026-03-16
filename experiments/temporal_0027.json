@@ -1,0 +1,12 @@
+{
+  "experiment": 27,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 has shown consistent small improvements (\u0394=-0.000190) across multiple experiments. Increasing slightly beyond 800 to 850 may capture additional marginal gains while staying within computational budget. The pattern suggests the model benefits from additional boosting rounds.",
+  "elapsed_seconds": 36.33270001411438,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 53,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 consistently shows -0.00019 improvement. Extending further to 850 may capture additional ensemble benefit with temporal data drift, as more boosting rounds can help adapt to 2023+ distribution shift.",
+  "elapsed_seconds": 31.68821620941162,
+  "temporal_split": true
+}

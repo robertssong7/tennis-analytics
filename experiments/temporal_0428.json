@@ -1,0 +1,12 @@
+{
+  "experiment": 428,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 418-419 show max_depth=7 consistently achieves 0.185762 (\u0394=-0.000251), outperforming baseline. This is the best validated improvement in recent history. Lock in this gain before exploring other parameters.",
+  "elapsed_seconds": 30.80322265625,
+  "temporal_split": true
+}

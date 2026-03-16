@@ -1,0 +1,12 @@
+{
+  "experiment": 426,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Consistent improvement shown across 5 repeated experiments (417-425). max_depth=7 achieves Brier=0.185762, a -0.000251 improvement over baseline. This is the most reliable signal in recent history. Deeper trees (max_depth=9) regress slightly, suggesting 7 is the optimal depth for this temporal split.",
+  "elapsed_seconds": 30.733829021453857,
+  "temporal_split": true
+}

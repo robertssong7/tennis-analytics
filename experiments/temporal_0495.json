@@ -1,0 +1,12 @@
+{
+  "experiment": 495,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 485 showed n_estimators=775 improved score by -0.000181. Pushing to maximum (800) may capture additional ensemble benefits with temporal data. Combined with max_depth=7 (best at -0.000251), this explores the upper boundary of the estimator range.",
+  "elapsed_seconds": 31.669946908950806,
+  "temporal_split": true
+}

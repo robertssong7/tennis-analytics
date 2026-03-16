@@ -1,0 +1,12 @@
+{
+  "experiment": 31,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 has consistently delivered the best Brier score (0.185823) across multiple experiments (22, 24, 26, 27, 29), showing reliable -0.000190 improvement over baseline. This is the most validated improvement in recent history. Locking this in as the new baseline before tuning other parameters.",
+  "elapsed_seconds": 34.24405074119568,
+  "temporal_split": true
+}

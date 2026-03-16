@@ -1,0 +1,12 @@
+{
+  "experiment": 218,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.09,
+  "brier": 0.18645341304958132,
+  "delta": 0.0004406671605754753,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with n_estimators=700 may be causing suboptimal convergence on temporal test data. Slight reduction to 0.09 can improve generalization while maintaining sufficient boosting signal. Combines well with the best depth=7 configuration found in Exp 209/212/216.",
+  "elapsed_seconds": 28.183029890060425,
+  "temporal_split": true
+}

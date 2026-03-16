@@ -1,0 +1,12 @@
+{
+  "experiment": 441,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 431 showed consistent improvement of -0.000251 Brier with max_depth=7. This is the most reliable positive signal in recent experiments. Incrementally deeper trees (7 vs 6) help capture match complexity while temporal split validates generalization.",
+  "elapsed_seconds": 30.625818967819214,
+  "temporal_split": true
+}

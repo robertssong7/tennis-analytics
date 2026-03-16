@@ -1,0 +1,12 @@
+{
+  "experiment": 499,
+  "param": "colsample_bytree",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.18632088174031947,
+  "delta": 0.00030813585131361787,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has consistently shown best results (Brier=0.185762). Reducing colsample_bytree from 0.8 to 0.7 increases feature subsampling, which can reduce overfitting on temporal data and improve generalization to 2023+ matches without sacrificing too much model capacity.",
+  "elapsed_seconds": 28.105540990829468,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 204,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 194, 196, 201, 202 consistently show max_depth=7 achieves Brier=0.185762, the best performance in recent history (\u0394=-0.000251). This is superior to current depth=6 and outperforms deeper trees (depth 8-9 show degradation). Exploiting this validated improvement.",
+  "elapsed_seconds": 30.770846366882324,
+  "temporal_split": true
+}

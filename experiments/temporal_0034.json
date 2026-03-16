@@ -1,0 +1,12 @@
+{
+  "experiment": 34,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 consistently achieves best Brier=0.185823 across 5 experiments (24,26,27,29,31). Incrementally pushing beyond 800 may capture additional ensemble benefits with minimal overfitting risk given temporal split validation.",
+  "elapsed_seconds": 34.77362513542175,
+  "temporal_split": true
+}

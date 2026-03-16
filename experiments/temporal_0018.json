@@ -1,0 +1,12 @@
+{
+  "experiment": 18,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 17 shows consistent improvement trend with higher n_estimators (800 achieved best Brier=0.185823). Increasing estimators reduces underfitting on temporal test set without overfitting risk given strong regularization (min_child_weight=5, reg_lambda=1). This aligns with the pattern where more boosting rounds improve generalization on 2023+ data.",
+  "elapsed_seconds": 32.07754921913147,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 3,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.18702867073953539,
+  "delta": 0.0001821685897071823,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows slight overfitting risk on temporal split (2023+ test set). Introduce L1 regularization to improve generalization to future matches without aggressive penalization. Conservative increase from 0 to 0.5 maintains stability while reducing complexity.",
+  "elapsed_seconds": 23.101153135299683,
+  "temporal_split": true
+}

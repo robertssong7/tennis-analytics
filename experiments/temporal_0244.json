@@ -1,0 +1,12 @@
+{
+  "experiment": 244,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 9,
+  "brier": 0.18602347302898609,
+  "delta": 1.0727139980237776e-05,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 and max_depth=8 both showed small improvements (\u0394\u2248-0.00025). Testing max_depth=9 explores the upper range to find the optimal tree complexity for temporal generalization, potentially reducing overfitting further while capturing sufficient match complexity.",
+  "elapsed_seconds": 36.93482995033264,
+  "temporal_split": true
+}

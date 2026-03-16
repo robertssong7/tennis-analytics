@@ -1,0 +1,12 @@
+{
+  "experiment": 39,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 consistently achieves Brier=0.185823 (-0.000190 improvement). Testing 750 explores the sweet spot between current best (700) and the improved 800, potentially finding optimal ensemble size with diminishing returns curve while maintaining regularization benefits.",
+  "elapsed_seconds": 33.682265281677246,
+  "temporal_split": true
+}

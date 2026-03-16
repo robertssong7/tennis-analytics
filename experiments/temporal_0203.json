@@ -1,0 +1,12 @@
+{
+  "experiment": 203,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows neutral/marginal improvements with depth tuning. Introducing L1 regularization can help reduce overfitting on temporal split by penalizing feature weights, potentially improving generalization to 2023+ unseen matches.",
+  "elapsed_seconds": 28.20034098625183,
+  "temporal_split": true
+}

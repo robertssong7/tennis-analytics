@@ -1,0 +1,12 @@
+{
+  "experiment": 52,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Consistent -0.000190 improvement across multiple runs (Exp 42, 45, 47, 48, 51). This is the most reliable positive signal in recent history. Despite repetition, the stability suggests genuine benefit from additional boosting rounds with current learning rate.",
+  "elapsed_seconds": 32.307433128356934,
+  "temporal_split": true
+}

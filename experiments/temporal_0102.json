@@ -1,0 +1,12 @@
+{
+  "experiment": 102,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current regularization is minimal (alpha=0, lambda=1). Introducing L1 regularization can reduce overfitting to pre-2023 patterns and improve temporal generalization to 2023+ matches. Small alpha value avoids excessive shrinkage.",
+  "elapsed_seconds": 28.395747184753418,
+  "temporal_split": true
+}

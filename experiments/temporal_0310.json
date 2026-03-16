@@ -1,0 +1,12 @@
+{
+  "experiment": 310,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current lr=0.1 with max_depth=7 gives Brier=0.185762. Reducing learning rate to 0.08 with increased n_estimators compensation often improves generalization on temporal splits by preventing overfitting to recent patterns. This is a conservative adjustment that should stabilize predictions on 2023+ test data.",
+  "elapsed_seconds": 28.61688804626465,
+  "temporal_split": true
+}

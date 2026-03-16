@@ -1,0 +1,12 @@
+{
+  "experiment": 253,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with n_estimators=700 may be causing oscillation. Reducing to 0.08 allows finer gradient steps and better convergence on temporal test set, while maintaining sufficient boosting iterations. max_depth=7 is confirmed as local optimum; adjusting learning_rate can refine predictions without overfitting.",
+  "elapsed_seconds": 28.527701139450073,
+  "temporal_split": true
+}

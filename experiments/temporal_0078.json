@@ -1,0 +1,12 @@
+{
+  "experiment": 78,
+  "param": "colsample_bytree",
+  "old_value": 0.8,
+  "new_value": 0.7,
+  "brier": 0.18632088174031947,
+  "delta": 0.00030813585131361787,
+  "decision": "NEUTRAL",
+  "rationale": "Current best uses max_depth=7 (Brier=0.185762). Feature subsampling reduction can improve generalization on temporal test set by reducing overfitting to pre-2023 patterns. Recent experiments show stable improvements with architectural changes; colsample_bytree=0.7 offers moderate regularization without aggressive reduction.",
+  "elapsed_seconds": 28.051285982131958,
+  "temporal_split": true
+}

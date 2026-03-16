@@ -1,0 +1,12 @@
+{
+  "experiment": 195,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with max_depth=7 (best so far at 0.185762) may be slightly aggressive. Reducing to 0.08 can improve generalization on temporal test set while maintaining convergence speed with high n_estimators. This conservative adjustment often reduces overfitting in time-series prediction.",
+  "elapsed_seconds": 28.484364986419678,
+  "temporal_split": true
+}

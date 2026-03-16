@@ -1,0 +1,12 @@
+{
+  "experiment": 307,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current min_child_weight=5 may be too restrictive, limiting leaf node flexibility. Reducing to 3 should allow better fit on temporal data while maintaining regularization. Previous experiments show max_depth=7 is optimal; adjusting min_child_weight can complement this by reducing overfitting without sacrificing predictive power.",
+  "elapsed_seconds": 28.003196001052856,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 59,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 51-53 consistently show n_estimators=800 improves Brier by -0.00019. This is the most reliable recent improvement. Current best is 700; incrementally boosting to 800 provides measurable gains with temporal stability.",
+  "elapsed_seconds": 31.56044888496399,
+  "temporal_split": true
+}

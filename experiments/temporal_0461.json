@@ -1,0 +1,12 @@
+{
+  "experiment": 461,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 456 and 460 both show max_depth=7 consistently achieves -0.000251 improvement (Brier=0.185762), the best single-parameter delta observed. This is a reliable improvement over the current best. Deeper depths (8,9) show diminishing returns.",
+  "elapsed_seconds": 30.743042945861816,
+  "temporal_split": true
+}

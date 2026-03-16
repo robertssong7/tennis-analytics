@@ -1,0 +1,12 @@
+{
+  "experiment": 189,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 750,
+  "brier": 0.18589692597218416,
+  "delta": -0.00011581991682169113,
+  "decision": "NEUTRAL",
+  "rationale": "Current n_estimators=700 is near upper range. Increasing to 750 with learning_rate=0.1 may improve convergence and calibration on temporal test set without overfitting, as we've found max_depth=7 is optimal. Brier score sensitivity to ensemble size suggests room for refinement.",
+  "elapsed_seconds": 29.8779559135437,
+  "temporal_split": true
+}

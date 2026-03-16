@@ -1,0 +1,12 @@
+{
+  "experiment": 124,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Model shows consistent small improvements with max_depth=7. Current regularization (alpha=0, lambda=1) may allow overfitting on temporal test data. Introducing L1 regularization should reduce model complexity and improve generalization to 2023+ matches without aggressive tuning.",
+  "elapsed_seconds": 28.132959127426147,
+  "temporal_split": true
+}

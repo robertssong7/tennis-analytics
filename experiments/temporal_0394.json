@@ -1,0 +1,12 @@
+{
+  "experiment": 394,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current value of 5 may be too restrictive, preventing the model from capturing important splits in temporal tennis data. Reducing to 3 allows more flexibility while maintaining regularization. max_depth=7 has shown consistent -0.000251 improvement; this complements that by reducing leaf constraints.",
+  "elapsed_seconds": 27.944172143936157,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 8,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.18676419717891748,
+  "delta": -8.23049709107182e-05,
+  "decision": "NEUTRAL",
+  "rationale": "Current value of 5 may be too restrictive, limiting tree complexity. Reducing to 3 allows more nuanced splits while maintaining regularization. Recent experiments show model is stable; slight relaxation of constraints could improve calibration on temporal test set.",
+  "elapsed_seconds": 21.50426697731018,
+  "temporal_split": true
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": 325,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 shows consistent improvement with \u0394=-0.000251 across multiple runs (Exp 316, 319-322), making it the most reliable positive signal. This represents the best empirical result so far (0.185762). Increasing from current 6 to 7 should reduce overfitting on temporal test data.",
+  "elapsed_seconds": 30.64319610595703,
+  "temporal_split": true
+}

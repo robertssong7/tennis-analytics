@@ -1,0 +1,12 @@
+{
+  "experiment": 149,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current value of 5 may be too restrictive for tennis data with temporal split. Lowering to 3 allows more granular tree splits to capture match-specific patterns in recent data (2023+) while reducing overfitting risk. This complements the improved max_depth=7 setting.",
+  "elapsed_seconds": 27.959860801696777,
+  "temporal_split": true
+}

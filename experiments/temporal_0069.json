@@ -1,0 +1,12 @@
+{
+  "experiment": 69,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 775,
+  "brier": 0.18583140230235054,
+  "delta": -0.00018134358665530814,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 59 (n_estimators=800) showed -0.000190 improvement over baseline. Exp 66 (n_estimators=750) showed -0.000116. The trend suggests optimal n_estimators is between 750-800. Testing 775 as midpoint to find peak performance in this range with diminishing returns pattern.",
+  "elapsed_seconds": 30.731592178344727,
+  "temporal_split": true
+}

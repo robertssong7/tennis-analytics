@@ -1,0 +1,12 @@
+{
+  "experiment": 105,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has shown consistent improvements across experiments 95, 97, 100, 101, 103 with \u0394=-0.000251, making it the most reliable performer. This is a modest but stable gain over the baseline. Setting it as the new baseline before exploring other regularization parameters.",
+  "elapsed_seconds": 30.649842977523804,
+  "temporal_split": true
+}

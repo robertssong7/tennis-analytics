@@ -1,0 +1,12 @@
+{
+  "experiment": 282,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows slight overfitting signals (max_depth=7 consistently outperforms deeper trees). L1 regularization will help with feature selection and reduce overfitting on temporal data, complementing existing L2 (lambda=1). No regularization tuning has been attempted yet.",
+  "elapsed_seconds": 28.16823697090149,
+  "temporal_split": true
+}

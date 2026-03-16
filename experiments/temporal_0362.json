@@ -1,0 +1,12 @@
+{
+  "experiment": 362,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.09,
+  "brier": 0.18645341304958132,
+  "delta": 0.0004406671605754753,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 shows consistent improvement (-0.000251). Slightly reducing learning_rate from 0.1 to 0.09 may improve generalization on temporal split (2023+ test set) by reducing overfitting while maintaining model capacity. Current rate may be slightly aggressive for this dataset.",
+  "elapsed_seconds": 28.195708990097046,
+  "temporal_split": true
+}

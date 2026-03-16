@@ -1,0 +1,12 @@
+{
+  "experiment": 352,
+  "param": "reg_alpha",
+  "old_value": 0,
+  "new_value": 0.5,
+  "brier": 0.1863195500610568,
+  "delta": 0.0003068041720509507,
+  "decision": "NEUTRAL",
+  "rationale": "Current model shows signs of overfitting on temporal split (max_depth=7 consistently outperforms). L1 regularization (reg_alpha) can reduce overfitting by penalizing feature weights. Recent experiments plateau around 0.1856 Brier score; regularization may help generalize better to 2023+ matches without hurting calibration.",
+  "elapsed_seconds": 28.1878719329834,
+  "temporal_split": true
+}

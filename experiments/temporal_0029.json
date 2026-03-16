@@ -1,0 +1,12 @@
+{
+  "experiment": 29,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 800,
+  "brier": 0.18582309504453576,
+  "delta": -0.00018965084447009062,
+  "decision": "NEUTRAL",
+  "rationale": "n_estimators=800 consistently achieves Brier=0.185823, the best score observed. Pushing slightly higher to 820 may capture additional ensemble benefit while staying within range limits, addressing potential underfitting in temporal test set.",
+  "elapsed_seconds": 36.314749002456665,
+  "temporal_split": true
+}

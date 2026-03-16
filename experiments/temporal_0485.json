@@ -1,0 +1,12 @@
+{
+  "experiment": 485,
+  "param": "n_estimators",
+  "old_value": 700,
+  "new_value": 775,
+  "brier": 0.18583140230235054,
+  "delta": -0.00018134358665530814,
+  "decision": "NEUTRAL",
+  "rationale": "Exp 475 showed n_estimators=750 improved Brier by -0.000116. Incremental increase to 775 may capture additional ensemble benefit while staying within computational limits. Combined with confirmed max_depth=7 improvement (-0.000251 from Exp 479), this targets cumulative gains.",
+  "elapsed_seconds": 30.831254959106445,
+  "temporal_split": true
+}

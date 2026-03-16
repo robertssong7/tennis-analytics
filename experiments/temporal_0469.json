@@ -1,0 +1,12 @@
+{
+  "experiment": 469,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate of 0.1 with max_depth=7 showing consistent improvements. Reducing to 0.08 allows for finer gradient steps and better generalization on temporal test set (2023+), potentially reducing overfitting while maintaining model capacity.",
+  "elapsed_seconds": 28.502229928970337,
+  "temporal_split": true
+}

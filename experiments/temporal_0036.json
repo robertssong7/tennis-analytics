@@ -1,0 +1,12 @@
+{
+  "experiment": 36,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate=0.1 with n_estimators=800 shows consistent ~0.1850 Brier. Reducing learning_rate to 0.08 allows more gradual learning with the same boosting steps, potentially improving generalization on temporal test set (2023+) and reducing overfitting. This is a conservative adjustment to the model's sensitivity.",
+  "elapsed_seconds": 32.166524171829224,
+  "temporal_split": true
+}

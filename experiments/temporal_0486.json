@@ -1,0 +1,12 @@
+{
+  "experiment": 486,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has consistently shown the best improvement (\u0394=-0.000251) across multiple experiments (479, 481, 482, 484). This is a stable, reproducible gain over the current baseline of 6. Increasing depth to 7 appears to capture more complex patterns in tennis match outcomes without overfitting on the temporal test set.",
+  "elapsed_seconds": 30.702650785446167,
+  "temporal_split": true
+}

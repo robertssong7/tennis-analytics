@@ -1,0 +1,12 @@
+{
+  "experiment": 193,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 5,
+  "brier": 0.18759573762866388,
+  "delta": 0.001582991739658035,
+  "decision": "REVERT",
+  "rationale": "Current best is max_depth=7 (Brier=0.185762). Deeper trees (8) show degradation. Testing shallower depth to reduce overfitting on temporal distribution shift, as 2023+ test data likely differs from pre-2023 training data.",
+  "elapsed_seconds": 25.874387979507446,
+  "temporal_split": true
+}

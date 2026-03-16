@@ -1,0 +1,12 @@
+{
+  "experiment": 58,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "Current depth=6 is performing well but may be underfitting given n_estimators=800 is optimal. Modest increase to 7 allows more complex feature interactions while staying conservative. Recent reverts to depth=5 hurt performance (+0.001583), suggesting current depth is near optimal but slight increase could capture more signal in temporal data.",
+  "elapsed_seconds": 30.615910053253174,
+  "temporal_split": true
+}

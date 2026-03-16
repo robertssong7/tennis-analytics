@@ -1,0 +1,12 @@
+{
+  "experiment": 413,
+  "param": "min_child_weight",
+  "old_value": 5,
+  "new_value": 3,
+  "brier": 0.1861521059302149,
+  "delta": 0.00013936004120904122,
+  "decision": "NEUTRAL",
+  "rationale": "Current value of 5 may be too restrictive for temporal generalization. Reducing to 3 allows more leaf nodes while maintaining regularization, potentially improving calibration on 2023+ data. max_depth=7 is stable best performer; refining regularization via min_child_weight could unlock further gains.",
+  "elapsed_seconds": 27.95830512046814,
+  "temporal_split": true
+}

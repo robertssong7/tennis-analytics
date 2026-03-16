@@ -1,0 +1,12 @@
+{
+  "experiment": 184,
+  "param": "learning_rate",
+  "old_value": 0.1,
+  "new_value": 0.08,
+  "brier": 0.1865356821706459,
+  "delta": 0.0005229362816400462,
+  "decision": "NEUTRAL",
+  "rationale": "Current learning_rate of 0.1 may be too aggressive for temporal generalization. Reducing to 0.08 allows more careful feature learning and better regularization of 2023+ patterns. This is a conservative adjustment that maintains model complexity while improving calibration.",
+  "elapsed_seconds": 28.476134300231934,
+  "temporal_split": true
+}

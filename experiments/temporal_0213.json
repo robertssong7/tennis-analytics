@@ -1,0 +1,12 @@
+{
+  "experiment": 213,
+  "param": "max_depth",
+  "old_value": 6,
+  "new_value": 7,
+  "brier": 0.18576179647925528,
+  "delta": -0.0002509494097505671,
+  "decision": "NEUTRAL",
+  "rationale": "max_depth=7 has consistently shown -0.000251 improvement over baseline across multiple experiments (204, 207, 209, 212). This is the most reliable positive signal in recent history. Updating to this value locks in the best performer.",
+  "elapsed_seconds": 30.69232702255249,
+  "temporal_split": true
+}

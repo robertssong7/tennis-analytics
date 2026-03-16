@@ -1,0 +1,28 @@
+============================================================
+TENNISIQ ENSEMBLE TRAINER
+============================================================
+
+[1/5] Loading data...
+  Train: 1,755,370 rows | Test: 127,928 rows
+  Features: 137
+
+[2/5] Training XGBoost...
+  XGBoost — Brier: 0.1863
+
+[3/5] Training LightGBM...
+LightGBM — Brier: 0.1855 | Trees: 1197
+
+[4/5] Skipping FT-Transformer (--skip_ft)
+
+[5/5] Fitting stacked ensemble...
+
+=== Stacked Ensemble Results ===
+  lightgbm             — Brier: 0.1837 | Weight: 4.056
+  xgboost              — Brier: 0.1844 | Weight: 0.840
+  Simple Average       — Brier: 0.1837
+  Stacked Ensemble     — Brier: 0.1842
+  Improvement over best single: -0.0005
+========================================
+
+Models saved to models/ensemble/
+ZERO LEAKAGE: All evaluations used temporal split.
