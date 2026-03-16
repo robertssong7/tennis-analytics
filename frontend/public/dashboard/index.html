@@ -65,7 +65,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <nav>
 <a href="index.html" class="nav-logo"><div class="logo-mark"></div><span class="logo-text">TennisIQ</span></a>
 <div class="nav-center"><div class="search-wrap"><div class="search-bar"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg><input type="text" placeholder="Search a player..." id="si" autocomplete="off"/></div><div class="search-dd" id="sd"></div></div></div>
-<div class="nav-links"><a href="compare.html" class="compare-cta">Compare Players</a><a href="tournament.html">Tournaments</a><a href="#">About</a></div>
+<div class="nav-links"><a href="compare.html" class="compare-cta">Compare Players</a><a href="tournament.html">Tournaments</a><a href="odds.html">Odds<span style="font-family:'DM Mono',monospace;font-size:8px;background:var(--warm);color:var(--ink);padding:2px 5px;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:super;margin-left:4px;">Soon</span></a><a href="about.html">About</a></div>
 </nav>
 <section class="hero">
 <div class="hero-left">
@@ -118,7 +118,48 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <a href="tournament.html" class="a-card"><div class="c-thumb thumb-crt"><div class="sg"><div class="sg-c grass"><svg class="csq" viewBox="0 0 80 80"><rect x="4" y="4" width="72" height="72" fill="none" stroke="white" stroke-width="1.2"/><line x1="4" y1="40" x2="76" y2="40" stroke="white" stroke-width=".8"/></svg><span class="sg-v">30</span><div class="sg-l">Grass Avg CPI</div></div><div class="sg-c clay"><svg class="csq" viewBox="0 0 80 80"><rect x="4" y="4" width="72" height="72" fill="none" stroke="white" stroke-width="1.2"/><line x1="4" y1="40" x2="76" y2="40" stroke="white" stroke-width=".8"/></svg><span class="sg-v">25</span><div class="sg-l">Clay Avg CPI</div></div><div class="sg-c hard"><svg class="csq" viewBox="0 0 160 80"><rect x="4" y="4" width="152" height="72" fill="none" stroke="white" stroke-width="1.2"/><line x1="4" y1="40" x2="156" y2="40" stroke="white" stroke-width=".8"/></svg><span class="sg-v">37</span><div class="sg-l">Hard Avg CPI</div></div><div class="ball-tri"></div></div></div><div class="c-info"><div class="c-title">Court Speed & Intel</div><div class="c-desc">Court Pace Index by tournament and year — how surface speed affects match dynamics, with ball type and elevation data.</div><div class="c-tags"><span class="tag">CPI Data</span><span class="tag">Ball Type</span><span class="tag">14 Tournaments</span></div></div></a>
 </div>
 </section>
-<div class="footer-band"><div class="footer-logo"><div class="logo-mark"></div>TennisIQ</div><div class="footer-note">Built on TennisAbstract charting data · Python · XGBoost · FastAPI</div></div>
+<section style="padding:60px 9%;background:var(--bg);">
+<div class="section-eyebrow">ML Predictions</div>
+<h2 class="section-title">Tournament Win Probabilities</h2>
+<p class="section-sub">Precomputed from the most recent Grand Slam bracket using our stacked ensemble (Brier 0.1807).</p>
+<div id="tourn-pred" style="background:var(--card-bg);border-radius:14px;border:1px solid var(--border);overflow:hidden;">
+<table style="width:100%;border-collapse:separate;border-spacing:0;"><thead><tr>
+<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:12px 14px;border-bottom:2px solid var(--border);">Player</th>
+<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">R16</th>
+<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">QF</th>
+<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">SF</th>
+<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">Final</th>
+<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">Win %</th>
+<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">Draw Diff.</th>
+</tr></thead><tbody id="tourn-tbody"><tr><td colspan="7" style="padding:30px;text-align:center;color:var(--ink-soft);font-size:13px;">Loading tournament predictions...</td></tr></tbody></table>
+</div>
+<div id="tourn-meta" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);"></div>
+</section>
+
+<footer style="background:var(--card-dark);color:rgba(255,255,255,0.6);">
+  <div style="max-width:1100px;margin:0 auto;padding:40px 9%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div class="logo-mark" style="background:rgba(233,229,220,0.1);border:1px solid rgba(233,229,220,0.2);width:32px;height:32px;"></div>
+        <span style="font-family:'Playfair Display',serif;font-size:16px;color:rgba(255,255,255,0.8);">TennisIQ</span>
+      </div>
+      <p style="font-size:12px;line-height:1.6;color:rgba(255,255,255,0.4);">Tennis intelligence powered by machine learning. Player ratings, match predictions, and shot-level analytics.</p>
+    </div>
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px;">Navigation</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <a href="about.html" style="font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;">About</a>
+        <a href="about.html#methodology" style="font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;">Methodology</a>
+        <a href="about.html#contact" style="font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;">Contact</a>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px;">Data Sources</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">Jeff Sackmann / Tennis Abstract<br>Match Charting Project<br>Open-Meteo Historical Weather<br>ATP Tour Player Headshots</div>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
+</footer>
 
 <script>
 const API='http://localhost:8000/api/v2';
@@ -156,6 +197,40 @@ sinp.addEventListener('keydown',e=>{if(!sdd.classList.contains('open')){if(e.key
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))sdd.classList.remove('open');});
 
 buildC();
+
+// Tournament predictions
+async function loadTournamentPred() {
+  try {
+    const r = await fetch('http://localhost:8000/tournament/predict');
+    if (!r.ok) return;
+    const d = await r.json();
+    const players = (d.players || []).slice(0, 16);
+    document.getElementById('tourn-meta').textContent = d.tournament + ' ' + d.year + ' · ' + d.surface + ' · Stacked Ensemble Brier 0.1807';
+    document.getElementById('tourn-tbody').innerHTML = players.map(function(p, i) {
+      const probs = p.probs || {};
+      function probCell(v) {
+        if (!v || v < 0.001) return '<td style="text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--ink-soft);">—</td>';
+        const pct = (v * 100).toFixed(1) + '%';
+        const opacity = Math.max(0.3, Math.min(1, v * 4));
+        return '<td style="text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:rgba(74,124,111,' + opacity + ');">' + pct + '</td>';
+      }
+      const seedTxt = p.seed ? '<span style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--ink-soft);margin-left:6px;">[' + p.seed + ']</span>' : '';
+      const winPct = probs.W ? (probs.W * 100).toFixed(1) + '%' : '—';
+      const winColor = probs.W > 0.1 ? 'var(--accent)' : probs.W > 0.02 ? 'var(--ink)' : 'var(--ink-soft)';
+      return '<tr onclick="location.href=\'player.html?name=' + encodeURIComponent(p.player) + '\'" style="cursor:pointer;"><td style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:' + (i < 4 ? '500' : '300') + ';">' + p.player + seedTxt + '</td>'
+        + probCell(probs.R16)
+        + probCell(probs.QF)
+        + probCell(probs.SF)
+        + probCell(probs.F)
+        + '<td style="text-align:center;font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + winColor + ';padding:10px 14px;border-bottom:1px solid var(--border);">' + winPct + '</td>'
+        + '<td style="text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--ink-soft);padding:10px 14px;border-bottom:1px solid var(--border);">' + (p.draw_difficulty || '—') + '</td>'
+        + '</tr>';
+    }).join('');
+  } catch(e) {
+    document.getElementById('tourn-tbody').innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--ink-soft);font-size:12px;">Tournament prediction data not available. Run scripts/precompute_tournament.py.</td></tr>';
+  }
+}
+loadTournamentPred();
 </script>
 </body>
 </html>

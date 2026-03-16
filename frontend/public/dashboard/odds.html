@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TennisIQ &mdash; Betting Odds Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9E5DC;--bg-alt:#DDD9CF;--ink:#1A2634;--ink-mid:#3D4F5E;--ink-soft:#7A8A96;--accent:#4A7C6F;--accent-light:#6FAF9E;--warm:#C4A97D;--card-bg:#F4F1EB;--card-dark:#243447;--border:rgba(26,38,52,0.1);--red-soft:#C4573A;}
+*{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:0 40px;height:74px;background:rgba(233,229,220,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex-shrink:0;}.logo-mark{width:38px;height:38px;background:var(--ink);border-radius:50%;position:relative;overflow:hidden;}.logo-mark::before{content:'';position:absolute;width:21px;height:21px;border:2.5px solid var(--bg);border-radius:50%;clip-path:polygon(0 0,50% 0,50% 100%,0 100%);top:50%;left:50%;transform:translate(-50%,-50%);}.logo-mark::after{content:'';position:absolute;width:17px;height:1.5px;background:var(--bg);transform:rotate(-35deg);top:50%;left:50%;margin-left:-8px;}.logo-text{font-family:'Playfair Display',serif;font-size:18px;}
+.nav-center{flex:1;display:flex;justify-content:center;padding:0 24px;}.search-wrap{position:relative;width:340px;}.search-bar{display:flex;align-items:center;background:var(--card-bg);border:1.5px solid var(--border);border-radius:100px;padding:0 18px;gap:10px;width:100%;height:40px;transition:all 0.2s;}.search-bar:hover,.search-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,124,111,0.08);}.search-bar input{border:none;background:transparent;outline:none;font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--ink);width:100%;}.search-bar input::placeholder{color:var(--ink-soft);}
+.nav-links{display:flex;align-items:center;gap:24px;flex-shrink:0;}.nav-links a{text-decoration:none;color:var(--ink-mid);font-size:13.5px;transition:color 0.2s;}.nav-links a:hover{color:var(--ink);}.nav-links .cmp-cta{background:var(--accent);color:var(--card-bg)!important;padding:8px 18px;border-radius:100px;font-size:13px;}
+.soon-badge{font-family:'DM Mono',monospace;font-size:8px;background:var(--warm);color:var(--ink);padding:2px 5px;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:super;margin-left:4px;}
+.hero-odds{background:var(--card-dark);color:white;padding-top:74px;}
+.hero-odds-inner{max-width:1100px;margin:0 auto;padding:60px 9%;}
+.eyebrow-odds{font-family:'DM Mono',monospace;font-size:11px;color:var(--warm);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.soon-pill{background:rgba(196,169,125,0.2);color:var(--warm);border:1px solid rgba(196,169,125,0.4);padding:3px 12px;border-radius:100px;font-size:9px;letter-spacing:0.1em;}
+.odds-title{font-family:'Playfair Display',serif;font-size:clamp(40px,5vw,58px);font-weight:700;line-height:1.1;margin-bottom:20px;}
+.odds-sub{font-size:16px;line-height:1.8;color:rgba(255,255,255,0.6);max-width:600px;}
+.content{max-width:1100px;margin:0 auto;padding:60px 9%;}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px;}
+.odds-card{background:var(--card-bg);border-radius:16px;border:1px solid var(--border);overflow:hidden;position:relative;}
+.soon-overlay{position:absolute;inset:0;background:rgba(244,241,235,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:10;backdrop-filter:blur(2px);}
+.soon-overlay-pill{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;background:var(--warm);color:var(--ink);padding:6px 18px;border-radius:100px;}
+.soon-overlay p{font-size:12px;color:var(--ink-soft);text-align:center;max-width:180px;line-height:1.5;}
+.card-header{background:var(--card-dark);padding:20px 22px;color:white;}
+.card-icon{font-family:'DM Mono',monospace;font-size:24px;margin-bottom:8px;opacity:0.8;}
+.card-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:4px;}
+.card-sub{font-size:12px;color:rgba(255,255,255,0.5);}
+.card-body{padding:20px 22px;}
+.card-feature{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.card-feature:last-child{border-bottom:none;}
+.cf-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;margin-top:6px;flex-shrink:0;}
+.cf-text{font-size:13px;color:var(--ink-mid);line-height:1.5;}
+.notice-box{background:var(--card-bg);border-radius:14px;padding:28px 32px;border:1px solid var(--border);margin-bottom:40px;}
+.notice-box h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:12px;}
+.notice-box p{font-size:14px;color:var(--ink-mid);line-height:1.8;margin-bottom:8px;}
+.notice-box a{color:var(--accent);text-decoration:underline;text-underline-offset:3px;}
+.brier-inline{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);background:rgba(74,124,111,0.1);padding:2px 8px;border-radius:4px;}
+.footer{background:var(--card-dark);color:rgba(255,255,255,0.6);margin-top:0;}
+.footer-inner{max-width:1100px;margin:0 auto;padding:40px 9%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;}
+.footer-logo-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.footer-logo-text{font-family:'Playfair Display',serif;font-size:16px;color:rgba(255,255,255,0.8);}
+.footer-tagline{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.4);}
+.footer-col-title{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px;}
+.footer-links{display:flex;flex-direction:column;gap:8px;}
+.footer-links a{font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s;}
+.footer-links a:hover{color:rgba(255,255,255,0.9);}
+.footer-data-list{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;}
+.footer-bottom p{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);}
+@media(max-width:700px){nav{padding:0 20px;}.cards-grid{grid-template-columns:1fr;}.footer-inner{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><div class="logo-mark"></div><span class="logo-text">TennisIQ</span></a>
+  <div class="nav-center">
+    <div class="search-wrap">
+      <div class="search-bar">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+        <input type="text" placeholder="Search a player..." id="sinp" autocomplete="off"/>
+      </div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="compare.html" class="cmp-cta">Compare</a>
+    <a href="tournament.html">Tournaments</a>
+    <a href="odds.html">Odds<span class="soon-badge">Soon</span></a>
+    <a href="about.html">About</a>
+  </div>
+</nav>
+
+<div class="hero-odds">
+  <div class="hero-odds-inner">
+    <div class="eyebrow-odds"><span>Betting Odds Intelligence</span><span class="soon-pill">Coming Soon</span></div>
+    <h1 class="odds-title">Where ML meets<br>the betting market.</h1>
+    <p class="odds-sub">We're building a real-time odds comparison tool that layers our model probabilities (Brier 0.1807) against live bookmaker lines to surface edge opportunities.</p>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="notice-box">
+    <h3>What's being built</h3>
+    <p>The odds module will connect to <a href="https://www.tennis-data.co.uk" target="_blank">tennis-data.co.uk</a> historical odds data and live bookmaker feeds to create a unified view of model probability vs. implied probability. When our ensemble produces a win probability significantly above the implied odds, that's a positive expected value situation.</p>
+    <p>Our ensemble achieves a Brier score of <span class="brier-inline">0.1807</span> on a zero-leakage 2024 temporal hold-out, comparable to leading market models. The goal is to identify calibrated edge, not to encourage gambling.</p>
+  </div>
+
+  <div class="cards-grid">
+
+    <div class="odds-card">
+      <div class="soon-overlay">
+        <div class="soon-overlay-pill">Coming Soon</div>
+        <p>Live odds comparison will be available in a future update.</p>
+      </div>
+      <div class="card-header">
+        <div class="card-icon">&#9654;</div>
+        <div class="card-title">Live Match Odds</div>
+        <div class="card-sub">Real-time bookmaker lines</div>
+      </div>
+      <div class="card-body">
+        <div class="card-feature"><div class="cf-dot"></div><div class="cf-text">Live odds from multiple bookmakers aggregated in one view</div></div>
+        <div class="card-feature"><div class="cf-dot"></div><div class="cf-text">Model probability vs. implied probability comparison</div></div>
+        <div class="card-feature"><div class="cf-dot"></div><div class="cf-text">Edge percentage calculation with confidence intervals</div></div>
+      </div>
+    </div>
+
+    <div class="odds-card">
+      <div class="soon-overlay">
+        <div class="soon-overlay-pill">Coming Soon</div>
+        <p>Historical backtesting results will be published here.</p>
+      </div>
+      <div class="card-header">
+        <div class="card-icon">&#9654;</div>
+        <div class="card-title">Historical Edge Analysis</div>
+        <div class="card-sub">Backtested model performance</div>
+      </div>
+      <div class="card-body">
+        <div class="card-feature"><div class="cf-dot"></div><div class="cf-text">Closing line value (CLV) analysis across 2020-2024</div></div>
+        <div class="card-feature"><div class="cf-dot"></div><div class="cf-text">Surface-specific edge breakdown</div></div>
+        <div class="card-feature"><div class="cf-dot"></div><div class="cf-text">ROI vs. naive betting strategies</div></div>
+      </div>
+    </div>
+
+    <div class="odds-card">
+      <div class="soon-overlay">
+        <div class="soon-overlay-pill">Coming Soon</div>
+        <p>Tournament winner market overlays in development.</p>
+      </div>
+      <div class="card-header">
+        <div class="card-icon">&#9654;</div>
+        <div class="card-title">Tournament Markets</div>
+        <div class="card-sub">Outright winner probabilities</div>
+      </div>
+      <div class="card-body">
+        <div class="card-feature"><div class="cf-dot"></div><div class="cf-text">Pre-tournament win probability for all seeded players</div></div>
+        <div class="card-feature"><div class="cf-dot"></div><div class="cf-text">Live draw update recalculation as results come in</div></div>
+        <div class="card-feature"><div class="cf-dot"></div><div class="cf-text">Model vs. market implied probability heatmap</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align:center;padding:20px 0 40px;">
+    <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-soft);letter-spacing:0.06em;">Data source: tennis-data.co.uk &middot; Model: Stacked XGBoost + LightGBM &middot; Brier 0.1807</p>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo-row">
+        <div class="logo-mark" style="background:rgba(233,229,220,0.1);border:1px solid rgba(233,229,220,0.2);width:32px;height:32px;"></div>
+        <span class="footer-logo-text">TennisIQ</span>
+      </div>
+      <p class="footer-tagline">Tennis intelligence powered by machine learning. Player ratings, match predictions, and shot-level analytics.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Navigation</div>
+      <div class="footer-links">
+        <a href="about.html">About</a>
+        <a href="about.html#methodology">Methodology</a>
+        <a href="about.html#contact">Contact</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Data Sources</div>
+      <div class="footer-data-list">
+        Jeff Sackmann / Tennis Abstract<br>
+        Match Charting Project<br>
+        tennis-data.co.uk<br>
+        ATP Tour Player Headshots
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom"><p>Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
+</footer>
+
+<script>
+document.getElementById('sinp').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && e.target.value.trim()) {
+    location.href = 'player.html?name=' + encodeURIComponent(e.target.value.trim());
+  }
+});
+</script>
+</body>
+</html>

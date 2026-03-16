@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TennisIQ &mdash; About</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9E5DC;--bg-alt:#DDD9CF;--ink:#1A2634;--ink-mid:#3D4F5E;--ink-soft:#7A8A96;--accent:#4A7C6F;--accent-light:#6FAF9E;--warm:#C4A97D;--card-bg:#F4F1EB;--card-dark:#243447;--border:rgba(26,38,52,0.1);--red-soft:#C4573A;}
+*{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:0 40px;height:74px;background:rgba(233,229,220,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex-shrink:0;}.logo-mark{width:38px;height:38px;background:var(--ink);border-radius:50%;position:relative;overflow:hidden;}.logo-mark::before{content:'';position:absolute;width:21px;height:21px;border:2.5px solid var(--bg);border-radius:50%;clip-path:polygon(0 0,50% 0,50% 100%,0 100%);top:50%;left:50%;transform:translate(-50%,-50%);}.logo-mark::after{content:'';position:absolute;width:17px;height:1.5px;background:var(--bg);transform:rotate(-35deg);top:50%;left:50%;margin-left:-8px;}.logo-text{font-family:'Playfair Display',serif;font-size:18px;}
+.nav-center{flex:1;display:flex;justify-content:center;padding:0 24px;}.search-wrap{position:relative;width:340px;}.search-bar{display:flex;align-items:center;background:var(--card-bg);border:1.5px solid var(--border);border-radius:100px;padding:0 18px;gap:10px;width:100%;height:40px;transition:all 0.2s;}.search-bar:hover,.search-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,124,111,0.08);}.search-bar input{border:none;background:transparent;outline:none;font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--ink);width:100%;}.search-bar input::placeholder{color:var(--ink-soft);}
+.nav-links{display:flex;align-items:center;gap:24px;flex-shrink:0;}.nav-links a{text-decoration:none;color:var(--ink-mid);font-size:13.5px;transition:color 0.2s;}.nav-links a:hover{color:var(--ink);}.nav-links .cmp-cta{background:var(--accent);color:var(--card-bg)!important;padding:8px 18px;border-radius:100px;font-size:13px;}
+.soon-badge{font-family:'DM Mono',monospace;font-size:8px;background:var(--warm);color:var(--ink);padding:2px 5px;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:super;margin-left:4px;}
+.hero-about{background:var(--card-dark);color:white;padding-top:74px;}
+.hero-about-inner{max-width:800px;margin:0 auto;padding:60px 9%;}
+.eyebrow-ab{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent-light);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;}
+.about-title{font-family:'Playfair Display',serif;font-size:clamp(40px,5vw,58px);font-weight:700;line-height:1.1;margin-bottom:20px;}
+.about-sub{font-size:16px;line-height:1.8;color:rgba(255,255,255,0.65);max-width:580px;}
+.content{max-width:800px;margin:0 auto;padding:60px 9%;}
+.section-block{margin-bottom:56px;}
+.sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.sec-label::after{content:'';flex:0 0 40px;height:1px;background:var(--accent);opacity:0.4;}
+.sec-h{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin-bottom:16px;}
+.sec-p{font-size:15px;line-height:1.85;color:var(--ink-mid);margin-bottom:16px;}
+.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0;}
+.metric{background:var(--card-bg);border-radius:12px;padding:20px;border:1px solid var(--border);}
+.metric-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.metric-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);}
+.pipeline-list{display:flex;flex-direction:column;gap:14px;margin:20px 0;}
+.pipeline-item{display:flex;align-items:flex-start;gap:16px;padding:16px;background:var(--card-bg);border-radius:10px;border:1px solid var(--border);}
+.pip-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(74,124,111,0.1);border:1px solid rgba(74,124,111,0.2);border-radius:6px;padding:4px 8px;flex-shrink:0;margin-top:1px;}
+.pip-content h4{font-size:14px;font-weight:500;margin-bottom:4px;}
+.pip-content p{font-size:13px;color:var(--ink-mid);line-height:1.6;}
+.brier-callout{background:var(--card-dark);color:white;border-radius:14px;padding:24px 28px;margin:24px 0;}
+.brier-val{font-family:'Playfair Display',serif;font-size:40px;font-weight:700;color:var(--accent-light);}
+.brier-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-top:4px;}
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+.data-card{background:var(--card-bg);border-radius:10px;padding:18px;border:1px solid var(--border);}
+.data-card h4{font-size:13px;font-weight:500;margin-bottom:6px;}
+.data-card p{font-size:12px;color:var(--ink-soft);line-height:1.6;}
+.contact-box{background:var(--card-bg);border-radius:14px;padding:32px;border:1px solid var(--border);text-align:center;}
+.footer{background:var(--card-dark);color:rgba(255,255,255,0.6);margin-top:0;}
+.footer-inner{max-width:1100px;margin:0 auto;padding:40px 9%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;}
+.footer-logo-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.footer-logo-text{font-family:'Playfair Display',serif;font-size:16px;color:rgba(255,255,255,0.8);}
+.footer-tagline{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.4);}
+.footer-col-title{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px;}
+.footer-links{display:flex;flex-direction:column;gap:8px;}
+.footer-links a{font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s;}
+.footer-links a:hover{color:rgba(255,255,255,0.9);}
+.footer-data-list{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;}
+.footer-bottom p{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);}
+@media(max-width:700px){nav{padding:0 20px;}.metric-row{grid-template-columns:1fr;}.data-grid{grid-template-columns:1fr;}.footer-inner{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><div class="logo-mark"></div><span class="logo-text">TennisIQ</span></a>
+  <div class="nav-center">
+    <div class="search-wrap">
+      <div class="search-bar">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+        <input type="text" placeholder="Search a player..." id="sinp" autocomplete="off"/>
+      </div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="compare.html" class="cmp-cta">Compare</a>
+    <a href="tournament.html">Tournaments</a>
+    <a href="odds.html">Odds<span class="soon-badge">Soon</span></a>
+    <a href="about.html">About</a>
+  </div>
+</nav>
+
+<div class="hero-about">
+  <div class="hero-about-inner">
+    <div class="eyebrow-ab">About TennisIQ</div>
+    <h1 class="about-title">Tennis data, re-imagined.</h1>
+    <p class="about-sub">TennisIQ is a machine learning platform for tennis analytics. We combine historical match data, Glicko-2 ratings, and shot-level charting to produce the most accurate player models available outside the professional tour.</p>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="section-block">
+    <div class="sec-label">The Platform</div>
+    <h2 class="sec-h">What TennisIQ Does</h2>
+    <p class="sec-p">TennisIQ turns publicly available tennis data into a comprehensive intelligence system. We process millions of match records, charted points, and historical ratings to produce FIFA-style player cards, head-to-head win predictions, and shot-pattern analytics.</p>
+    <div class="metric-row">
+      <div class="metric"><div class="metric-val">28,533</div><div class="metric-lbl">Players in database</div></div>
+      <div class="metric"><div class="metric-val">7,160</div><div class="metric-lbl">Charted matches</div></div>
+      <div class="metric"><div class="metric-val">0.1807</div><div class="metric-lbl">Brier score (ensemble)</div></div>
+    </div>
+    <p class="sec-p">Player ratings are computed using the Glicko-2 system across hard, clay, and grass surfaces separately. A stacked XGBoost + LightGBM ensemble with 152 features then converts these ratings into match win probabilities with a Brier score of 0.1807 on a zero-leakage temporal test split.</p>
+  </div>
+
+  <div class="section-block" id="methodology">
+    <div class="sec-label">Methodology</div>
+    <h2 class="sec-h">How the Models Work</h2>
+    <p class="sec-p">The prediction pipeline goes through several stages to produce honest, calibrated win probabilities:</p>
+    <div class="pipeline-list">
+      <div class="pipeline-item">
+        <span class="pip-num">01</span>
+        <div class="pip-content">
+          <h4>Glicko-2 Rating System</h4>
+          <p>Surface-specific ratings (hard/clay/grass/all) computed from 1968 to present using Jeff Sackmann's ATP dataset. Handles rating uncertainty (RD) and volatility, with decay for inactive players.</p>
+        </div>
+      </div>
+      <div class="pipeline-item">
+        <span class="pip-num">02</span>
+        <div class="pip-content">
+          <h4>Feature Engineering (152 Features)</h4>
+          <p>Rolling serve/return stats, H2H history, surface-specific form, fatigue (days since last match, matches in 7/14 days), opponent-adjusted metrics, age curves, and rally-based features from charted data.</p>
+        </div>
+      </div>
+      <div class="pipeline-item">
+        <span class="pip-num">03</span>
+        <div class="pip-content">
+          <h4>Stacked Ensemble</h4>
+          <p>XGBoost and LightGBM base models trained on 90% of data (2010-2023). A logistic regression meta-learner stacks their outputs. Temporal hold-out test (2024) ensures zero leakage.</p>
+        </div>
+      </div>
+      <div class="pipeline-item">
+        <span class="pip-num">04</span>
+        <div class="pip-content">
+          <h4>Player Card System</h4>
+          <p>Eight attributes (Serve, Groundstroke, Volley, Footwork, Endurance, Durability, Clutch, Mental) are derived from match statistics and normalized to 0-100. Tier classification (Legendary/Gold/Silver/Bronze) is based on overall Glicko-2 percentile.</p>
+        </div>
+      </div>
+    </div>
+    <div class="brier-callout">
+      <div class="brier-val">0.1807</div>
+      <div class="brier-lbl">Brier Score &mdash; Stacked Ensemble on 2024 Temporal Hold-Out</div>
+      <p style="font-size:13px;color:rgba(255,255,255,0.55);margin-top:10px;line-height:1.6;">Lower is better. A Brier score of 0.25 equals random chance. Our 0.1807 represents a 27.7% improvement over random, comparable to leading betting market models.</p>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="sec-label">Data Sources</div>
+    <h2 class="sec-h">Standing on the Shoulders of Open Data</h2>
+    <p class="sec-p">TennisIQ is built entirely on publicly available datasets. We are deeply grateful to the contributors who make this possible.</p>
+    <div class="data-grid">
+      <div class="data-card">
+        <h4>Jeff Sackmann / Tennis Abstract</h4>
+        <p>The definitive open-source ATP/WTA match dataset. 60+ years of match results, player metadata, rankings, and serve/return stats. Used for all rating computations and ML training.</p>
+      </div>
+      <div class="data-card">
+        <h4>Match Charting Project</h4>
+        <p>Point-by-point shot data for 7,160+ professional matches. Enables serve direction breakdown, rally length profiles, and shot-pattern analytics for 980+ players.</p>
+      </div>
+      <div class="data-card">
+        <h4>Open-Meteo Historical Weather</h4>
+        <p>Historical weather data (temperature, wind, humidity) for tournament venues used during model training. Included as neutral defaults during inference.</p>
+      </div>
+      <div class="data-card">
+        <h4>ATP Tour</h4>
+        <p>Official ATP player headshots via the ATP Tour media server. Used for player profile display. All headshots remain property of the ATP Tour.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block" id="contact">
+    <div class="sec-label">Contact</div>
+    <h2 class="sec-h">Get in Touch</h2>
+    <div class="contact-box">
+      <p style="font-size:15px;color:var(--ink-mid);margin-bottom:20px;line-height:1.7;">TennisIQ is a personal project by Robert Song. For questions about the methodology, collaboration opportunities, or data licensing, reach out directly.</p>
+      <p style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);">Built with Python, FastAPI, XGBoost, LightGBM, and vanilla HTML/JS.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo-row">
+        <div class="logo-mark" style="background:rgba(233,229,220,0.1);border:1px solid rgba(233,229,220,0.2);width:32px;height:32px;"></div>
+        <span class="footer-logo-text">TennisIQ</span>
+      </div>
+      <p class="footer-tagline">Tennis intelligence powered by machine learning. Player ratings, match predictions, and shot-level analytics.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Navigation</div>
+      <div class="footer-links">
+        <a href="about.html">About</a>
+        <a href="about.html#methodology">Methodology</a>
+        <a href="about.html#contact">Contact</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Data Sources</div>
+      <div class="footer-data-list">
+        Jeff Sackmann / Tennis Abstract<br>
+        Match Charting Project<br>
+        Open-Meteo Historical Weather<br>
+        ATP Tour Player Headshots
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom"><p>Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
+</footer>
+
+<script>
+document.getElementById('sinp').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && e.target.value.trim()) {
+    location.href = 'player.html?name=' + encodeURIComponent(e.target.value.trim());
+  }
+});
+</script>
+</body>
+</html>

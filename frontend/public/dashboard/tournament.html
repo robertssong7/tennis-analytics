@@ -29,7 +29,7 @@ table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card
 </style>
 </head>
 <body>
-<nav><a href="index.html" class="nav-logo"><div class="logo-mark"></div><span class="logo-text">TennisIQ</span></a><div class="nav-center"><div class="search-bar"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg><input type="text" placeholder="Search a player..." id="si"/></div></div><div class="nav-links"><a href="compare.html" class="compare-cta">Compare Players</a><a href="index.html">Home</a><a href="#">About</a></div></nav>
+<nav><a href="index.html" class="nav-logo"><div class="logo-mark"></div><span class="logo-text">TennisIQ</span></a><div class="nav-center"><div class="search-bar"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg><input type="text" placeholder="Search a player..." id="si"/></div></div><div class="nav-links"><a href="compare.html" class="compare-cta">Compare Players</a><a href="index.html">Home</a><a href="odds.html">Odds<span style="font-family:'DM Mono',monospace;font-size:8px;background:var(--warm);color:var(--ink);padding:2px 5px;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:super;margin-left:4px;">Soon</span></a><a href="about.html">About</a></div></nav>
 <div class="page">
 <div class="pt">Court Speed & Tournament Intel</div>
 <div class="ps">Court Pace Index (CPI) data from 14 major ATP tournaments, 2012-2026. Sourced from courtspeed.com (CC BY 4.0).</div>
@@ -38,7 +38,30 @@ table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card
 <div class="cpi-sec"><div class="cpi-t">All CPI Measurements</div><div class="cpi-s">Court Pace Index — higher is faster. Click column headers to sort.</div>
 <table><thead><tr><th>Tournament</th><th>Year</th><th>Surface</th><th>CPI</th><th>Ace Rate</th><th>Ball</th><th>Elevation</th><th>Winner</th></tr></thead><tbody id="tbody"></tbody></table></div>
 </div>
-<div class="footer"><div class="footer-logo"><div class="logo-mark"></div>TennisIQ</div><div class="footer-note">CPI data from courtspeed.com · CC BY 4.0</div></div>
+<footer style="background:var(--card-dark);color:rgba(255,255,255,0.6);margin-top:40px;">
+  <div style="max-width:1100px;margin:0 auto;padding:40px 9%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div class="logo-mark" style="background:rgba(233,229,220,0.1);border:1px solid rgba(233,229,220,0.2);width:32px;height:32px;"></div>
+        <span style="font-family:'Playfair Display',serif;font-size:16px;color:rgba(255,255,255,0.8);">TennisIQ</span>
+      </div>
+      <p style="font-size:12px;line-height:1.6;color:rgba(255,255,255,0.4);">Tennis intelligence powered by machine learning. Player ratings, match predictions, and shot-level analytics.</p>
+    </div>
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px;">Navigation</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <a href="about.html" style="font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;">About</a>
+        <a href="about.html#methodology" style="font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;">Methodology</a>
+        <a href="about.html#contact" style="font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;">Contact</a>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px;">Data Sources</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">Jeff Sackmann / Tennis Abstract<br>Match Charting Project<br>CPI data from courtspeed.com (CC BY 4.0)<br>ATP Tour Player Headshots</div>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
+</footer>
 <script>
 const API='http://localhost:8000/api/v2';
 const LEVELS={'Australian Open':'Grand Slam','Roland Garros':'Grand Slam','Wimbledon':'Grand Slam','US Open':'Grand Slam','Indian Wells':'Masters 1000','Miami':'Masters 1000','Monte Carlo':'Masters 1000','Madrid':'Masters 1000','Rome':'Masters 1000','Canadian Open':'Masters 1000','Cincinnati':'Masters 1000','Shanghai':'Masters 1000','Paris':'Masters 1000','ATP Finals':'ATP Finals'};
