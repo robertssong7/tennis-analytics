@@ -161,8 +161,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
 </footer>
 
+<script src="config.js"></script>
 <script>
-const API='http://localhost:8000/api/v2';
+const API=API_URL+'/api/v2';
 const FP=[{name:'Carlos Alcaraz',sub:'206 charted · Right-handed'},{name:'Novak Djokovic',sub:'540 charted · Right-handed'},{name:'Jannik Sinner',sub:'260 charted · Right-handed'},{name:'Roger Federer',sub:'689 charted · Right-handed'},{name:'Rafael Nadal',sub:'416 charted · Left-handed'}];
 let cs=0,autoT,hov=false;
 function pct(v){return(v*100).toFixed(1)+'%';}
@@ -201,7 +202,7 @@ buildC();
 // Tournament predictions
 async function loadTournamentPred() {
   try {
-    const r = await fetch('http://localhost:8000/tournament/predict');
+    const r = await fetch(API_URL+'/tournament/predict');
     if (!r.ok) return;
     const d = await r.json();
     const players = (d.players || []).slice(0, 16);

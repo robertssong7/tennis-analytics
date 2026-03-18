@@ -217,8 +217,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <div class="footer-bottom"><p>Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
 </footer>
 
+<script src="config.js"></script>
 <script>
-const API = 'http://localhost:8000';
+const API = API_URL;
 const params = new URLSearchParams(location.search);
 const playerName = params.get('name') || params.get('player') || 'Carlos Alcaraz';
 let activeSurf = 'hard';

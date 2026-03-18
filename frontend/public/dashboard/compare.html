@@ -89,9 +89,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </div>
   <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
 </footer>
+<script src="config.js"></script>
 <script>
-const ML_API = 'http://localhost:8000';
-const LEGACY_API = 'http://localhost:8000/api/v2';
+const ML_API = API_URL;
+const LEGACY_API = API_URL+'/api/v2';
 
 const params = new URLSearchParams(location.search);
 let n1 = params.get('p1') || '', n2 = params.get('p2') || '';

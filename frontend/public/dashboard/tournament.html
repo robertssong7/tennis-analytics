@@ -62,8 +62,9 @@ table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card
   </div>
   <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
 </footer>
+<script src="config.js"></script>
 <script>
-const API='http://localhost:8000/api/v2';
+const API=API_URL+'/api/v2';
 const LEVELS={'Australian Open':'Grand Slam','Roland Garros':'Grand Slam','Wimbledon':'Grand Slam','US Open':'Grand Slam','Indian Wells':'Masters 1000','Miami':'Masters 1000','Monte Carlo':'Masters 1000','Madrid':'Masters 1000','Rome':'Masters 1000','Canadian Open':'Masters 1000','Cincinnati':'Masters 1000','Shanghai':'Masters 1000','Paris':'Masters 1000','ATP Finals':'ATP Finals'};
 function sc(s){if(!s)return'hard';const l=s.toLowerCase();return l.includes('clay')?'clay':l.includes('grass')?'grass':l.includes('indoor')?'indoor':'hard';}
 async function init(){try{const r=await fetch(`${API}/court-speed`);const d=await r.json();renderSum(d);renderGrid(d);renderTable(d);}catch(e){document.getElementById('tgrid').innerHTML='<div style="color:var(--ink-soft);padding:40px;">Start the API to load CPI data.</div>';}}

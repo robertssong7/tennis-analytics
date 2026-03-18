@@ -31,9 +31,11 @@ from src.api.pattern_endpoints import router as pattern_router
 app = FastAPI(title="TennisIQ API", version="1.0.0")
 app.include_router(pattern_router)
 
+from src.api.config import CORS_ORIGINS
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
