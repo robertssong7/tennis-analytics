@@ -26,3 +26,10 @@ Thumbs.db
 node_modules/
 dist/
 .vercel/
+
+# But ALLOW small runtime model files needed for deployment
+!models/ensemble/xgb_model.pkl
+!models/ensemble/lgb_model.pkl
+!models/ensemble/stacked_ensemble.pkl
+!data/processed/glicko2_state.pkl
+!data/processed/player_attributes_v2.pkl
