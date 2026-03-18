@@ -1,20 +1,28 @@
-node_modules/
-**/.ipynb_checkpoints/
+# Large model/data files
+data/processed/*.pkl
+data/processed/*.parquet
+models/**/*.pkl
+models/**/*.pt
+matchup_grid.json
+
+# Environment and secrets
 .env
-.DS_Store
-
-# Raw data (never commit CSVs)
-data/raw/**
-data/csvs/**
-data/derived/**
-
-# Temp files
-_check.js
-_output.txt
+.env.local
+.env.production
+frontend/.env.local
+venv/
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-data/sackmann/
-data/locked/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Node (for React migration)
+node_modules/
+dist/
+.vercel/
