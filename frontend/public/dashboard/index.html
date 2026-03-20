@@ -10,17 +10,18 @@
 :root{--bg:#E9E5DC;--bg-alt:#DDD9CF;--ink:#1A2634;--ink-mid:#3D4F5E;--ink-soft:#7A8A96;--accent:#4A7C6F;--accent-light:#6FAF9E;--warm:#C4A97D;--card-bg:#F4F1EB;--card-dark:#243447;--border:rgba(26,38,52,0.1);--red-soft:#C4573A;--grass:#5A8A3C;--clay:#C4673A;--hard:#3A6EA5;}
 *{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;}
 
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:0 52px;height:74px;background:rgba(233,229,220,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:0 40px;height:74px;background:rgba(233,229,220,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
 .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex-shrink:0;}.logo-mark{width:38px;height:38px;background:var(--ink);border-radius:50%;position:relative;overflow:hidden;}.logo-mark::before{content:'';position:absolute;width:21px;height:21px;border:2.5px solid var(--bg);border-radius:50%;clip-path:polygon(0 0,50% 0,50% 100%,0 100%);top:50%;left:50%;transform:translate(-50%,-50%);}.logo-mark::after{content:'';position:absolute;width:17px;height:1.5px;background:var(--bg);transform:rotate(-35deg);top:50%;left:50%;margin-left:-8px;}.logo-text{font-family:'Playfair Display',serif;font-size:18px;}
 .nav-center{flex:1;display:flex;justify-content:center;padding:0 32px;}.search-wrap{position:relative;width:360px;}.search-bar{display:flex;align-items:center;background:var(--card-bg);border:1.5px solid var(--border);border-radius:100px;padding:0 20px;gap:10px;width:100%;height:42px;transition:all 0.2s;}.search-bar:hover,.search-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,124,111,0.08);}.search-bar input{border:none;background:transparent;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);width:100%;font-weight:400;}.search-bar input::placeholder{color:var(--ink-soft);}
 .search-dd{position:absolute;top:48px;left:0;right:0;background:var(--card-bg);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 12px 32px rgba(26,38,52,0.12);display:none;overflow:hidden;z-index:200;}.search-dd.open{display:block;}.search-item{padding:10px 18px;font-size:13px;cursor:pointer;transition:background 0.15s;display:flex;justify-content:space-between;}.search-item:hover,.search-item.sel{background:var(--bg-alt);}.search-item .si-m{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-soft);}
-.nav-links{display:flex;align-items:center;gap:32px;flex-shrink:0;}.nav-links a{text-decoration:none;color:var(--ink-mid);font-size:14px;font-weight:400;letter-spacing:0.02em;transition:color 0.2s;}.nav-links a:hover{color:var(--ink);}.nav-links .compare-cta{background:var(--accent);color:var(--card-bg);padding:9px 20px;border-radius:100px;font-size:13.5px;box-shadow:0 0 14px rgba(74,124,111,0.3),0 0 5px rgba(74,124,111,0.2);transition:all 0.2s;}.nav-links .compare-cta:hover{box-shadow:0 0 22px rgba(74,124,111,0.5);transform:translateY(-1px);}
+.nav-links{display:flex;align-items:center;gap:24px;flex-shrink:0;}.nav-links a{text-decoration:none;color:var(--ink-mid);font-size:13.5px;font-weight:400;transition:color 0.2s;}.nav-links a:hover{color:var(--ink);}.nav-links a.active{color:var(--accent);font-weight:500;}
+.soon-badge{font-family:'DM Mono',monospace;font-size:8px;background:var(--warm);color:var(--ink);padding:2px 5px;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:super;margin-left:4px;}
 
 .hero{min-height:100vh;padding-top:74px;display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden;}
 .hero-left{display:flex;flex-direction:column;justify-content:center;padding:80px 40px 80px 9%;position:relative;z-index:4;}
 .eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:28px;}.eyebrow-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite;}@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}.eyebrow span{font-size:11px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;}
 .hero-title{font-family:'Playfair Display',serif;font-size:clamp(48px,5vw,66px);line-height:1.08;font-weight:700;margin-bottom:24px;}.hero-title em{font-style:italic;color:var(--accent);}
-.hero-desc{font-size:16px;line-height:1.8;color:var(--ink-mid);max-width:440px;margin-bottom:40px;}.hero-desc a{color:var(--accent);text-decoration:underline;text-underline-offset:3px;}
+.hero-desc{font-size:16px;line-height:1.8;color:var(--ink-mid);max-width:440px;margin-bottom:12px;}
 .hero-stats{display:flex;gap:36px;padding-top:32px;border-top:1px solid var(--border);}.stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;}.stat-label{font-size:10.5px;color:var(--ink-soft);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
 
 .hero-right{display:flex;align-items:center;justify-content:center;padding:40px 40px 40px 20px;position:relative;overflow:hidden;}
@@ -64,14 +65,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <body>
 <nav>
 <a href="index.html" class="nav-logo"><div class="logo-mark"></div><span class="logo-text">TennisIQ</span></a>
-<div class="nav-center"><div class="search-wrap"><div class="search-bar"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg><input type="text" placeholder="Search a player..." id="si" autocomplete="off"/></div><div class="search-dd" id="sd"></div></div></div>
-<div class="nav-links"><a href="compare.html" class="compare-cta">Compare Players</a><a href="tournament.html">Tournaments</a><a href="odds.html">Odds<span style="font-family:'DM Mono',monospace;font-size:8px;background:var(--warm);color:var(--ink);padding:2px 5px;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:super;margin-left:4px;">Soon</span></a><a href="about.html">About</a></div>
+<div class="nav-center"><div class="search-wrap"><div class="search-bar"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg><input type="text" placeholder="Search a player..." id="sinp" autocomplete="off"/></div><div class="search-dd" id="sdd"></div></div></div>
+<div class="nav-links"><a href="index.html" class="active">Home</a><a href="compare.html">Compare</a><a href="tournament.html">Tournaments</a><a href="odds.html">Odds<span class="soon-badge">Soon</span></a><a href="about.html">About</a></div>
 </nav>
 <section class="hero">
 <div class="hero-left">
 <div class="eyebrow"><div class="eyebrow-dot"></div><span>ATP / WTA Intelligence Platform</span></div>
 <h1 class="hero-title">Tennis data,<br><em>re-imagined.</em></h1>
-<p class="hero-desc">Performance metrics, player comparisons, and court intelligence — all in one place. <a href="#">Built by analysts, for fans and coaches who want more than scores.</a></p>
+<p class="hero-desc">Performance metrics, player comparisons, and court intelligence — all in one place.</p>
+<p style="font-size:15px;line-height:1.8;color:var(--ink-mid);max-width:440px;margin-bottom:40px;font-family:'DM Sans',sans-serif;">Built by analysts, for fans and coaches who want more than scores.</p>
 <div class="hero-stats"><div><div class="stat-num">980+</div><div class="stat-label">Players profiled</div></div><div><div class="stat-num">1.2M</div><div class="stat-label">Points analyzed</div></div><div><div class="stat-num">7,194</div><div class="stat-label">Charted matches</div></div></div>
 </div>
 <div class="hero-right">
@@ -158,7 +160,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
       <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">Jeff Sackmann / Tennis Abstract<br>Match Charting Project<br>Open-Meteo Historical Weather<br>ATP Tour Player Headshots</div>
     </div>
   </div>
-  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
+  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">TennisIQ &copy; 2025</p></div>
 </footer>
 
 <script src="config.js"></script>
@@ -191,7 +193,7 @@ function go(i){cs=i;document.getElementById('ct').style.transform=`translateX(-$
 function startA(){clearInterval(autoT);autoT=setInterval(()=>{if(!hov){cs=(cs+1)%FP.length;go(cs);}},6000);}
 
 /* Search autocomplete */
-let st=null,sr=[],si=-1;const sinp=document.getElementById('si'),sdd=document.getElementById('sd');
+let st=null,sr=[],si=-1;const sinp=document.getElementById('sinp'),sdd=document.getElementById('sdd');
 sinp.addEventListener('input',()=>{clearTimeout(st);const q=sinp.value.trim();if(q.length<2){sdd.classList.remove('open');return;}
 st=setTimeout(async()=>{try{const r=await fetch(`${API}/search?q=${encodeURIComponent(q)}`);if(!r.ok)return;sr=await r.json();si=0;if(!sr.length){sdd.classList.remove('open');return;}sdd.innerHTML=sr.map((p,i)=>`<div class="search-item${i===0?' sel':''}" data-n="${p.name}">${p.name}<span class="si-m">${p.matches} matches</span></div>`).join('');sdd.classList.add('open');sdd.querySelectorAll('.search-item').forEach(it=>it.addEventListener('click',()=>window.location=`player.html?player=${encodeURIComponent(it.dataset.n)}`));}catch(e){}},200);});
 sinp.addEventListener('keydown',e=>{if(!sdd.classList.contains('open')){if(e.key==='Enter'&&sinp.value.trim())window.location=`player.html?player=${encodeURIComponent(sinp.value.trim())}`;return;}const items=sdd.querySelectorAll('.search-item');if(e.key==='ArrowDown'){e.preventDefault();si=Math.min(si+1,items.length-1);}else if(e.key==='ArrowUp'){e.preventDefault();si=Math.max(si-1,0);}else if(e.key==='Enter'){e.preventDefault();if(si>=0&&items[si])window.location=`player.html?player=${encodeURIComponent(items[si].dataset.n)}`;return;}else if(e.key==='Escape'){sdd.classList.remove('open');return;}items.forEach((it,i)=>it.classList.toggle('sel',i===si));});

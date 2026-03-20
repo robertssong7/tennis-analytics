@@ -304,7 +304,8 @@ def court_speed(
     if year:
         cpi = cpi[cpi["year"] == year]
     cpi = cpi[cpi["cpi"] > 0]
-    return cpi.to_dict(orient="records")
+    import json as _json
+    return _json.loads(cpi.to_json(orient="records"))
 
 
 @router.get("/search")

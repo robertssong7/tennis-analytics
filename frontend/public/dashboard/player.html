@@ -23,10 +23,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .search-bar:hover,.search-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,124,111,0.08);}
 .search-bar input{border:none;background:transparent;outline:none;font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--ink);width:100%;}
 .search-bar input::placeholder{color:var(--ink-soft);}
+.search-dd{position:absolute;top:48px;left:0;right:0;background:var(--card-bg);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 12px 32px rgba(26,38,52,0.12);display:none;overflow:hidden;z-index:200;}.search-dd.open{display:block;}
 .nav-links{display:flex;align-items:center;gap:24px;flex-shrink:0;}
 .nav-links a{text-decoration:none;color:var(--ink-mid);font-size:13.5px;transition:color 0.2s;}
 .nav-links a:hover{color:var(--ink);}
-.nav-links .cmp-cta{background:var(--accent);color:var(--card-bg)!important;padding:8px 18px;border-radius:100px;font-size:13px;}
+.nav-links a.active{color:var(--accent);font-weight:500;}
 .soon-badge{font-family:'DM Mono',monospace;font-size:8px;background:var(--warm);color:var(--ink);padding:2px 5px;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:super;margin-left:4px;}
 
 /* HERO */
@@ -173,11 +174,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
         <input type="text" placeholder="Search a player..." id="sinp" autocomplete="off"/>
       </div>
+      <div class="search-dd" id="sdd"></div>
     </div>
   </div>
   <div class="nav-links">
     <a href="index.html">Home</a>
-    <a href="compare.html" class="cmp-cta">Compare</a>
+    <a href="compare.html">Compare</a>
     <a href="tournament.html">Tournaments</a>
     <a href="odds.html">Odds<span class="soon-badge">Soon</span></a>
     <a href="about.html">About</a>
@@ -214,7 +216,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
       </div>
     </div>
   </div>
-  <div class="footer-bottom"><p>Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
+  <div class="footer-bottom"><p>TennisIQ &copy; 2025</p></div>
 </footer>
 
 <script src="config.js"></script>

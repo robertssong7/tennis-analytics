@@ -12,7 +12,8 @@
 nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:0 40px;height:74px;background:rgba(233,229,220,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
 .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex-shrink:0;}.logo-mark{width:38px;height:38px;background:var(--ink);border-radius:50%;position:relative;overflow:hidden;}.logo-mark::before{content:'';position:absolute;width:21px;height:21px;border:2.5px solid var(--bg);border-radius:50%;clip-path:polygon(0 0,50% 0,50% 100%,0 100%);top:50%;left:50%;transform:translate(-50%,-50%);}.logo-mark::after{content:'';position:absolute;width:17px;height:1.5px;background:var(--bg);transform:rotate(-35deg);top:50%;left:50%;margin-left:-8px;}.logo-text{font-family:'Playfair Display',serif;font-size:18px;}
 .nav-center{flex:1;display:flex;justify-content:center;padding:0 24px;}.search-wrap{position:relative;width:340px;}.search-bar{display:flex;align-items:center;background:var(--card-bg);border:1.5px solid var(--border);border-radius:100px;padding:0 18px;gap:10px;width:100%;height:40px;transition:all 0.2s;}.search-bar:hover,.search-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,124,111,0.08);}.search-bar input{border:none;background:transparent;outline:none;font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--ink);width:100%;}.search-bar input::placeholder{color:var(--ink-soft);}
-.nav-links{display:flex;align-items:center;gap:24px;flex-shrink:0;}.nav-links a{text-decoration:none;color:var(--ink-mid);font-size:13.5px;transition:color 0.2s;}.nav-links a:hover{color:var(--ink);}.nav-links .cmp-cta{background:var(--accent);color:var(--card-bg)!important;padding:8px 18px;border-radius:100px;font-size:13px;}
+.search-dd{position:absolute;top:48px;left:0;right:0;background:var(--card-bg);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 12px 32px rgba(26,38,52,0.12);display:none;overflow:hidden;z-index:200;}.search-dd.open{display:block;}
+.nav-links{display:flex;align-items:center;gap:24px;flex-shrink:0;}.nav-links a{text-decoration:none;color:var(--ink-mid);font-size:13.5px;font-weight:400;transition:color 0.2s;}.nav-links a:hover{color:var(--ink);}.nav-links a.active{color:var(--accent);font-weight:500;}
 .soon-badge{font-family:'DM Mono',monospace;font-size:8px;background:var(--warm);color:var(--ink);padding:2px 5px;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:super;margin-left:4px;}
 .hero-odds{background:var(--card-dark);color:white;padding-top:74px;}
 .hero-odds-inner{max-width:1100px;margin:0 auto;padding:60px 9%;}
@@ -64,13 +65,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
         <input type="text" placeholder="Search a player..." id="sinp" autocomplete="off"/>
       </div>
+      <div class="search-dd" id="sdd"></div>
     </div>
   </div>
   <div class="nav-links">
     <a href="index.html">Home</a>
-    <a href="compare.html" class="cmp-cta">Compare</a>
+    <a href="compare.html">Compare</a>
     <a href="tournament.html">Tournaments</a>
-    <a href="odds.html">Odds<span class="soon-badge">Soon</span></a>
+    <a href="odds.html" class="active">Odds<span class="soon-badge">Soon</span></a>
     <a href="about.html">About</a>
   </div>
 </nav>
@@ -179,7 +181,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
       </div>
     </div>
   </div>
-  <div class="footer-bottom"><p>Built by Robert Song &middot; TennisIQ &copy; 2025</p></div>
+  <div class="footer-bottom"><p>TennisIQ &copy; 2025</p></div>
 </footer>
 
 <script>
