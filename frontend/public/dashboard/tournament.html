@@ -67,6 +67,7 @@ table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card
   <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">TennisIQ &copy; 2025</p></div>
 </footer>
 <script src="config.js"></script>
+<script src="autocomplete.js"></script>
 <script>
 const API=API_URL+'/api/v2';
 const LEVELS={'Australian Open':'Grand Slam','Roland Garros':'Grand Slam','Wimbledon':'Grand Slam','US Open':'Grand Slam','Indian Wells':'Masters 1000','Miami':'Masters 1000','Monte Carlo':'Masters 1000','Madrid':'Masters 1000','Rome':'Masters 1000','Canadian Open':'Masters 1000','Cincinnati':'Masters 1000','Shanghai':'Masters 1000','Paris':'Masters 1000','ATP Finals':'ATP Finals'};
@@ -80,7 +81,6 @@ return`<div class="tc"><div class="tc-ban ${sc(t.sf)}"><div><div class="tc-nm">$
 function renderTable(d){const sorted=[...d].sort((a,b)=>b.year-a.year||a.tournament.localeCompare(b.tournament));
 document.getElementById('tbody').innerHTML=sorted.map(r=>`<tr><td><span class="sdot ${sc(r.surface)}"></span>${r.tournament}</td><td>${r.year}</td><td>${r.surface||'—'}</td><td><span class="cpv ${r.cpi>40?'fast':r.cpi<28?'slow':''}">${r.cpi>0?r.cpi:'—'}</span></td><td>${r.ace_rate?r.ace_rate+'%':'—'}</td><td>${r.ball_type||'—'}</td><td>${r.elevation||'—'}</td><td>${r.winner||'—'}</td></tr>`).join('');
 document.querySelectorAll('th').forEach((th,i)=>{th.addEventListener('click',()=>{const rows=[...document.querySelectorAll('#tbody tr')];const asc=th.dataset.asc==='true';rows.sort((a,b)=>{const av=a.children[i].textContent.trim(),bv=b.children[i].textContent.trim(),an=parseFloat(av),bn=parseFloat(bv);if(!isNaN(an)&&!isNaN(bn))return asc?an-bn:bn-an;return asc?av.localeCompare(bv):bv.localeCompare(av);});th.dataset.asc=String(!asc);const tb=document.getElementById('tbody');rows.forEach(r=>tb.appendChild(r));});});}
-document.getElementById('sinp').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.value.trim())location.href=`player.html?name=${encodeURIComponent(e.target.value.trim())}`;});
 init();
 </script>
 </body>

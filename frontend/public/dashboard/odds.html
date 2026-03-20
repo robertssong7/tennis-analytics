@@ -184,12 +184,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <div class="footer-bottom"><p>TennisIQ &copy; 2025</p></div>
 </footer>
 
-<script>
-document.getElementById('sinp').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && e.target.value.trim()) {
-    location.href = 'player.html?name=' + encodeURIComponent(e.target.value.trim());
-  }
-});
-</script>
+<script src="autocomplete.js"></script>
 </body>
 </html>

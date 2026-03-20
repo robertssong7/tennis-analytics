@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#E9E5DC;--bg-alt:#DDD9CF;--ink:#1A2634;--ink-mid:#3D4F5E;--ink-soft:#7A8A96;--accent:#4A7C6F;--accent-light:#6FAF9E;--warm:#C4A97D;--card-bg:#F4F1EB;--card-dark:#243447;--border:rgba(26,38,52,0.1);--red-soft:#C4573A;--p1:#4A7C6F;--p2:#C4573A;--hard:#3A6EA5;--clay:#C4673A;--grass:#5A8A3C;}
+:root{--bg:#E9E5DC;--bg-alt:#DDD9CF;--ink:#1A2634;--ink-mid:#3D4F5E;--ink-soft:#7A8A96;--accent:#4A7C6F;--accent-light:#6FAF9E;--warm:#C4A97D;--card-bg:#F4F1EB;--card-dark:#243447;--border:rgba(26,38,52,0.1);--red-soft:#C4573A;--p1:#4A7C6F;--p2:#C4573A;--hard:#3A6EA5;--clay:#C4673A;--grass:#5A8A3C;--tiffany:#0ABAB5;}
 *{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;}
 
 /* NAV */
@@ -30,6 +30,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .nav-links a.active{color:var(--accent);font-weight:500;}
 .soon-badge{font-family:'DM Mono',monospace;font-size:8px;background:var(--warm);color:var(--ink);padding:2px 5px;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:super;margin-left:4px;}
 
+/* SURFACE TOGGLE */
+.surface-toggle{position:sticky;top:74px;z-index:90;background:rgba(233,229,220,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:10px 0;display:flex;justify-content:center;}
+.surface-toggle-inner{display:flex;gap:8px;}
+.stgl-btn{padding:6px 20px;border-radius:100px;border:1.5px solid var(--border);background:var(--card-bg);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-mid);cursor:pointer;transition:all 0.2s;}
+.stgl-btn.active{color:white;}
+.stgl-btn[data-surf="overall"].active{background:var(--ink);border-color:var(--ink);}
+.stgl-btn[data-surf="hard"].active{background:#4A90D9;border-color:#4A90D9;}
+.stgl-btn[data-surf="clay"].active{background:#D4724E;border-color:#D4724E;}
+.stgl-btn[data-surf="grass"].active{background:#5AA469;border-color:#5AA469;}
+
 /* HERO */
 .hero{background:var(--card-dark);padding-top:74px;padding-bottom:40px;color:white;}
 .hero-inner{max-width:1100px;margin:0 auto;padding:40px 9% 0;display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap;}
@@ -51,13 +61,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .tier-badge.gold{background:rgba(196,169,125,0.3);color:#E8C86A;border:1px solid rgba(196,169,125,0.4);}
 .tier-badge.silver{background:rgba(155,168,181,0.3);color:#C9D4DC;border:1px solid rgba(155,168,181,0.4);}
 .tier-badge.bronze{background:rgba(139,107,74,0.3);color:#B08A60;border:1px solid rgba(139,107,74,0.4);}
+.retired-badge{font-family:'DM Mono',monospace;font-size:10px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);padding:3px 12px;border-radius:100px;border:1px solid rgba(255,255,255,0.12);font-style:italic;}
 .player-name{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;margin-bottom:6px;line-height:1.1;}
 .player-meta{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
 .country-tag{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;}
 .form-mod{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;}
 .form-mod.pos{color:#7FCFBF;}
 .form-mod.neg{color:#E88A6A;}
-.peak-badge{font-family:'DM Mono',monospace;font-size:10px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);padding:3px 10px;border-radius:100px;border:1px solid rgba(255,255,255,0.15);}
+.form-date{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px;}
 .surface-chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
 .surf-chip{padding:6px 16px;border-radius:100px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;}
 .surf-chip.hard{background:rgba(58,110,165,0.4);color:#7CB8E8;border:1px solid rgba(58,110,165,0.5);}
@@ -71,16 +82,24 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .sec-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:12px;}
 .sec-title::after{content:'';flex:0 0 40px;height:1px;background:var(--accent);opacity:0.4;}
 
-/* ATTRIBUTES */
+/* RADAR CHART */
+.radar-wrap{display:flex;justify-content:center;margin-bottom:24px;}
+
+/* PLAY STYLE BUBBLE */
+.play-style-bubble{display:inline-flex;flex-direction:column;padding:10px 22px;border-radius:14px;background:var(--tiffany);margin-bottom:20px;}
+.play-style-name{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:white;}
+.play-style-desc{font-family:'DM Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;}
+
+/* ATTRIBUTES BARS */
 .attr-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 32px;}
 .attr-row{display:grid;grid-template-columns:120px 1fr 40px;align-items:center;gap:10px;padding:6px 0;}
 .attr-name{font-size:12.5px;color:var(--ink-mid);text-transform:capitalize;}
 .attr-bar-wrap{height:8px;background:var(--bg-alt);border-radius:4px;overflow:hidden;}
 .attr-bar{height:100%;border-radius:4px;transition:width 0.8s ease;}
-.attr-bar.plat{background:#E5E4E2;}
-.attr-bar.high{background:var(--accent);}
-.attr-bar.default{background:var(--warm);}
+.attr-bar.tiffany{background:var(--tiffany);}
+.attr-bar.tiffany-muted{background:rgba(10,186,181,0.3);}
 .attr-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink);text-align:right;}
+.attr-val.insufficient{font-size:9px;color:var(--ink-soft);font-style:italic;}
 
 /* PATTERNS */
 .patterns-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
@@ -103,14 +122,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .rally-wr{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-mid);text-align:right;}
 
 /* MATCHUPS */
-.surf-select{display:flex;gap:6px;margin-bottom:16px;}
-.surf-btn{padding:0 16px;height:38px;border-radius:10px;border:1.5px solid var(--border);background:var(--card-bg);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mid);cursor:pointer;transition:all .2s;}
-.surf-btn.active{background:var(--accent);color:white;border-color:var(--accent);}
 .matchup-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
 .mu-col-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
 .mu-col-title.tough{color:var(--red-soft);}
 .mu-col-title.easy{color:var(--accent);}
-.mu-row{display:flex;align-items:center;padding:9px 12px;background:var(--card-bg);border-radius:8px;margin-bottom:6px;cursor:pointer;text-decoration:none;color:inherit;transition:background 0.15s;}
+.mu-row{display:flex;align-items:center;padding:9px 12px;background:var(--card-bg);border-radius:8px;margin-bottom:0;cursor:pointer;color:inherit;transition:background 0.15s;}
 .mu-row:hover{background:var(--bg-alt);}
 .mu-row.tough-row{border-left:3px solid rgba(196,87,58,0.4);}
 .mu-row.easy-row{border-left:3px solid rgba(74,124,111,0.4);}
@@ -118,17 +134,28 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .mu-prob{font-family:'DM Mono',monospace;font-size:12px;}
 .mu-prob.tough{color:var(--red-soft);}
 .mu-prob.easy{color:var(--accent);}
+.mu-chevron{font-size:10px;color:var(--ink-soft);margin-left:8px;transition:transform 0.3s;}
+.mu-row.expanded .mu-chevron{transform:rotate(90deg);}
+.mu-expand{max-height:0;overflow:hidden;transition:max-height 0.4s ease;background:var(--bg);border-radius:0 0 8px 8px;border:1px solid var(--border);border-top:none;}
+.mu-expand.open{border-color:var(--border);}
+.mu-item-wrap{margin-bottom:6px;}
 
 /* CONDITIONS */
 .cond-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
 .cond-col-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
 .cond-col-title.best{color:var(--accent);}
 .cond-col-title.worst{color:var(--red-soft);}
-.cond-row{display:flex;align-items:center;padding:10px 14px;background:var(--card-bg);border-radius:8px;margin-bottom:8px;}
+.cond-row{display:flex;align-items:center;padding:12px 14px;background:var(--card-bg);border-radius:8px;margin-bottom:8px;gap:12px;}
 .cond-row.best-row{border-left:3px solid var(--accent);}
 .cond-row.worst-row{border-left:3px solid var(--red-soft);}
-.cond-name{font-size:13px;font-weight:500;flex:1;}
-.cond-stats{text-align:right;}
+.cond-indicator{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0;}
+.cond-info{flex:1;}
+.cond-name{font-size:13px;font-weight:500;margin-bottom:4px;}
+.cond-bar-track{height:4px;background:var(--bg-alt);border-radius:2px;overflow:hidden;}
+.cond-bar-fill{height:100%;border-radius:2px;transition:width 0.6s ease;}
+.cond-bar-fill.best{background:var(--accent);}
+.cond-bar-fill.worst{background:var(--red-soft);}
+.cond-stats{text-align:right;flex-shrink:0;}
 .cond-wr{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;}
 .cond-wr.best{color:var(--accent);}
 .cond-wr.worst{color:var(--red-soft);}
@@ -186,6 +213,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </div>
 </nav>
 
+<div class="surface-toggle" id="surface-toggle">
+  <div class="surface-toggle-inner">
+    <button class="stgl-btn active" data-surf="overall">Overall</button>
+    <button class="stgl-btn" data-surf="hard">Hard</button>
+    <button class="stgl-btn" data-surf="clay">Clay</button>
+    <button class="stgl-btn" data-surf="grass">Grass</button>
+  </div>
+</div>
+
 <div id="hero-section"></div>
 <div class="page-content" id="page-content"></div>
 
@@ -220,84 +256,166 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 </footer>
 
 <script src="config.js"></script>
+<script src="autocomplete.js"></script>
 <script>
-const API = API_URL;
-const params = new URLSearchParams(location.search);
-const playerName = params.get('name') || params.get('player') || 'Carlos Alcaraz';
-let activeSurf = 'hard';
-let cardData = null;
+var API = API_URL;
+var params = new URLSearchParams(location.search);
+var playerName = params.get('name') || params.get('player') || 'Carlos Alcaraz';
+var activeSurf = 'overall';
+var cardData = null;
+var patternsData = null;
 
 document.title = 'TennisIQ \u2014 ' + playerName;
 
-function pct(v){ return v != null ? (v*100).toFixed(1)+'%' : 'N/A'; }
-function ini(n){ return n.split(' ').map(w=>w[0]).join(''); }
+/* ── Utilities ─────────────────────────────────────────── */
+function pct(v) { return v != null ? (v * 100).toFixed(1) + '%' : 'N/A'; }
+function ini(n) { return n.split(' ').map(function(w){return w[0];}).join(''); }
 function tierBg(tier) {
-  const bgs = {legendary:'linear-gradient(135deg,#1a3a5c,#243447)', gold:'linear-gradient(135deg,#2a2010,#243447)', silver:'linear-gradient(135deg,#1a2230,#243447)', bronze:'linear-gradient(135deg,#1e1510,#243447)'};
+  var bgs = {legendary:'linear-gradient(135deg,#1a3a5c,#243447)',gold:'linear-gradient(135deg,#2a2010,#243447)',silver:'linear-gradient(135deg,#1a2230,#243447)',bronze:'linear-gradient(135deg,#1e1510,#243447)'};
   return bgs[tier] || 'var(--card-dark)';
 }
-function attrBarColor(score) {
-  if(score >= 90) return 'plat';
-  if(score >= 80) return 'high';
-  return 'default';
+function tierFromRating(r) {
+  if (r >= 91) return 'legendary';
+  if (r >= 80) return 'gold';
+  if (r >= 69) return 'silver';
+  return 'bronze';
+}
+function formatDate(d) {
+  if (!d) return '';
+  var dt = new Date(d + 'T00:00:00');
+  var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return m[dt.getMonth()] + ' ' + dt.getDate() + ', ' + dt.getFullYear();
 }
 
-// Search
-const sinp = document.getElementById('sinp');
-sinp.addEventListener('keydown', function(e) {
-  if(e.key === 'Enter' && sinp.value.trim()) {
-    location.href = 'player.html?name=' + encodeURIComponent(sinp.value.trim());
+/* ── Play Style Classification ─────────────────────────── */
+function classifyPlayStyle(attrs, patterns) {
+  var fw = (attrs.footwork === 30) ? null : attrs.footwork;
+  if (attrs.serve > 80 && attrs.volley > 70) return {name:'Serve & Volleyer', desc:'Attacks the net behind a dominant serve'};
+  if (attrs.serve > 80 && attrs.endurance < 60) return {name:'Big Server', desc:'Wins points quickly with explosive serving'};
+  if (attrs.groundstroke > 75 && attrs.clutch > 70 && patterns && patterns.aggression_index != null && patterns.aggression_index > 0.5)
+    return {name:'Aggressive Baseliner', desc:'Dictates rallies with powerful groundstrokes'};
+  if ((fw === null || fw > 70) && attrs.endurance > 75 && attrs.mental > 70) return {name:'Counter Puncher', desc:'Uses speed and consistency to outlast opponents'};
+  var entries = Object.entries(attrs).filter(function(e) { return !(e[0] === 'footwork' && e[1] === 30); });
+  var allInRange = entries.every(function(e) { return e[1] >= 55 && e[1] <= 85; });
+  if (allInRange) return {name:'All-Court Player', desc:'Versatile game with no exploitable weakness'};
+  return {name:'All-Court Player', desc:'Well-rounded game across all dimensions'};
+}
+
+/* ── Radar Chart SVG ───────────────────────────────────── */
+function renderRadar(attrs) {
+  var names = ['serve','groundstroke','volley','footwork','endurance','durability','clutch','mental'];
+  var labels = ['SRV','GND','VOL','FTW','END','DUR','CLU','MNT'];
+  var cx = 130, cy = 130, maxR = 95, n = 8;
+  var step = 2 * Math.PI / n, start = -Math.PI / 2;
+
+  function oct(r) {
+    return Array.from({length:n}, function(_,i) {
+      var a = start + i * step;
+      return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1);
+    }).join(' ');
   }
-});
 
+  var svg = '<svg viewBox="0 0 260 260" width="260" height="260" style="overflow:visible;">';
+  // Grid
+  [0.25, 0.5, 0.75, 1.0].forEach(function(lv) {
+    svg += '<polygon points="' + oct(maxR * lv) + '" fill="none" stroke="rgba(0,0,0,0.07)" stroke-width="0.8"/>';
+  });
+  // Axes
+  for (var i = 0; i < n; i++) {
+    var a = start + i * step;
+    svg += '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+maxR*Math.cos(a)).toFixed(1)+'" y2="'+(cy+maxR*Math.sin(a)).toFixed(1)+'" stroke="rgba(0,0,0,0.05)" stroke-width="0.8"/>';
+  }
+  // Data polygon
+  var pts = names.map(function(nm, i) {
+    var v = attrs[nm] || 50;
+    if (nm === 'footwork' && v === 30) v = 0;
+    var a = start + i * step, r = maxR * v / 100;
+    return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1);
+  }).join(' ');
+  svg += '<polygon points="' + pts + '" fill="rgba(10,186,181,0.22)" stroke="#0ABAB5" stroke-width="2"/>';
+  // Dots
+  names.forEach(function(nm, i) {
+    var v = attrs[nm] || 50;
+    if (nm === 'footwork' && v === 30) return;
+    var a = start + i * step, r = maxR * v / 100;
+    svg += '<circle cx="'+(cx+r*Math.cos(a)).toFixed(1)+'" cy="'+(cy+r*Math.sin(a)).toFixed(1)+'" r="3.5" fill="#0ABAB5"/>';
+  });
+  // Labels
+  var labelR = maxR + 20;
+  names.forEach(function(nm, i) {
+    var v = attrs[nm] || 50;
+    var a = start + i * step;
+    var lx = cx + labelR * Math.cos(a), ly = cy + labelR * Math.sin(a);
+    var anchor = Math.abs(Math.cos(a)) < 0.15 ? 'middle' : Math.cos(a) > 0 ? 'start' : 'end';
+    var valTxt = (nm === 'footwork' && v === 30) ? '—' : v;
+    svg += '<text x="'+lx.toFixed(1)+'" y="'+(ly-6).toFixed(1)+'" text-anchor="'+anchor+'" font-family="\'DM Mono\',monospace" font-size="9" fill="var(--ink-soft)">'+labels[i]+'</text>';
+    svg += '<text x="'+lx.toFixed(1)+'" y="'+(ly+6).toFixed(1)+'" text-anchor="'+anchor+'" font-family="\'Playfair Display\',serif" font-size="13" font-weight="700" fill="'+(nm==='footwork'&&v===30?'var(--ink-soft)':'var(--ink)')+'">'+valTxt+'</text>';
+  });
+  // Insufficient data note for footwork
+  if (attrs.footwork === 30) {
+    var fi = 3, fa = start + fi * step;
+    var fx = cx + (maxR * 0.35) * Math.cos(fa), fy = cy + (maxR * 0.35) * Math.sin(fa);
+    svg += '<text x="'+fx.toFixed(1)+'" y="'+fy.toFixed(1)+'" text-anchor="middle" font-family="\'DM Mono\',monospace" font-size="7.5" fill="var(--ink-soft)" font-style="italic">Insufficient data</text>';
+  }
+  svg += '</svg>';
+  return svg;
+}
+
+/* ── Conditions Color ─────────────────────────────────── */
+function condColor(item) {
+  if (item.category === 'surface') {
+    if (item.condition.indexOf('Hard') >= 0) return '#4A90D9';
+    if (item.condition.indexOf('Clay') >= 0) return '#D4724E';
+    if (item.condition.indexOf('Grass') >= 0) return '#5AA469';
+  }
+  return 'var(--accent)';
+}
+
+/* ── Main Load ─────────────────────────────────────────── */
 async function loadAll() {
-  const heroEl = document.getElementById('hero-section');
-  const contentEl = document.getElementById('page-content');
-
+  var heroEl = document.getElementById('hero-section');
+  var contentEl = document.getElementById('page-content');
   heroEl.innerHTML = '<div style="background:var(--card-dark);height:280px;padding-top:74px;display:flex;align-items:center;justify-content:center;"><div class="skeleton" style="width:200px;height:24px;"></div></div>';
   contentEl.innerHTML = '<div style="padding:40px 0;text-align:center;color:var(--ink-soft);">Loading player data...</div>';
 
   try {
-    const cardRes = await fetch(API + '/predict/player/' + encodeURIComponent(playerName) + '?surface=hard');
-
+    var cardRes = await fetch(API + '/predict/player/' + encodeURIComponent(playerName) + '?surface=hard');
     if (!cardRes.ok) {
       heroEl.innerHTML = '';
       contentEl.innerHTML = '<div class="not-found"><h2>Player Not Found</h2><p>Could not find "' + playerName + '". Try searching for a different player.</p></div>';
       return;
     }
-
     cardData = await cardRes.json();
     document.title = 'TennisIQ \u2014 ' + cardData.name;
-
     renderHero(cardData);
 
-    // Load rest in parallel
-    const [patternsRes, condRes] = await Promise.all([
+    var [patternsRes, condRes, matchupsRes] = await Promise.all([
       fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/patterns').catch(function(){return null;}),
       fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/conditions').catch(function(){return null;}),
+      fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/matchups?surface=hard').catch(function(){return null;})
     ]);
 
-    const patterns = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
-    const conditions = condRes && condRes.ok ? await condRes.json() : null;
+    patternsData = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
+    var conditions = condRes && condRes.ok ? await condRes.json() : null;
+    var matchups = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
 
-    // Load matchups
-    const matchupsRes = await fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/matchups?surface=hard').catch(function(){return null;});
-    const matchups = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
-
-    renderContent(cardData, patterns, matchups, conditions);
+    renderContent(cardData, patternsData, matchups, conditions);
+    initSurfaceToggle();
 
   } catch(e) {
     contentEl.innerHTML = '<div class="not-found">Error loading data: ' + e.message + '</div>';
   }
 }
 
+/* ── Render Hero ───────────────────────────────────────── */
 function renderHero(card) {
-  const tier = card.tier || 'bronze';
-  const glow = card.glow ? 'has-glow' : '';
-  const formMod = card.form_modifier || 0;
-  const formClass = formMod > 0 ? 'pos' : formMod < 0 ? 'neg' : '';
-  const formSign = formMod > 0 ? '+' : '';
+  var tier = card.tier || 'bronze';
+  var glow = card.glow ? 'has-glow' : '';
+  var formMod = card.form_modifier || 0;
+  var formClass = formMod > 0 ? 'pos' : formMod < 0 ? 'neg' : '';
+  var formSign = formMod > 0 ? '+' : '';
 
-  let avatarHtml;
+  var avatarHtml;
   if (card.headshot_url) {
     avatarHtml = '<div class="player-avatar-wrap ' + glow + '">'
       + '<div class="avatar-border tier-' + tier + '"></div>'
@@ -311,97 +429,98 @@ function renderHero(card) {
       + '</div>';
   }
 
-  const surfaces = card.surfaces || {};
-  const surfChips = ['hard','clay','grass'].map(function(s) {
-    const v = surfaces[s];
+  var surfaces = card.surfaces || {};
+  var surfChips = ['hard','clay','grass'].map(function(s) {
+    var v = surfaces[s];
     return v != null ? '<span class="surf-chip ' + s + '">' + s.toUpperCase() + ' ' + parseFloat(v).toFixed(0) + '</span>' : '';
   }).join('');
 
-  const retiredBadge = card.is_retired && card.peak_year
-    ? '<span class="peak-badge">PEAK: ' + card.peak_year + '</span>' : '';
+  // Retired badge
+  var retiredHtml = '';
+  if (card.is_retired) {
+    retiredHtml = '<span class="retired-badge">Retired' + (card.peak_year ? ' \u00b7 Peak: ' + card.peak_year : '') + '</span>';
+  }
+
+  // Form date
+  var formDateHtml = card.last_match ? '<div class="form-date">Last match: ' + formatDate(card.last_match) + '</div>' : '';
 
   document.getElementById('hero-section').innerHTML = '<div class="hero"><div class="hero-inner">'
     + avatarHtml
     + '<div class="player-info">'
     + '<div class="player-rating-row">'
-    + '<span class="player-overall">' + parseFloat(card.overall || 0).toFixed(0) + '</span>'
-    + '<span class="tier-badge ' + tier + '">' + tier.toUpperCase() + '</span>'
-    + retiredBadge
+    + '<span class="player-overall" id="hero-rating">' + parseFloat(card.overall || 0).toFixed(0) + '</span>'
+    + '<span class="tier-badge ' + tier + '" id="hero-tier">' + tier.toUpperCase() + '</span>'
+    + retiredHtml
     + '</div>'
     + '<div class="player-name">' + card.name + '</div>'
     + '<div class="player-meta">'
     + '<span class="country-tag">' + (card.flag || '') + ' ' + (card.country || '') + '</span>'
-    + (formMod !== 0 ? '<span class="form-mod ' + formClass + '">' + formSign + parseFloat(formMod).toFixed(1) + ' FORM</span>' : '')
+    + (formMod !== 0 ? '<div><span class="form-mod ' + formClass + '">' + formSign + parseFloat(formMod).toFixed(1) + ' FORM</span>' + formDateHtml + '</div>' : (formDateHtml ? '<div>' + formDateHtml + '</div>' : ''))
     + '</div>'
     + '<div class="surface-chips">' + surfChips + '</div>'
     + '</div></div></div>';
 }
 
+/* ── Render Content ────────────────────────────────────── */
 function renderContent(card, patterns, matchups, conditions) {
-  const attrs = card.attributes || {};
-  const attrNames = ['serve','groundstroke','volley','footwork','endurance','durability','clutch','mental'];
-  const attrLabels = {serve:'Serve',groundstroke:'Groundstroke',volley:'Volley',footwork:'Footwork',endurance:'Endurance',durability:'Durability',clutch:'Clutch',mental:'Mental'};
+  var attrs = card.attributes || {};
+  var attrNames = ['serve','groundstroke','volley','footwork','endurance','durability','clutch','mental'];
+  var attrLabels = {serve:'Serve',groundstroke:'Groundstroke',volley:'Volley',footwork:'Footwork',endurance:'Endurance',durability:'Durability',clutch:'Clutch',mental:'Mental'};
 
-  const attrRows = attrNames.map(function(a) {
-    const score = attrs[a] || 50;
-    const barClass = attrBarColor(score);
+  // Radar chart
+  var radarHtml = '<div class="radar-wrap">' + renderRadar(attrs) + '</div>';
+
+  // Play style bubble
+  var style = classifyPlayStyle(attrs, patterns);
+  var playStyleHtml = '<div class="play-style-bubble"><span class="play-style-name">' + style.name + '</span><span class="play-style-desc">' + style.desc + '</span></div>';
+
+  // Attribute bars
+  var attrRows = attrNames.map(function(a) {
+    var score = attrs[a] || 50;
+    var isInsufficient = (a === 'footwork' && score === 30);
+    var barClass = isInsufficient ? 'tiffany-muted' : 'tiffany';
+    var valHtml = isInsufficient
+      ? '<span class="attr-val insufficient">Insufficient data</span>'
+      : '<span class="attr-val">' + score + '</span>';
     return '<div class="attr-row">'
       + '<span class="attr-name">' + attrLabels[a] + '</span>'
-      + '<div class="attr-bar-wrap"><div class="attr-bar ' + barClass + '" style="width:' + score + '%"></div></div>'
-      + '<span class="attr-val">' + score + '</span>'
-      + '</div>';
+      + '<div class="attr-bar-wrap"><div class="attr-bar ' + barClass + '" style="width:' + (isInsufficient ? 0 : score) + '%"></div></div>'
+      + valHtml + '</div>';
   });
+  var attrLeft = attrRows.slice(0, 4).join('');
+  var attrRight = attrRows.slice(4).join('');
 
-  const attrLeft = attrRows.slice(0,4).join('');
-  const attrRight = attrRows.slice(4).join('');
-
-  // Patterns section
-  let patternsHtml = '';
+  // Patterns
+  var patternsHtml = '';
   if (patterns && patterns.available) {
-    const dirs = patterns.top_serve_directions || {};
-    const serveDirHtml = Object.entries(dirs).map(function(entry) {
-      const dir = entry[0], data = entry[1];
-      return '<div class="sdb">'
-        + '<span class="sdb-label">' + dir + '</span>'
-        + '<div class="sdb-bar-wrap"><div class="sdb-bar" style="width:' + ((data.frequency||0)*100) + '%"></div></div>'
-        + '<span class="sdb-pct">' + pct(data.frequency) + '</span>'
-        + '<span class="sdb-wr">' + pct(data.win_rate) + ' W</span>'
-        + '</div>';
+    var dirs = patterns.top_serve_directions || {};
+    var serveDirHtml = Object.entries(dirs).map(function(entry) {
+      return '<div class="sdb"><span class="sdb-label">' + entry[0] + '</span>'
+        + '<div class="sdb-bar-wrap"><div class="sdb-bar" style="width:' + ((entry[1].frequency||0)*100) + '%"></div></div>'
+        + '<span class="sdb-pct">' + pct(entry[1].frequency) + '</span>'
+        + '<span class="sdb-wr">' + pct(entry[1].win_rate) + ' W</span></div>';
     }).join('');
-
-    const rallyData = patterns.rally_length_profile || {};
-    const rallyHtml = Object.entries(rallyData).map(function(entry) {
-      const label = entry[0], data = entry[1];
-      return '<div class="rally-row">'
-        + '<span class="rally-label">' + label + '</span>'
-        + '<div class="rally-bar-bg"><div class="rally-bar-fill" style="width:' + ((data.win_rate||0)*100) + '%"></div></div>'
-        + '<span class="rally-wr">' + pct(data.win_rate) + '</span>'
-        + '</div>';
+    var rallyHtml = Object.entries(patterns.rally_length_profile || {}).map(function(entry) {
+      return '<div class="rally-row"><span class="rally-label">' + entry[0] + '</span>'
+        + '<div class="rally-bar-bg"><div class="rally-bar-fill" style="width:' + ((entry[1].win_rate||0)*100) + '%"></div></div>'
+        + '<span class="rally-wr">' + pct(entry[1].win_rate) + '</span></div>';
     }).join('');
-
-    patternsHtml = '<div class="patterns-grid">'
-      + '<div>'
+    patternsHtml = '<div class="patterns-grid"><div>'
       + '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Serve Direction</div>'
-      + '<div class="serve-dir-bars">' + (serveDirHtml || '<div style="color:var(--ink-soft);font-size:12px;">No serve direction data</div>') + '</div>'
-      + '</div>'
-      + '<div>'
+      + '<div class="serve-dir-bars">' + (serveDirHtml || '<div style="color:var(--ink-soft);font-size:12px;">No data</div>') + '</div></div><div>'
       + '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Rally Length Win Rate</div>'
-      + '<div class="rally-bar-wrap">' + (rallyHtml || '<div style="color:var(--ink-soft);font-size:12px;">No rally data</div>') + '</div>'
-      + '</div>'
-      + '</div>'
+      + '<div class="rally-bar-wrap">' + (rallyHtml || '<div style="color:var(--ink-soft);font-size:12px;">No data</div>') + '</div></div></div>'
       + '<div class="key-stats">'
       + '<div class="kstat"><div class="kstat-val">' + pct(patterns.first_strike_rate) + '</div><div class="kstat-lbl">First Strike Rate</div></div>'
       + '<div class="kstat"><div class="kstat-val">' + (patterns.aggression_index != null ? pct(patterns.aggression_index) : 'N/A') + '</div><div class="kstat-lbl">Aggression Index</div></div>'
-      + '<div class="kstat"><div class="kstat-val">' + (patterns.defensive_win_rate != null ? pct(patterns.defensive_win_rate) : 'N/A') + '</div><div class="kstat-lbl">Defensive Win Rate</div></div>'
-      + '</div>'
-      + '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--ink-soft);margin-top:12px;">' + patterns.matches_charted + ' charted matches &middot; Match Charting Project</div>';
+      + '<div class="kstat"><div class="kstat-val">' + (patterns.defensive_win_rate != null ? pct(patterns.defensive_win_rate) : 'N/A') + '</div><div class="kstat-lbl">Defensive Win Rate</div></div></div>'
+      + '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--ink-soft);margin-top:12px;">' + patterns.matches_charted + ' charted matches \u00b7 Match Charting Project</div>';
   } else {
     patternsHtml = '<p style="color:var(--ink-soft);font-size:13px;">' + (patterns ? (patterns.reason || 'Charted data unavailable') : 'Loading...') + '</p>';
   }
 
-  // Matchups section
-  const matchupId = 'matchup-content';
-  let matchupsHtml = '';
+  // Matchups
+  var matchupsHtml = '';
   if (matchups && matchups.available) {
     matchupsHtml = renderMatchupCols(matchups, 'hard');
   } else if (matchups && !matchups.available) {
@@ -410,31 +529,14 @@ function renderContent(card, patterns, matchups, conditions) {
     matchupsHtml = '<p style="color:var(--ink-soft);font-size:13px;">Loading matchup data...</p>';
   }
 
-  // Conditions section
-  let condHtml = '';
-  if (conditions && conditions.available) {
-    const bestRows = (conditions.best || []).map(function(c) {
-      return '<div class="cond-row best-row">'
-        + '<span class="cond-name">' + c.condition + '</span>'
-        + '<div class="cond-stats"><div class="cond-wr best">' + pct(c.win_rate) + '</div><div class="cond-matches">' + c.matches + ' matches</div></div>'
-        + '</div>';
-    }).join('');
-    const worstRows = (conditions.worst || []).map(function(c) {
-      return '<div class="cond-row worst-row">'
-        + '<span class="cond-name">' + c.condition + '</span>'
-        + '<div class="cond-stats"><div class="cond-wr worst">' + pct(c.win_rate) + '</div><div class="cond-matches">' + c.matches + ' matches</div></div>'
-        + '</div>';
-    }).join('');
-    condHtml = '<div class="cond-cols">'
-      + '<div><div class="cond-col-title best">Best Conditions</div>' + (bestRows || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
-      + '<div><div class="cond-col-title worst">Worst Conditions</div>' + (worstRows || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
-      + '</div>';
-  } else {
-    condHtml = '<p style="color:var(--ink-soft);font-size:13px;">' + (conditions ? 'Insufficient match data' : 'Loading...') + '</p>';
-  }
+  // Conditions
+  var condHtml = renderConditions(conditions);
 
-  document.getElementById('page-content').innerHTML = '<div class="section">'
+  document.getElementById('page-content').innerHTML =
+    '<div class="section">'
     + '<div class="sec-title">Player Attributes</div>'
+    + radarHtml
+    + playStyleHtml
     + '<div class="attr-grid"><div>' + attrLeft + '</div><div>' + attrRight + '</div></div>'
     + '</div>'
     + '<div class="section">'
@@ -443,55 +545,180 @@ function renderContent(card, patterns, matchups, conditions) {
     + '</div>'
     + '<div class="section">'
     + '<div class="sec-title">Matchups (Top 100)</div>'
-    + '<div class="surf-select">'
-    + '<button class="surf-btn active" data-surf="hard">Hard</button>'
-    + '<button class="surf-btn" data-surf="clay">Clay</button>'
-    + '<button class="surf-btn" data-surf="grass">Grass</button>'
-    + '</div>'
-    + '<div id="' + matchupId + '">' + matchupsHtml + '</div>'
+    + '<div id="matchup-content">' + matchupsHtml + '</div>'
     + '</div>'
     + '<div class="section">'
     + '<div class="sec-title">Conditions</div>'
     + condHtml
     + '</div>';
+}
 
-  // Surface toggle for matchups
-  document.querySelectorAll('.surf-btn').forEach(function(btn) {
+/* ── Render Conditions ─────────────────────────────────── */
+function renderConditions(conditions) {
+  if (!conditions || !conditions.available) {
+    return '<p style="color:var(--ink-soft);font-size:13px;">' + (conditions ? 'Insufficient match data' : 'Loading...') + '</p>';
+  }
+  function renderRow(c, type) {
+    if (c.matches < 10) return '';
+    var color = condColor(c);
+    var wrPct = (c.win_rate * 100).toFixed(1);
+    return '<div class="cond-row ' + type + '-row">'
+      + '<div class="cond-indicator" style="background:' + color + ';"></div>'
+      + '<div class="cond-info"><div class="cond-name">' + c.condition + '</div>'
+      + '<div class="cond-bar-track"><div class="cond-bar-fill ' + type + '" style="width:' + wrPct + '%;"></div></div></div>'
+      + '<div class="cond-stats"><div class="cond-wr ' + type + '">' + wrPct + '%</div>'
+      + '<div class="cond-matches">' + c.matches + ' matches</div></div></div>';
+  }
+  var bestRows = (conditions.best || []).map(function(c) { return renderRow(c, 'best'); }).join('');
+  var worstRows = (conditions.worst || []).map(function(c) { return renderRow(c, 'worst'); }).join('');
+  return '<div class="cond-cols">'
+    + '<div><div class="cond-col-title best">Strongest Conditions</div>' + (bestRows || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
+    + '<div><div class="cond-col-title worst">Weakest Conditions</div>' + (worstRows || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div></div>';
+}
+
+/* ── Render Matchups ───────────────────────────────────── */
+function renderMatchupCols(matchups, surface) {
+  function rows(list, type) {
+    return (list || []).map(function(m) {
+      return '<div class="mu-item-wrap"><div class="mu-row ' + type + '-row" data-opponent="' + m.opponent + '">'
+        + '<span class="mu-opponent">' + m.opponent + '</span>'
+        + '<span class="mu-prob ' + type + '">' + pct(m.player_win_prob) + '</span>'
+        + '<span class="mu-chevron">\u25B6</span></div></div>';
+    }).join('');
+  }
+  return '<div class="matchup-cols">'
+    + '<div><div class="mu-col-title tough">Toughest</div>' + (rows(matchups.toughest, 'tough') || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
+    + '<div><div class="mu-col-title easy">Easiest</div>' + (rows(matchups.easiest, 'easy') || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div></div>';
+}
+
+/* ── Surface Toggle ────────────────────────────────────── */
+function initSurfaceToggle() {
+  document.querySelectorAll('.stgl-btn').forEach(function(btn) {
     btn.addEventListener('click', async function() {
-      document.querySelectorAll('.surf-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.stgl-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       activeSurf = btn.dataset.surf;
-      const muEl = document.getElementById(matchupId);
+
+      // Update hero rating
+      var rating;
+      if (activeSurf === 'overall') {
+        rating = cardData.overall;
+      } else {
+        rating = cardData.surfaces[activeSurf];
+        if (rating == null) rating = cardData.overall;
+      }
+      var rEl = document.getElementById('hero-rating');
+      var tEl = document.getElementById('hero-tier');
+      if (rEl) rEl.textContent = parseFloat(rating).toFixed(0);
+      var tier = tierFromRating(rating);
+      if (tEl) { tEl.className = 'tier-badge ' + tier; tEl.textContent = tier.toUpperCase(); }
+
+      // Refetch matchups
+      var muEl = document.getElementById('matchup-content');
+      if (!muEl) return;
+      var fetchSurf = activeSurf === 'overall' ? 'hard' : activeSurf;
       muEl.innerHTML = '<p style="color:var(--ink-soft);font-size:13px;">Loading...</p>';
       try {
-        const res = await fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/matchups?surface=' + activeSurf);
+        var res = await fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/matchups?surface=' + fetchSurf);
         if (res.ok) {
-          const data = await res.json();
-          muEl.innerHTML = data.available ? renderMatchupCols(data, activeSurf) : '<p style="color:var(--ink-soft);">' + data.reason + '</p>';
+          var data = await res.json();
+          muEl.innerHTML = data.available ? renderMatchupCols(data, fetchSurf) : '<p style="color:var(--ink-soft);">' + data.reason + '</p>';
         }
       } catch(e2) {}
     });
   });
 }
 
-function renderMatchupCols(matchups, surface) {
-  const playerEnc = encodeURIComponent(cardData ? cardData.name : playerName);
-  const toughRows = (matchups.toughest || []).map(function(m) {
-    return '<a href="compare.html?p1=' + playerEnc + '&p2=' + encodeURIComponent(m.opponent) + '&surface=' + surface + '" class="mu-row tough-row">'
-      + '<span class="mu-opponent">' + m.opponent + '</span>'
-      + '<span class="mu-prob tough">' + pct(m.player_win_prob) + '</span>'
-      + '</a>';
+/* ── Matchup Expansion (delegated) ─────────────────────── */
+document.addEventListener('click', function(e) {
+  var row = e.target.closest('.mu-row');
+  if (!row) return;
+  var opponent = row.dataset.opponent;
+  if (!opponent) return;
+  var wrap = row.closest('.mu-item-wrap');
+  if (!wrap) return;
+
+  var existing = wrap.querySelector('.mu-expand');
+  if (existing) {
+    if (existing.classList.contains('open')) {
+      existing.style.maxHeight = '0';
+      existing.classList.remove('open');
+      row.classList.remove('expanded');
+    } else {
+      existing.classList.add('open');
+      existing.style.maxHeight = existing.scrollHeight + 'px';
+      row.classList.add('expanded');
+    }
+    return;
+  }
+
+  // Create panel
+  var panel = document.createElement('div');
+  panel.className = 'mu-expand';
+  panel.innerHTML = '<div style="padding:14px;text-align:center;color:var(--ink-soft);font-size:12px;">Loading...</div>';
+  wrap.appendChild(panel);
+  row.classList.add('expanded');
+
+  requestAnimationFrame(function() {
+    panel.classList.add('open');
+    panel.style.maxHeight = '400px';
+  });
+
+  fetch(API + '/predict/player/' + encodeURIComponent(opponent))
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(opp) {
+      if (!opp) { panel.innerHTML = '<div style="padding:14px;color:var(--ink-soft);font-size:12px;">Data unavailable</div>'; return; }
+      panel.innerHTML = renderExpansion(cardData, opp);
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+    })
+    .catch(function() {
+      panel.innerHTML = '<div style="padding:14px;color:var(--ink-soft);font-size:12px;">Error loading data</div>';
+    });
+});
+
+function renderExpansion(player, opp) {
+  var attrs = player.attributes || {};
+  var oppAttrs = opp.attributes || {};
+  var names = ['serve','groundstroke','volley','footwork','endurance','durability','clutch','mental'];
+
+  var compareRows = names.map(function(a) {
+    var pv = attrs[a] || 50, ov = oppAttrs[a] || 50;
+    var pvD = (a === 'footwork' && pv === 30) ? '\u2014' : pv;
+    var ovD = (a === 'footwork' && ov === 30) ? '\u2014' : ov;
+    var w = pv > ov ? 'p1' : ov > pv ? 'p2' : '';
+    return '<div style="display:grid;grid-template-columns:32px 1fr 70px 1fr 32px;gap:4px;align-items:center;padding:2px 0;font-size:11px;">'
+      + '<span style="text-align:right;font-family:\'DM Mono\',monospace;color:' + (w==='p1'?'var(--accent)':'var(--ink-soft)') + ';">' + pvD + '</span>'
+      + '<div style="height:3px;background:var(--bg-alt);border-radius:2px;overflow:hidden;"><div style="height:100%;width:'+pv+'%;background:var(--accent);border-radius:2px;float:right;"></div></div>'
+      + '<span style="text-align:center;font-size:8px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.04em;">' + a.slice(0,4) + '</span>'
+      + '<div style="height:3px;background:var(--bg-alt);border-radius:2px;overflow:hidden;"><div style="height:100%;width:'+ov+'%;background:var(--red-soft);border-radius:2px;"></div></div>'
+      + '<span style="font-family:\'DM Mono\',monospace;color:' + (w==='p2'?'var(--red-soft)':'var(--ink-soft)') + ';">' + ovD + '</span></div>';
   }).join('');
-  const easyRows = (matchups.easiest || []).map(function(m) {
-    return '<a href="compare.html?p1=' + playerEnc + '&p2=' + encodeURIComponent(m.opponent) + '&surface=' + surface + '" class="mu-row easy-row">'
-      + '<span class="mu-opponent">' + m.opponent + '</span>'
-      + '<span class="mu-prob easy">' + pct(m.player_win_prob) + '</span>'
-      + '</a>';
-  }).join('');
-  return '<div class="matchup-cols">'
-    + '<div><div class="mu-col-title tough">Toughest</div>' + (toughRows || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
-    + '<div><div class="mu-col-title easy">Easiest</div>' + (easyRows || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
-    + '</div>';
+
+  var surfCompare = '';
+  if (player.surfaces && opp.surfaces) {
+    surfCompare = '<div style="display:flex;gap:12px;justify-content:center;margin:8px 0;">' +
+      ['hard','clay','grass'].map(function(s) {
+        var pv = player.surfaces[s], ov = opp.surfaces[s];
+        if (pv == null && ov == null) return '';
+        return '<div style="text-align:center;font-family:\'DM Mono\',monospace;font-size:9px;">'
+          + '<div style="color:var(--ink-soft);text-transform:uppercase;margin-bottom:2px;">' + s + '</div>'
+          + '<span style="color:var(--accent);">' + (pv != null ? parseFloat(pv).toFixed(0) : '\u2014') + '</span>'
+          + '<span style="color:var(--ink-soft);margin:0 3px;">v</span>'
+          + '<span style="color:var(--red-soft);">' + (ov != null ? parseFloat(ov).toFixed(0) : '\u2014') + '</span></div>';
+      }).join('') + '</div>';
+  }
+
+  var fetchSurf = activeSurf === 'overall' ? 'hard' : activeSurf;
+  return '<div style="padding:14px 16px;">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+    + '<div style="text-align:center;"><div style="font-family:\'Playfair Display\',serif;font-size:22px;font-weight:700;color:var(--accent);">' + parseFloat(player.overall).toFixed(0) + '</div>'
+    + '<div style="font-family:\'DM Mono\',monospace;font-size:8px;color:var(--ink-soft);text-transform:uppercase;">' + (player.tier||'') + '</div></div>'
+    + '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--ink-soft);">VS</div>'
+    + '<div style="text-align:center;"><div style="font-family:\'Playfair Display\',serif;font-size:22px;font-weight:700;color:var(--red-soft);">' + parseFloat(opp.overall).toFixed(0) + '</div>'
+    + '<div style="font-family:\'DM Mono\',monospace;font-size:8px;color:var(--ink-soft);text-transform:uppercase;">' + (opp.tier||'') + '</div></div></div>'
+    + surfCompare
+    + compareRows
+    + '<a href="compare.html?p1=' + encodeURIComponent(player.name) + '&p2=' + encodeURIComponent(opp.name) + '&surface=' + fetchSurf + '" style="display:block;text-align:center;margin-top:10px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--accent);text-decoration:none;">Full Comparison \u2192</a></div>';
 }
 
 loadAll();

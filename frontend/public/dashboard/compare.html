@@ -51,7 +51,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="nav-center"><div class="search-wrap"><div class="search-bar"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg><input type="text" placeholder="Search a player..." id="sinp" autocomplete="off"/></div><div class="search-dd" id="sdd"></div></div></div>
 <div class="nav-links"><a href="index.html">Home</a><a href="compare.html" class="active">Compare</a><a href="tournament.html">Tournaments</a><a href="odds.html">Odds<span class="soon-badge">Soon</span></a><a href="about.html">About</a></div>
 </nav>
-<script>document.getElementById('sinp').addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.value.trim())location.href='player.html?name='+encodeURIComponent(e.target.value.trim());});</script>
 <div class="page">
 <div class="pt">Compare Players</div>
 <div class="ps">Head-to-head matchup analysis powered by ML ensemble (XGBoost + LightGBM, Brier 0.1807).</div>
@@ -94,6 +93,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">TennisIQ &copy; 2025</p></div>
 </footer>
 <script src="config.js"></script>
+<script src="autocomplete.js"></script>
 <script>
 const ML_API = API_URL;
 const LEGACY_API = API_URL+'/api/v2';
