@@ -15,7 +15,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .ctrl-row{display:grid;grid-template-columns:1fr 44px 1fr auto;gap:14px;align-items:center;margin-bottom:24px;}
 .pinp{display:flex;align-items:center;background:var(--card-bg);border:1.5px solid var(--border);border-radius:12px;padding:0 16px;height:48px;transition:all 0.2s;}.pinp:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,124,111,0.08);}.pinp input{border:none;background:transparent;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);width:100%;}.pinp input::placeholder{color:var(--ink-soft);}
 .swap{width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--ink-mid);transition:all 0.2s;}.swap:hover{background:var(--accent);color:white;border-color:var(--accent);}
-.surf-select{display:flex;gap:6px;}.surf-btn{padding:0 16px;height:48px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mid);cursor:pointer;transition:all .2s;}.surf-btn.active{background:var(--accent);color:white;border-color:var(--accent);}
+.surf-select{display:flex;gap:6px;}.surf-btn{padding:0 16px;height:48px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mid);cursor:pointer;transition:all .2s;}.surf-btn[data-surf="hard"].active{background:#4A90D9;color:white;border-color:#4A90D9;}.surf-btn[data-surf="clay"].active{background:#D4724E;color:white;border-color:#D4724E;}.surf-btn[data-surf="grass"].active{background:#5AA469;color:white;border-color:#5AA469;}
+/* Autocomplete for player inputs */
+.pinp{position:relative;}.pinp-dd{position:absolute;top:52px;left:0;right:0;background:var(--card-bg);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 12px 32px rgba(26,38,52,0.12);display:none;overflow:hidden;z-index:200;max-height:260px;overflow-y:auto;}.pinp-dd.open{display:block;}.pinp-item{padding:10px 16px;font-size:13px;cursor:pointer;transition:background 0.15s;}.pinp-item:hover,.pinp-item.sel{background:var(--bg-alt);}
+/* Tooltip */
+.tt{position:relative;cursor:help;border-bottom:1px dotted var(--ink-soft);}.tt-box{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#2C2C2C;color:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;padding:10px 14px;border-radius:8px;max-width:280px;line-height:1.5;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:normal;pointer-events:none;}.tt-box::after{content:'';position:absolute;top:100%;left:50%;margin-left:-6px;border:6px solid transparent;border-top-color:#2C2C2C;}.tt:hover .tt-box{display:block;}
+/* Info icon */
+.info-icon{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#999;cursor:pointer;z-index:5;}.info-icon:hover .tt-box{display:block;right:0;left:auto;transform:none;bottom:calc(100% + 8px);}
 #content{min-height:300px;}
 .loading{text-align:center;padding:60px;color:var(--ink-soft);}.empty{text-align:center;padding:40px;color:var(--ink-soft);font-size:14px;}
 
@@ -53,12 +59,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 </nav>
 <div class="page">
 <div class="pt">Compare Players</div>
-<div class="ps">Head-to-head matchup analysis powered by ML ensemble (XGBoost + LightGBM, Brier 0.1807).</div>
+<div class="ps">Head-to-head matchup analysis powered by combined ML prediction models.</div>
 
 <div class="ctrl-row">
-  <div class="pinp"><input type="text" placeholder="Player A (e.g. Sinner)..." id="i1"/></div>
+  <div class="pinp"><input type="text" placeholder="Player A (e.g. Sinner)..." id="i1" autocomplete="off"/><div class="pinp-dd" id="dd1"></div></div>
   <button class="swap" id="sw">&#8644;</button>
-  <div class="pinp"><input type="text" placeholder="Player B (e.g. Alcaraz)..." id="i2"/></div>
+  <div class="pinp"><input type="text" placeholder="Player B (e.g. Alcaraz)..." id="i2" autocomplete="off"/><div class="pinp-dd" id="dd2"></div></div>
   <div class="surf-select">
     <button class="surf-btn active" data-surf="hard">Hard</button>
     <button class="surf-btn" data-surf="clay">Clay</button>
@@ -174,14 +180,13 @@ function renderPredPanel(pred) {
       </div>
     </div>
     <div class="pred-meta">
-      <span class="pred-meta-item">Glicko-2 diff: <strong>${eloSign}${pred.elo_diff}</strong></span>
+      <span class="pred-meta-item"><span class="tt">Glicko-2<span class="tt-box">Chess-style rating system accounting for uncertainty and inactivity</span></span> diff: <strong>${eloSign}${pred.elo_diff}</strong></span>
       <span class="pred-meta-item">${activeSurf} diff: <strong>${surfSign}${pred.elo_surface_diff}</strong></span>
-      <span class="pred-meta-item">RD P1: <strong>${pred.rd_p1}</strong></span>
+      <span class="pred-meta-item"><span class="tt">RD<span class="tt-box">Rating Deviation — uncertainty in the rating. Lower = more confident</span></span> P1: <strong>${pred.rd_p1}</strong></span>
       <span class="pred-meta-item">RD P2: <strong>${pred.rd_p2}</strong></span>
-      <span class="pred-meta-item">XGB: <strong>${(pred.xgb_prob*100).toFixed(1)}%</strong></span>
-      <span class="pred-meta-item">LGB: <strong>${(pred.lgb_prob*100).toFixed(1)}%</strong></span>
       <span class="pred-meta-item">${pred.confidence_reason}</span>
     </div>
+    <div class="info-icon"><span class="tt" style="border:none;">&#9432;<span class="tt-box">Predictions combine Glicko-2 ratings, XGBoost, and LightGBM models trained on 916,000+ historical matches through December 2024.</span></span></div>
   </div>`;
 }
 
@@ -268,6 +273,48 @@ async function fetchLegacyMatchup(a, b) {
     return {p1, p2, h2h};
   } catch { return null; }
 }
+
+// ── Autocomplete for both player inputs ──
+function setupAC(inputId, ddId) {
+  const inp = document.getElementById(inputId);
+  const dd = document.getElementById(ddId);
+  let timer = null, results = [], idx = -1;
+  inp.addEventListener('input', function() {
+    clearTimeout(timer);
+    const q = inp.value.trim();
+    if (q.length < 2) { dd.classList.remove('open'); dd.innerHTML = ''; return; }
+    timer = setTimeout(function() {
+      fetch(ML_API + '/api/v2/search?q=' + encodeURIComponent(q))
+        .then(r => r.ok ? r.json() : [])
+        .then(data => {
+          results = Array.isArray(data) ? data : [];
+          idx = results.length > 0 ? 0 : -1;
+          if (!results.length) { dd.classList.remove('open'); dd.innerHTML = ''; return; }
+          dd.innerHTML = results.slice(0,8).map((p, i) =>
+            '<div class="pinp-item' + (i === idx ? ' sel' : '') + '" data-name="' + p.name + '">' + p.name + '</div>'
+          ).join('');
+          dd.classList.add('open');
+          dd.querySelectorAll('.pinp-item').forEach(el => {
+            el.addEventListener('click', () => { inp.value = el.dataset.name; dd.classList.remove('open'); });
+          });
+        })
+        .catch(() => { dd.classList.remove('open'); });
+    }, 200);
+  });
+  inp.addEventListener('keydown', function(e) {
+    if (!dd.classList.contains('open')) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); idx = Math.min(idx + 1, results.length - 1); renderACItems(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); idx = Math.max(idx - 1, 0); renderACItems(); }
+    else if (e.key === 'Enter' && idx >= 0 && results[idx]) { inp.value = results[idx].name; dd.classList.remove('open'); }
+    else if (e.key === 'Escape') { dd.classList.remove('open'); }
+  });
+  function renderACItems() {
+    dd.querySelectorAll('.pinp-item').forEach((el, i) => el.classList.toggle('sel', i === idx));
+  }
+  document.addEventListener('click', function(e) { if (!e.target.closest('.pinp')) dd.classList.remove('open'); });
+}
+setupAC('i1', 'dd1');
+setupAC('i2', 'dd2');
 
 if (n1 && n2) go();
 </script>
