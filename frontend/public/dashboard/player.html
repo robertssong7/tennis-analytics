@@ -35,7 +35,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .surface-toggle-inner{display:flex;gap:8px;}
 .stgl-btn{padding:6px 20px;border-radius:100px;border:1.5px solid var(--border);background:var(--card-bg);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-mid);cursor:pointer;transition:all 0.2s;}
 .stgl-btn.active{color:white;}
-.stgl-btn[data-surf="overall"].active{background:var(--ink);border-color:var(--ink);}
+.stgl-btn[data-surf="overall"].active{background:#0ABAB5;border-color:#0ABAB5;}
 .stgl-btn[data-surf="hard"].active{background:#4A90D9;border-color:#4A90D9;}
 .stgl-btn[data-surf="clay"].active{background:#D4724E;border-color:#D4724E;}
 .stgl-btn[data-surf="grass"].active{background:#5AA469;border-color:#5AA469;}
@@ -82,22 +82,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .sec-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:12px;}
 .sec-title::after{content:'';flex:0 0 40px;height:1px;background:var(--accent);opacity:0.4;}
 
-/* PLAY STYLE PILL */
-.play-style-pill{display:inline-block;padding:4px 12px;border-radius:100px;background:var(--tiffany);color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;margin-top:16px;}
-
 /* ATTRIBUTES — FIFA 2-COLUMN */
 .attr-grid-fifa{display:grid;grid-template-columns:1fr 1fr;gap:12px 32px;}
+.attr-avg-legend{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-soft);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.attr-avg-legend-line{display:inline-block;width:2px;height:12px;background:#2C2C2C;}
 .attr-row-fifa{display:flex;align-items:center;gap:8px;padding:5px 0;position:relative;}
 .attr-val-fifa{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;width:32px;text-align:right;flex-shrink:0;}
 .attr-val-fifa.limited{color:#999;}
 .attr-name-fifa{font-size:12px;color:var(--ink-mid);text-transform:capitalize;width:90px;flex-shrink:0;cursor:help;position:relative;}
-.attr-bar-wrap-fifa{flex:1;height:8px;background:#E8E3DE;border-radius:4px;overflow:hidden;}
-.attr-bar-fifa{height:100%;border-radius:4px;width:0;transition:width 0.6s ease;}
-.attr-bar-fifa.bronze{background:#CD7F32;}
-.attr-bar-fifa.silver{background:#A8A9AD;}
-.attr-bar-fifa.gold{background:#DAA520;}
-.attr-bar-fifa.legendary{background:linear-gradient(90deg,#0ABAB5,#DAA520);background-size:200% 100%;animation:shimmer 3s ease-in-out infinite;}
-@keyframes shimmer{0%{background-position:200% 0}50%{background-position:0% 0}100%{background-position:200% 0}}
+.attr-bar-wrap-fifa{flex:1;height:8px;background:#E8E3DE;border-radius:4px;overflow:visible;position:relative;}
+.attr-bar-fifa{height:100%;border-radius:4px;width:0;transition:width 0.6s ease;background:#0ABAB5;}
+.attr-avg-line{position:absolute;top:-4px;width:2px;height:16px;background:#2C2C2C;z-index:2;border-radius:1px;}
 .attr-limited-text{font-family:'DM Mono',monospace;font-size:10px;color:#999;font-style:italic;flex:1;}
 
 /* ATTRIBUTE TOOLTIPS */
@@ -167,6 +162,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .cond-wr{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;}
 .cond-wl{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);}
 .cond-empty{font-size:12px;color:var(--ink-soft);font-style:italic;padding:8px 0;}
+.cond-more-link{font-family:'DM Mono',monospace;font-size:10px;color:var(--tiffany);cursor:pointer;margin-top:8px;display:inline-block;text-decoration:none;}
+.cond-more-link:hover{text-decoration:underline;}
+.cond-expandable{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
+.cond-expandable.open{max-height:600px;}
 
 /* SCENARIOS */
 .scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -220,6 +219,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   nav{padding:0 20px;}
   .hero-inner{padding:24px 20px 0;flex-direction:column;align-items:center;text-align:center;}
   .surface-chips{justify-content:center;}
+  .player-avatar,.player-avatar-fallback{width:80px;height:80px;}
+  .player-avatar-fallback{font-size:28px;}
+  .avatar-border{width:86px;height:86px;}
   .attr-grid-fifa{grid-template-columns:1fr;}
   .patterns-grid{grid-template-columns:1fr;}
   .matchup-cols{grid-template-columns:1fr;}
@@ -299,7 +301,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 var API = API_URL;
 var params = new URLSearchParams(location.search);
 var playerName = params.get('name') || params.get('player') || 'Carlos Alcaraz';
-var activeSurf = 'overall';
+var activeSurf = params.get('surface') || 'overall';
 var cardData = null;
 var patternsData = null;
 var matchupsData = null;
@@ -326,22 +328,6 @@ function formatDate(d) {
   var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return m[dt.getMonth()] + ' ' + dt.getDate() + ', ' + dt.getFullYear();
 }
-
-/* ── Play Style Classification ─────────────────────────── */
-function classifyPlayStyle(attrs, patterns) {
-  var fw = (attrs.footwork === 30) ? null : attrs.footwork;
-  if (attrs.serve > 80 && attrs.volley > 70) return {name:'Serve & Volleyer', desc:'Attacks the net behind a dominant serve'};
-  if (attrs.serve > 80 && attrs.endurance < 60) return {name:'Big Server', desc:'Wins points quickly with explosive serving'};
-  if (attrs.groundstroke > 75 && attrs.clutch > 70 && patterns && patterns.aggression_index != null && patterns.aggression_index > 0.5)
-    return {name:'Aggressive Baseliner', desc:'Dictates rallies with powerful groundstrokes'};
-  if ((fw === null || fw > 70) && attrs.endurance > 75 && attrs.mental > 70) return {name:'Counter Puncher', desc:'Uses speed and consistency to outlast opponents'};
-  var entries = Object.entries(attrs).filter(function(e) { return !(e[0] === 'footwork' && e[1] === 30); });
-  var allInRange = entries.every(function(e) { return e[1] >= 55 && e[1] <= 85; });
-  if (allInRange) return {name:'All-Court Player', desc:'Versatile game with no exploitable weakness'};
-  return {name:'All-Court Player', desc:'Well-rounded game across all dimensions'};
-}
-
-/* ── (radar chart removed — using horizontal bars) ──── */
 
 /* ── Main Load ─────────────────────────────────────────── */
 async function loadAll() {
@@ -393,13 +379,13 @@ function renderHero(card) {
   if (card.headshot_url) {
     avatarHtml = '<div class="player-avatar-wrap ' + glow + '">'
       + '<div class="avatar-border tier-' + tier + '"></div>'
-      + '<img src="' + card.headshot_url + '" class="player-avatar" alt="' + card.name + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
-      + '<div class="player-avatar-fallback" style="display:none;background:' + tierBg(tier) + ';">' + ini(card.name) + '</div>'
+      + '<img src="' + card.headshot_url + '" crossorigin="anonymous" class="player-avatar" alt="' + card.name + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
+      + '<div class="player-avatar-fallback" style="display:none;background:#0ABAB5;">' + ini(card.name) + '</div>'
       + '</div>';
   } else {
     avatarHtml = '<div class="player-avatar-wrap ' + glow + '">'
       + '<div class="avatar-border tier-' + tier + '"></div>'
-      + '<div class="player-avatar-fallback" style="background:' + tierBg(tier) + ';">' + ini(card.name) + '</div>'
+      + '<div class="player-avatar-fallback" style="background:#0ABAB5;">' + ini(card.name) + '</div>'
       + '</div>';
   }
 
@@ -425,12 +411,19 @@ function renderHero(card) {
     wlHtml = '<div class="wl-record">' + totalMatches + ' matches (' + card.wins + 'W \u2013 ' + card.losses + 'L)</div>';
   }
 
+  // Determine display rating based on active surface
+  var displayRating = card.overall || 0;
+  if (activeSurf !== 'overall' && card.surfaces && card.surfaces[activeSurf] != null) {
+    displayRating = card.surfaces[activeSurf];
+  }
+  var displayTier = tierFromRating(displayRating);
+
   document.getElementById('hero-section').innerHTML = '<div class="hero"><div class="hero-inner">'
     + avatarHtml
     + '<div class="player-info">'
     + '<div class="player-rating-row">'
-    + '<span class="player-overall" id="hero-rating">' + parseFloat(card.overall || 0).toFixed(0) + '</span>'
-    + '<span class="tier-badge ' + tier + '" id="hero-tier">' + tier.toUpperCase() + '</span>'
+    + '<span class="player-overall" id="hero-rating">' + parseFloat(displayRating).toFixed(0) + '</span>'
+    + '<span class="tier-badge ' + displayTier + '" id="hero-tier">' + displayTier.toUpperCase() + '</span>'
     + retiredHtml
     + '</div>'
     + '<div class="player-name">' + card.name + '</div>'
@@ -454,42 +447,46 @@ var ATTR_TOOLTIPS = {
   clutch: "Break point conversion rate, tiebreak win rate, and deciding set performance",
   mental: "Performance when down in score, comeback frequency, and pressure point win rate"
 };
-function attrBarTier(v) {
-  if (v >= 91) return 'legendary';
-  if (v >= 80) return 'gold';
-  if (v >= 69) return 'silver';
-  return 'bronze';
-}
-function renderAttrRow(a, attrs) {
+
+function renderAttrRow(a, attrs, averages) {
   var labels = {serve:'Serve',groundstroke:'Groundstroke',volley:'Volley',footwork:'Footwork',endurance:'Endurance',durability:'Durability',clutch:'Clutch',mental:'Mental'};
-  var limitedAttrs = ['footwork','volley','endurance'];
-  var score = attrs[a] || 50;
-  var isLimited = score <= 30 && limitedAttrs.indexOf(a) >= 0;
+  var nullableAttrs = ['footwork','volley'];
+  var score = attrs[a];
   var tooltip = '<span class="attr-tooltip">' + (ATTR_TOOLTIPS[a] || '') + '</span>';
-  var valClass = isLimited ? ' limited' : '';
-  if (isLimited) {
+
+  // If footwork/volley is null, show insufficient data
+  if (score == null && nullableAttrs.indexOf(a) >= 0) {
     return '<div class="attr-row-fifa">'
-      + '<span class="attr-val-fifa limited">30</span>'
+      + '<span class="attr-val-fifa limited">\u2014</span>'
       + '<span class="attr-name-fifa">' + labels[a] + tooltip + '</span>'
-      + '<span class="attr-limited-text">Limited data</span></div>';
+      + '<span class="attr-limited-text">Insufficient data</span></div>';
   }
-  var tier = attrBarTier(score);
+
+  score = score || 50;
+
+  // ATP average line
+  var avgLine = '';
+  if (averages && averages[a] != null) {
+    avgLine = '<div class="attr-avg-line" style="left:' + averages[a] + '%;"></div>';
+  }
+
   return '<div class="attr-row-fifa">'
     + '<span class="attr-val-fifa">' + score + '</span>'
     + '<span class="attr-name-fifa">' + labels[a] + tooltip + '</span>'
-    + '<div class="attr-bar-wrap-fifa"><div class="attr-bar-fifa ' + tier + '" style="width:' + score + '%"></div></div></div>';
+    + '<div class="attr-bar-wrap-fifa"><div class="attr-bar-fifa" style="width:' + score + '%"></div>' + avgLine + '</div></div>';
 }
+
 function renderContent(card, patterns, matchups, conditions, scenarios) {
   var attrs = card.attributes || {};
+  var averages = card.attribute_averages || {};
   var leftAttrs = ['serve','groundstroke','volley','footwork'];
   var rightAttrs = ['endurance','durability','clutch','mental'];
 
-  var leftHtml = leftAttrs.map(function(a) { return renderAttrRow(a, attrs); }).join('');
-  var rightHtml = rightAttrs.map(function(a) { return renderAttrRow(a, attrs); }).join('');
+  var leftHtml = leftAttrs.map(function(a) { return renderAttrRow(a, attrs, averages); }).join('');
+  var rightHtml = rightAttrs.map(function(a) { return renderAttrRow(a, attrs, averages); }).join('');
 
-  // Play style pill
-  var style = classifyPlayStyle(attrs, patterns);
-  var playStyleHtml = '<div class="play-style-pill">' + style.name + '</div>';
+  // ATP average legend
+  var avgLegend = '<div class="attr-avg-legend"><span class="attr-avg-legend-line"></span> = ATP Tour Average</div>';
 
   // Patterns
   var patternsHtml = '';
@@ -520,7 +517,7 @@ function renderContent(card, patterns, matchups, conditions, scenarios) {
     patternsHtml = '<p style="color:var(--ink-soft);font-size:13px;">' + (patterns ? (patterns.reason || 'Charted data unavailable') : 'Loading...') + '</p>';
   }
 
-  // Matchups (Task 5)
+  // Matchups
   var matchupsHtml = '';
   if (matchups && matchups.available) {
     matchupsHtml = renderMatchupSection(matchups);
@@ -530,17 +527,17 @@ function renderContent(card, patterns, matchups, conditions, scenarios) {
     matchupsHtml = '<p style="color:var(--ink-soft);font-size:13px;">Loading matchup data...</p>';
   }
 
-  // Conditions (Task 4)
+  // Conditions
   var condHtml = renderConditions(conditions);
 
-  // Scenarios (Task 6)
+  // Scenarios
   var scenariosHtml = renderScenarios(scenarios);
 
   document.getElementById('page-content').innerHTML =
     '<div class="section">'
     + '<div class="sec-title">Player Attributes</div>'
+    + avgLegend
     + '<div class="attr-grid-fifa"><div>' + leftHtml + '</div><div>' + rightHtml + '</div></div>'
-    + playStyleHtml
     + '</div>'
     + '<div class="section">'
     + '<div class="sec-title">Play Patterns</div>'
@@ -566,14 +563,15 @@ function condWrColor(wr) {
   if (wr < 0.50) return '#E74C3C';
   return '#DAA520';
 }
-function renderCondColumn(title, items, isMissing) {
-  if (isMissing || !items || items.length === 0) {
+
+function renderCondColumn(title, items) {
+  if (!items || items.length === 0) {
     return '<div class="cond-column"><div class="cond-col-header">' + title + '</div>'
-      + '<div class="cond-empty">' + (isMissing ? 'Insufficient data' : 'Data coming soon') + '</div></div>';
+      + '<div class="cond-empty">Data coming soon</div></div>';
   }
   var sorted = items.slice().sort(function(a, b) { return b.win_rate - a.win_rate; });
-  var best = sorted.slice(0, 3);
-  var worst = sorted.slice(-3).reverse();
+  var best = sorted[0];
+  var worst = sorted[sorted.length - 1];
 
   function row(c) {
     var wrPct = (c.win_rate * 100).toFixed(1);
@@ -586,11 +584,25 @@ function renderCondColumn(title, items, isMissing) {
       + '<div class="cond-wl">' + wl + '</div></div></div>';
   }
 
+  var uid = 'cond-' + title.replace(/\s+/g, '-').toLowerCase() + '-' + Math.random().toString(36).slice(2, 8);
   var html = '<div class="cond-column"><div class="cond-col-header">' + title + '</div>';
-  html += '<div class="cond-sub-label best">Best</div>' + best.map(row).join('');
-  if (worst.length > 0 && sorted.length > 3) {
-    html += '<div class="cond-sub-label worst">Weakest</div>' + worst.map(row).join('');
+
+  // Best
+  html += '<div class="cond-sub-label best">Best</div>' + row(best);
+
+  // Worst (only if different from best)
+  if (sorted.length > 1) {
+    html += '<div class="cond-sub-label worst">Worst</div>' + row(worst);
   }
+
+  // Remaining items in expandable section
+  var remaining = sorted.filter(function(c) { return c !== best && c !== worst; });
+  if (remaining.length > 0) {
+    html += '<div class="cond-expandable" id="' + uid + '">'
+      + '<div style="margin-top:8px;">' + remaining.map(row).join('') + '</div></div>'
+      + '<span class="cond-more-link" data-target="' + uid + '" data-expanded="false">Show more (' + remaining.length + ')</span>';
+  }
+
   return html + '</div>';
 }
 
@@ -599,48 +611,15 @@ function renderConditions(conditions) {
     return '<p style="color:var(--ink-soft);font-size:13px;">' + (conditions ? 'Insufficient match data' : 'Loading...') + '</p>';
   }
   var bc = conditions.by_category || {};
-  var missing = conditions.missing_categories || [];
 
-  // Choose 3 columns: pick the best available categories
-  var col1Cat = bc['environment'] ? 'environment' : (bc['tournament_level'] ? 'tournament_level' : null);
-  var col2Cat = bc['court_speed'] ? 'court_speed' : null;
-  var col3Cat = bc['surface'] ? 'surface' : null;
-
-  var col1Title = col1Cat === 'environment' ? 'Environment' : (col1Cat === 'tournament_level' ? 'Tournament Level' : 'Environment');
-  var col2Title = 'Court Speed';
-  var col3Title = 'Surface';
-
-  // If environment is too small (only 1 item), fall back to tournament_level
-  if (col1Cat === 'environment' && bc['environment'] && bc['environment'].length < 2 && bc['tournament_level']) {
-    col1Cat = 'tournament_level';
-    col1Title = 'Tournament Level';
-  }
+  var catLabels = {climate: 'Climate', court_speed: 'Court Speed', ball_type: 'Ball Type'};
+  var categories = ['climate', 'court_speed', 'ball_type'];
 
   var html = '<div class="cond-3col">';
-  html += renderCondColumn(col1Title, bc[col1Cat] || null, !col1Cat || missing.indexOf(col1Cat) >= 0);
-  html += renderCondColumn(col2Title, bc[col2Cat] || null, !col2Cat || missing.indexOf(col2Cat) >= 0);
-  html += renderCondColumn(col3Title, bc[col3Cat] || null, !col3Cat || missing.indexOf(col3Cat) >= 0);
+  categories.forEach(function(cat) {
+    html += renderCondColumn(catLabels[cat], bc[cat] || null);
+  });
   html += '</div>';
-
-  // Additional categories as a secondary row if they have data
-  var extraCats = ['round', 'ball_type'];
-  var extras = extraCats.filter(function(k) { return bc[k] && bc[k].length > 0 && k !== col1Cat; });
-  if (extras.length > 0) {
-    var labels = {round: 'Round', ball_type: 'Ball Type', tournament_level: 'Tournament Level'};
-    // If col1 wasn't tournament_level and we have it, add it
-    if (col1Cat !== 'tournament_level' && bc['tournament_level']) {
-      extras.unshift('tournament_level');
-    }
-    html += '<div class="cond-3col" style="margin-top:16px;">';
-    extras.slice(0, 3).forEach(function(k) {
-      html += renderCondColumn(labels[k] || k, bc[k], false);
-    });
-    // Pad to 3 columns
-    for (var p = extras.slice(0, 3).length; p < 3; p++) {
-      html += '<div class="cond-column" style="visibility:hidden;"></div>';
-    }
-    html += '</div>';
-  }
 
   return html;
 }
@@ -673,12 +652,10 @@ function renderMatchupCols(matchups) {
 
 /* ── Surface Toggle ────────────────────────────────────── */
 function initSurfaceToggle() {
-  // Check URL for initial surface
-  var urlSurf = params.get('surface');
-  if (urlSurf && ['hard','clay','grass'].indexOf(urlSurf) >= 0) {
-    activeSurf = urlSurf;
+  // Apply initial surface from URL param
+  if (activeSurf !== 'overall' && ['hard','clay','grass'].indexOf(activeSurf) >= 0) {
     document.querySelectorAll('.stgl-btn').forEach(function(b) {
-      b.classList.toggle('active', b.dataset.surf === urlSurf);
+      b.classList.toggle('active', b.dataset.surf === activeSurf);
     });
     applySurfaceUpdate();
   }
@@ -689,6 +666,14 @@ function initSurfaceToggle() {
       document.querySelectorAll('.stgl-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       activeSurf = btn.dataset.surf;
+      // Update URL param without reload
+      var url = new URL(window.location);
+      if (activeSurf === 'overall') {
+        url.searchParams.delete('surface');
+      } else {
+        url.searchParams.set('surface', activeSurf);
+      }
+      history.replaceState(null, '', url);
       applySurfaceUpdate();
     });
   });
@@ -891,7 +876,7 @@ function renderScenarios(scenarios) {
   }).join('') + '</div>';
 }
 
-/* ── Event Delegation: Matchup Toggle ── */
+/* ── Event Delegation: Matchup Toggle + Conditions Show More ── */
 document.addEventListener('click', function(e) {
   // Matchup toggle
   var muBtn = e.target.closest('.mu-toggle-btn');
@@ -902,6 +887,26 @@ document.addEventListener('click', function(e) {
     var listsEl = document.getElementById('matchup-lists');
     if (listsEl && matchupsData) {
       listsEl.innerHTML = renderMatchupCols(matchupsData);
+    }
+    return;
+  }
+
+  // Conditions show more/less
+  var moreLink = e.target.closest('.cond-more-link');
+  if (moreLink) {
+    var targetId = moreLink.dataset.target;
+    var expandEl = document.getElementById(targetId);
+    if (expandEl) {
+      var isExpanded = moreLink.dataset.expanded === 'true';
+      if (isExpanded) {
+        expandEl.classList.remove('open');
+        moreLink.textContent = 'Show more';
+        moreLink.dataset.expanded = 'false';
+      } else {
+        expandEl.classList.add('open');
+        moreLink.textContent = 'Show less';
+        moreLink.dataset.expanded = 'true';
+      }
     }
     return;
   }
