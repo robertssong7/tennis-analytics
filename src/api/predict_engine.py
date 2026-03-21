@@ -68,6 +68,7 @@ class PredictEngine:
         self.win_loss: dict = {}       # player_name → {"wins": int, "losses": int}
         self.h2h: dict = {}            # (nameA, nameB) sorted → H2H stats
         self.player_ages: dict = {}    # player_name → latest known age (float)
+        self.attribute_averages: dict = {}  # attribute_name → float average (excluding defaults)
         self._loaded = False
 
     @classmethod
@@ -140,8 +141,39 @@ class PredictEngine:
         logger.info(f"  ✓ H2H cache built ({len(self.h2h):,} pairs)")
         logger.info(f"  ✓ Age cache built ({len(self.player_ages):,} players)")
 
+        # Compute ATP-wide attribute averages (excluding defaults)
+        logger.info("  Computing ATP attribute averages ...")
+        self._compute_attribute_averages()
+        logger.info(f"  ✓ Attribute averages computed ({len(self.attribute_averages)} attributes)")
+
         self._loaded = True
         logger.info("PredictEngine: ready.")
+
+    def _compute_attribute_averages(self):
+        """Compute ATP-wide averages for each attribute, excluding default values."""
+        attr_names = ('serve', 'groundstroke', 'volley', 'footwork',
+                      'endurance', 'durability', 'clutch', 'mental')
+        # Collect mapped values per attribute
+        buckets = {a: [] for a in attr_names}
+
+        for player_name, acc in self.attributes.items():
+            try:
+                raw = acc.compute_raw_attributes()
+                for attr_name in attr_names:
+                    mapped = int(np.clip(30 + raw[attr_name] * 69, 30, 99))
+                    # Exclude values <= 35 (defaults: footwork=30, volley=64 is kept)
+                    if mapped > 35:
+                        buckets[attr_name].append(mapped)
+            except Exception:
+                continue
+
+        self.attribute_averages = {}
+        for attr_name in attr_names:
+            vals = buckets[attr_name]
+            if vals:
+                self.attribute_averages[attr_name] = round(float(np.mean(vals)), 1)
+            else:
+                self.attribute_averages[attr_name] = None
 
     def _get_feature_cols(self) -> list:
         """Return the 168 feature columns in the exact training order."""
@@ -1075,6 +1107,12 @@ class PredictEngine:
             # Simple 0-100 mapping (percentile needs full population; use linear map as fallback)
             for attr_name, raw_val in raw.items():
                 attributes[attr_name] = int(np.clip(30 + raw_val * 69, 30, 99))
+            # Fix defaults: footwork raw=0.0 means no data (all components missing)
+            if raw.get('footwork', 0.0) == 0.0:
+                attributes['footwork'] = None
+            # Fix defaults: volley raw=0.5 is universal default (no charted net data)
+            if abs(raw.get('volley', 0.5) - 0.5) < 0.001:
+                attributes['volley'] = None
         else:
             for attr in ('serve', 'groundstroke', 'volley', 'footwork',
                          'endurance', 'durability', 'clutch', 'mental'):
@@ -1103,6 +1141,7 @@ class PredictEngine:
             'last_match':     str(p1g['last_match_date']) if p1g['last_match_date'] else None,
             'surfaces':       surfaces_out,
             'attributes':     attributes,
+            'attribute_averages': self.attribute_averages,
             'form': {
                 'form_3':   form_3,
                 'form_5':   form_data.get('form_5', 0.5),

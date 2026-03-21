@@ -828,7 +828,7 @@ def player_matchups(
 
 @app.get("/player/{name}/conditions")
 def player_conditions(name: str):
-    """Return best/worst conditions for a player from historical match data."""
+    """Return conditions for a player in exactly 3 categories: climate, court_speed, ball_type."""
     import pandas as pd
 
     if name in _conditions_cache:
@@ -841,6 +841,13 @@ def player_conditions(name: str):
 
     SACKMANN = Path(__file__).parent.parent.parent / 'data' / 'sackmann' / 'tennis_atp'
     CPI_CSV = Path(__file__).parent.parent.parent / 'data' / 'court_speed.csv'
+
+    # Known indoor tournaments (lowercase for matching)
+    INDOOR_TOURNAMENTS = {
+        'paris masters', 'atp finals', 'tour finals', 'basel', 'vienna',
+        'st. petersburg', 'marseille', 'rotterdam', 'sofia', 'metz',
+        'stockholm', 'antwerp', 'moscow', 'nextgen finals',
+    }
 
     records = []
     for year in range(2010, 2025):
@@ -857,14 +864,19 @@ def player_conditions(name: str):
             continue
 
     if not records:
-        result = {"player": canonical, "best": [], "worst": [], "available": False}
+        result = {"player": canonical, "available": False,
+                  "by_category": {"climate": [], "court_speed": [], "ball_type": []},
+                  "missing_categories": ["climate", "court_speed", "ball_type"]}
         _conditions_cache[name] = result
         return result
 
     all_matches = pd.concat(records, ignore_index=True)
 
     if len(all_matches) < 20:
-        result = {"player": canonical, "best": [], "worst": [], "available": False, "reason": "Insufficient match data"}
+        result = {"player": canonical, "available": False,
+                  "by_category": {"climate": [], "court_speed": [], "ball_type": []},
+                  "missing_categories": ["climate", "court_speed", "ball_type"],
+                  "reason": "Insufficient match data"}
         _conditions_cache[name] = result
         return result
 
@@ -883,44 +895,12 @@ def player_conditions(name: str):
             "category": category
         }
 
-    # By surface
-    for surface in ['Hard', 'Clay', 'Grass']:
-        surf_m = all_matches[all_matches['surface'] == surface]
-        if len(surf_m) >= 10:
-            conditions.append(_make_cond(f"{surface} Court", surf_m, "surface"))
-
-    # By tournament level
-    level_defs = [
-        ('G', 'Grand Slam'), ('M', 'Masters 1000'), ('A', 'ATP 500'),
-        ('D', 'Davis Cup'), ('F', 'ATP Finals'),
-    ]
-    for level_code, level_name in level_defs:
-        level_m = all_matches[all_matches['tourney_level'] == level_code]
-        if len(level_m) >= 10:
-            conditions.append(_make_cond(level_name, level_m, "tournament_level"))
-    other_m = all_matches[~all_matches['tourney_level'].isin(['G', 'M', 'A', 'D', 'F'])]
-    if len(other_m) >= 10:
-        conditions.append(_make_cond('ATP 250', other_m, "tournament_level"))
-
-    # By round group
-    round_groups = {
-        'Early Rounds': ['R128', 'R64', 'R32'],
-        'Round of 16': ['R16'],
-        'Quarterfinal': ['QF'],
-        'Semifinal': ['SF'],
-        'Final': ['F']
-    }
-    for group_name, rounds in round_groups.items():
-        round_m = all_matches[all_matches['round'].isin(rounds)]
-        if len(round_m) >= 10:
-            conditions.append(_make_cond(group_name, round_m, "round"))
-
-    # ── CPI / Ball Type / Environment from court_speed.csv ──
-    _cpi_map = {}   # (tourney_name_lower, year) → {cpi, ball_type, indoor}
+    # ── Climate: Indoor / Outdoor ──
+    # Build CPI map for indoor detection from court_speed.csv
+    _cpi_map = {}   # (tourney_name_lower, year) -> {cpi, ball_type, indoor}
     if CPI_CSV.exists():
         try:
             cpi_df = pd.read_csv(CPI_CSV)
-            # Build tournament name mapping: court_speed "tournament" → Sackmann "tourney_name"
             _name_map = {
                 'ATP Finals': 'ATP Finals', 'Australian Open': 'Australian Open',
                 'Canadian Open': 'Canadian Open', 'Cincinnati': 'Cincinnati Masters',
@@ -940,87 +920,114 @@ def player_conditions(name: str):
         except Exception:
             pass
 
+    # Determine indoor/outdoor for each match
+    all_matches['_tname_lower'] = all_matches['tourney_name'].str.lower()
+    all_matches['_year'] = pd.to_numeric(
+        all_matches['tourney_date'].astype(str).str[:4], errors='coerce'
+    ).fillna(0).astype(int)
+
+    def _is_indoor(row):
+        # Check known indoor tournaments first
+        tname = row['_tname_lower']
+        if any(indoor_t in tname for indoor_t in INDOOR_TOURNAMENTS):
+            return True
+        # Check CPI data for indoor flag
+        key = (tname, row['_year'])
+        cpi_info = _cpi_map.get(key, {})
+        if cpi_info.get('indoor'):
+            return True
+        return False
+
+    all_matches['_indoor'] = all_matches.apply(_is_indoor, axis=1)
+
+    indoor_m = all_matches[all_matches['_indoor'] == True]
+    outdoor_m = all_matches[all_matches['_indoor'] == False]
+    has_climate = False
+    if len(indoor_m) >= 10:
+        conditions.append(_make_cond("Indoor", indoor_m, "climate"))
+        has_climate = True
+    if len(outdoor_m) >= 10:
+        conditions.append(_make_cond("Outdoor", outdoor_m, "climate"))
+        has_climate = True
+    if not has_climate:
+        missing_categories.append("climate")
+
+    # ── Court Speed ──
     if _cpi_map:
-        # Extract year from tourney_date (YYYYMMDD)
-        all_matches['_year'] = pd.to_numeric(
-            all_matches['tourney_date'].astype(str).str[:4], errors='coerce'
-        ).fillna(0).astype(int)
-        all_matches['_tname_lower'] = all_matches['tourney_name'].str.lower()
-
-        def _lookup(row):
+        def _get_cpi(row):
             key = (row['_tname_lower'], row['_year'])
-            return _cpi_map.get(key, {})
+            return _cpi_map.get(key, {}).get('cpi')
 
-        lookups = all_matches.apply(_lookup, axis=1)
-        all_matches['_cpi'] = lookups.apply(lambda x: x.get('cpi'))
-        all_matches['_ball'] = lookups.apply(lambda x: x.get('ball_type'))
-        all_matches['_indoor'] = lookups.apply(lambda x: x.get('indoor'))
+        all_matches['_cpi'] = all_matches.apply(_get_cpi, axis=1)
 
-        # Court speed buckets
         cpi_matches = all_matches[all_matches['_cpi'].notna()]
+        has_court_speed = False
         if len(cpi_matches) >= 10:
             for label, lo, hi in [('Slow (CPI < 30)', 0, 30), ('Medium (CPI 30-40)', 30, 40), ('Fast (CPI > 40)', 40, 100)]:
                 bucket = cpi_matches[(cpi_matches['_cpi'] >= lo) & (cpi_matches['_cpi'] < hi)]
                 if len(bucket) >= 10:
                     conditions.append(_make_cond(label, bucket, "court_speed"))
-        else:
+                    has_court_speed = True
+
+        if not has_court_speed:
             # Fallback: surface as proxy
             for surf, label in [('Clay', 'Slow (est.)'), ('Hard', 'Medium (est.)'), ('Grass', 'Fast (est.)')]:
                 bucket = all_matches[all_matches['surface'] == surf]
                 if len(bucket) >= 10:
                     conditions.append(_make_cond(label, bucket, "court_speed"))
+                    has_court_speed = True
 
-        # Ball type
+        if not has_court_speed:
+            missing_categories.append("court_speed")
+
+        # ── Ball Type ──
+        def _get_ball(row):
+            key = (row['_tname_lower'], row['_year'])
+            return _cpi_map.get(key, {}).get('ball_type')
+
+        all_matches['_ball'] = all_matches.apply(_get_ball, axis=1)
+
         ball_matches = all_matches[all_matches['_ball'].notna() & (all_matches['_ball'] != '')]
+        has_ball = False
         if len(ball_matches) >= 10:
             for ball_name in ball_matches['_ball'].unique():
                 bucket = ball_matches[ball_matches['_ball'] == ball_name]
                 if len(bucket) >= 10:
                     clean_name = str(ball_name).replace('*', '')
                     conditions.append(_make_cond(clean_name, bucket, "ball_type"))
-        else:
-            missing_categories.append("ball_type")
+                    has_ball = True
 
-        # Environment: Indoor / Outdoor
-        env_matches = all_matches[all_matches['_indoor'].notna()]
-        if len(env_matches) >= 10:
-            indoor_m = env_matches[env_matches['_indoor'] == True]
-            outdoor_m = env_matches[env_matches['_indoor'] == False]
-            if len(indoor_m) >= 10:
-                conditions.append(_make_cond("Indoor", indoor_m, "environment"))
-            if len(outdoor_m) >= 10:
-                conditions.append(_make_cond("Outdoor", outdoor_m, "environment"))
-        else:
-            missing_categories.append("environment")
+        if not has_ball:
+            missing_categories.append("ball_type")
 
         # Clean up temp columns
         all_matches.drop(columns=['_year', '_tname_lower', '_cpi', '_ball', '_indoor'], errors='ignore', inplace=True)
     else:
         # No CPI data at all — use surface proxy for court speed
+        has_court_speed = False
         for surf, label in [('Clay', 'Slow (est.)'), ('Hard', 'Medium (est.)'), ('Grass', 'Fast (est.)')]:
             bucket = all_matches[all_matches['surface'] == surf]
             if len(bucket) >= 10:
                 conditions.append(_make_cond(label, bucket, "court_speed"))
-        missing_categories.extend(["ball_type", "environment"])
+                has_court_speed = True
+        if not has_court_speed:
+            missing_categories.append("court_speed")
+        missing_categories.append("ball_type")
+        all_matches.drop(columns=['_year', '_tname_lower', '_indoor'], errors='ignore', inplace=True)
 
-    # Always mark weather as missing (no reliable per-match weather join)
-    missing_categories.append("weather")
-
+    # Sort each category by win_rate descending
     conditions.sort(key=lambda x: x['win_rate'], reverse=True)
 
-    # Build by_category grouping
-    by_category = {}
+    # Build by_category with exactly 3 categories
+    by_category = {"climate": [], "court_speed": [], "ball_type": []}
     for c in conditions:
         cat = c['category']
-        if cat not in by_category:
-            by_category[cat] = []
-        by_category[cat].append(c)
+        if cat in by_category:
+            by_category[cat].append(c)
 
     result = {
         "player": canonical,
         "available": True,
-        "best": conditions[:3],
-        "worst": conditions[-3:][::-1] if len(conditions) >= 3 else [],
         "by_category": by_category,
         "missing_categories": missing_categories,
     }
@@ -1415,6 +1422,97 @@ def player_scenarios(name: str):
                                 "significance": _sig(max_diff),
                                 "surface": surf_name,
                             })
+
+    # ── S13: Serve+1 pattern (what shot follows the serve?) ──
+    if "shot_sequence" in player_pts.columns:
+        srv_seqs = serving["shot_sequence"].dropna()
+        srv_seqs = srv_seqs[srv_seqs.str.len() >= 2]
+        if len(srv_seqs) >= 50:
+            # 3rd character is the server's first shot after serve (serve+1)
+            # Sequence: S = serve, 2nd = return, 3rd = serve+1
+            srv_plus1 = srv_seqs[srv_seqs.str.len() >= 3].str[2]
+            if len(srv_plus1) >= 50:
+                from collections import Counter as _Counter
+                sp1_counts = _Counter(srv_plus1)
+                sp1_total = sum(sp1_counts.values())
+                sp1_dist = {k: round(v / sp1_total, 3) for k, v in sp1_counts.most_common(5)}
+
+                # Compare on break points
+                bp_seqs = bp_serving["shot_sequence"].dropna() if len(bp_serving) >= 30 else pd.Series(dtype=str)
+                bp_seqs = bp_seqs[bp_seqs.str.len() >= 3]
+                if len(bp_seqs) >= 30:
+                    bp_sp1 = bp_seqs.str[2]
+                    bp_sp1_counts = _Counter(bp_sp1)
+                    bp_sp1_total = sum(bp_sp1_counts.values())
+                    bp_sp1_dist = {k: round(v / bp_sp1_total, 3) for k, v in bp_sp1_counts.most_common(5)}
+
+                    # Check for shift in forehand/backhand ratio
+                    baseline_fh = sp1_dist.get('F', 0)
+                    bp_fh = bp_sp1_dist.get('F', 0)
+                    diff = abs(bp_fh - baseline_fh)
+                    if diff > 0.03:
+                        scenarios.append({
+                            "scenario": "Serve+1 Under Pressure",
+                            "category": "serve_pressure",
+                            "description": f"Hits forehand serve+1 {int(bp_fh*100)}% on break points vs {int(baseline_fh*100)}% normally",
+                            "baseline": {k: float(v) for k, v in sp1_dist.items()},
+                            "scenario_data": {k: float(v) for k, v in bp_sp1_dist.items()},
+                            "sample_size": int(len(bp_seqs)),
+                            "significance": _sig(diff),
+                            "surface": None,
+                        })
+
+    # ── S14: Comfort zone (leading by 2+ games in current set) ──
+    leading_mask = (
+        (p1_mask & (player_pts["Gm1"] >= player_pts["Gm2"] + 2)) |
+        (~p1_mask & (player_pts["Gm2"] >= player_pts["Gm1"] + 2))
+    )
+    trailing_mask = (
+        (p1_mask & (player_pts["Gm2"] >= player_pts["Gm1"] + 2)) |
+        (~p1_mask & (player_pts["Gm1"] >= player_pts["Gm2"] + 2))
+    )
+    leading_pts = player_pts[leading_mask]
+    trailing_pts = player_pts[trailing_mask]
+    if len(leading_pts) >= 30 and len(trailing_pts) >= 30:
+        lead_wr = float(leading_pts["won_point"].mean())
+        trail_wr = float(trailing_pts["won_point"].mean())
+        diff = lead_wr - trail_wr
+        if abs(diff) > 0.03:
+            scenarios.append({
+                "scenario": "Comfort Zone",
+                "category": "match_situation",
+                "description": f"Wins {int(lead_wr*100)}% when up 2+ games vs {int(trail_wr*100)}% when down 2+",
+                "baseline": {"leading_wr": float(round(lead_wr, 3)),
+                              "trailing_wr": float(round(trail_wr, 3))},
+                "scenario_data": {"spread": float(round(diff, 3))},
+                "sample_size": int(len(leading_pts) + len(trailing_pts)),
+                "significance": _sig(diff),
+                "surface": None,
+            })
+
+    # ── S15: Deuce point serve direction ──
+    if "serve_direction" in player_pts.columns:
+        # Deuce points: score is 40-40 or AD-40/40-AD
+        deuce_mask = player_pts["is_server"] & (score == "40-40")
+        deuce_serving = player_pts[deuce_mask]
+        if len(deuce_serving) >= 30 and len(serving) >= 100:
+            deuce_dir = _serve_dir_dist(deuce_serving)
+            baseline_dir = _serve_dir_dist(serving)
+            if deuce_dir and baseline_dir:
+                max_diff = max(abs(deuce_dir.get(d, 0) - baseline_dir.get(d, 0)) for d in ["wide", "body", "T"])
+                if max_diff > 0.03:
+                    biggest_dir = max(["wide", "body", "T"],
+                                      key=lambda d: abs(deuce_dir.get(d, 0) - baseline_dir.get(d, 0)))
+                    scenarios.append({
+                        "scenario": "Deuce Point Serving",
+                        "category": "serve_pressure",
+                        "description": f"Serves {biggest_dir} {int(deuce_dir.get(biggest_dir,0)*100)}% on deuce points vs {int(baseline_dir.get(biggest_dir,0)*100)}% normally",
+                        "baseline": {k: float(v) for k, v in baseline_dir.items()},
+                        "scenario_data": {k: float(v) for k, v in deuce_dir.items()},
+                        "sample_size": int(len(deuce_serving)),
+                        "significance": _sig(max_diff),
+                        "surface": None,
+                    })
 
     n_matches = int(player_pts["match_id"].nunique()) if "match_id" in player_pts.columns else 0
 
