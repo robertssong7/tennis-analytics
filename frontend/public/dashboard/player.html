@@ -82,24 +82,21 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .sec-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:12px;}
 .sec-title::after{content:'';flex:0 0 40px;height:1px;background:var(--accent);opacity:0.4;}
 
-/* RADAR CHART */
-.radar-wrap{display:flex;justify-content:center;margin-bottom:24px;}
-
-/* PLAY STYLE BUBBLE */
-.play-style-bubble{display:inline-flex;flex-direction:column;padding:10px 22px;border-radius:14px;background:var(--tiffany);margin-bottom:20px;}
-.play-style-name{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:white;}
-.play-style-desc{font-family:'DM Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;}
+/* PLAY STYLE PILL */
+.play-style-pill{display:inline-block;padding:4px 12px;border-radius:100px;background:var(--tiffany);color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;margin-top:16px;}
 
 /* ATTRIBUTES BARS */
-.attr-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 32px;}
-.attr-row{display:grid;grid-template-columns:120px 1fr 40px;align-items:center;gap:10px;padding:6px 0;}
+.attr-list{display:flex;flex-direction:column;gap:10px;}
+.attr-row{display:grid;grid-template-columns:110px 1fr 44px;align-items:center;gap:10px;padding:4px 0;}
 .attr-name{font-size:12.5px;color:var(--ink-mid);text-transform:capitalize;}
-.attr-bar-wrap{height:8px;background:var(--bg-alt);border-radius:4px;overflow:hidden;}
+.attr-bar-wrap{height:8px;background:#E8E3DE;border-radius:4px;overflow:hidden;}
 .attr-bar{height:100%;border-radius:4px;transition:width 0.8s ease;}
 .attr-bar.tiffany{background:var(--tiffany);}
-.attr-bar.tiffany-muted{background:rgba(10,186,181,0.3);}
 .attr-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink);text-align:right;}
-.attr-val.insufficient{font-size:9px;color:var(--ink-soft);font-style:italic;}
+.attr-limited{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-soft);font-style:italic;}
+
+/* WIN-LOSS */
+.wl-record{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.55);margin-top:4px;}
 
 /* PATTERNS */
 .patterns-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
@@ -122,6 +119,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .rally-wr{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-mid);text-align:right;}
 
 /* MATCHUPS */
+.mu-toggle-wrap{display:flex;gap:8px;margin-bottom:16px;}
+.mu-toggle-btn{padding:5px 14px;border-radius:100px;border:1.5px solid var(--border);background:var(--card-bg);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.04em;color:var(--ink-mid);cursor:pointer;transition:all 0.2s;}
+.mu-toggle-btn.active{background:var(--ink);color:white;border-color:var(--ink);}
 .matchup-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
 .mu-col-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
 .mu-col-title.tough{color:var(--red-soft);}
@@ -130,7 +130,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .mu-row:hover{background:var(--bg-alt);}
 .mu-row.tough-row{border-left:3px solid rgba(196,87,58,0.4);}
 .mu-row.easy-row{border-left:3px solid rgba(74,124,111,0.4);}
-.mu-opponent{font-size:13px;font-weight:500;flex:1;}
+.mu-opponent{font-size:13px;font-weight:500;flex:1;display:flex;align-items:center;gap:6px;}
+.mu-retired-badge{font-family:'DM Mono',monospace;font-size:8px;background:rgba(0,0,0,0.06);color:var(--ink-soft);padding:2px 6px;border-radius:100px;letter-spacing:0.02em;flex-shrink:0;}
 .mu-prob{font-family:'DM Mono',monospace;font-size:12px;}
 .mu-prob.tough{color:var(--red-soft);}
 .mu-prob.easy{color:var(--accent);}
@@ -141,25 +142,39 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .mu-item-wrap{margin-bottom:6px;}
 
 /* CONDITIONS */
-.cond-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.cond-summary{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
 .cond-col-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
 .cond-col-title.best{color:var(--accent);}
 .cond-col-title.worst{color:var(--red-soft);}
-.cond-row{display:flex;align-items:center;padding:12px 14px;background:var(--card-bg);border-radius:8px;margin-bottom:8px;gap:12px;}
+.cond-row{display:flex;align-items:center;padding:10px 14px;background:var(--card-bg);border-radius:8px;margin-bottom:6px;gap:12px;}
 .cond-row.best-row{border-left:3px solid var(--accent);}
 .cond-row.worst-row{border-left:3px solid var(--red-soft);}
-.cond-indicator{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0;}
 .cond-info{flex:1;}
-.cond-name{font-size:13px;font-weight:500;margin-bottom:4px;}
+.cond-name{font-size:13px;font-weight:500;margin-bottom:3px;}
 .cond-bar-track{height:4px;background:var(--bg-alt);border-radius:2px;overflow:hidden;}
 .cond-bar-fill{height:100%;border-radius:2px;transition:width 0.6s ease;}
-.cond-bar-fill.best{background:var(--accent);}
-.cond-bar-fill.worst{background:var(--red-soft);}
 .cond-stats{text-align:right;flex-shrink:0;}
 .cond-wr{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;}
-.cond-wr.best{color:var(--accent);}
-.cond-wr.worst{color:var(--red-soft);}
-.cond-matches{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);}
+.cond-wl{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);}
+.cond-tab-wrap{display:flex;gap:8px;margin-bottom:16px;}
+.cond-tab{padding:5px 14px;border-radius:100px;border:1.5px solid var(--border);background:var(--card-bg);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.04em;color:var(--ink-mid);cursor:pointer;transition:all 0.2s;}
+.cond-tab.active{background:var(--ink);color:white;border-color:var(--ink);}
+.cond-cat-grid{display:grid;grid-template-columns:1fr;gap:6px;}
+
+/* SCENARIOS */
+.scenario-card{background:white;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:16px;}
+.scenario-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.scenario-desc{font-size:13px;color:var(--ink-mid);margin-bottom:12px;line-height:1.5;}
+.scenario-bars{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.scenario-bar-row{display:grid;grid-template-columns:70px 1fr 44px;align-items:center;gap:8px;}
+.scenario-bar-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.04em;}
+.scenario-bar-track{height:6px;background:#E8E3DE;border-radius:3px;overflow:hidden;}
+.scenario-bar-fill{height:100%;border-radius:3px;}
+.scenario-bar-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-mid);text-align:right;}
+.scenario-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);}
+.scenario-sig{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;}
+.scenario-sig.notable{background:var(--tiffany);}
+.scenario-sig.moderate{background:var(--ink-soft);}
 
 /* FOOTER */
 .footer{background:var(--card-dark);color:rgba(255,255,255,0.6);margin-top:60px;}
@@ -183,10 +198,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   nav{padding:0 20px;}
   .hero-inner{padding:24px 20px 0;flex-direction:column;align-items:center;text-align:center;}
   .surface-chips{justify-content:center;}
-  .attr-grid{grid-template-columns:1fr;}
   .patterns-grid{grid-template-columns:1fr;}
   .matchup-cols{grid-template-columns:1fr;}
-  .cond-cols{grid-template-columns:1fr;}
+  .cond-summary{grid-template-columns:1fr;}
   .footer-inner{grid-template-columns:1fr;}
   .page-content{padding:0 5%;}
 }
@@ -264,6 +278,8 @@ var playerName = params.get('name') || params.get('player') || 'Carlos Alcaraz';
 var activeSurf = 'overall';
 var cardData = null;
 var patternsData = null;
+var matchupsData = null;
+var matchupsShowActive = true;
 
 document.title = 'TennisIQ \u2014 ' + playerName;
 
@@ -301,75 +317,7 @@ function classifyPlayStyle(attrs, patterns) {
   return {name:'All-Court Player', desc:'Well-rounded game across all dimensions'};
 }
 
-/* ── Radar Chart SVG ───────────────────────────────────── */
-function renderRadar(attrs) {
-  var names = ['serve','groundstroke','volley','footwork','endurance','durability','clutch','mental'];
-  var labels = ['SRV','GND','VOL','FTW','END','DUR','CLU','MNT'];
-  var cx = 130, cy = 130, maxR = 95, n = 8;
-  var step = 2 * Math.PI / n, start = -Math.PI / 2;
-
-  function oct(r) {
-    return Array.from({length:n}, function(_,i) {
-      var a = start + i * step;
-      return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1);
-    }).join(' ');
-  }
-
-  var svg = '<svg viewBox="0 0 260 260" width="260" height="260" style="overflow:visible;">';
-  // Grid
-  [0.25, 0.5, 0.75, 1.0].forEach(function(lv) {
-    svg += '<polygon points="' + oct(maxR * lv) + '" fill="none" stroke="rgba(0,0,0,0.07)" stroke-width="0.8"/>';
-  });
-  // Axes
-  for (var i = 0; i < n; i++) {
-    var a = start + i * step;
-    svg += '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+maxR*Math.cos(a)).toFixed(1)+'" y2="'+(cy+maxR*Math.sin(a)).toFixed(1)+'" stroke="rgba(0,0,0,0.05)" stroke-width="0.8"/>';
-  }
-  // Data polygon
-  var pts = names.map(function(nm, i) {
-    var v = attrs[nm] || 50;
-    if (nm === 'footwork' && v === 30) v = 0;
-    var a = start + i * step, r = maxR * v / 100;
-    return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1);
-  }).join(' ');
-  svg += '<polygon points="' + pts + '" fill="rgba(10,186,181,0.22)" stroke="#0ABAB5" stroke-width="2"/>';
-  // Dots
-  names.forEach(function(nm, i) {
-    var v = attrs[nm] || 50;
-    if (nm === 'footwork' && v === 30) return;
-    var a = start + i * step, r = maxR * v / 100;
-    svg += '<circle cx="'+(cx+r*Math.cos(a)).toFixed(1)+'" cy="'+(cy+r*Math.sin(a)).toFixed(1)+'" r="3.5" fill="#0ABAB5"/>';
-  });
-  // Labels
-  var labelR = maxR + 20;
-  names.forEach(function(nm, i) {
-    var v = attrs[nm] || 50;
-    var a = start + i * step;
-    var lx = cx + labelR * Math.cos(a), ly = cy + labelR * Math.sin(a);
-    var anchor = Math.abs(Math.cos(a)) < 0.15 ? 'middle' : Math.cos(a) > 0 ? 'start' : 'end';
-    var valTxt = (nm === 'footwork' && v === 30) ? '—' : v;
-    svg += '<text x="'+lx.toFixed(1)+'" y="'+(ly-6).toFixed(1)+'" text-anchor="'+anchor+'" font-family="\'DM Mono\',monospace" font-size="9" fill="var(--ink-soft)">'+labels[i]+'</text>';
-    svg += '<text x="'+lx.toFixed(1)+'" y="'+(ly+6).toFixed(1)+'" text-anchor="'+anchor+'" font-family="\'Playfair Display\',serif" font-size="13" font-weight="700" fill="'+(nm==='footwork'&&v===30?'var(--ink-soft)':'var(--ink)')+'">'+valTxt+'</text>';
-  });
-  // Insufficient data note for footwork
-  if (attrs.footwork === 30) {
-    var fi = 3, fa = start + fi * step;
-    var fx = cx + (maxR * 0.35) * Math.cos(fa), fy = cy + (maxR * 0.35) * Math.sin(fa);
-    svg += '<text x="'+fx.toFixed(1)+'" y="'+fy.toFixed(1)+'" text-anchor="middle" font-family="\'DM Mono\',monospace" font-size="7.5" fill="var(--ink-soft)" font-style="italic">Insufficient data</text>';
-  }
-  svg += '</svg>';
-  return svg;
-}
-
-/* ── Conditions Color ─────────────────────────────────── */
-function condColor(item) {
-  if (item.category === 'surface') {
-    if (item.condition.indexOf('Hard') >= 0) return '#4A90D9';
-    if (item.condition.indexOf('Clay') >= 0) return '#D4724E';
-    if (item.condition.indexOf('Grass') >= 0) return '#5AA469';
-  }
-  return 'var(--accent)';
-}
+/* ── (radar chart removed — using horizontal bars) ──── */
 
 /* ── Main Load ─────────────────────────────────────────── */
 async function loadAll() {
@@ -389,17 +337,19 @@ async function loadAll() {
     document.title = 'TennisIQ \u2014 ' + cardData.name;
     renderHero(cardData);
 
-    var [patternsRes, condRes, matchupsRes] = await Promise.all([
+    var [patternsRes, condRes, matchupsRes, scenariosRes] = await Promise.all([
       fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/patterns').catch(function(){return null;}),
       fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/conditions').catch(function(){return null;}),
-      fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/matchups?surface=hard').catch(function(){return null;})
+      fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/matchups?surface=hard').catch(function(){return null;}),
+      fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/scenarios').catch(function(){return null;})
     ]);
 
     patternsData = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
     var conditions = condRes && condRes.ok ? await condRes.json() : null;
-    var matchups = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
+    matchupsData = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
+    var scenarios = scenariosRes && scenariosRes.ok ? await scenariosRes.json() : null;
 
-    renderContent(cardData, patternsData, matchups, conditions);
+    renderContent(cardData, patternsData, matchupsData, conditions, scenarios);
     initSurfaceToggle();
 
   } catch(e) {
@@ -444,6 +394,13 @@ function renderHero(card) {
   // Form date
   var formDateHtml = card.last_match ? '<div class="form-date">Last match: ' + formatDate(card.last_match) + '</div>' : '';
 
+  // Win-loss record
+  var wlHtml = '';
+  if (card.wins != null && card.losses != null) {
+    var totalMatches = card.wins + card.losses;
+    wlHtml = '<div class="wl-record">' + totalMatches + ' matches (' + card.wins + 'W \u2013 ' + card.losses + 'L)</div>';
+  }
+
   document.getElementById('hero-section').innerHTML = '<div class="hero"><div class="hero-inner">'
     + avatarHtml
     + '<div class="player-info">'
@@ -457,38 +414,40 @@ function renderHero(card) {
     + '<span class="country-tag">' + (card.flag || '') + ' ' + (card.country || '') + '</span>'
     + (formMod !== 0 ? '<div><span class="form-mod ' + formClass + '">' + formSign + parseFloat(formMod).toFixed(1) + ' FORM</span>' + formDateHtml + '</div>' : (formDateHtml ? '<div>' + formDateHtml + '</div>' : ''))
     + '</div>'
+    + wlHtml
     + '<div class="surface-chips">' + surfChips + '</div>'
     + '</div></div></div>';
 }
 
 /* ── Render Content ────────────────────────────────────── */
-function renderContent(card, patterns, matchups, conditions) {
+function renderContent(card, patterns, matchups, conditions, scenarios) {
   var attrs = card.attributes || {};
   var attrNames = ['serve','groundstroke','volley','footwork','endurance','durability','clutch','mental'];
   var attrLabels = {serve:'Serve',groundstroke:'Groundstroke',volley:'Volley',footwork:'Footwork',endurance:'Endurance',durability:'Durability',clutch:'Clutch',mental:'Mental'};
+  var limitedDataAttrs = ['footwork','volley','endurance'];
 
-  // Radar chart
-  var radarHtml = '<div class="radar-wrap">' + renderRadar(attrs) + '</div>';
+  // Sort attributes by value descending
+  var sortedAttrs = attrNames.slice().sort(function(a, b) { return (attrs[b] || 50) - (attrs[a] || 50); });
 
-  // Play style bubble
-  var style = classifyPlayStyle(attrs, patterns);
-  var playStyleHtml = '<div class="play-style-bubble"><span class="play-style-name">' + style.name + '</span><span class="play-style-desc">' + style.desc + '</span></div>';
-
-  // Attribute bars
-  var attrRows = attrNames.map(function(a) {
+  // Attribute horizontal bars (Task 1)
+  var attrRows = sortedAttrs.map(function(a) {
     var score = attrs[a] || 50;
-    var isInsufficient = (a === 'footwork' && score === 30);
-    var barClass = isInsufficient ? 'tiffany-muted' : 'tiffany';
-    var valHtml = isInsufficient
-      ? '<span class="attr-val insufficient">Insufficient data</span>'
-      : '<span class="attr-val">' + score + '</span>';
+    var isLimited = score <= 30 && limitedDataAttrs.indexOf(a) >= 0;
+    if (isLimited) {
+      return '<div class="attr-row">'
+        + '<span class="attr-name">' + attrLabels[a] + '</span>'
+        + '<div class="attr-bar-wrap"></div>'
+        + '<span class="attr-limited">Limited data</span></div>';
+    }
     return '<div class="attr-row">'
       + '<span class="attr-name">' + attrLabels[a] + '</span>'
-      + '<div class="attr-bar-wrap"><div class="attr-bar ' + barClass + '" style="width:' + (isInsufficient ? 0 : score) + '%"></div></div>'
-      + valHtml + '</div>';
-  });
-  var attrLeft = attrRows.slice(0, 4).join('');
-  var attrRight = attrRows.slice(4).join('');
+      + '<div class="attr-bar-wrap"><div class="attr-bar tiffany" style="width:' + score + '%"></div></div>'
+      + '<span class="attr-val">' + score + '</span></div>';
+  }).join('');
+
+  // Play style pill (Task 2)
+  var style = classifyPlayStyle(attrs, patterns);
+  var playStyleHtml = '<div class="play-style-pill">' + style.name + '</div>';
 
   // Patterns
   var patternsHtml = '';
@@ -519,76 +478,128 @@ function renderContent(card, patterns, matchups, conditions) {
     patternsHtml = '<p style="color:var(--ink-soft);font-size:13px;">' + (patterns ? (patterns.reason || 'Charted data unavailable') : 'Loading...') + '</p>';
   }
 
-  // Matchups
+  // Matchups (Task 5)
   var matchupsHtml = '';
   if (matchups && matchups.available) {
-    matchupsHtml = renderMatchupCols(matchups, 'hard');
+    matchupsHtml = renderMatchupSection(matchups);
   } else if (matchups && !matchups.available) {
     matchupsHtml = '<p style="color:var(--ink-soft);font-size:13px;">' + (matchups.reason || 'Matchup data unavailable') + '</p>';
   } else {
     matchupsHtml = '<p style="color:var(--ink-soft);font-size:13px;">Loading matchup data...</p>';
   }
 
-  // Conditions
+  // Conditions (Task 4)
   var condHtml = renderConditions(conditions);
+
+  // Scenarios (Task 6)
+  var scenariosHtml = renderScenarios(scenarios);
 
   document.getElementById('page-content').innerHTML =
     '<div class="section">'
     + '<div class="sec-title">Player Attributes</div>'
-    + radarHtml
+    + '<div class="attr-list">' + attrRows + '</div>'
     + playStyleHtml
-    + '<div class="attr-grid"><div>' + attrLeft + '</div><div>' + attrRight + '</div></div>'
     + '</div>'
     + '<div class="section">'
     + '<div class="sec-title">Play Style</div>'
     + patternsHtml
     + '</div>'
     + '<div class="section">'
-    + '<div class="sec-title">Matchups (Top 100)</div>'
-    + '<div id="matchup-content">' + matchupsHtml + '</div>'
-    + '</div>'
-    + '<div class="section">'
     + '<div class="sec-title">Conditions</div>'
     + condHtml
+    + '</div>'
+    + '<div class="section">'
+    + '<div class="sec-title">Under Pressure</div>'
+    + scenariosHtml
+    + '</div>'
+    + '<div class="section">'
+    + '<div class="sec-title">Matchups (Top 100)</div>'
+    + '<div id="matchup-content">' + matchupsHtml + '</div>'
     + '</div>';
 }
 
 /* ── Render Conditions ─────────────────────────────────── */
+function condWrColor(wr) {
+  if (wr > 0.70) return 'var(--accent)';
+  if (wr < 0.50) return 'var(--red-soft)';
+  return 'var(--ink-mid)';
+}
+
 function renderConditions(conditions) {
   if (!conditions || !conditions.available) {
     return '<p style="color:var(--ink-soft);font-size:13px;">' + (conditions ? 'Insufficient match data' : 'Loading...') + '</p>';
   }
-  function renderRow(c, type) {
+
+  // Summary: best 3 / worst 3
+  function renderSummaryRow(c, type) {
     if (c.matches < 10) return '';
-    var color = condColor(c);
     var wrPct = (c.win_rate * 100).toFixed(1);
+    var wl = (c.wins != null ? c.wins + 'W\u2013' + c.losses + 'L' : c.matches + 'M');
     return '<div class="cond-row ' + type + '-row">'
-      + '<div class="cond-indicator" style="background:' + color + ';"></div>'
       + '<div class="cond-info"><div class="cond-name">' + c.condition + '</div>'
-      + '<div class="cond-bar-track"><div class="cond-bar-fill ' + type + '" style="width:' + wrPct + '%;"></div></div></div>'
-      + '<div class="cond-stats"><div class="cond-wr ' + type + '">' + wrPct + '%</div>'
-      + '<div class="cond-matches">' + c.matches + ' matches</div></div></div>';
+      + '<div class="cond-bar-track"><div class="cond-bar-fill" style="width:' + wrPct + '%;background:' + condWrColor(c.win_rate) + ';"></div></div></div>'
+      + '<div class="cond-stats"><div class="cond-wr" style="color:' + condWrColor(c.win_rate) + ';">' + wrPct + '%</div>'
+      + '<div class="cond-wl">' + wl + '</div></div></div>';
   }
-  var bestRows = (conditions.best || []).map(function(c) { return renderRow(c, 'best'); }).join('');
-  var worstRows = (conditions.worst || []).map(function(c) { return renderRow(c, 'worst'); }).join('');
-  return '<div class="cond-cols">'
-    + '<div><div class="cond-col-title best">Strongest Conditions</div>' + (bestRows || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
-    + '<div><div class="cond-col-title worst">Weakest Conditions</div>' + (worstRows || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div></div>';
+  var bestRows = (conditions.best || []).slice(0, 3).map(function(c) { return renderSummaryRow(c, 'best'); }).join('');
+  var worstRows = (conditions.worst || []).slice(0, 3).map(function(c) { return renderSummaryRow(c, 'worst'); }).join('');
+  var summaryHtml = '<div class="cond-summary">'
+    + '<div><div class="cond-col-title best">Strongest</div>' + (bestRows || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
+    + '<div><div class="cond-col-title worst">Weakest</div>' + (worstRows || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div></div>';
+
+  // Category tabs
+  var byCategory = conditions.by_category || {};
+  var catLabels = {surface: 'Surface', round: 'Round', tournament_level: 'Tournament Level'};
+  var catKeys = ['surface', 'round', 'tournament_level'].filter(function(k) { return byCategory[k] && byCategory[k].length > 0; });
+
+  if (catKeys.length === 0) return summaryHtml;
+
+  var tabsHtml = '<div class="cond-tab-wrap">' + catKeys.map(function(k, i) {
+    return '<button class="cond-tab' + (i === 0 ? ' active' : '') + '" data-cat="' + k + '">' + catLabels[k] + '</button>';
+  }).join('') + '</div>';
+
+  var panelsHtml = catKeys.map(function(k, i) {
+    var items = byCategory[k] || [];
+    items.sort(function(a, b) { return b.win_rate - a.win_rate; });
+    var rowsHtml = items.map(function(c) {
+      var wrPct = (c.win_rate * 100).toFixed(1);
+      var wl = (c.wins != null ? c.wins + 'W\u2013' + c.losses + 'L' : c.matches + 'M');
+      return '<div class="cond-row" style="border-left:3px solid ' + condWrColor(c.win_rate) + ';">'
+        + '<div class="cond-info"><div class="cond-name">' + c.condition + '</div>'
+        + '<div class="cond-bar-track"><div class="cond-bar-fill" style="width:' + wrPct + '%;background:' + condWrColor(c.win_rate) + ';"></div></div></div>'
+        + '<div class="cond-stats"><div class="cond-wr" style="color:' + condWrColor(c.win_rate) + ';">' + wrPct + '%</div>'
+        + '<div class="cond-wl">' + wl + '</div></div></div>';
+    }).join('');
+    return '<div class="cond-cat-grid" data-cat-panel="' + k + '" style="' + (i > 0 ? 'display:none;' : '') + '">' + rowsHtml + '</div>';
+  }).join('');
+
+  return summaryHtml + tabsHtml + panelsHtml;
 }
 
 /* ── Render Matchups ───────────────────────────────────── */
-function renderMatchupCols(matchups, surface) {
+function renderMatchupSection(matchups) {
+  var toggleHtml = '<div class="mu-toggle-wrap">'
+    + '<button class="mu-toggle-btn' + (matchupsShowActive ? ' active' : '') + '" data-mu-mode="active">Active Only</button>'
+    + '<button class="mu-toggle-btn' + (!matchupsShowActive ? ' active' : '') + '" data-mu-mode="all">All Opponents</button>'
+    + '</div>';
+  return toggleHtml + '<div id="matchup-lists">' + renderMatchupCols(matchups) + '</div>';
+}
+
+function renderMatchupCols(matchups) {
+  var tough = matchupsShowActive ? (matchups.toughest_active || []) : (matchups.toughest || []);
+  var easy = matchupsShowActive ? (matchups.easiest_active || []) : (matchups.easiest || []);
   function rows(list, type) {
     return (list || []).map(function(m) {
+      var retBadge = m.is_retired ? '<span class="mu-retired-badge">Retired</span>' : '';
       return '<div class="mu-item-wrap"><div class="mu-row ' + type + '-row" data-opponent="' + m.opponent + '">'
-        + '<span class="mu-opponent">' + m.opponent + '</span>'
+        + '<span class="mu-opponent">' + m.opponent + retBadge + '</span>'
         + '<span class="mu-prob ' + type + '">' + pct(m.player_win_prob) + '</span>'
         + '<span class="mu-chevron">\u25B6</span></div></div>';
     }).join('');
   }
   return '<div class="matchup-cols">'
-    + '<div><div class="mu-col-title tough">Toughest</div>' + (rows(matchups.toughest, 'tough') || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
-    + '<div><div class="mu-col-title easy">Easiest</div>' + (rows(matchups.easiest, 'easy') || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div></div>';
+    + '<div><div class="mu-col-title tough">Toughest</div>' + (rows(tough, 'tough') || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
+    + '<div><div class="mu-col-title easy">Easiest</div>' + (rows(easy, 'easy') || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div></div>';
 }
 
 /* ── Surface Toggle ────────────────────────────────────── */
@@ -621,8 +632,8 @@ function initSurfaceToggle() {
       try {
         var res = await fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/matchups?surface=' + fetchSurf);
         if (res.ok) {
-          var data = await res.json();
-          muEl.innerHTML = data.available ? renderMatchupCols(data, fetchSurf) : '<p style="color:var(--ink-soft);">' + data.reason + '</p>';
+          matchupsData = await res.json();
+          muEl.innerHTML = matchupsData.available ? renderMatchupSection(matchupsData) : '<p style="color:var(--ink-soft);">' + matchupsData.reason + '</p>';
         }
       } catch(e2) {}
     });
@@ -720,6 +731,92 @@ function renderExpansion(player, opp) {
     + compareRows
     + '<a href="compare.html?p1=' + encodeURIComponent(player.name) + '&p2=' + encodeURIComponent(opp.name) + '&surface=' + fetchSurf + '" style="display:block;text-align:center;margin-top:10px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--accent);text-decoration:none;">Full Comparison \u2192</a></div>';
 }
+
+/* ── Render Scenarios ──────────────────────────────────── */
+function renderScenarios(scenarios) {
+  if (!scenarios || !scenarios.available) {
+    var reason = scenarios ? (scenarios.reason || 'No charted match data available') : 'Loading...';
+    var name = (cardData && cardData.name) || playerName;
+    return '<p style="color:var(--ink-soft);font-size:13px;">' + reason + (scenarios && !scenarios.available ? ' for ' + name : '') + '</p>';
+  }
+  var items = scenarios.scenarios || [];
+  if (items.length === 0) {
+    return '<p style="color:var(--ink-soft);font-size:13px;">No significant scenario patterns detected for ' + scenarios.player + '</p>';
+  }
+  return items.map(function(s) {
+    var sigClass = s.significance === 'notable' ? 'notable' : 'moderate';
+
+    // Build comparison bars
+    var barsHtml = '';
+    if (s.scenario === 'Break Point Serving' && s.baseline && s.scenario_data) {
+      ['wide','body','T'].forEach(function(d) {
+        var bv = ((s.baseline[d] || 0) * 100);
+        var sv = ((s.scenario_data[d] || 0) * 100);
+        barsHtml += '<div class="scenario-bar-row"><span class="scenario-bar-label">' + d + '</span>'
+          + '<div style="display:flex;gap:4px;align-items:center;flex:1;">'
+          + '<div class="scenario-bar-track" style="flex:1;"><div class="scenario-bar-fill" style="width:' + bv.toFixed(0) + '%;background:var(--ink-soft);opacity:0.4;"></div></div>'
+          + '<div class="scenario-bar-track" style="flex:1;"><div class="scenario-bar-fill" style="width:' + sv.toFixed(0) + '%;background:var(--tiffany);"></div></div>'
+          + '</div>'
+          + '<span class="scenario-bar-val">' + sv.toFixed(0) + '%</span></div>';
+      });
+      barsHtml = '<div style="display:flex;gap:12px;margin-bottom:4px;font-family:\'DM Mono\',monospace;font-size:9px;color:var(--ink-soft);">'
+        + '<span>Baseline</span><span style="color:var(--tiffany);">Break Pts</span></div>'
+        + '<div class="scenario-bars">' + barsHtml + '</div>';
+    } else if (s.baseline && s.scenario_data) {
+      // Generic before/after bars for other scenarios
+      var baselineKeys = Object.keys(s.baseline);
+      var scenarioKeys = Object.keys(s.scenario_data);
+      var bKey = baselineKeys.find(function(k) { return k.indexOf('win_rate') >= 0 || k.indexOf('wr') >= 0; }) || baselineKeys[0];
+      var sKey = scenarioKeys.find(function(k) { return k.indexOf('win_rate') >= 0 || k.indexOf('wr') >= 0; }) || scenarioKeys[0];
+      if (bKey && sKey && typeof s.baseline[bKey] === 'number' && typeof s.scenario_data[sKey] === 'number') {
+        var bv = s.baseline[bKey] * 100;
+        var sv = s.scenario_data[sKey] * 100;
+        barsHtml = '<div class="scenario-bars">'
+          + '<div class="scenario-bar-row"><span class="scenario-bar-label">Baseline</span>'
+          + '<div class="scenario-bar-track"><div class="scenario-bar-fill" style="width:' + bv.toFixed(0) + '%;background:var(--ink-soft);opacity:0.4;"></div></div>'
+          + '<span class="scenario-bar-val">' + bv.toFixed(1) + '%</span></div>'
+          + '<div class="scenario-bar-row"><span class="scenario-bar-label">Scenario</span>'
+          + '<div class="scenario-bar-track"><div class="scenario-bar-fill" style="width:' + sv.toFixed(0) + '%;background:var(--tiffany);"></div></div>'
+          + '<span class="scenario-bar-val">' + sv.toFixed(1) + '%</span></div></div>';
+      }
+    }
+
+    return '<div class="scenario-card">'
+      + '<div class="scenario-title">' + s.scenario + '</div>'
+      + '<div class="scenario-desc">' + s.description + '</div>'
+      + barsHtml
+      + '<div class="scenario-meta"><span class="scenario-sig ' + sigClass + '"></span>'
+      + (s.significance === 'notable' ? 'Notable' : 'Moderate') + ' \u00b7 Based on ' + s.sample_size.toLocaleString() + ' points</div></div>';
+  }).join('');
+}
+
+/* ── Event Delegation: Condition Tabs & Matchup Toggle ── */
+document.addEventListener('click', function(e) {
+  // Condition tabs
+  var tab = e.target.closest('.cond-tab');
+  if (tab) {
+    document.querySelectorAll('.cond-tab').forEach(function(t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+    var cat = tab.dataset.cat;
+    document.querySelectorAll('[data-cat-panel]').forEach(function(p) {
+      p.style.display = p.dataset.catPanel === cat ? '' : 'none';
+    });
+    return;
+  }
+
+  // Matchup toggle
+  var muBtn = e.target.closest('.mu-toggle-btn');
+  if (muBtn) {
+    document.querySelectorAll('.mu-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+    muBtn.classList.add('active');
+    matchupsShowActive = muBtn.dataset.muMode === 'active';
+    var listsEl = document.getElementById('matchup-lists');
+    if (listsEl && matchupsData) {
+      listsEl.innerHTML = renderMatchupCols(matchupsData);
+    }
+    return;
+  }
+});
 
 loadAll();
 </script>
