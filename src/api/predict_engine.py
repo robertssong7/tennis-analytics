@@ -38,9 +38,12 @@ SACKMANN_DIR = BASE / 'data' / 'sackmann' / 'tennis_atp'
 SURFACE_CODE = {'hard': 0, 'clay': 1, 'grass': 2}
 SURFACE_CPI  = {'hard': 36.0, 'clay': 24.5, 'grass': 37.0}
 
-# Latest data date (Dec 2024 per system spec)
+# Retirement threshold: 18 months (548 days)
+RETIREMENT_THRESHOLD_DAYS = 548
+
+# Will be set dynamically after Glicko data loads (max last_match_date across all players).
+# Fallback to Dec 2024 if Glicko hasn't loaded yet.
 LATEST_DATA_DATE = date(2024, 12, 31)
-RETIREMENT_THRESHOLD_DAYS = 548  # 18 months
 
 
 # ── Singleton ────────────────────────────────────────────────────────────────
@@ -61,8 +64,10 @@ class PredictEngine:
         self.attributes = None         # dict: player_name → PlayerAttributeAccumulator
         self.player_form: dict = {}    # player_name → {form_3, form_5, form_15, form_50, surface_form_hard/clay/grass, win_rate_vs_top50}
         self.player_names: list = []   # sorted list for fuzzy matching
-        self.feature_cols: list = []   # 152 feature column names (in order)
+        self.feature_cols: list = []   # 168 feature column names (in order)
         self.win_loss: dict = {}       # player_name → {"wins": int, "losses": int}
+        self.h2h: dict = {}            # (nameA, nameB) sorted → H2H stats
+        self.player_ages: dict = {}    # player_name → latest known age (float)
         self._loaded = False
 
     @classmethod
@@ -101,6 +106,21 @@ class PredictEngine:
             self.glicko = pickle.load(f)
         logger.info(f"  ✓ Glicko-2 loaded ({len(self.glicko.ratings):,} players)")
 
+        # Compute latest data date from max(last_match_date) across all players
+        global LATEST_DATA_DATE
+        max_date = None
+        for _pname, surfaces in self.glicko.ratings.items():
+            r = surfaces.get('all')
+            if r and r.last_match_date and (max_date is None or r.last_match_date > max_date):
+                max_date = r.last_match_date
+        if max_date:
+            LATEST_DATA_DATE = max_date
+            self.latest_data_date = max_date
+            logger.info(f"  ✓ Latest data date: {LATEST_DATA_DATE} (from max last_match_date)")
+        else:
+            self.latest_data_date = LATEST_DATA_DATE
+            logger.info(f"  ✓ Latest data date: {LATEST_DATA_DATE} (fallback)")
+
         with open(DATA_DIR / 'player_attributes_v2.pkl', 'rb') as f:
             self.attributes = pickle.load(f)
         logger.info(f"  ✓ Player attributes loaded ({len(self.attributes):,} players)")
@@ -113,16 +133,18 @@ class PredictEngine:
         self._build_form_cache()
         logger.info(f"  ✓ Form cache built ({len(self.player_form):,} players)")
 
-        # Build win/loss cache from all Sackmann matches
-        logger.info("  Building win/loss cache ...")
-        self._build_win_loss_cache()
+        # Build win/loss, H2H, and age caches from all Sackmann matches
+        logger.info("  Building win/loss, H2H, and age caches ...")
+        self._build_match_caches()
         logger.info(f"  ✓ Win/loss cache built ({len(self.win_loss):,} players)")
+        logger.info(f"  ✓ H2H cache built ({len(self.h2h):,} pairs)")
+        logger.info(f"  ✓ Age cache built ({len(self.player_ages):,} players)")
 
         self._loaded = True
         logger.info("PredictEngine: ready.")
 
     def _get_feature_cols(self) -> list:
-        """Return the 152 feature columns in the exact training order."""
+        """Return the 168 feature columns in the exact training order."""
         return [
             'surface_code', 'tourney_level_code', 'best_of', 'ball_type',
             'match_temp', 'match_humidity', 'match_wind', 'match_precip',
@@ -184,6 +206,13 @@ class PredictEngine:
             'bp_save_pct_diff', 'win_rate_vs_top50_diff',
             'heat_x_fatigue', 'heat_x_fatigue_diff', 'wind_x_serve_dep',
             'humidity_x_rally', 'heat_x_endurance_diff',
+            # H2H features
+            'h2h_wins_p1', 'h2h_wins_p2', 'h2h_total', 'h2h_has_history',
+            'h2h_win_rate_p1', 'h2h_surface_wins_p1', 'h2h_surface_total',
+            'h2h_surface_win_rate_p1', 'h2h_recency_p1', 'h2h_streak_p1',
+            # Age & career
+            'p1_age', 'p2_age', 'age_diff',
+            'p1_career_matches', 'p2_career_matches', 'career_match_diff',
         ]
 
     def _build_form_cache(self):
@@ -274,26 +303,132 @@ class PredictEngine:
 
             self.player_form[player] = form
 
-    def _build_win_loss_cache(self):
-        """Scan all Sackmann CSVs to compute wins and losses per player."""
+    def _build_match_caches(self):
+        """Scan all Sackmann CSVs to build win/loss, H2H, and age caches."""
         wl: dict = {}
+        h2h: dict = {}
+        ages: dict = {}
+        use_cols = ['winner_name', 'loser_name', 'surface', 'tourney_date',
+                    'winner_age', 'loser_age']
+
         for csv_path in sorted(SACKMANN_DIR.glob('atp_matches_*.csv')):
             try:
-                df = pd.read_csv(csv_path, usecols=['winner_name', 'loser_name'], low_memory=False)
-                for _, row in df.iterrows():
-                    w = row.get('winner_name')
-                    l = row.get('loser_name')
-                    if pd.isna(w) or pd.isna(l):
-                        continue
-                    if w not in wl:
-                        wl[w] = {'wins': 0, 'losses': 0}
-                    if l not in wl:
-                        wl[l] = {'wins': 0, 'losses': 0}
-                    wl[w]['wins'] += 1
-                    wl[l]['losses'] += 1
+                df = pd.read_csv(csv_path, usecols=use_cols, low_memory=False)
             except Exception:
                 continue
+            df = df.dropna(subset=['winner_name', 'loser_name'])
+
+            for _, row in df.iterrows():
+                w = row['winner_name']
+                l = row['loser_name']
+                surf = str(row.get('surface', '')).lower()
+                tdate = int(row['tourney_date']) if pd.notna(row.get('tourney_date')) else 0
+
+                # Win/loss
+                if w not in wl:
+                    wl[w] = {'wins': 0, 'losses': 0}
+                if l not in wl:
+                    wl[l] = {'wins': 0, 'losses': 0}
+                wl[w]['wins'] += 1
+                wl[l]['losses'] += 1
+
+                # Age (keep the latest)
+                w_age = row.get('winner_age')
+                l_age = row.get('loser_age')
+                if pd.notna(w_age):
+                    ages[w] = float(w_age)
+                if pd.notna(l_age):
+                    ages[l] = float(l_age)
+
+                # H2H
+                key = tuple(sorted([w, l]))
+                if key not in h2h:
+                    h2h[key] = {
+                        'wins': {key[0]: 0, key[1]: 0},
+                        'surface_wins': {},
+                        'matches': [],
+                    }
+                entry = h2h[key]
+                entry['wins'][w] = entry['wins'].get(w, 0) + 1
+                if surf:
+                    if surf not in entry['surface_wins']:
+                        entry['surface_wins'][surf] = {key[0]: 0, key[1]: 0}
+                    entry['surface_wins'][surf][w] = entry['surface_wins'][surf].get(w, 0) + 1
+                entry['matches'].append((tdate, w))
+
+        # Sort H2H matches by date for recency/streak computation
+        for key, entry in h2h.items():
+            entry['matches'].sort()
+
         self.win_loss = wl
+        self.h2h = h2h
+        self.player_ages = ages
+
+    def _get_h2h_features(self, p1_name: str, p2_name: str, surface: str) -> dict:
+        """Compute H2H features for p1 vs p2."""
+        key = tuple(sorted([p1_name, p2_name]))
+        entry = self.h2h.get(key)
+
+        if entry is None:
+            return {
+                'h2h_wins_p1': 0, 'h2h_wins_p2': 0, 'h2h_total': 0,
+                'h2h_has_history': 0, 'h2h_win_rate_p1': 0.5,
+                'h2h_surface_wins_p1': 0, 'h2h_surface_total': 0,
+                'h2h_surface_win_rate_p1': 0.5,
+                'h2h_recency_p1': 0.5, 'h2h_streak_p1': 0,
+            }
+
+        p1_wins = entry['wins'].get(p1_name, 0)
+        p2_wins = entry['wins'].get(p2_name, 0)
+        total = p1_wins + p2_wins
+
+        surf_data = entry['surface_wins'].get(surface, {})
+        surf_p1 = surf_data.get(p1_name, 0)
+        surf_total = surf_data.get(p1_name, 0) + surf_data.get(p2_name, 0)
+
+        # Recency: fraction of last 5 matches won by p1
+        recent = entry['matches'][-5:]
+        if recent:
+            recent_p1_wins = sum(1 for _, w in recent if w == p1_name)
+            recency = recent_p1_wins / len(recent)
+        else:
+            recency = 0.5
+
+        # Streak: count consecutive wins from the end
+        streak = 0
+        for _, w in reversed(entry['matches']):
+            if w == p1_name:
+                streak += 1
+            elif w == p2_name:
+                streak -= 1
+                break
+            else:
+                break
+            # Only count from the end
+        # Actually, compute proper streak
+        streak = 0
+        for _, w in reversed(entry['matches']):
+            if streak == 0:
+                streak = 1 if w == p1_name else -1
+            elif (streak > 0 and w == p1_name):
+                streak += 1
+            elif (streak < 0 and w == p2_name):
+                streak -= 1
+            else:
+                break
+
+        return {
+            'h2h_wins_p1': p1_wins,
+            'h2h_wins_p2': p2_wins,
+            'h2h_total': total,
+            'h2h_has_history': 1 if total > 0 else 0,
+            'h2h_win_rate_p1': p1_wins / total if total > 0 else 0.5,
+            'h2h_surface_wins_p1': surf_p1,
+            'h2h_surface_total': surf_total,
+            'h2h_surface_win_rate_p1': surf_p1 / surf_total if surf_total > 0 else 0.5,
+            'h2h_recency_p1': recency,
+            'h2h_streak_p1': streak,
+        }
 
     # ── Player lookup ──────────────────────────────────────────────────────
 
@@ -468,7 +603,7 @@ class PredictEngine:
         surface: str = 'hard',
     ) -> pd.DataFrame:
         """
-        Construct a single-row DataFrame with 152 features for the matchup.
+        Construct a single-row DataFrame with 168 features for the matchup.
         NaN for features not computable at inference — XGBoost/LightGBM handle them.
         """
         surface = surface.lower()
@@ -721,6 +856,24 @@ class PredictEngine:
             'humidity_x_rally':         humidity_x_rally,
             'heat_x_endurance_diff':    heat_x_endurance_diff,
         }
+
+        # H2H features
+        h2h = self._get_h2h_features(p1_name, p2_name, surface)
+        row.update(h2h)
+
+        # Age & career features
+        p1_age = self.player_ages.get(p1_name, 27.0)  # median fallback
+        p2_age = self.player_ages.get(p2_name, 27.0)
+        p1_wl = self.win_loss.get(p1_name, {'wins': 0, 'losses': 0})
+        p2_wl = self.win_loss.get(p2_name, {'wins': 0, 'losses': 0})
+        p1_career = p1_wl['wins'] + p1_wl['losses']
+        p2_career = p2_wl['wins'] + p2_wl['losses']
+        row['p1_age'] = p1_age
+        row['p2_age'] = p2_age
+        row['age_diff'] = p1_age - p2_age
+        row['p1_career_matches'] = p1_career
+        row['p2_career_matches'] = p2_career
+        row['career_match_diff'] = p1_career - p2_career
 
         return pd.DataFrame([row], columns=self.feature_cols)
 

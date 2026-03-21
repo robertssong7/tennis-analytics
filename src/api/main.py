@@ -784,8 +784,8 @@ def player_matchups(
     surf_data = player_data.get(surface, {"toughest": [], "easiest": []})
 
     # Determine retirement status for each opponent
-    from datetime import date as _date
-    _latest = _date(2024, 12, 31)
+    # Use max(last_match_date) from dataset, not today's date
+    _latest = engine.latest_data_date
     _retire_days = 548  # 18 months
 
     def _is_retired(opp_name):
@@ -1049,13 +1049,13 @@ def player_scenarios(name: str):
     )
     bp_serving = player_pts[bp_serving_mask]
 
-    if len(bp_serving) >= 50 and len(serving) >= 100:
+    if len(bp_serving) >= 30 and len(serving) >= 100:
         baseline_dir = _serve_dir_dist(serving)
         scenario_dir = _serve_dir_dist(bp_serving)
         if baseline_dir and scenario_dir:
-            # Check if any direction differs by >5%
+            # Check if any direction differs by >3%
             max_diff = max(abs(scenario_dir.get(d, 0) - baseline_dir.get(d, 0)) for d in ["wide", "body", "T"])
-            if max_diff > 0.05:
+            if max_diff > 0.03:
                 # Find the direction with biggest change
                 biggest_dir = max(["wide", "body", "T"],
                                   key=lambda d: abs(scenario_dir.get(d, 0) - baseline_dir.get(d, 0)))
@@ -1088,10 +1088,10 @@ def player_scenarios(name: str):
     bp_returning = player_pts[bp_returning_mask]
     returning = player_pts[~player_pts["is_server"]]
 
-    if len(bp_returning) >= 50 and len(returning) >= 100:
+    if len(bp_returning) >= 30 and len(returning) >= 100:
         bp_wr = float(bp_returning["won_point"].mean())
         ret_wr = float(returning["won_point"].mean())
-        if abs(bp_wr - ret_wr) > 0.05:
+        if abs(bp_wr - ret_wr) > 0.03:
             scenarios.append({
                 "scenario": "Break Point Returning",
                 "description": f"Converts {int(bp_wr*100)}% of break points vs {int(ret_wr*100)}% return points normally",
@@ -1102,13 +1102,14 @@ def player_scenarios(name: str):
             })
 
     # ── Scenario 3: Tiebreak performance ──
-    tb_mask = player_pts["TbSet"].notna() & (player_pts["TbSet"] != "") & (player_pts["TbSet"] != "0")
+    # Identify tiebreak points by game score 6-6 (TbSet column is unreliable boolean)
+    tb_mask = (player_pts["Gm1"] == 6) & (player_pts["Gm2"] == 6)
     tb_pts = player_pts[tb_mask]
 
-    if len(tb_pts) >= 50:
+    if len(tb_pts) >= 30:
         tb_wr = float(tb_pts["won_point"].mean())
         overall_wr = float(player_pts["won_point"].mean())
-        if abs(tb_wr - overall_wr) > 0.05:
+        if abs(tb_wr - overall_wr) > 0.03:
             tb_serve_wr = float(tb_pts[tb_pts["is_server"]]["won_point"].mean()) if len(tb_pts[tb_pts["is_server"]]) > 10 else None
             scenarios.append({
                 "scenario": "Tiebreak Play",
@@ -1127,10 +1128,10 @@ def player_scenarios(name: str):
         short_pts = player_pts[player_pts["rally_length"] <= 3]
         long_pts = player_pts[player_pts["rally_length"] >= 9]
 
-        if len(short_pts) >= 50 and len(long_pts) >= 50:
+        if len(short_pts) >= 30 and len(long_pts) >= 30:
             short_wr = float(short_pts["won_point"].mean())
             long_wr = float(long_pts["won_point"].mean())
-            if abs(short_wr - long_wr) > 0.05:
+            if abs(short_wr - long_wr) > 0.03:
                 style = "short-rally" if short_wr > long_wr else "long-rally"
                 scenarios.append({
                     "scenario": "Rally Length Preference",
@@ -1148,11 +1149,11 @@ def player_scenarios(name: str):
     # second serve = serving point where 1st missed (2nd column is populated)
     second_serve = serving[serving["2nd"].notna() & (serving["2nd"] != "")]
 
-    if len(first_serve) >= 50 and len(second_serve) >= 50:
+    if len(first_serve) >= 30 and len(second_serve) >= 30:
         first_wr = float(first_serve["won_point"].mean())
         second_wr = float(second_serve["won_point"].mean())
         drop = first_wr - second_wr
-        if drop > 0.05:
+        if drop > 0.03:
             scenarios.append({
                 "scenario": "First vs Second Serve",
                 "description": f"Wins {int(first_wr*100)}% on 1st serve vs {int(second_wr*100)}% on 2nd serve ({int(drop*100)}pt drop)",
@@ -1172,10 +1173,10 @@ def player_scenarios(name: str):
     )
     down_set_pts = player_pts[down_set_mask]
 
-    if len(down_set_pts) >= 50:
+    if len(down_set_pts) >= 30:
         down_wr = float(down_set_pts["won_point"].mean())
         overall_wr = float(player_pts["won_point"].mean())
-        if abs(down_wr - overall_wr) > 0.05:
+        if abs(down_wr - overall_wr) > 0.03:
             scenarios.append({
                 "scenario": "Down a Set",
                 "description": f"Wins {int(down_wr*100)}% of points when trailing in sets vs {int(overall_wr*100)}% overall",
