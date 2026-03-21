@@ -160,7 +160,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
       <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">Jeff Sackmann / Tennis Abstract<br>Match Charting Project<br>Open-Meteo Historical Weather<br>ATP Tour Player Headshots</div>
     </div>
   </div>
-  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">TennisIQ &copy; 2025</p></div>
+  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;">
+    <p style="font-family:'DM Sans',sans-serif;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:6px;">Data through December 2024 &middot; Powered by Jeff Sackmann's tennis_atp dataset</p>
+    <p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">TennisIQ &copy; 2025</p>
+  </div>
 </footer>
 
 <script src="config.js"></script>
@@ -208,7 +211,7 @@ async function loadTournamentPred() {
     if (!r.ok) return;
     const d = await r.json();
     const players = (d.players || []).slice(0, 16);
-    document.getElementById('tourn-meta').textContent = d.tournament + ' ' + d.year + ' · ' + d.surface + ' · Stacked Ensemble Brier 0.1807';
+    document.getElementById('tourn-meta').textContent = d.tournament + ' ' + d.year + ' · ' + d.surface + ' · ML Prediction';
     document.getElementById('tourn-tbody').innerHTML = players.map(function(p, i) {
       const probs = p.probs || {};
       function probCell(v) {
