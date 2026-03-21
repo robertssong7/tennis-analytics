@@ -62,6 +62,7 @@ class PredictEngine:
         self.player_form: dict = {}    # player_name → {form_3, form_5, form_15, form_50, surface_form_hard/clay/grass, win_rate_vs_top50}
         self.player_names: list = []   # sorted list for fuzzy matching
         self.feature_cols: list = []   # 152 feature column names (in order)
+        self.win_loss: dict = {}       # player_name → {"wins": int, "losses": int}
         self._loaded = False
 
     @classmethod
@@ -111,6 +112,11 @@ class PredictEngine:
         logger.info("  Building player form cache from recent matches ...")
         self._build_form_cache()
         logger.info(f"  ✓ Form cache built ({len(self.player_form):,} players)")
+
+        # Build win/loss cache from all Sackmann matches
+        logger.info("  Building win/loss cache ...")
+        self._build_win_loss_cache()
+        logger.info(f"  ✓ Win/loss cache built ({len(self.win_loss):,} players)")
 
         self._loaded = True
         logger.info("PredictEngine: ready.")
@@ -267,6 +273,27 @@ class PredictEngine:
             )
 
             self.player_form[player] = form
+
+    def _build_win_loss_cache(self):
+        """Scan all Sackmann CSVs to compute wins and losses per player."""
+        wl: dict = {}
+        for csv_path in sorted(SACKMANN_DIR.glob('atp_matches_*.csv')):
+            try:
+                df = pd.read_csv(csv_path, usecols=['winner_name', 'loser_name'], low_memory=False)
+                for _, row in df.iterrows():
+                    w = row.get('winner_name')
+                    l = row.get('loser_name')
+                    if pd.isna(w) or pd.isna(l):
+                        continue
+                    if w not in wl:
+                        wl[w] = {'wins': 0, 'losses': 0}
+                    if l not in wl:
+                        wl[l] = {'wins': 0, 'losses': 0}
+                    wl[w]['wins'] += 1
+                    wl[l]['losses'] += 1
+            except Exception:
+                continue
+        self.win_loss = wl
 
     # ── Player lookup ──────────────────────────────────────────────────────
 
@@ -917,7 +944,9 @@ class PredictEngine:
             'glow_direction': rating['glow_direction'],
             'elo':            round(p1g['mu_all'], 1),
             'rd':             round(p1g['rd_all'], 1),
-            'match_count':    p1g['match_count'],
+            'match_count':    int(p1g['match_count']),
+            'wins':           int(self.win_loss.get(canonical, {}).get('wins', 0)),
+            'losses':         int(self.win_loss.get(canonical, {}).get('losses', 0)),
             'last_match':     str(p1g['last_match_date']) if p1g['last_match_date'] else None,
             'surfaces':       surfaces_out,
             'attributes':     attributes,

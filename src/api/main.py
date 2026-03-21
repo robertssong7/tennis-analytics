@@ -782,12 +782,46 @@ def player_matchups(
         surface = 'hard'
 
     surf_data = player_data.get(surface, {"toughest": [], "easiest": []})
+
+    # Determine retirement status for each opponent
+    from datetime import date as _date
+    _latest = _date(2024, 12, 31)
+    _retire_days = 548  # 18 months
+
+    def _is_retired(opp_name):
+        ratings = engine.glicko.ratings.get(opp_name, {})
+        r = ratings.get('all')
+        if r is None:
+            return True
+        if r.last_match_date is None:
+            return True
+        days_since = (_latest - r.last_match_date).days
+        return days_since > _retire_days and r.match_count > 20
+
+    def _annotate(items):
+        result = []
+        for item in items:
+            opp = item.get("opponent", "")
+            result.append({
+                "opponent": opp,
+                "player_win_prob": float(item.get("player_win_prob", 0.5)),
+                "is_retired": _is_retired(opp),
+            })
+        return result
+
+    toughest = _annotate(surf_data.get("toughest", []))
+    easiest = _annotate(surf_data.get("easiest", []))
+    toughest_active = [x for x in toughest if not x["is_retired"]]
+    easiest_active = [x for x in easiest if not x["is_retired"]]
+
     return {
         "player": canonical,
         "surface": surface,
         "available": True,
-        "toughest": surf_data.get("toughest", []),
-        "easiest": surf_data.get("easiest", []),
+        "toughest": toughest,
+        "easiest": easiest,
+        "toughest_active": toughest_active,
+        "easiest_active": easiest_active,
         "top100": grid_data.get("top100", [])
     }
 
@@ -836,32 +870,37 @@ def player_conditions(name: str):
 
     conditions = []
 
+    def _make_cond(name_str, subset, category):
+        wins = int(subset['won'].sum())
+        losses = int(len(subset) - wins)
+        return {
+            "condition": name_str,
+            "win_rate": float(round(wins / len(subset), 3)),
+            "wins": wins,
+            "losses": losses,
+            "matches": int(len(subset)),
+            "category": category
+        }
+
     # By surface
     for surface in ['Hard', 'Clay', 'Grass']:
         surf_m = all_matches[all_matches['surface'] == surface]
         if len(surf_m) >= 10:
-            wr = surf_m['won'].mean()
-            conditions.append({
-                "condition": f"{surface} Court",
-                "win_rate": round(wr, 3),
-                "matches": len(surf_m),
-                "category": "surface"
-            })
+            conditions.append(_make_cond(f"{surface} Court", surf_m, "surface"))
 
     # By tournament level
-    for level_code, level_name in [('G', 'Grand Slam'), ('M', 'Masters 1000'), ('A', 'ATP 500'), ('250', 'ATP 250')]:
-        if level_code == '250':
-            level_m = all_matches[~all_matches['tourney_level'].isin(['G', 'M', 'A', 'D', 'F'])]
-        else:
-            level_m = all_matches[all_matches['tourney_level'] == level_code]
+    level_defs = [
+        ('G', 'Grand Slam'), ('M', 'Masters 1000'), ('A', 'ATP 500'),
+        ('D', 'Davis Cup'), ('F', 'ATP Finals'),
+    ]
+    for level_code, level_name in level_defs:
+        level_m = all_matches[all_matches['tourney_level'] == level_code]
         if len(level_m) >= 10:
-            wr = level_m['won'].mean()
-            conditions.append({
-                "condition": level_name,
-                "win_rate": round(wr, 3),
-                "matches": len(level_m),
-                "category": "level"
-            })
+            conditions.append(_make_cond(level_name, level_m, "tournament_level"))
+    # ATP 250: everything not in the above codes
+    other_m = all_matches[~all_matches['tourney_level'].isin(['G', 'M', 'A', 'D', 'F'])]
+    if len(other_m) >= 10:
+        conditions.append(_make_cond('ATP 250', other_m, "tournament_level"))
 
     # By round group
     round_groups = {
@@ -874,21 +913,24 @@ def player_conditions(name: str):
     for group_name, rounds in round_groups.items():
         round_m = all_matches[all_matches['round'].isin(rounds)]
         if len(round_m) >= 10:
-            wr = round_m['won'].mean()
-            conditions.append({
-                "condition": group_name,
-                "win_rate": round(wr, 3),
-                "matches": len(round_m),
-                "category": "round"
-            })
+            conditions.append(_make_cond(group_name, round_m, "round"))
 
     conditions.sort(key=lambda x: x['win_rate'], reverse=True)
+
+    # Build by_category grouping
+    by_category = {}
+    for c in conditions:
+        cat = c['category']
+        if cat not in by_category:
+            by_category[cat] = []
+        by_category[cat].append(c)
 
     result = {
         "player": canonical,
         "available": True,
         "best": conditions[:3],
-        "worst": conditions[-3:][::-1] if len(conditions) >= 3 else []
+        "worst": conditions[-3:][::-1] if len(conditions) >= 3 else [],
+        "by_category": by_category,
     }
     _conditions_cache[name] = result
     return result
@@ -903,3 +945,254 @@ def tournament_predict(
     if not data:
         raise HTTPException(503, "Tournament predictions not precomputed. Run scripts/precompute_tournament.py")
     return data
+
+
+# ─────────────────────────────────────────────────────────────
+# Scenario patterns endpoint (Session 2A, Task 4)
+# ─────────────────────────────────────────────────────────────
+
+_scenarios_cache: dict = {}
+
+@app.get("/player/{name}/scenarios")
+def player_scenarios(name: str):
+    """
+    Analyze how a player's behavior differs in specific match scenarios
+    vs their baseline, using parsed_points.parquet charted data.
+    """
+    import pandas as pd
+    import numpy as np
+    import math as _math
+
+    if name in _scenarios_cache:
+        return _scenarios_cache[name]
+
+    engine = _get_engine()
+    canonical = engine.find_player(name)
+    if canonical is None:
+        raise HTTPException(404, f"Player not found: {name!r}")
+
+    PARQUET = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'parsed_points.parquet'
+    if not PARQUET.exists():
+        return {"player": canonical, "available": False, "reason": "Charted data file not found"}
+
+    pts = pd.read_parquet(PARQUET)
+
+    # Find player in charted data
+    all_names = sorted(set(pts["Player 1"].unique()) | set(pts["Player 2"].unique()))
+    charted_name = None
+    for n in all_names:
+        if n.lower() == canonical.lower():
+            charted_name = n
+            break
+    if charted_name is None:
+        last = canonical.split()[-1].lower()
+        candidates = [n for n in all_names if n.split()[-1].lower() == last]
+        if candidates:
+            charted_name = candidates[0]
+    if charted_name is None:
+        candidates = [n for n in all_names if canonical.lower() in n.lower() or n.lower() in canonical.lower()]
+        if candidates:
+            charted_name = candidates[0]
+
+    if charted_name is None:
+        result = {"player": canonical, "available": False,
+                  "reason": "No charted match data available"}
+        _scenarios_cache[name] = result
+        return result
+
+    # Filter to this player's points
+    mask = (pts["Player 1"] == charted_name) | (pts["Player 2"] == charted_name)
+    player_pts = pts[mask].copy()
+
+    if len(player_pts) < 100:
+        result = {"player": canonical, "available": False,
+                  "reason": "Insufficient charted data"}
+        _scenarios_cache[name] = result
+        return result
+
+    # Determine player perspective columns
+    player_pts["is_server"] = (
+        ((player_pts["Svr"] == 1) & (player_pts["Player 1"] == charted_name)) |
+        ((player_pts["Svr"] == 2) & (player_pts["Player 2"] == charted_name))
+    )
+    player_pts["won_point"] = (
+        ((player_pts["PtWinner"] == 1) & (player_pts["Player 1"] == charted_name)) |
+        ((player_pts["PtWinner"] == 2) & (player_pts["Player 2"] == charted_name))
+    )
+
+    serving = player_pts[player_pts["is_server"]]
+    scenarios = []
+
+    # Helper: compute serve direction distribution
+    def _serve_dir_dist(subset):
+        if len(subset) == 0 or "serve_direction" not in subset.columns:
+            return {}
+        vc = subset["serve_direction"].value_counts()
+        n = len(subset)
+        return {d: float(round(vc.get(d, 0) / n, 3)) for d in ["wide", "body", "T"]}
+
+    # ── Scenario 1: Break Point Serving (serve direction shift) ──
+    # Detect break points: opponent at 40, player serving
+    score = player_pts["Pts"].astype(str)
+    bp_serving_mask = (
+        player_pts["is_server"] &
+        (
+            ((player_pts["Svr"] == 1) & (
+                (score.str.match(r'^(0|15|30)-40$')) |
+                (score == "40-AD")
+            )) |
+            ((player_pts["Svr"] == 2) & (
+                (score.str.match(r'^40-(0|15|30)$')) |
+                (score == "AD-40")
+            ))
+        )
+    )
+    bp_serving = player_pts[bp_serving_mask]
+
+    if len(bp_serving) >= 50 and len(serving) >= 100:
+        baseline_dir = _serve_dir_dist(serving)
+        scenario_dir = _serve_dir_dist(bp_serving)
+        if baseline_dir and scenario_dir:
+            # Check if any direction differs by >5%
+            max_diff = max(abs(scenario_dir.get(d, 0) - baseline_dir.get(d, 0)) for d in ["wide", "body", "T"])
+            if max_diff > 0.05:
+                # Find the direction with biggest change
+                biggest_dir = max(["wide", "body", "T"],
+                                  key=lambda d: abs(scenario_dir.get(d, 0) - baseline_dir.get(d, 0)))
+                base_pct = baseline_dir.get(biggest_dir, 0)
+                scen_pct = scenario_dir.get(biggest_dir, 0)
+                direction = "more" if scen_pct > base_pct else "less"
+                scenarios.append({
+                    "scenario": "Break Point Serving",
+                    "description": f"Serves {biggest_dir} {int(scen_pct*100)}% on break points vs {int(base_pct*100)}% normally",
+                    "baseline": {k: float(v) for k, v in baseline_dir.items()},
+                    "scenario_data": {k: float(v) for k, v in scenario_dir.items()},
+                    "sample_size": int(len(bp_serving)),
+                    "significance": "notable" if max_diff > 0.10 else "moderate",
+                })
+
+    # ── Scenario 2: Break Point Returning (win rate shift) ──
+    bp_returning_mask = (
+        ~player_pts["is_server"] &
+        (
+            ((player_pts["Svr"] == 2) & (
+                (score.str.match(r'^(0|15|30)-40$')) |
+                (score == "40-AD")
+            )) |
+            ((player_pts["Svr"] == 1) & (
+                (score.str.match(r'^40-(0|15|30)$')) |
+                (score == "AD-40")
+            ))
+        )
+    )
+    bp_returning = player_pts[bp_returning_mask]
+    returning = player_pts[~player_pts["is_server"]]
+
+    if len(bp_returning) >= 50 and len(returning) >= 100:
+        bp_wr = float(bp_returning["won_point"].mean())
+        ret_wr = float(returning["won_point"].mean())
+        if abs(bp_wr - ret_wr) > 0.05:
+            scenarios.append({
+                "scenario": "Break Point Returning",
+                "description": f"Converts {int(bp_wr*100)}% of break points vs {int(ret_wr*100)}% return points normally",
+                "baseline": {"win_rate": float(round(ret_wr, 3))},
+                "scenario_data": {"win_rate": float(round(bp_wr, 3))},
+                "sample_size": int(len(bp_returning)),
+                "significance": "notable" if abs(bp_wr - ret_wr) > 0.10 else "moderate",
+            })
+
+    # ── Scenario 3: Tiebreak performance ──
+    tb_mask = player_pts["TbSet"].notna() & (player_pts["TbSet"] != "") & (player_pts["TbSet"] != "0")
+    tb_pts = player_pts[tb_mask]
+
+    if len(tb_pts) >= 50:
+        tb_wr = float(tb_pts["won_point"].mean())
+        overall_wr = float(player_pts["won_point"].mean())
+        if abs(tb_wr - overall_wr) > 0.05:
+            tb_serve_wr = float(tb_pts[tb_pts["is_server"]]["won_point"].mean()) if len(tb_pts[tb_pts["is_server"]]) > 10 else None
+            scenarios.append({
+                "scenario": "Tiebreak Play",
+                "description": f"Wins {int(tb_wr*100)}% of tiebreak points vs {int(overall_wr*100)}% overall",
+                "baseline": {"win_rate": float(round(overall_wr, 3))},
+                "scenario_data": {
+                    "win_rate": float(round(tb_wr, 3)),
+                    "serve_win_rate": float(round(tb_serve_wr, 3)) if tb_serve_wr is not None else None,
+                },
+                "sample_size": int(len(tb_pts)),
+                "significance": "notable" if abs(tb_wr - overall_wr) > 0.10 else "moderate",
+            })
+
+    # ── Scenario 4: Short rally vs Long rally (win rate by rally length) ──
+    if "rally_length" in player_pts.columns:
+        short_pts = player_pts[player_pts["rally_length"] <= 3]
+        long_pts = player_pts[player_pts["rally_length"] >= 9]
+
+        if len(short_pts) >= 50 and len(long_pts) >= 50:
+            short_wr = float(short_pts["won_point"].mean())
+            long_wr = float(long_pts["won_point"].mean())
+            if abs(short_wr - long_wr) > 0.05:
+                style = "short-rally" if short_wr > long_wr else "long-rally"
+                scenarios.append({
+                    "scenario": "Rally Length Preference",
+                    "description": f"Wins {int(short_wr*100)}% of short rallies (1-3) vs {int(long_wr*100)}% of long rallies (9+)",
+                    "baseline": {"short_rally_wr": float(round(short_wr, 3)),
+                                 "long_rally_wr": float(round(long_wr, 3))},
+                    "scenario_data": {"preferred_style": style,
+                                      "spread": float(round(abs(short_wr - long_wr), 3))},
+                    "sample_size": int(len(short_pts) + len(long_pts)),
+                    "significance": "notable" if abs(short_wr - long_wr) > 0.10 else "moderate",
+                })
+
+    # ── Scenario 5: First serve vs Second serve performance ──
+    first_serve = serving[serving["1st"].notna() & (serving["1st"] != "")]
+    # second serve = serving point where 1st missed (2nd column is populated)
+    second_serve = serving[serving["2nd"].notna() & (serving["2nd"] != "")]
+
+    if len(first_serve) >= 50 and len(second_serve) >= 50:
+        first_wr = float(first_serve["won_point"].mean())
+        second_wr = float(second_serve["won_point"].mean())
+        drop = first_wr - second_wr
+        if drop > 0.05:
+            scenarios.append({
+                "scenario": "First vs Second Serve",
+                "description": f"Wins {int(first_wr*100)}% on 1st serve vs {int(second_wr*100)}% on 2nd serve ({int(drop*100)}pt drop)",
+                "baseline": {"first_serve_wr": float(round(first_wr, 3))},
+                "scenario_data": {"second_serve_wr": float(round(second_wr, 3)),
+                                  "drop": float(round(drop, 3))},
+                "sample_size": int(len(second_serve)),
+                "significance": "notable" if drop > 0.20 else "moderate",
+            })
+
+    # ── Scenario 6: Down a set (Set1 < Set2 or Set2 < Set1 depending on player number) ──
+    # Identify when player is down a set
+    p1_mask = player_pts["Player 1"] == charted_name
+    down_set_mask = (
+        (p1_mask & (player_pts["Set1"] < player_pts["Set2"])) |
+        (~p1_mask & (player_pts["Set2"] < player_pts["Set1"]))
+    )
+    down_set_pts = player_pts[down_set_mask]
+
+    if len(down_set_pts) >= 50:
+        down_wr = float(down_set_pts["won_point"].mean())
+        overall_wr = float(player_pts["won_point"].mean())
+        if abs(down_wr - overall_wr) > 0.05:
+            scenarios.append({
+                "scenario": "Down a Set",
+                "description": f"Wins {int(down_wr*100)}% of points when trailing in sets vs {int(overall_wr*100)}% overall",
+                "baseline": {"win_rate": float(round(overall_wr, 3))},
+                "scenario_data": {"win_rate": float(round(down_wr, 3))},
+                "sample_size": int(len(down_set_pts)),
+                "significance": "notable" if abs(down_wr - overall_wr) > 0.10 else "moderate",
+            })
+
+    n_matches = int(player_pts["match_id"].nunique()) if "match_id" in player_pts.columns else 0
+
+    result = {
+        "player": canonical,
+        "available": True,
+        "matches_analyzed": n_matches,
+        "total_points": int(len(player_pts)),
+        "scenarios": scenarios,
+    }
+    _scenarios_cache[name] = result
+    return result
