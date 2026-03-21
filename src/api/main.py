@@ -840,6 +840,7 @@ def player_conditions(name: str):
         raise HTTPException(404, f"Player not found: {name!r}")
 
     SACKMANN = Path(__file__).parent.parent.parent / 'data' / 'sackmann' / 'tennis_atp'
+    CPI_CSV = Path(__file__).parent.parent.parent / 'data' / 'court_speed.csv'
 
     records = []
     for year in range(2010, 2025):
@@ -847,9 +848,8 @@ def player_conditions(name: str):
         if not csv_path.exists():
             continue
         try:
-            cols = ['winner_name', 'loser_name', 'surface', 'tourney_level', 'round', 'tourney_name']
+            cols = ['winner_name', 'loser_name', 'surface', 'tourney_level', 'round', 'tourney_name', 'tourney_date']
             df = pd.read_csv(csv_path, usecols=cols, low_memory=False)
-            # Filter to this player
             player_rows = df[(df['winner_name'] == canonical) | (df['loser_name'] == canonical)].copy()
             player_rows['won'] = player_rows['winner_name'] == canonical
             records.append(player_rows)
@@ -869,6 +869,7 @@ def player_conditions(name: str):
         return result
 
     conditions = []
+    missing_categories = []
 
     def _make_cond(name_str, subset, category):
         wins = int(subset['won'].sum())
@@ -897,7 +898,6 @@ def player_conditions(name: str):
         level_m = all_matches[all_matches['tourney_level'] == level_code]
         if len(level_m) >= 10:
             conditions.append(_make_cond(level_name, level_m, "tournament_level"))
-    # ATP 250: everything not in the above codes
     other_m = all_matches[~all_matches['tourney_level'].isin(['G', 'M', 'A', 'D', 'F'])]
     if len(other_m) >= 10:
         conditions.append(_make_cond('ATP 250', other_m, "tournament_level"))
@@ -915,6 +915,97 @@ def player_conditions(name: str):
         if len(round_m) >= 10:
             conditions.append(_make_cond(group_name, round_m, "round"))
 
+    # ── CPI / Ball Type / Environment from court_speed.csv ──
+    _cpi_map = {}   # (tourney_name_lower, year) → {cpi, ball_type, indoor}
+    if CPI_CSV.exists():
+        try:
+            cpi_df = pd.read_csv(CPI_CSV)
+            # Build tournament name mapping: court_speed "tournament" → Sackmann "tourney_name"
+            _name_map = {
+                'ATP Finals': 'ATP Finals', 'Australian Open': 'Australian Open',
+                'Canadian Open': 'Canadian Open', 'Cincinnati': 'Cincinnati Masters',
+                'Indian Wells': 'Indian Wells Masters', 'Madrid': 'Madrid Masters',
+                'Miami': 'Miami Masters', 'Monte Carlo': 'Monte Carlo Masters',
+                'Paris': 'Paris Masters', 'Roland Garros': 'Roland Garros',
+                'Rome': 'Rome Masters', 'Shanghai': 'Shanghai Masters',
+                'US Open': 'Us Open', 'Wimbledon': 'Wimbledon',
+            }
+            for _, row in cpi_df.iterrows():
+                sack_name = _name_map.get(row['tournament'], row['tournament'])
+                yr = int(row['year']) if pd.notna(row.get('year')) else 0
+                cpi_val = float(row['cpi']) if pd.notna(row.get('cpi')) and row['cpi'] > 0 else None
+                ball = str(row.get('ball_type', '')).strip().rstrip('*') if pd.notna(row.get('ball_type')) else None
+                indoor = 'Indoor' in str(row.get('surface', ''))
+                _cpi_map[(sack_name.lower(), yr)] = {'cpi': cpi_val, 'ball_type': ball, 'indoor': indoor}
+        except Exception:
+            pass
+
+    if _cpi_map:
+        # Extract year from tourney_date (YYYYMMDD)
+        all_matches['_year'] = pd.to_numeric(
+            all_matches['tourney_date'].astype(str).str[:4], errors='coerce'
+        ).fillna(0).astype(int)
+        all_matches['_tname_lower'] = all_matches['tourney_name'].str.lower()
+
+        def _lookup(row):
+            key = (row['_tname_lower'], row['_year'])
+            return _cpi_map.get(key, {})
+
+        lookups = all_matches.apply(_lookup, axis=1)
+        all_matches['_cpi'] = lookups.apply(lambda x: x.get('cpi'))
+        all_matches['_ball'] = lookups.apply(lambda x: x.get('ball_type'))
+        all_matches['_indoor'] = lookups.apply(lambda x: x.get('indoor'))
+
+        # Court speed buckets
+        cpi_matches = all_matches[all_matches['_cpi'].notna()]
+        if len(cpi_matches) >= 10:
+            for label, lo, hi in [('Slow (CPI < 30)', 0, 30), ('Medium (CPI 30-40)', 30, 40), ('Fast (CPI > 40)', 40, 100)]:
+                bucket = cpi_matches[(cpi_matches['_cpi'] >= lo) & (cpi_matches['_cpi'] < hi)]
+                if len(bucket) >= 10:
+                    conditions.append(_make_cond(label, bucket, "court_speed"))
+        else:
+            # Fallback: surface as proxy
+            for surf, label in [('Clay', 'Slow (est.)'), ('Hard', 'Medium (est.)'), ('Grass', 'Fast (est.)')]:
+                bucket = all_matches[all_matches['surface'] == surf]
+                if len(bucket) >= 10:
+                    conditions.append(_make_cond(label, bucket, "court_speed"))
+
+        # Ball type
+        ball_matches = all_matches[all_matches['_ball'].notna() & (all_matches['_ball'] != '')]
+        if len(ball_matches) >= 10:
+            for ball_name in ball_matches['_ball'].unique():
+                bucket = ball_matches[ball_matches['_ball'] == ball_name]
+                if len(bucket) >= 10:
+                    clean_name = str(ball_name).replace('*', '')
+                    conditions.append(_make_cond(clean_name, bucket, "ball_type"))
+        else:
+            missing_categories.append("ball_type")
+
+        # Environment: Indoor / Outdoor
+        env_matches = all_matches[all_matches['_indoor'].notna()]
+        if len(env_matches) >= 10:
+            indoor_m = env_matches[env_matches['_indoor'] == True]
+            outdoor_m = env_matches[env_matches['_indoor'] == False]
+            if len(indoor_m) >= 10:
+                conditions.append(_make_cond("Indoor", indoor_m, "environment"))
+            if len(outdoor_m) >= 10:
+                conditions.append(_make_cond("Outdoor", outdoor_m, "environment"))
+        else:
+            missing_categories.append("environment")
+
+        # Clean up temp columns
+        all_matches.drop(columns=['_year', '_tname_lower', '_cpi', '_ball', '_indoor'], errors='ignore', inplace=True)
+    else:
+        # No CPI data at all — use surface proxy for court speed
+        for surf, label in [('Clay', 'Slow (est.)'), ('Hard', 'Medium (est.)'), ('Grass', 'Fast (est.)')]:
+            bucket = all_matches[all_matches['surface'] == surf]
+            if len(bucket) >= 10:
+                conditions.append(_make_cond(label, bucket, "court_speed"))
+        missing_categories.extend(["ball_type", "environment"])
+
+    # Always mark weather as missing (no reliable per-match weather join)
+    missing_categories.append("weather")
+
     conditions.sort(key=lambda x: x['win_rate'], reverse=True)
 
     # Build by_category grouping
@@ -931,6 +1022,7 @@ def player_conditions(name: str):
         "best": conditions[:3],
         "worst": conditions[-3:][::-1] if len(conditions) >= 3 else [],
         "by_category": by_category,
+        "missing_categories": missing_categories,
     }
     _conditions_cache[name] = result
     return result
@@ -1021,7 +1113,16 @@ def player_scenarios(name: str):
     )
 
     serving = player_pts[player_pts["is_server"]]
+    returning = player_pts[~player_pts["is_server"]]
+    overall_wr = float(player_pts["won_point"].mean())
+    p1_mask = player_pts["Player 1"] == charted_name
     scenarios = []
+
+    def _sig(diff):
+        d = abs(diff)
+        if d > 0.10: return "notable"
+        if d > 0.05: return "moderate"
+        return "minor"
 
     # Helper: compute serve direction distribution
     def _serve_dir_dist(subset):
@@ -1031,160 +1132,289 @@ def player_scenarios(name: str):
         n = len(subset)
         return {d: float(round(vc.get(d, 0) / n, 3)) for d in ["wide", "body", "T"]}
 
-    # ── Scenario 1: Break Point Serving (serve direction shift) ──
-    # Detect break points: opponent at 40, player serving
+    # ── Break point detection helpers ──
     score = player_pts["Pts"].astype(str)
     bp_serving_mask = (
         player_pts["is_server"] &
         (
             ((player_pts["Svr"] == 1) & (
-                (score.str.match(r'^(0|15|30)-40$')) |
-                (score == "40-AD")
+                (score.str.match(r'^(0|15|30)-40$')) | (score == "40-AD")
             )) |
             ((player_pts["Svr"] == 2) & (
-                (score.str.match(r'^40-(0|15|30)$')) |
-                (score == "AD-40")
+                (score.str.match(r'^40-(0|15|30)$')) | (score == "AD-40")
             ))
         )
     )
     bp_serving = player_pts[bp_serving_mask]
 
-    if len(bp_serving) >= 30 and len(serving) >= 100:
-        baseline_dir = _serve_dir_dist(serving)
-        scenario_dir = _serve_dir_dist(bp_serving)
-        if baseline_dir and scenario_dir:
-            # Check if any direction differs by >3%
-            max_diff = max(abs(scenario_dir.get(d, 0) - baseline_dir.get(d, 0)) for d in ["wide", "body", "T"])
-            if max_diff > 0.03:
-                # Find the direction with biggest change
-                biggest_dir = max(["wide", "body", "T"],
-                                  key=lambda d: abs(scenario_dir.get(d, 0) - baseline_dir.get(d, 0)))
-                base_pct = baseline_dir.get(biggest_dir, 0)
-                scen_pct = scenario_dir.get(biggest_dir, 0)
-                direction = "more" if scen_pct > base_pct else "less"
-                scenarios.append({
-                    "scenario": "Break Point Serving",
-                    "description": f"Serves {biggest_dir} {int(scen_pct*100)}% on break points vs {int(base_pct*100)}% normally",
-                    "baseline": {k: float(v) for k, v in baseline_dir.items()},
-                    "scenario_data": {k: float(v) for k, v in scenario_dir.items()},
-                    "sample_size": int(len(bp_serving)),
-                    "significance": "notable" if max_diff > 0.10 else "moderate",
-                })
-
-    # ── Scenario 2: Break Point Returning (win rate shift) ──
     bp_returning_mask = (
         ~player_pts["is_server"] &
         (
             ((player_pts["Svr"] == 2) & (
-                (score.str.match(r'^(0|15|30)-40$')) |
-                (score == "40-AD")
+                (score.str.match(r'^(0|15|30)-40$')) | (score == "40-AD")
             )) |
             ((player_pts["Svr"] == 1) & (
-                (score.str.match(r'^40-(0|15|30)$')) |
-                (score == "AD-40")
+                (score.str.match(r'^40-(0|15|30)$')) | (score == "AD-40")
             ))
         )
     )
     bp_returning = player_pts[bp_returning_mask]
-    returning = player_pts[~player_pts["is_server"]]
 
+    # ── S1: Break Point Serving (serve direction shift) ──
+    if len(bp_serving) >= 30 and len(serving) >= 100:
+        baseline_dir = _serve_dir_dist(serving)
+        scenario_dir = _serve_dir_dist(bp_serving)
+        if baseline_dir and scenario_dir:
+            max_diff = max(abs(scenario_dir.get(d, 0) - baseline_dir.get(d, 0)) for d in ["wide", "body", "T"])
+            if max_diff > 0.03:
+                biggest_dir = max(["wide", "body", "T"],
+                                  key=lambda d: abs(scenario_dir.get(d, 0) - baseline_dir.get(d, 0)))
+                scenarios.append({
+                    "scenario": "Break Point Serving",
+                    "category": "serve_pressure",
+                    "description": f"Serves {biggest_dir} {int(scenario_dir.get(biggest_dir,0)*100)}% on break points vs {int(baseline_dir.get(biggest_dir,0)*100)}% normally",
+                    "baseline": {k: float(v) for k, v in baseline_dir.items()},
+                    "scenario_data": {k: float(v) for k, v in scenario_dir.items()},
+                    "sample_size": int(len(bp_serving)),
+                    "significance": _sig(max_diff),
+                    "surface": None,
+                })
+
+    # ── S2: Break Point Returning ──
     if len(bp_returning) >= 30 and len(returning) >= 100:
         bp_wr = float(bp_returning["won_point"].mean())
         ret_wr = float(returning["won_point"].mean())
-        if abs(bp_wr - ret_wr) > 0.03:
+        diff = bp_wr - ret_wr
+        if abs(diff) > 0.03:
             scenarios.append({
                 "scenario": "Break Point Returning",
+                "category": "serve_pressure",
                 "description": f"Converts {int(bp_wr*100)}% of break points vs {int(ret_wr*100)}% return points normally",
                 "baseline": {"win_rate": float(round(ret_wr, 3))},
                 "scenario_data": {"win_rate": float(round(bp_wr, 3))},
                 "sample_size": int(len(bp_returning)),
-                "significance": "notable" if abs(bp_wr - ret_wr) > 0.10 else "moderate",
+                "significance": _sig(diff),
+                "surface": None,
             })
 
-    # ── Scenario 3: Tiebreak performance ──
-    # Identify tiebreak points by game score 6-6 (TbSet column is unreliable boolean)
+    # ── S3: First serve % under pressure ──
+    if len(bp_serving) >= 30 and len(serving) >= 100:
+        bp_first_pct = float((bp_serving["2nd"].isna() | (bp_serving["2nd"] == "")).mean())
+        all_first_pct = float((serving["2nd"].isna() | (serving["2nd"] == "")).mean())
+        diff_pct = bp_first_pct - all_first_pct
+        if abs(diff_pct) > 0.03:
+            scenarios.append({
+                "scenario": "First Serve % Under Pressure",
+                "category": "serve_pressure",
+                "description": f"Lands {int(bp_first_pct*100)}% first serves on break points vs {int(all_first_pct*100)}% normally",
+                "baseline": {"first_serve_pct": float(round(all_first_pct, 3))},
+                "scenario_data": {"first_serve_pct": float(round(bp_first_pct, 3))},
+                "sample_size": int(len(bp_serving)),
+                "significance": _sig(diff_pct),
+                "surface": None,
+            })
+
+    # ── S4: Tiebreak performance ──
     tb_mask = (player_pts["Gm1"] == 6) & (player_pts["Gm2"] == 6)
     tb_pts = player_pts[tb_mask]
-
     if len(tb_pts) >= 30:
         tb_wr = float(tb_pts["won_point"].mean())
-        overall_wr = float(player_pts["won_point"].mean())
-        if abs(tb_wr - overall_wr) > 0.03:
-            tb_serve_wr = float(tb_pts[tb_pts["is_server"]]["won_point"].mean()) if len(tb_pts[tb_pts["is_server"]]) > 10 else None
+        diff = tb_wr - overall_wr
+        if abs(diff) > 0.03:
             scenarios.append({
                 "scenario": "Tiebreak Play",
+                "category": "match_situation",
                 "description": f"Wins {int(tb_wr*100)}% of tiebreak points vs {int(overall_wr*100)}% overall",
                 "baseline": {"win_rate": float(round(overall_wr, 3))},
-                "scenario_data": {
-                    "win_rate": float(round(tb_wr, 3)),
-                    "serve_win_rate": float(round(tb_serve_wr, 3)) if tb_serve_wr is not None else None,
-                },
+                "scenario_data": {"win_rate": float(round(tb_wr, 3))},
                 "sample_size": int(len(tb_pts)),
-                "significance": "notable" if abs(tb_wr - overall_wr) > 0.10 else "moderate",
+                "significance": _sig(diff),
+                "surface": None,
             })
 
-    # ── Scenario 4: Short rally vs Long rally (win rate by rally length) ──
+    # ── S5: Rally Length (4-band) ──
     if "rally_length" in player_pts.columns:
-        short_pts = player_pts[player_pts["rally_length"] <= 3]
-        long_pts = player_pts[player_pts["rally_length"] >= 9]
-
-        if len(short_pts) >= 30 and len(long_pts) >= 30:
-            short_wr = float(short_pts["won_point"].mean())
-            long_wr = float(long_pts["won_point"].mean())
-            if abs(short_wr - long_wr) > 0.03:
-                style = "short-rally" if short_wr > long_wr else "long-rally"
+        bands = [("Short (1-3)", 1, 3), ("Medium (4-6)", 4, 6), ("Long (7-9)", 7, 9), ("Very Long (10+)", 10, 999)]
+        band_results = []
+        for label, lo, hi in bands:
+            b = player_pts[(player_pts["rally_length"] >= lo) & (player_pts["rally_length"] <= hi)]
+            if len(b) >= 30:
+                band_results.append((label, float(b["won_point"].mean()), int(len(b))))
+        if len(band_results) >= 2:
+            best = max(band_results, key=lambda x: x[1])
+            worst = min(band_results, key=lambda x: x[1])
+            spread = best[1] - worst[1]
+            if spread > 0.03:
                 scenarios.append({
                     "scenario": "Rally Length Preference",
-                    "description": f"Wins {int(short_wr*100)}% of short rallies (1-3) vs {int(long_wr*100)}% of long rallies (9+)",
-                    "baseline": {"short_rally_wr": float(round(short_wr, 3)),
-                                 "long_rally_wr": float(round(long_wr, 3))},
-                    "scenario_data": {"preferred_style": style,
-                                      "spread": float(round(abs(short_wr - long_wr), 3))},
-                    "sample_size": int(len(short_pts) + len(long_pts)),
-                    "significance": "notable" if abs(short_wr - long_wr) > 0.10 else "moderate",
+                    "category": "rally_patterns",
+                    "description": f"Strongest in {best[0]} rallies ({int(best[1]*100)}%), weakest in {worst[0]} ({int(worst[1]*100)}%)",
+                    "baseline": {r[0]: float(round(r[1], 3)) for r in band_results},
+                    "scenario_data": {"best_band": best[0], "best_wr": float(round(best[1], 3)),
+                                      "worst_band": worst[0], "worst_wr": float(round(worst[1], 3))},
+                    "sample_size": int(sum(r[2] for r in band_results)),
+                    "significance": _sig(spread),
+                    "surface": None,
                 })
 
-    # ── Scenario 5: First serve vs Second serve performance ──
-    first_serve = serving[serving["1st"].notna() & (serving["1st"] != "")]
-    # second serve = serving point where 1st missed (2nd column is populated)
-    second_serve = serving[serving["2nd"].notna() & (serving["2nd"] != "")]
+    # ── S6: Net approach success ──
+    if "last_shot_type" in player_pts.columns:
+        volley_types = ['fh_volley', 'bh_volley', 'fh_half_volley']
+        net_pts = player_pts[player_pts["last_shot_type"].isin(volley_types)]
+        non_net = player_pts[~player_pts["last_shot_type"].isin(volley_types)]
+        if len(net_pts) >= 30 and len(non_net) >= 100:
+            net_wr = float(net_pts["won_point"].mean())
+            base_wr = float(non_net["won_point"].mean())
+            diff = net_wr - base_wr
+            if abs(diff) > 0.03:
+                scenarios.append({
+                    "scenario": "Net Approach",
+                    "category": "rally_patterns",
+                    "description": f"Wins {int(net_wr*100)}% of net points vs {int(base_wr*100)}% at baseline",
+                    "baseline": {"win_rate": float(round(base_wr, 3))},
+                    "scenario_data": {"win_rate": float(round(net_wr, 3)),
+                                      "net_points": int(len(net_pts))},
+                    "sample_size": int(len(net_pts)),
+                    "significance": _sig(diff),
+                    "surface": None,
+                })
 
+    # ── S7: First vs Second Serve ──
+    first_serve = serving[serving["2nd"].isna() | (serving["2nd"] == "")]
+    second_serve = serving[serving["2nd"].notna() & (serving["2nd"] != "")]
     if len(first_serve) >= 30 and len(second_serve) >= 30:
         first_wr = float(first_serve["won_point"].mean())
-        second_wr = float(second_serve["won_point"].mean())
-        drop = first_wr - second_wr
+        second_wr_val = float(second_serve["won_point"].mean())
+        drop = first_wr - second_wr_val
         if drop > 0.03:
             scenarios.append({
                 "scenario": "First vs Second Serve",
-                "description": f"Wins {int(first_wr*100)}% on 1st serve vs {int(second_wr*100)}% on 2nd serve ({int(drop*100)}pt drop)",
+                "category": "serve_pressure",
+                "description": f"Wins {int(first_wr*100)}% on 1st serve vs {int(second_wr_val*100)}% on 2nd ({int(drop*100)}pt drop)",
                 "baseline": {"first_serve_wr": float(round(first_wr, 3))},
-                "scenario_data": {"second_serve_wr": float(round(second_wr, 3)),
+                "scenario_data": {"second_serve_wr": float(round(second_wr_val, 3)),
                                   "drop": float(round(drop, 3))},
                 "sample_size": int(len(second_serve)),
-                "significance": "notable" if drop > 0.20 else "moderate",
+                "significance": _sig(drop),
+                "surface": None,
             })
 
-    # ── Scenario 6: Down a set (Set1 < Set2 or Set2 < Set1 depending on player number) ──
-    # Identify when player is down a set
-    p1_mask = player_pts["Player 1"] == charted_name
+    # ── S8: Return performance (1st vs 2nd serve return) ──
+    # When returning, check if opponent was on 1st or 2nd serve
+    ret_vs_first = returning[returning["2nd"].isna() | (returning["2nd"] == "")]
+    ret_vs_second = returning[returning["2nd"].notna() & (returning["2nd"] != "")]
+    if len(ret_vs_first) >= 30 and len(ret_vs_second) >= 30:
+        r1_wr = float(ret_vs_first["won_point"].mean())
+        r2_wr = float(ret_vs_second["won_point"].mean())
+        diff = r2_wr - r1_wr
+        if abs(diff) > 0.03:
+            scenarios.append({
+                "scenario": "Return Game",
+                "category": "rally_patterns",
+                "description": f"Wins {int(r2_wr*100)}% vs 2nd serves vs {int(r1_wr*100)}% vs 1st serves",
+                "baseline": {"vs_first_serve_wr": float(round(r1_wr, 3))},
+                "scenario_data": {"vs_second_serve_wr": float(round(r2_wr, 3))},
+                "sample_size": int(len(ret_vs_first) + len(ret_vs_second)),
+                "significance": _sig(diff),
+                "surface": None,
+            })
+
+    # ── S9: Down a set resilience ──
     down_set_mask = (
         (p1_mask & (player_pts["Set1"] < player_pts["Set2"])) |
         (~p1_mask & (player_pts["Set2"] < player_pts["Set1"]))
     )
     down_set_pts = player_pts[down_set_mask]
-
     if len(down_set_pts) >= 30:
         down_wr = float(down_set_pts["won_point"].mean())
-        overall_wr = float(player_pts["won_point"].mean())
-        if abs(down_wr - overall_wr) > 0.03:
+        diff = down_wr - overall_wr
+        if abs(diff) > 0.03:
             scenarios.append({
                 "scenario": "Down a Set",
+                "category": "match_situation",
                 "description": f"Wins {int(down_wr*100)}% of points when trailing in sets vs {int(overall_wr*100)}% overall",
                 "baseline": {"win_rate": float(round(overall_wr, 3))},
                 "scenario_data": {"win_rate": float(round(down_wr, 3))},
                 "sample_size": int(len(down_set_pts)),
-                "significance": "notable" if abs(down_wr - overall_wr) > 0.10 else "moderate",
+                "significance": _sig(diff),
+                "surface": None,
             })
+
+    # ── S10: First set advantage ──
+    # Points where player won the first set (Set1>Set2 if p1, Set2>Set1 if p2)
+    # and we're in set 2+ (Set1+Set2 >= 1)
+    won_first_set = (
+        (p1_mask & (player_pts["Set1"] > player_pts["Set2"]) & (player_pts["Set1"] + player_pts["Set2"] >= 1)) |
+        (~p1_mask & (player_pts["Set2"] > player_pts["Set1"]) & (player_pts["Set1"] + player_pts["Set2"] >= 1))
+    )
+    lost_first_set = (
+        (p1_mask & (player_pts["Set1"] < player_pts["Set2"]) & (player_pts["Set1"] + player_pts["Set2"] >= 1)) |
+        (~p1_mask & (player_pts["Set2"] < player_pts["Set1"]) & (player_pts["Set1"] + player_pts["Set2"] >= 1))
+    )
+    wf = player_pts[won_first_set]
+    lf = player_pts[lost_first_set]
+    if len(wf) >= 30 and len(lf) >= 30:
+        wf_wr = float(wf["won_point"].mean())
+        lf_wr = float(lf["won_point"].mean())
+        diff = wf_wr - lf_wr
+        if abs(diff) > 0.03:
+            scenarios.append({
+                "scenario": "First Set Impact",
+                "category": "match_situation",
+                "description": f"Wins {int(wf_wr*100)}% when ahead in sets vs {int(lf_wr*100)}% when behind",
+                "baseline": {"ahead_wr": float(round(wf_wr, 3))},
+                "scenario_data": {"behind_wr": float(round(lf_wr, 3))},
+                "sample_size": int(len(wf) + len(lf)),
+                "significance": _sig(diff),
+                "surface": None,
+            })
+
+    # ── S11: Final set performance ──
+    best_of_3 = player_pts["Best of"].astype(str) == "3"
+    best_of_5 = player_pts["Best of"].astype(str) == "5"
+    decider_mask = (
+        (best_of_3 & (player_pts["Set1"] == 1) & (player_pts["Set2"] == 1)) |
+        (best_of_5 & (player_pts["Set1"] == 2) & (player_pts["Set2"] == 2))
+    )
+    decider_pts = player_pts[decider_mask]
+    if len(decider_pts) >= 30:
+        dec_wr = float(decider_pts["won_point"].mean())
+        diff = dec_wr - overall_wr
+        if abs(diff) > 0.03:
+            scenarios.append({
+                "scenario": "Deciding Set",
+                "category": "match_situation",
+                "description": f"Wins {int(dec_wr*100)}% of points in deciding sets vs {int(overall_wr*100)}% overall",
+                "baseline": {"win_rate": float(round(overall_wr, 3))},
+                "scenario_data": {"win_rate": float(round(dec_wr, 3))},
+                "sample_size": int(len(decider_pts)),
+                "significance": _sig(diff),
+                "surface": None,
+            })
+
+    # ── S12: Surface-specific serve patterns ──
+    if "Surface" in player_pts.columns and "serve_direction" in player_pts.columns:
+        baseline_dir = _serve_dir_dist(serving)
+        if baseline_dir:
+            for surf_name in ["Hard", "Clay", "Grass"]:
+                surf_serving = serving[player_pts.loc[serving.index, "Surface"] == surf_name]
+                if len(surf_serving) >= 30:
+                    surf_dir = _serve_dir_dist(surf_serving)
+                    if surf_dir:
+                        max_diff = max(abs(surf_dir.get(d, 0) - baseline_dir.get(d, 0)) for d in ["wide", "body", "T"])
+                        if max_diff > 0.03:
+                            biggest_dir = max(["wide", "body", "T"],
+                                              key=lambda d: abs(surf_dir.get(d, 0) - baseline_dir.get(d, 0)))
+                            scenarios.append({
+                                "scenario": f"Serve Pattern on {surf_name}",
+                                "category": "surface_patterns",
+                                "description": f"Serves {biggest_dir} {int(surf_dir.get(biggest_dir,0)*100)}% on {surf_name.lower()} vs {int(baseline_dir.get(biggest_dir,0)*100)}% overall",
+                                "baseline": {k: float(v) for k, v in baseline_dir.items()},
+                                "scenario_data": {k: float(v) for k, v in surf_dir.items()},
+                                "sample_size": int(len(surf_serving)),
+                                "significance": _sig(max_diff),
+                                "surface": surf_name,
+                            })
 
     n_matches = int(player_pts["match_id"].nunique()) if "match_id" in player_pts.columns else 0
 
