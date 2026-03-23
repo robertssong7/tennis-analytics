@@ -40,6 +40,7 @@ table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card
 <div class="page">
 <div class="pt">Court Speed & Tournament Intel</div>
 <div class="ps">Court Pace Index (CPI) data from 14 major ATP tournaments, 2012-2026. Sourced from courtspeed.com (CC BY 4.0).</div>
+<div id="cpi-legend-top"></div>
 <div id="sum" class="sum-cards"></div>
 <div id="tgrid" class="tg"></div>
 <div class="cpi-sec"><div class="cpi-t">All CPI Measurements</div><div class="cpi-s">Court Pace Index — higher is faster. Click column headers to sort.</div>
@@ -79,24 +80,25 @@ function sc(s){if(!s)return'hard';const l=s.toLowerCase();return l.includes('cla
 function isIndoor(s,n){if(s&&s.toLowerCase().includes('indoor'))return true;if(n){var nl=n.toLowerCase();for(var i=0;i<INDOOR_TOURNS.length;i++){if(nl.includes(INDOOR_TOURNS[i]))return true;}}return false;}
 function speedColor(cpi){if(cpi>44)return'#A4F8C8';if(cpi>39)return'#A4C8F8';if(cpi>34)return'#F8F4A4';if(cpi>29)return'#F8D4A4';return'#F8B4B4';}
 function speedLabel(cpi){if(cpi>44)return'Fast';if(cpi>39)return'Med-Fast';if(cpi>34)return'Medium';if(cpi>29)return'Med-Slow';return'Slow';}
-async function init(){try{const r=await fetch(`${API}/court-speed`);const d=await r.json();renderSum(d);renderGrid(d);renderTable(d);}catch(e){document.getElementById('tgrid').innerHTML='<div style="color:var(--ink-soft);padding:40px;">Start the API to load CPI data.</div>';}}
-function renderSum(d){const s={};d.forEach(r=>{const sf=r.surface||'Hard Court';if(!s[sf])s[sf]={n:sf,v:[]};if(r.cpi>0)s[sf].v.push(r.cpi);});
-document.getElementById('sum').innerHTML=Object.values(s).map(sf=>{const avg=sf.v.length?sf.v.reduce((a,b)=>a+b)/sf.v.length:0;return`<div class="sum-c"><div class="sum-sf"><span class="sum-dot sdot ${sc(sf.n)}"></span>${sf.n}</div><div class="sum-cpi">${avg.toFixed(1)}</div><div class="sum-lb">Average CPI</div></div>`;}).join('');}
-function renderGrid(d){const bt={};d.forEach(r=>{if(!bt[r.tournament])bt[r.tournament]={n:r.tournament,sf:r.surface,loc:r.location,rows:[]};bt[r.tournament].rows.push(r);});
-// Sort by most recent year (descending)
-var tournList=Object.values(bt).sort(function(a,b){var ay=Math.max(...a.rows.map(function(r){return r.year;}));var by=Math.max(...b.rows.map(function(r){return r.year;}));return by-ay;});
-// Add CPI speed legend
-var legendHtml='<div class="cpi-legend"><span style="font-weight:500;margin-right:4px;">Speed:</span>'
+// Calendar month order for sorting (typical month each tournament is held)
+var TOURN_MONTH={'Australian Open':1,'Rotterdam':2,'Marseille':2,'Indian Wells':3,'Miami':3,'Monte Carlo':4,'Madrid':5,'Rome':5,'Roland Garros':6,'Wimbledon':7,'Canadian Open':8,'Cincinnati':8,'US Open':9,'Shanghai':10,'Basel':10,'Vienna':10,'Paris':11,'ATP Finals':11,'Stockholm':10,'Sofia':9,'Antwerp':10};
+function tournMonth(name){for(var k in TOURN_MONTH){if(name.toLowerCase().indexOf(k.toLowerCase())>=0)return TOURN_MONTH[k];}return 6;}
+async function init(){try{const r=await fetch(`${API}/court-speed`);const d=await r.json();renderLegend();renderSum(d);renderGrid(d);renderTable(d);}catch(e){document.getElementById('tgrid').innerHTML='<div style="color:var(--ink-soft);padding:40px;">Start the API to load CPI data.</div>';}}
+function renderLegend(){document.getElementById('cpi-legend-top').innerHTML='<div class="cpi-legend" style="margin-bottom:24px;"><span style="font-weight:500;margin-right:4px;">Court Speed:</span>'
 +'<div class="cpi-leg-item"><div class="cpi-leg-dot" style="background:#F8B4B4;"></div>Slow (&lt;30)</div>'
 +'<div class="cpi-leg-item"><div class="cpi-leg-dot" style="background:#F8D4A4;"></div>Med-Slow (30-34)</div>'
 +'<div class="cpi-leg-item"><div class="cpi-leg-dot" style="background:#F8F4A4;"></div>Medium (35-39)</div>'
 +'<div class="cpi-leg-item"><div class="cpi-leg-dot" style="background:#A4C8F8;"></div>Med-Fast (40-44)</div>'
-+'<div class="cpi-leg-item"><div class="cpi-leg-dot" style="background:#A4F8C8;"></div>Fast (&gt;44)</div>'
-+'</div>';
-document.getElementById('tgrid').innerHTML=legendHtml+tournList.map(function(t){var cpis=t.rows.filter(function(r){return r.cpi>0;}).map(function(r){return r.cpi;});var avg=cpis.length?cpis.reduce(function(a,b){return a+b;})/cpis.length:0;var latest=t.rows.sort(function(a,b){return b.year-a.year;})[0];var yrs=t.rows.map(function(r){return r.year;});var lvl=LEVELS[t.n]||'ATP';
++'<div class="cpi-leg-item"><div class="cpi-leg-dot" style="background:#A4F8C8;"></div>Fast (&gt;44)</div></div>';}
+function renderSum(d){const s={};d.forEach(r=>{const sf=r.surface||'Hard Court';if(!s[sf])s[sf]={n:sf,v:[]};if(r.cpi>0)s[sf].v.push(r.cpi);});
+document.getElementById('sum').innerHTML=Object.values(s).map(sf=>{const avg=sf.v.length?sf.v.reduce((a,b)=>a+b)/sf.v.length:0;return`<div class="sum-c"><div class="sum-sf"><span class="sum-dot sdot ${sc(sf.n)}"></span>${sf.n}</div><div class="sum-cpi">${avg.toFixed(1)}</div><div class="sum-lb">Average CPI</div></div>`;}).join('');}
+function renderGrid(d){const bt={};d.forEach(r=>{if(!bt[r.tournament])bt[r.tournament]={n:r.tournament,sf:r.surface,loc:r.location,rows:[]};bt[r.tournament].rows.push(r);});
+// Sort by calendar month (chronological Jan→Dec)
+var tournList=Object.values(bt).sort(function(a,b){return tournMonth(a.n)-tournMonth(b.n);});
+document.getElementById('tgrid').innerHTML=tournList.map(function(t){var cpis=t.rows.filter(function(r){return r.cpi>0;}).map(function(r){return r.cpi;});var avg=cpis.length?cpis.reduce(function(a,b){return a+b;})/cpis.length:0;var latest=t.rows.sort(function(a,b){return b.year-a.year;})[0];var yrs=t.rows.map(function(r){return r.year;});var lvl=LEVELS[t.n]||'ATP';
 var indoor=isIndoor(t.sf,t.n);var ioPill=indoor?'<span class="io-pill indoor">Indoor</span>':'<span class="io-pill outdoor">Outdoor</span>';
-var speedBub=avg>0?'<span class="speed-bubble" style="background:'+speedColor(avg)+'" title="'+speedLabel(avg)+' ('+avg.toFixed(1)+')"></span>':'';
-return'<div class="tc"><div class="tc-ban '+sc(t.sf)+'"><div><div class="tc-nm">'+t.n+speedBub+'</div><div class="tc-loc">'+(t.loc||'')+'</div></div><div style="display:flex;gap:6px;align-items:center;">'+ioPill+'<div class="tc-lvl">'+lvl+'</div></div></div><div class="tc-body"><div class="tc-stats"><div class="tc-st"><div class="tsv">'+(avg>0?avg.toFixed(1):'—')+'</div><div class="tsl">Avg CPI</div></div><div class="tc-st"><div class="tsv">'+(latest.ball_type||'—')+'</div><div class="tsl">Ball</div></div><div class="tc-st"><div class="tsv">'+(latest.elevation||'—')+'</div><div class="tsl">Elev</div></div></div><div class="tc-yr">'+Math.min.apply(null,yrs)+'–'+Math.max.apply(null,yrs)+' · '+cpis.length+' measurements</div></div></div>';}).join('');}
+var cpiBadge=avg>0?'<span style="display:inline-block;background:'+speedColor(avg)+';padding:4px 10px;border-radius:6px;font-family:\'Playfair Display\',serif;font-weight:700;font-size:16px;color:var(--ink);">'+avg.toFixed(1)+'</span><span style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--ink-soft);margin-top:2px;display:block;">'+speedLabel(avg)+'</span>':'<span class="tsv">—</span>';
+return'<div class="tc"><div class="tc-ban '+sc(t.sf)+'"><div><div class="tc-nm">'+t.n+'</div><div class="tc-loc">'+(t.loc||'')+'</div></div><div style="display:flex;gap:6px;align-items:center;">'+ioPill+'<div class="tc-lvl">'+lvl+'</div></div></div><div class="tc-body"><div class="tc-stats"><div class="tc-st">'+cpiBadge+'<div class="tsl">CPI</div></div><div class="tc-st"><div class="tsv">'+(latest.ball_type||'—')+'</div><div class="tsl">Ball</div></div><div class="tc-st"><div class="tsv">'+(latest.elevation||'—')+'</div><div class="tsl">Elev</div></div></div><div class="tc-yr">'+Math.min.apply(null,yrs)+'–'+Math.max.apply(null,yrs)+' · '+cpis.length+' measurements</div></div></div>';}).join('');}
 function renderTable(d){const sorted=[...d].sort((a,b)=>b.year-a.year||a.tournament.localeCompare(b.tournament));
 document.getElementById('tbody').innerHTML=sorted.map(r=>`<tr><td><span class="sdot ${sc(r.surface)}"></span>${r.tournament}</td><td>${r.year}</td><td>${r.surface||'—'}</td><td><span class="cpv ${r.cpi>40?'fast':r.cpi<28?'slow':''}">${r.cpi>0?r.cpi:'—'}</span></td><td>${r.ace_rate?r.ace_rate+'%':'—'}</td><td>${r.ball_type||'—'}</td><td>${r.elevation||'—'}</td><td>${r.winner||'—'}</td></tr>`).join('');
 document.querySelectorAll('th').forEach((th,i)=>{th.addEventListener('click',()=>{const rows=[...document.querySelectorAll('#tbody tr')];const asc=th.dataset.asc==='true';rows.sort((a,b)=>{const av=a.children[i].textContent.trim(),bv=b.children[i].textContent.trim(),an=parseFloat(av),bn=parseFloat(bv);if(!isNaN(an)&&!isNaN(bn))return asc?an-bn:bn-an;return asc?av.localeCompare(bv):bv.localeCompare(av);});th.dataset.asc=String(!asc);const tb=document.getElementById('tbody');rows.forEach(r=>tb.appendChild(r));});});}
