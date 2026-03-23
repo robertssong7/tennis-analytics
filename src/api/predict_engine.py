@@ -45,6 +45,61 @@ RETIREMENT_THRESHOLD_DAYS = 548
 # Fallback to Dec 2024 if Glicko hasn't loaded yet.
 LATEST_DATA_DATE = date(2024, 12, 31)
 
+SUPPLEMENTAL_CSV = DATA_DIR / 'supplemental_matches_2025_2026.csv'
+
+
+def _build_supplemental_name_map(glicko_names: list) -> dict:
+    """
+    Build mapping from tennis-data.co.uk format ("Sinner J.") to canonical
+    Sackmann/Glicko names ("Jannik Sinner") using last name + first initial.
+
+    Returns dict: { "Sinner J." : "Jannik Sinner", ... }
+    """
+    # Build a lookup: (last_name_lower, first_initial_lower) -> list of canonical names
+    canonical_by_key = {}
+    for name in glicko_names:
+        parts = name.split()
+        if len(parts) < 2:
+            continue
+        first_name = parts[0]
+        last_name = ' '.join(parts[1:])
+        key = (last_name.lower(), first_name[0].lower())
+        if key not in canonical_by_key:
+            canonical_by_key[key] = []
+        canonical_by_key[key].append(name)
+
+    suppl_csv = SUPPLEMENTAL_CSV
+    if not suppl_csv.exists():
+        return {}
+
+    df = pd.read_csv(suppl_csv, usecols=['winner_name', 'loser_name'])
+    all_suppl_names = sorted(
+        set(df['winner_name'].dropna().unique()) | set(df['loser_name'].dropna().unique())
+    )
+
+    name_map = {}
+    for sname in all_suppl_names:
+        sname = str(sname).strip()
+        if not sname or sname == 'nan':
+            continue
+        # Format: "LastName F." or "Hyphen-Last F." or "Two Word F."
+        parts = sname.rsplit(' ', 1)
+        if len(parts) != 2:
+            continue
+        last_part = parts[0].strip()
+        initial_part = parts[1].strip().rstrip('.')
+        if not initial_part:
+            continue
+        key = (last_part.lower(), initial_part[0].lower())
+        candidates = canonical_by_key.get(key, [])
+        if len(candidates) == 1:
+            name_map[sname] = candidates[0]
+        elif len(candidates) > 1:
+            # Multiple matches (e.g. "Zverev A." could be Alexander or Mischa)
+            # Pick the one with best Glicko rating (most relevant)
+            name_map[sname] = candidates[0]  # they're sorted by insertion order
+    return name_map
+
 
 # ── Singleton ────────────────────────────────────────────────────────────────
 
@@ -121,6 +176,19 @@ class PredictEngine:
         else:
             self.latest_data_date = LATEST_DATA_DATE
             logger.info(f"  ✓ Latest data date: {LATEST_DATA_DATE} (fallback)")
+
+        # Check supplemental data for a later date
+        if SUPPLEMENTAL_CSV.exists():
+            try:
+                sup_df = pd.read_csv(SUPPLEMENTAL_CSV, usecols=['tourney_date'])
+                sup_max = sup_df['tourney_date'].dropna().astype(int).max()
+                sup_date = pd.to_datetime(str(sup_max), format='%Y%m%d').date()
+                if sup_date > LATEST_DATA_DATE:
+                    LATEST_DATA_DATE = sup_date
+                    self.latest_data_date = sup_date
+                    logger.info(f"  ✓ Latest data date updated to {LATEST_DATA_DATE} (from supplemental CSV)")
+            except Exception as e:
+                logger.warning(f"  Could not parse supplemental dates: {e}")
 
         with open(DATA_DIR / 'player_attributes_v2.pkl', 'rb') as f:
             self.attributes = pickle.load(f)
@@ -336,12 +404,41 @@ class PredictEngine:
             self.player_form[player] = form
 
     def _build_match_caches(self):
-        """Scan all Sackmann CSVs to build win/loss, H2H, and age caches."""
+        """Scan all Sackmann CSVs + supplemental CSV to build win/loss, H2H, and age caches."""
         wl: dict = {}
         h2h: dict = {}
         ages: dict = {}
         use_cols = ['winner_name', 'loser_name', 'surface', 'tourney_date',
                     'winner_age', 'loser_age']
+
+        def _process_match(w, l, surf, tdate, w_age=None, l_age=None):
+            """Process a single match into wl, h2h, ages."""
+            if w not in wl:
+                wl[w] = {'wins': 0, 'losses': 0}
+            if l not in wl:
+                wl[l] = {'wins': 0, 'losses': 0}
+            wl[w]['wins'] += 1
+            wl[l]['losses'] += 1
+
+            if w_age is not None:
+                ages[w] = float(w_age)
+            if l_age is not None:
+                ages[l] = float(l_age)
+
+            key = tuple(sorted([w, l]))
+            if key not in h2h:
+                h2h[key] = {
+                    'wins': {key[0]: 0, key[1]: 0},
+                    'surface_wins': {},
+                    'matches': [],
+                }
+            entry = h2h[key]
+            entry['wins'][w] = entry['wins'].get(w, 0) + 1
+            if surf:
+                if surf not in entry['surface_wins']:
+                    entry['surface_wins'][surf] = {key[0]: 0, key[1]: 0}
+                entry['surface_wins'][surf][w] = entry['surface_wins'][surf].get(w, 0) + 1
+            entry['matches'].append((tdate, w))
 
         for csv_path in sorted(SACKMANN_DIR.glob('atp_matches_*.csv')):
             try:
@@ -355,38 +452,34 @@ class PredictEngine:
                 l = row['loser_name']
                 surf = str(row.get('surface', '')).lower()
                 tdate = int(row['tourney_date']) if pd.notna(row.get('tourney_date')) else 0
+                w_age = float(row['winner_age']) if pd.notna(row.get('winner_age')) else None
+                l_age = float(row['loser_age']) if pd.notna(row.get('loser_age')) else None
+                _process_match(w, l, surf, tdate, w_age, l_age)
 
-                # Win/loss
-                if w not in wl:
-                    wl[w] = {'wins': 0, 'losses': 0}
-                if l not in wl:
-                    wl[l] = {'wins': 0, 'losses': 0}
-                wl[w]['wins'] += 1
-                wl[l]['losses'] += 1
-
-                # Age (keep the latest)
-                w_age = row.get('winner_age')
-                l_age = row.get('loser_age')
-                if pd.notna(w_age):
-                    ages[w] = float(w_age)
-                if pd.notna(l_age):
-                    ages[l] = float(l_age)
-
-                # H2H
-                key = tuple(sorted([w, l]))
-                if key not in h2h:
-                    h2h[key] = {
-                        'wins': {key[0]: 0, key[1]: 0},
-                        'surface_wins': {},
-                        'matches': [],
-                    }
-                entry = h2h[key]
-                entry['wins'][w] = entry['wins'].get(w, 0) + 1
-                if surf:
-                    if surf not in entry['surface_wins']:
-                        entry['surface_wins'][surf] = {key[0]: 0, key[1]: 0}
-                    entry['surface_wins'][surf][w] = entry['surface_wins'][surf].get(w, 0) + 1
-                entry['matches'].append((tdate, w))
+        # Load supplemental matches with name mapping
+        if SUPPLEMENTAL_CSV.exists():
+            suppl_name_map = _build_supplemental_name_map(self.player_names)
+            self._supplemental_name_map = suppl_name_map
+            try:
+                sup_df = pd.read_csv(SUPPLEMENTAL_CSV)
+                sup_df = sup_df.dropna(subset=['winner_name', 'loser_name'])
+                suppl_count = 0
+                for _, row in sup_df.iterrows():
+                    w_raw = str(row['winner_name']).strip()
+                    l_raw = str(row['loser_name']).strip()
+                    w = suppl_name_map.get(w_raw)
+                    l = suppl_name_map.get(l_raw)
+                    if w is None or l is None:
+                        continue
+                    surf = str(row.get('surface', '')).lower()
+                    tdate = int(row['tourney_date']) if pd.notna(row.get('tourney_date')) else 0
+                    _process_match(w, l, surf, tdate)
+                    suppl_count += 1
+                logger.info(f"  ✓ Supplemental matches loaded ({suppl_count} mapped out of {len(sup_df)})")
+            except Exception as e:
+                logger.warning(f"  Could not load supplemental matches: {e}")
+        else:
+            self._supplemental_name_map = {}
 
         # Sort H2H matches by date for recency/streak computation
         for key, entry in h2h.items():

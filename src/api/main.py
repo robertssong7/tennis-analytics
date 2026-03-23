@@ -798,21 +798,132 @@ def player_matchups(
         days_since = (_latest - r.last_match_date).days
         return days_since > _retire_days and r.match_count > 20
 
-    def _annotate(items):
+    def _generate_reasons(player_name, opp_name, win_prob, surface):
+        """Generate 3 short explanations for why this matchup is tough/easy."""
+        reasons = []
+        # Get Glicko data for both
+        p_ratings = engine.glicko.ratings.get(player_name, {})
+        o_ratings = engine.glicko.ratings.get(opp_name, {})
+        p_all = p_ratings.get('all')
+        o_all = o_ratings.get('all')
+        p_surf = p_ratings.get(surface)
+        o_surf = o_ratings.get(surface)
+
+        p_mu = p_all.mu if p_all else 1500
+        o_mu = o_all.mu if o_all else 1500
+        elo_diff = p_mu - o_mu
+
+        # Surface-specific ratings
+        p_surf_mu = p_surf.mu if (p_surf and p_surf.match_count >= 10) else p_mu
+        o_surf_mu = o_surf.mu if (o_surf and o_surf.match_count >= 10) else o_mu
+        surf_diff = p_surf_mu - o_surf_mu
+
+        p_first = player_name.split()[0] if player_name.split() else player_name
+        o_first = opp_name.split()[0] if opp_name.split() else opp_name
+        o_last = opp_name.split()[-1] if opp_name.split() else opp_name
+
+        # Reason 1: Rating comparison
+        if abs(elo_diff) < 50:
+            reasons.append(f"Similar overall rating makes this unpredictable")
+        elif elo_diff > 0:
+            reasons.append(f"{p_first}'s higher rating ({int(p_mu)} vs {int(o_mu)}) gives an edge")
+        else:
+            reasons.append(f"{o_last}'s superior rating ({int(o_mu)} vs {int(p_mu)}) is a challenge")
+
+        # Reason 2: Surface-specific
+        if abs(surf_diff) < 40:
+            reasons.append(f"Similar {surface}-court rating makes this a coin flip")
+        elif surf_diff > 0:
+            reasons.append(f"{p_first}'s {surface}-court rating advantage ({int(p_surf_mu)} vs {int(o_surf_mu)})")
+        else:
+            reasons.append(f"{o_last}'s {surface}-court strength ({int(o_surf_mu)} vs {int(p_surf_mu)})")
+
+        # Reason 3: attributes / H2H / serve comparison
+        p_acc = engine.attributes.get(player_name)
+        o_acc = engine.attributes.get(opp_name)
+        h2h_key = tuple(sorted([player_name, opp_name]))
+        h2h_entry = engine.h2h.get(h2h_key)
+
+        if h2h_entry:
+            p_wins = h2h_entry['wins'].get(player_name, 0)
+            o_wins = h2h_entry['wins'].get(opp_name, 0)
+            total = p_wins + o_wins
+            if total >= 2:
+                reasons.append(f"H2H record: {p_wins}-{o_wins} in {total} meetings")
+            elif p_acc and o_acc:
+                # Attribute comparison
+                try:
+                    p_raw = p_acc.compute_raw_attributes()
+                    o_raw = o_acc.compute_raw_attributes()
+                    # Find biggest attribute difference
+                    diffs = {}
+                    for attr in ('serve', 'groundstroke', 'endurance', 'mental', 'clutch'):
+                        p_v = int(min(99, max(30, 30 + p_raw.get(attr, 0.5) * 69)))
+                        o_v = int(min(99, max(30, 30 + o_raw.get(attr, 0.5) * 69)))
+                        diffs[attr] = (p_v - o_v, p_v, o_v)
+                    best_attr = max(diffs.items(), key=lambda x: abs(x[1][0]))
+                    attr_name = best_attr[0]
+                    diff_val, p_v, o_v = best_attr[1]
+                    if diff_val > 0:
+                        reasons.append(f"{p_first}'s {attr_name} advantage ({p_v} vs {o_v})")
+                    else:
+                        reasons.append(f"{o_last}'s {attr_name} advantage ({o_v} vs {p_v})")
+                except Exception:
+                    reasons.append(f"Win probability: {int(win_prob*100)}%")
+            else:
+                reasons.append(f"Win probability: {int(win_prob*100)}%")
+        elif p_acc and o_acc:
+            try:
+                p_raw = p_acc.compute_raw_attributes()
+                o_raw = o_acc.compute_raw_attributes()
+                p_serve = int(min(99, max(30, 30 + p_raw.get('serve', 0.5) * 69)))
+                o_serve = int(min(99, max(30, 30 + o_raw.get('serve', 0.5) * 69)))
+                if abs(p_serve - o_serve) > 5:
+                    stronger = p_first if p_serve > o_serve else o_last
+                    reasons.append(f"{stronger}'s powerful serve limits break opportunities")
+                else:
+                    reasons.append(f"Win probability: {int(win_prob*100)}%")
+            except Exception:
+                reasons.append(f"Win probability: {int(win_prob*100)}%")
+        else:
+            reasons.append(f"Win probability: {int(win_prob*100)}%")
+
+        return reasons[:3]
+
+    def _annotate(items, player_name):
         result = []
         for item in items:
             opp = item.get("opponent", "")
+            wp = float(item.get("player_win_prob", 0.5))
+            reasons = _generate_reasons(player_name, opp, wp, surface)
             result.append({
                 "opponent": opp,
-                "player_win_prob": float(item.get("player_win_prob", 0.5)),
+                "player_win_prob": wp,
                 "is_retired": _is_retired(opp),
+                "reasons": reasons,
             })
         return result
 
-    toughest = _annotate(surf_data.get("toughest", []))
-    easiest = _annotate(surf_data.get("easiest", []))
+    toughest = _annotate(surf_data.get("toughest", []), canonical)
+    easiest = _annotate(surf_data.get("easiest", []), canonical)
     toughest_active = [x for x in toughest if not x["is_retired"]]
     easiest_active = [x for x in easiest if not x["is_retired"]]
+
+    # Ensure we always have 5 in each active array if possible
+    # If not enough active, backfill from the full list (prioritize non-retired)
+    if len(toughest_active) < 5:
+        # Try to find more from all surfaces or extend from toughest
+        for item in toughest:
+            if len(toughest_active) >= 5:
+                break
+            if item not in toughest_active:
+                toughest_active.append(item)
+    if len(easiest_active) < 5:
+        for item in easiest:
+            if len(easiest_active) >= 5:
+                break
+            if item not in easiest_active:
+                easiest_active.append(item)
 
     return {
         "player": canonical,
@@ -820,8 +931,8 @@ def player_matchups(
         "available": True,
         "toughest": toughest,
         "easiest": easiest,
-        "toughest_active": toughest_active,
-        "easiest_active": easiest_active,
+        "toughest_active": toughest_active[:5],
+        "easiest_active": easiest_active[:5],
         "top100": grid_data.get("top100", [])
     }
 
@@ -841,12 +952,42 @@ def player_conditions(name: str):
 
     SACKMANN = Path(__file__).parent.parent.parent / 'data' / 'sackmann' / 'tennis_atp'
     CPI_CSV = Path(__file__).parent.parent.parent / 'data' / 'court_speed.csv'
+    SUPPL_CSV = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'supplemental_matches_2025_2026.csv'
+
+    # Tournament -> climate bucket mapping
+    TOURNAMENT_CLIMATE = {
+        # Hot & Humid
+        'australian open': 'Hot & Humid', 'miami': 'Hot & Humid', 'miami open': 'Hot & Humid',
+        'us open': 'Hot & Humid', 'canadian open': 'Hot & Humid', 'cincinnati': 'Hot & Humid',
+        'cincinnati masters': 'Hot & Humid',
+        'western & southern': 'Hot & Humid',
+        # Hot & Dry
+        'indian wells': 'Hot & Dry', 'indian wells masters': 'Hot & Dry',
+        'bnp paribas open': 'Hot & Dry',
+        'madrid': 'Hot & Dry (Altitude)', 'madrid masters': 'Hot & Dry (Altitude)',
+        'mutua madrid open': 'Hot & Dry (Altitude)',
+        # Mild & Mediterranean
+        'monte carlo': 'Mild & Mediterranean', 'monte carlo masters': 'Mild & Mediterranean',
+        'rome': 'Warm & Mediterranean', 'rome masters': 'Warm & Mediterranean',
+        'internazionali': 'Warm & Mediterranean',
+        'roland garros': 'Mild & Temperate', 'french open': 'Mild & Temperate',
+        'wimbledon': 'Mild & Temperate',
+        # Indoor
+        'paris masters': 'Indoor', 'atp finals': 'Indoor', 'tour finals': 'Indoor',
+        'nextgen finals': 'Indoor', 'next gen finals': 'Indoor',
+        'basel': 'Indoor', 'vienna': 'Indoor', 'rotterdam': 'Indoor',
+        'marseille': 'Indoor', 'stockholm': 'Indoor', 'antwerp': 'Indoor',
+        'moscow': 'Indoor', 'sofia': 'Indoor', 'metz': 'Indoor',
+        'st. petersburg': 'Indoor',
+        # Shanghai
+        'shanghai': 'Warm & Humid', 'shanghai masters': 'Warm & Humid',
+    }
 
     # Known indoor tournaments (lowercase for matching)
     INDOOR_TOURNAMENTS = {
         'paris masters', 'atp finals', 'tour finals', 'basel', 'vienna',
         'st. petersburg', 'marseille', 'rotterdam', 'sofia', 'metz',
-        'stockholm', 'antwerp', 'moscow', 'nextgen finals',
+        'stockholm', 'antwerp', 'moscow', 'nextgen finals', 'next gen finals',
     }
 
     records = []
@@ -859,9 +1000,42 @@ def player_conditions(name: str):
             df = pd.read_csv(csv_path, usecols=cols, low_memory=False)
             player_rows = df[(df['winner_name'] == canonical) | (df['loser_name'] == canonical)].copy()
             player_rows['won'] = player_rows['winner_name'] == canonical
+            player_rows['_court'] = None  # no court column in Sackmann
             records.append(player_rows)
         except Exception:
             continue
+
+    # Also load supplemental matches with name mapping
+    if SUPPL_CSV.exists():
+        try:
+            suppl_name_map = getattr(engine, '_supplemental_name_map', None)
+            if suppl_name_map is None:
+                from src.api.predict_engine import _build_supplemental_name_map
+                suppl_name_map = _build_supplemental_name_map(engine.player_names)
+
+            sup_df = pd.read_csv(SUPPL_CSV)
+            sup_df = sup_df.dropna(subset=['winner_name', 'loser_name'])
+            # Map names
+            sup_df['_w_mapped'] = sup_df['winner_name'].map(suppl_name_map)
+            sup_df['_l_mapped'] = sup_df['loser_name'].map(suppl_name_map)
+            # Keep only rows where both players mapped
+            sup_mapped = sup_df[sup_df['_w_mapped'].notna() & sup_df['_l_mapped'].notna()].copy()
+            # Filter to this player
+            player_sup = sup_mapped[
+                (sup_mapped['_w_mapped'] == canonical) | (sup_mapped['_l_mapped'] == canonical)
+            ].copy()
+            if len(player_sup) > 0:
+                player_sup['winner_name'] = player_sup['_w_mapped']
+                player_sup['loser_name'] = player_sup['_l_mapped']
+                player_sup['won'] = player_sup['winner_name'] == canonical
+                player_sup['_court'] = player_sup.get('court', None)
+                # Rename tourney_name if needed
+                for col in ['tourney_name', 'tourney_date', 'surface']:
+                    if col not in player_sup.columns:
+                        player_sup[col] = None
+                records.append(player_sup[['winner_name', 'loser_name', 'surface', 'tourney_name', 'tourney_date', 'won', '_court']])
+        except Exception:
+            pass
 
     if not records:
         result = {"player": canonical, "available": False,
@@ -895,8 +1069,7 @@ def player_conditions(name: str):
             "category": category
         }
 
-    # ── Climate: Indoor / Outdoor ──
-    # Build CPI map for indoor detection from court_speed.csv
+    # Build CPI map for court speed + ball type from court_speed.csv
     _cpi_map = {}   # (tourney_name_lower, year) -> {cpi, ball_type, indoor}
     if CPI_CSV.exists():
         try:
@@ -920,39 +1093,48 @@ def player_conditions(name: str):
         except Exception:
             pass
 
-    # Determine indoor/outdoor for each match
-    all_matches['_tname_lower'] = all_matches['tourney_name'].str.lower()
+    # Determine indoor/outdoor and climate bucket for each match
+    all_matches['_tname_lower'] = all_matches['tourney_name'].astype(str).str.lower()
     all_matches['_year'] = pd.to_numeric(
         all_matches['tourney_date'].astype(str).str[:4], errors='coerce'
     ).fillna(0).astype(int)
 
-    def _is_indoor(row):
-        # Check known indoor tournaments first
-        tname = row['_tname_lower']
-        if any(indoor_t in tname for indoor_t in INDOOR_TOURNAMENTS):
-            return True
+    def _get_climate_bucket(row):
+        tname = str(row['_tname_lower'])
+        # Check supplemental court column (Indoor/Outdoor)
+        court_val = row.get('_court')
+        # Direct tournament name lookup
+        for key_t, bucket in TOURNAMENT_CLIMATE.items():
+            if key_t in tname:
+                return bucket
+        # If court column says Indoor (from supplemental data)
+        if pd.notna(court_val) and str(court_val).strip().lower() == 'indoor':
+            return 'Indoor'
         # Check CPI data for indoor flag
-        key = (tname, row['_year'])
-        cpi_info = _cpi_map.get(key, {})
+        cpi_key = (tname, row['_year'])
+        cpi_info = _cpi_map.get(cpi_key, {})
         if cpi_info.get('indoor'):
-            return True
-        return False
+            return 'Indoor'
+        # Check known indoor set
+        if any(indoor_t in tname for indoor_t in INDOOR_TOURNAMENTS):
+            return 'Indoor'
+        return None
 
-    all_matches['_indoor'] = all_matches.apply(_is_indoor, axis=1)
+    all_matches['_climate'] = all_matches.apply(_get_climate_bucket, axis=1)
 
-    indoor_m = all_matches[all_matches['_indoor'] == True]
-    outdoor_m = all_matches[all_matches['_indoor'] == False]
+    # ── Climate: aggregated weather buckets ──
     has_climate = False
-    if len(indoor_m) >= 10:
-        conditions.append(_make_cond("Indoor", indoor_m, "climate"))
-        has_climate = True
-    if len(outdoor_m) >= 10:
-        conditions.append(_make_cond("Outdoor", outdoor_m, "climate"))
-        has_climate = True
+    climate_labeled = all_matches[all_matches['_climate'].notna()]
+    if len(climate_labeled) >= 10:
+        for bucket_name in sorted(climate_labeled['_climate'].unique()):
+            bucket = climate_labeled[climate_labeled['_climate'] == bucket_name]
+            if len(bucket) >= 5:
+                conditions.append(_make_cond(bucket_name, bucket, "climate"))
+                has_climate = True
     if not has_climate:
         missing_categories.append("climate")
 
-    # ── Court Speed ──
+    # ── Court Speed (CPI buckets) ──
     if _cpi_map:
         def _get_cpi(row):
             key = (row['_tname_lower'], row['_year'])
@@ -970,7 +1152,6 @@ def player_conditions(name: str):
                     has_court_speed = True
 
         if not has_court_speed:
-            # Fallback: surface as proxy
             for surf, label in [('Clay', 'Slow (est.)'), ('Hard', 'Medium (est.)'), ('Grass', 'Fast (est.)')]:
                 bucket = all_matches[all_matches['surface'] == surf]
                 if len(bucket) >= 10:
@@ -980,30 +1161,45 @@ def player_conditions(name: str):
         if not has_court_speed:
             missing_categories.append("court_speed")
 
-        # ── Ball Type ──
+        # ── Ball Type (keep Penn and Head as DISTINCT entries) ──
         def _get_ball(row):
             key = (row['_tname_lower'], row['_year'])
-            return _cpi_map.get(key, {}).get('ball_type')
+            raw_ball = _cpi_map.get(key, {}).get('ball_type')
+            if raw_ball:
+                return str(raw_ball).replace('*', '').strip()
+            return None
 
         all_matches['_ball'] = all_matches.apply(_get_ball, axis=1)
 
         ball_matches = all_matches[all_matches['_ball'].notna() & (all_matches['_ball'] != '')]
         has_ball = False
         if len(ball_matches) >= 10:
-            for ball_name in ball_matches['_ball'].unique():
-                bucket = ball_matches[ball_matches['_ball'] == ball_name]
-                if len(bucket) >= 10:
-                    clean_name = str(ball_name).replace('*', '')
-                    conditions.append(_make_cond(clean_name, bucket, "ball_type"))
-                    has_ball = True
+            # Split combined ball types like "Penn/Head" into separate entries
+            expanded_rows = []
+            for idx, row in ball_matches.iterrows():
+                ball_val = row['_ball']
+                if '/' in ball_val:
+                    for sub_ball in ball_val.split('/'):
+                        sub_ball = sub_ball.strip()
+                        if sub_ball:
+                            new_row = row.copy()
+                            new_row['_ball'] = sub_ball
+                            expanded_rows.append(new_row)
+                else:
+                    expanded_rows.append(row)
+            if expanded_rows:
+                ball_expanded = pd.DataFrame(expanded_rows)
+                for ball_name in sorted(ball_expanded['_ball'].unique()):
+                    bucket = ball_expanded[ball_expanded['_ball'] == ball_name]
+                    if len(bucket) >= 10:
+                        conditions.append(_make_cond(ball_name, bucket, "ball_type"))
+                        has_ball = True
 
         if not has_ball:
             missing_categories.append("ball_type")
 
-        # Clean up temp columns
-        all_matches.drop(columns=['_year', '_tname_lower', '_cpi', '_ball', '_indoor'], errors='ignore', inplace=True)
+        all_matches.drop(columns=['_year', '_tname_lower', '_cpi', '_ball', '_climate', '_court'], errors='ignore', inplace=True)
     else:
-        # No CPI data at all — use surface proxy for court speed
         has_court_speed = False
         for surf, label in [('Clay', 'Slow (est.)'), ('Hard', 'Medium (est.)'), ('Grass', 'Fast (est.)')]:
             bucket = all_matches[all_matches['surface'] == surf]
@@ -1013,17 +1209,19 @@ def player_conditions(name: str):
         if not has_court_speed:
             missing_categories.append("court_speed")
         missing_categories.append("ball_type")
-        all_matches.drop(columns=['_year', '_tname_lower', '_indoor'], errors='ignore', inplace=True)
+        all_matches.drop(columns=['_year', '_tname_lower', '_climate', '_court'], errors='ignore', inplace=True)
 
-    # Sort each category by win_rate descending
-    conditions.sort(key=lambda x: x['win_rate'], reverse=True)
-
-    # Build by_category with exactly 3 categories
+    # Sort court_speed entries by win_rate descending; climate alphabetically; ball_type by win_rate
     by_category = {"climate": [], "court_speed": [], "ball_type": []}
     for c in conditions:
         cat = c['category']
         if cat in by_category:
             by_category[cat].append(c)
+
+    # Sort court_speed and ball_type by win_rate descending
+    by_category["court_speed"].sort(key=lambda x: x['win_rate'], reverse=True)
+    by_category["ball_type"].sort(key=lambda x: x['win_rate'], reverse=True)
+    by_category["climate"].sort(key=lambda x: x['win_rate'], reverse=True)
 
     result = {
         "player": canonical,
@@ -1044,6 +1242,23 @@ def tournament_predict(
     if not data:
         raise HTTPException(503, "Tournament predictions not precomputed. Run scripts/precompute_tournament.py")
     return data
+
+
+# ─────────────────────────────────────────────────────────────
+# Live tournament endpoint
+# ─────────────────────────────────────────────────────────────
+
+@app.get("/api/live-tournament")
+def live_tournament():
+    """Return the current live tournament data from precomputed JSON."""
+    live_path = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'live_tournament.json'
+    if not live_path.exists():
+        raise HTTPException(404, "No live tournament data available")
+    try:
+        data = json.loads(live_path.read_text())
+        return data
+    except Exception as e:
+        raise HTTPException(500, f"Error reading live tournament data: {e}")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -1512,6 +1727,57 @@ def player_scenarios(name: str):
                         "sample_size": int(len(deuce_serving)),
                         "significance": _sig(max_diff),
                         "surface": None,
+                    })
+
+    # ── S16: Closing Out Sets (up 5-x in games) ──
+    if "Gm1" in player_pts.columns and "Gm2" in player_pts.columns:
+        closing_mask = (
+            (p1_mask & (player_pts["Gm1"] == 5) & (player_pts["Gm2"] < 5)) |
+            (~p1_mask & (player_pts["Gm2"] == 5) & (player_pts["Gm1"] < 5))
+        )
+        closing_pts = player_pts[closing_mask]
+        if len(closing_pts) >= 30:
+            close_wr = float(closing_pts["won_point"].mean())
+            diff = close_wr - overall_wr
+            if abs(diff) > 0.02:
+                scenarios.append({
+                    "scenario": "Closing Out Sets",
+                    "category": "match_situation",
+                    "description": f"Wins {int(close_wr*100)}% of points when serving for the set (up 5-x) vs {int(overall_wr*100)}% overall",
+                    "baseline": {"win_rate": float(round(overall_wr, 3))},
+                    "scenario_data": {"win_rate": float(round(close_wr, 3))},
+                    "sample_size": int(len(closing_pts)),
+                    "significance": _sig(diff),
+                    "surface": None,
+                })
+
+    # ── S17: Surface-specific rally length ──
+    if "rally_length" in player_pts.columns and "Surface" in player_pts.columns:
+        for surf_name in ["Hard", "Clay", "Grass"]:
+            surf_pts = player_pts[player_pts["Surface"] == surf_name]
+            if len(surf_pts) < 100:
+                continue
+            bands = [("Short (1-3)", 1, 3), ("Medium (4-6)", 4, 6), ("Long (7-9)", 7, 9), ("Very Long (10+)", 10, 999)]
+            band_results = []
+            for label, lo, hi in bands:
+                b = surf_pts[(surf_pts["rally_length"] >= lo) & (surf_pts["rally_length"] <= hi)]
+                if len(b) >= 20:
+                    band_results.append((label, float(b["won_point"].mean()), int(len(b))))
+            if len(band_results) >= 2:
+                best = max(band_results, key=lambda x: x[1])
+                worst = min(band_results, key=lambda x: x[1])
+                spread = best[1] - worst[1]
+                if spread > 0.03:
+                    scenarios.append({
+                        "scenario": f"Rally Length on {surf_name}",
+                        "category": "surface_patterns",
+                        "description": f"On {surf_name.lower()}: strongest in {best[0]} ({int(best[1]*100)}%), weakest in {worst[0]} ({int(worst[1]*100)}%)",
+                        "baseline": {r[0]: float(round(r[1], 3)) for r in band_results},
+                        "scenario_data": {"best_band": best[0], "best_wr": float(round(best[1], 3)),
+                                          "worst_band": worst[0], "worst_wr": float(round(worst[1], 3))},
+                        "sample_size": int(sum(r[2] for r in band_results)),
+                        "significance": _sig(spread),
+                        "surface": surf_name,
                     })
 
     n_matches = int(player_pts["match_id"].nunique()) if "match_id" in player_pts.columns else 0
