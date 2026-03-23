@@ -44,9 +44,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .hero{background:var(--card-dark);padding-top:74px;padding-bottom:40px;color:white;}
 .hero-inner{max-width:1100px;margin:0 auto;padding:40px 9% 0;display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap;}
 .player-avatar-wrap{flex-shrink:0;position:relative;}
-.player-avatar{width:180px;height:180px;border-radius:50%;object-fit:cover;display:block;border:3px solid rgba(255,255,255,0.1);}
-.player-avatar-fallback{width:180px;height:180px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:64px;font-weight:700;color:white;}
-.avatar-border{width:186px;height:186px;border-radius:50%;position:absolute;top:-3px;left:-3px;padding:3px;}
+.player-avatar{width:120px;height:120px;border-radius:50%;object-fit:cover;display:block;border:3px solid rgba(255,255,255,0.1);}
+.player-avatar-fallback{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:white;background:#0ABAB5;}
+.avatar-border{width:126px;height:126px;border-radius:50%;position:absolute;top:-3px;left:-3px;padding:3px;}
 .tier-legendary .avatar-border{background:linear-gradient(135deg,#4A90D9,#C4A97D,#4A90D9);}
 .tier-gold .avatar-border{background:linear-gradient(135deg,#C4A97D,#E8C86A,#C4A97D);}
 .tier-silver .avatar-border{background:linear-gradient(135deg,#9BA8B5,#C9D4DC,#9BA8B5);}
@@ -91,7 +91,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .attr-val-fifa.limited{color:#999;}
 .attr-name-fifa{font-size:12px;color:var(--ink-mid);text-transform:capitalize;width:90px;flex-shrink:0;cursor:help;position:relative;}
 .attr-bar-wrap-fifa{flex:1;height:8px;background:#E8E3DE;border-radius:4px;overflow:visible;position:relative;}
-.attr-bar-fifa{height:100%;border-radius:4px;width:0;transition:width 0.6s ease;background:#0ABAB5;}
+.attr-bar-fifa{height:100%;border-radius:4px;width:0;transition:width 0.6s ease;}
+.attr-bar-fifa.tier-legendary{background:#0ABAB5;}
+.attr-bar-fifa.tier-gold{background:#DAA520;}
+.attr-bar-fifa.tier-silver{background:#A8A9AD;}
+.attr-bar-fifa.tier-bronze{background:#CD7F32;}
 .attr-avg-line{position:absolute;top:-4px;width:2px;height:16px;background:#2C2C2C;z-index:2;border-radius:1px;}
 .attr-limited-text{font-family:'DM Mono',monospace;font-size:10px;color:#999;font-style:italic;flex:1;}
 
@@ -145,6 +149,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .mu-expand{max-height:0;overflow:hidden;transition:max-height 0.4s ease;background:var(--bg);border-radius:0 0 8px 8px;border:1px solid var(--border);border-top:none;}
 .mu-expand.open{border-color:var(--border);}
 .mu-item-wrap{margin-bottom:6px;}
+.mu-reasons{padding:10px 14px 6px;font-size:12px;color:var(--ink-mid);line-height:1.6;}
+.mu-reasons li{margin-bottom:4px;list-style:none;padding-left:14px;position:relative;}
+.mu-reasons li::before{content:'\2022';position:absolute;left:0;color:var(--accent);}
 
 /* CONDITIONS — 3-COLUMN */
 .cond-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;}
@@ -162,10 +169,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .cond-wr{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;}
 .cond-wl{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);}
 .cond-empty{font-size:12px;color:var(--ink-soft);font-style:italic;padding:8px 0;}
-.cond-more-link{font-family:'DM Mono',monospace;font-size:10px;color:var(--tiffany);cursor:pointer;margin-top:8px;display:inline-block;text-decoration:none;}
-.cond-more-link:hover{text-decoration:underline;}
-.cond-expandable{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
-.cond-expandable.open{max-height:600px;}
 
 /* SCENARIOS */
 .scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -220,7 +223,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   .hero-inner{padding:24px 20px 0;flex-direction:column;align-items:center;text-align:center;}
   .surface-chips{justify-content:center;}
   .player-avatar,.player-avatar-fallback{width:80px;height:80px;}
-  .player-avatar-fallback{font-size:28px;}
+  .player-avatar-fallback{font-size:24px;}
   .avatar-border{width:86px;height:86px;}
   .attr-grid-fifa{grid-template-columns:1fr;}
   .patterns-grid{grid-template-columns:1fr;}
@@ -375,17 +378,31 @@ function renderHero(card) {
   var formClass = formMod > 0 ? 'pos' : formMod < 0 ? 'neg' : '';
   var formSign = formMod > 0 ? '+' : '';
 
+  // Fix headshot URL: strip /en/ prefix which returns HTML instead of image
+  var headshotUrl = card.headshot_url ? card.headshot_url.replace('/en/-/media/', '/-/media/') : null;
+
   var avatarHtml;
-  if (card.headshot_url) {
+  if (headshotUrl) {
+    var imgId = 'avatar-img-' + Math.random().toString(36).slice(2, 8);
+    var fbId = 'avatar-fb-' + Math.random().toString(36).slice(2, 8);
     avatarHtml = '<div class="player-avatar-wrap ' + glow + '">'
       + '<div class="avatar-border tier-' + tier + '"></div>'
-      + '<img src="' + card.headshot_url + '" crossorigin="anonymous" class="player-avatar" alt="' + card.name + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
-      + '<div class="player-avatar-fallback" style="display:none;background:#0ABAB5;">' + ini(card.name) + '</div>'
+      + '<img id="' + imgId + '" src="' + headshotUrl + '" crossorigin="anonymous" class="player-avatar" alt="' + card.name + '" onerror="this.style.display=\'none\';document.getElementById(\'' + fbId + '\').style.display=\'flex\'">'
+      + '<div id="' + fbId + '" class="player-avatar-fallback" style="display:none;">' + ini(card.name) + '</div>'
       + '</div>';
+    // Timeout: if image hasn't loaded after 5s, show fallback
+    setTimeout(function() {
+      var img = document.getElementById(imgId);
+      if (img && !img.complete) {
+        img.style.display = 'none';
+        var fb = document.getElementById(fbId);
+        if (fb) fb.style.display = 'flex';
+      }
+    }, 5000);
   } else {
     avatarHtml = '<div class="player-avatar-wrap ' + glow + '">'
       + '<div class="avatar-border tier-' + tier + '"></div>'
-      + '<div class="player-avatar-fallback" style="background:#0ABAB5;">' + ini(card.name) + '</div>'
+      + '<div class="player-avatar-fallback">' + ini(card.name) + '</div>'
       + '</div>';
   }
 
@@ -464,6 +481,13 @@ function renderAttrRow(a, attrs, averages) {
 
   score = score || 50;
 
+  // Determine tier color class from attribute value
+  var barTier;
+  if (score >= 91) barTier = 'tier-legendary';
+  else if (score >= 80) barTier = 'tier-gold';
+  else if (score >= 69) barTier = 'tier-silver';
+  else barTier = 'tier-bronze';
+
   // ATP average line
   var avgLine = '';
   if (averages && averages[a] != null) {
@@ -473,7 +497,7 @@ function renderAttrRow(a, attrs, averages) {
   return '<div class="attr-row-fifa">'
     + '<span class="attr-val-fifa">' + score + '</span>'
     + '<span class="attr-name-fifa">' + labels[a] + tooltip + '</span>'
-    + '<div class="attr-bar-wrap-fifa"><div class="attr-bar-fifa" style="width:' + score + '%"></div>' + avgLine + '</div></div>';
+    + '<div class="attr-bar-wrap-fifa"><div class="attr-bar-fifa ' + barTier + '" style="width:' + score + '%"></div>' + avgLine + '</div></div>';
 }
 
 function renderContent(card, patterns, matchups, conditions, scenarios) {
@@ -570,8 +594,6 @@ function renderCondColumn(title, items) {
       + '<div class="cond-empty">Data coming soon</div></div>';
   }
   var sorted = items.slice().sort(function(a, b) { return b.win_rate - a.win_rate; });
-  var best = sorted[0];
-  var worst = sorted[sorted.length - 1];
 
   function row(c) {
     var wrPct = (c.win_rate * 100).toFixed(1);
@@ -584,25 +606,27 @@ function renderCondColumn(title, items) {
       + '<div class="cond-wl">' + wl + '</div></div></div>';
   }
 
-  var uid = 'cond-' + title.replace(/\s+/g, '-').toLowerCase() + '-' + Math.random().toString(36).slice(2, 8);
   var html = '<div class="cond-column"><div class="cond-col-header">' + title + '</div>';
 
-  // Best
-  html += '<div class="cond-sub-label best">Best</div>' + row(best);
+  // Show ALL items ordered by win rate (best first)
+  // Label best (top) and worst (bottom)
+  html += '<div class="cond-sub-label best">Best</div>';
+  // Find cutoff: items above median are "best", below are "worst"
+  var bestItems = [];
+  var worstItems = [];
+  sorted.forEach(function(c, i) {
+    if (i < Math.ceil(sorted.length / 2)) bestItems.push(c);
+    else worstItems.push(c);
+  });
 
-  // Worst (only if different from best)
-  if (sorted.length > 1) {
-    html += '<div class="cond-sub-label worst">Worst</div>' + row(worst);
+  bestItems.forEach(function(c) { html += row(c); });
+
+  if (worstItems.length > 0) {
+    html += '<div class="cond-sub-label worst">Worst</div>';
+    worstItems.forEach(function(c) { html += row(c); });
   }
 
-  // Remaining items in expandable section
-  var remaining = sorted.filter(function(c) { return c !== best && c !== worst; });
-  if (remaining.length > 0) {
-    html += '<div class="cond-expandable" id="' + uid + '">'
-      + '<div style="margin-top:8px;">' + remaining.map(row).join('') + '</div></div>'
-      + '<span class="cond-more-link" data-target="' + uid + '" data-expanded="false">Show more (' + remaining.length + ')</span>';
-  }
-
+  var remaining = []; // no expandable section needed — all items shown
   return html + '</div>';
 }
 
@@ -639,7 +663,8 @@ function renderMatchupCols(matchups) {
   function rows(list, type) {
     return (list || []).map(function(m) {
       var retBadge = m.is_retired ? '<span class="mu-retired-badge">Retired</span>' : '';
-      return '<div class="mu-item-wrap"><div class="mu-row ' + type + '-row" data-opponent="' + m.opponent + '">'
+      var reasonsAttr = m.reasons ? ' data-reasons="' + m.reasons.map(function(r){return r.replace(/"/g,'&quot;');}).join('||') + '"' : '';
+      return '<div class="mu-item-wrap"><div class="mu-row ' + type + '-row" data-opponent="' + m.opponent + '"' + reasonsAttr + '>'
         + '<span class="mu-opponent">' + m.opponent + retBadge + '</span>'
         + '<span class="mu-prob ' + type + '">' + pct(m.player_win_prob) + '</span>'
         + '<span class="mu-chevron">\u25B6</span></div></div>';
@@ -733,10 +758,18 @@ document.addEventListener('click', function(e) {
     return;
   }
 
+  // Build reasons HTML from data attribute
+  var reasonsHtml = '';
+  var reasonsStr = row.dataset.reasons;
+  if (reasonsStr) {
+    var reasonsList = reasonsStr.split('||');
+    reasonsHtml = '<ul class="mu-reasons">' + reasonsList.map(function(r) { return '<li>' + r + '</li>'; }).join('') + '</ul>';
+  }
+
   // Create panel
   var panel = document.createElement('div');
   panel.className = 'mu-expand';
-  panel.innerHTML = '<div style="padding:14px;text-align:center;color:var(--ink-soft);font-size:12px;">Loading...</div>';
+  panel.innerHTML = reasonsHtml + '<div style="padding:14px;text-align:center;color:var(--ink-soft);font-size:12px;">Loading comparison...</div>';
   wrap.appendChild(panel);
   row.classList.add('expanded');
 
@@ -748,8 +781,8 @@ document.addEventListener('click', function(e) {
   fetch(API + '/predict/player/' + encodeURIComponent(opponent))
     .then(function(r) { return r.ok ? r.json() : null; })
     .then(function(opp) {
-      if (!opp) { panel.innerHTML = '<div style="padding:14px;color:var(--ink-soft);font-size:12px;">Data unavailable</div>'; return; }
-      panel.innerHTML = renderExpansion(cardData, opp);
+      if (!opp) { panel.innerHTML = reasonsHtml + '<div style="padding:14px;color:var(--ink-soft);font-size:12px;">Data unavailable</div>'; return; }
+      panel.innerHTML = reasonsHtml + renderExpansion(cardData, opp);
       panel.style.maxHeight = panel.scrollHeight + 'px';
     })
     .catch(function() {
@@ -891,25 +924,6 @@ document.addEventListener('click', function(e) {
     return;
   }
 
-  // Conditions show more/less
-  var moreLink = e.target.closest('.cond-more-link');
-  if (moreLink) {
-    var targetId = moreLink.dataset.target;
-    var expandEl = document.getElementById(targetId);
-    if (expandEl) {
-      var isExpanded = moreLink.dataset.expanded === 'true';
-      if (isExpanded) {
-        expandEl.classList.remove('open');
-        moreLink.textContent = 'Show more';
-        moreLink.dataset.expanded = 'false';
-      } else {
-        expandEl.classList.add('open');
-        moreLink.textContent = 'Show less';
-        moreLink.dataset.expanded = 'true';
-      }
-    }
-    return;
-  }
 });
 
 loadAll();
