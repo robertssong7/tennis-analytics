@@ -110,7 +110,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="feed-note">Live results will be wired to tournament data feed.</div>
 </div></div>
 </section>
-<section class="analytics-section">
+<section class="analytics-section" id="explore-section">
 <div class="section-eyebrow">Player Analytics</div>
 <h2 class="section-title">Explore the dashboards</h2>
 <p class="section-sub">Detailed performance intelligence across individual athletes, head-to-heads, and court dynamics.</p>
@@ -120,10 +120,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <a href="tournament.html" class="a-card"><div class="c-thumb thumb-crt"><div class="sg"><div class="sg-c grass"><svg class="csq" viewBox="0 0 80 80"><rect x="4" y="4" width="72" height="72" fill="none" stroke="white" stroke-width="1.2"/><line x1="4" y1="40" x2="76" y2="40" stroke="white" stroke-width=".8"/></svg><span class="sg-v">30</span><div class="sg-l">Grass Avg CPI</div></div><div class="sg-c clay"><svg class="csq" viewBox="0 0 80 80"><rect x="4" y="4" width="72" height="72" fill="none" stroke="white" stroke-width="1.2"/><line x1="4" y1="40" x2="76" y2="40" stroke="white" stroke-width=".8"/></svg><span class="sg-v">25</span><div class="sg-l">Clay Avg CPI</div></div><div class="sg-c hard"><svg class="csq" viewBox="0 0 160 80"><rect x="4" y="4" width="152" height="72" fill="none" stroke="white" stroke-width="1.2"/><line x1="4" y1="40" x2="156" y2="40" stroke="white" stroke-width=".8"/></svg><span class="sg-v">37</span><div class="sg-l">Hard Avg CPI</div></div><div class="ball-tri"></div></div></div><div class="c-info"><div class="c-title">Court Speed & Intel</div><div class="c-desc">Court Pace Index by tournament and year — how surface speed affects match dynamics, with ball type and elevation data.</div><div class="c-tags"><span class="tag">CPI Data</span><span class="tag">Ball Type</span><span class="tag">14 Tournaments</span></div></div></a>
 </div>
 </section>
-<section style="padding:60px 9%;background:var(--bg);">
+<section style="padding:60px 9%;background:var(--bg);" id="tourn-probs-section">
 <div class="section-eyebrow">ML Predictions</div>
 <h2 class="section-title">Tournament Win Probabilities</h2>
-<p class="section-sub">Precomputed from the most recent Grand Slam bracket using our stacked ensemble (Brier 0.1807).</p>
+<p class="section-sub">Precomputed from the most recent Grand Slam bracket using combined ML models.</p>
 <div id="tourn-pred" style="background:var(--card-bg);border-radius:14px;border:1px solid var(--border);overflow:hidden;">
 <table style="width:100%;border-collapse:separate;border-spacing:0;"><thead><tr>
 <th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:12px 14px;border-bottom:2px solid var(--border);">Player</th>
@@ -161,7 +161,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     </div>
   </div>
   <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;">
-    <p style="font-family:'DM Sans',sans-serif;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:6px;">Data through December 2024 &middot; Powered by Jeff Sackmann's tennis_atp dataset</p>
+    <p style="font-family:'DM Sans',sans-serif;font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:6px;">Data through March 2026 &middot; Powered by Jeff Sackmann's tennis_atp + tennis-data.co.uk</p>
     <p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">TennisIQ &copy; 2025</p>
   </div>
 </footer>
@@ -237,6 +237,43 @@ async function loadTournamentPred() {
   }
 }
 loadTournamentPred();
+
+// Reorder: Tournament Win Probabilities ABOVE Explore the Dashboards
+var probsSec = document.getElementById('tourn-probs-section');
+var exploreSec = document.getElementById('explore-section');
+if (probsSec && exploreSec && probsSec.parentNode) {
+  probsSec.parentNode.insertBefore(probsSec, exploreSec);
+}
+
+// Load live tournament feed from API
+async function loadLiveTournament() {
+  try {
+    var r = await fetch(API_URL + '/api/live-tournament');
+    if (!r.ok) return;
+    var d = await r.json();
+    // Update tournament banner
+    var banner = document.querySelector('.t-info h3 a');
+    if (banner) banner.textContent = d.tournament + ' ' + d.year;
+    var details = document.querySelector('.t-details');
+    if (details) {
+      details.innerHTML = '<div class="t-det"><span>DATES</span><span class="tv">' + (d.dates || '') + '</span></div>'
+        + '<div class="t-det"><span>LOCATION</span><span class="tv">' + (d.location || '') + '</span></div>'
+        + '<div class="t-det"><span>CPI</span><span class="tv">' + (d.cpi || '—') + '</span></div>'
+        + '<div class="t-det"><span>BALL</span><span class="tv">' + (d.ball || '—') + '</span></div>';
+    }
+    // Update results
+    var rpBox = document.querySelector('.rp-box');
+    if (rpBox && d.recent_results && d.recent_results.length > 0) {
+      var resultsHtml = '<div class="box-title soft">Recent Results</div>';
+      d.recent_results.forEach(function(m) {
+        resultsHtml += '<div class="rr"><span class="rr-w">' + m.winner + '</span><span class="rr-s">' + m.score + '</span><span class="rr-l">' + m.loser + '</span><span class="rr-r">' + m.round + '</span></div>';
+      });
+      resultsHtml += '<div class="feed-note">Last updated: ' + (d.last_updated || 'Unknown') + ' · Source: ' + (d.data_source || 'tennis-data.co.uk') + '</div>';
+      rpBox.innerHTML = resultsHtml;
+    }
+  } catch(e) {}
+}
+loadLiveTournament();
 </script>
 </body>
 </html>
