@@ -90,7 +90,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .attr-val-fifa{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;width:32px;text-align:right;flex-shrink:0;}
 .attr-val-fifa.limited{color:#999;}
 .attr-name-fifa{font-size:12px;color:var(--ink-mid);text-transform:capitalize;width:90px;flex-shrink:0;cursor:help;position:relative;}
-.attr-bar-wrap-fifa{flex:1;height:8px;background:#E8E3DE;border-radius:4px;overflow:visible;position:relative;}
+.attr-bar-wrap-fifa{flex:1;height:8px;background:#D0C9C0;border-radius:4px;overflow:visible;position:relative;box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);}
 .attr-bar-fifa{height:100%;border-radius:4px;width:0;transition:width 0.6s ease;}
 .attr-bar-fifa.tier-legendary{background:#0ABAB5;}
 .attr-bar-fifa.tier-gold{background:#DAA520;}
@@ -378,16 +378,16 @@ function renderHero(card) {
   var formClass = formMod > 0 ? 'pos' : formMod < 0 ? 'neg' : '';
   var formSign = formMod > 0 ? '+' : '';
 
-  // Fix headshot URL: strip /en/ prefix which returns HTML instead of image
-  var headshotUrl = card.headshot_url ? card.headshot_url.replace('/en/-/media/', '/-/media/') : null;
+  // Use server proxy for headshot to avoid CORS issues
+  var code = (card.headshot_url || '').split('/').pop();
 
   var avatarHtml;
-  if (headshotUrl) {
+  if (code) {
     var imgId = 'avatar-img-' + Math.random().toString(36).slice(2, 8);
     var fbId = 'avatar-fb-' + Math.random().toString(36).slice(2, 8);
     avatarHtml = '<div class="player-avatar-wrap ' + glow + '">'
       + '<div class="avatar-border tier-' + tier + '"></div>'
-      + '<img id="' + imgId + '" src="' + headshotUrl + '" crossorigin="anonymous" class="player-avatar" alt="' + card.name + '" onerror="this.style.display=\'none\';document.getElementById(\'' + fbId + '\').style.display=\'flex\'">'
+      + '<img id="' + imgId + '" src="' + API + '/api/player-image/' + code + '" class="player-avatar" alt="' + card.name + '" onerror="this.style.display=\'none\';document.getElementById(\'' + fbId + '\').style.display=\'flex\'">'
       + '<div id="' + fbId + '" class="player-avatar-fallback" style="display:none;">' + ini(card.name) + '</div>'
       + '</div>';
     // Timeout: if image hasn't loaded after 5s, show fallback
@@ -588,12 +588,11 @@ function condWrColor(wr) {
   return '#DAA520';
 }
 
-function renderCondColumn(title, items) {
+function renderCondColumn(title, items, displayMode) {
   if (!items || items.length === 0) {
     return '<div class="cond-column"><div class="cond-col-header">' + title + '</div>'
       + '<div class="cond-empty">Data coming soon</div></div>';
   }
-  var sorted = items.slice().sort(function(a, b) { return b.win_rate - a.win_rate; });
 
   function row(c) {
     var wrPct = (c.win_rate * 100).toFixed(1);
@@ -608,25 +607,31 @@ function renderCondColumn(title, items) {
 
   var html = '<div class="cond-column"><div class="cond-col-header">' + title + '</div>';
 
-  // Show ALL items ordered by win rate (best first)
-  // Label best (top) and worst (bottom)
-  html += '<div class="cond-sub-label best">Best</div>';
-  // Find cutoff: items above median are "best", below are "worst"
-  var bestItems = [];
-  var worstItems = [];
-  sorted.forEach(function(c, i) {
-    if (i < Math.ceil(sorted.length / 2)) bestItems.push(c);
-    else worstItems.push(c);
-  });
+  if (displayMode === 'ranked') {
+    // Ranked mode: all items ordered by win rate descending, no best/worst labels
+    var sorted = items.slice().sort(function(a, b) { return b.win_rate - a.win_rate; });
+    sorted.forEach(function(c) { html += row(c); });
+  } else {
+    // Best/worst mode (climate): split into best (top half) and worst (bottom half)
+    var sorted = items.slice().sort(function(a, b) { return b.win_rate - a.win_rate; });
+    var bestItems = [];
+    var worstItems = [];
+    sorted.forEach(function(c, i) {
+      if (i < Math.ceil(sorted.length / 2)) bestItems.push(c);
+      else worstItems.push(c);
+    });
 
-  bestItems.forEach(function(c) { html += row(c); });
+    html += '<div class="cond-sub-label best">Best</div>';
+    bestItems.forEach(function(c) { html += row(c); });
 
-  if (worstItems.length > 0) {
-    html += '<div class="cond-sub-label worst">Worst</div>';
-    worstItems.forEach(function(c) { html += row(c); });
+    if (worstItems.length > 0) {
+      html += '<div class="cond-sub-label worst">Worst</div>';
+      // Worst items ordered ascending (lowest win rate first)
+      worstItems.sort(function(a, b) { return a.win_rate - b.win_rate; });
+      worstItems.forEach(function(c) { html += row(c); });
+    }
   }
 
-  var remaining = []; // no expandable section needed — all items shown
   return html + '</div>';
 }
 
@@ -637,11 +642,18 @@ function renderConditions(conditions) {
   var bc = conditions.by_category || {};
 
   var catLabels = {climate: 'Climate', court_speed: 'Court Speed', ball_type: 'Ball Type'};
+  var defaultModes = {climate: 'best_worst', court_speed: 'ranked', ball_type: 'ranked'};
   var categories = ['climate', 'court_speed', 'ball_type'];
 
   var html = '<div class="cond-3col">';
   categories.forEach(function(cat) {
-    html += renderCondColumn(catLabels[cat], bc[cat] || null);
+    var items = bc[cat] || null;
+    // Detect display_mode from first item, fall back to category default
+    var mode = defaultModes[cat];
+    if (items && items.length > 0 && items[0].display_mode) {
+      mode = items[0].display_mode;
+    }
+    html += renderCondColumn(catLabels[cat], items, mode);
   });
   html += '</div>';
 
