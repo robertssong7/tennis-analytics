@@ -26,12 +26,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 .hero-right{display:flex;align-items:center;justify-content:center;padding:40px 40px 40px 20px;position:relative;overflow:hidden;}
 .ball{position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 35%,#C8E06A,#9AB830);animation:floatBall linear infinite;opacity:0.1;pointer-events:none;z-index:1;}@keyframes floatBall{0%{transform:translate(0,0);opacity:.1;}50%{transform:translate(12px,-20px);opacity:.16;}100%{transform:translate(0,0);opacity:.1;}}
-.carousel-wrap{position:relative;width:100%;max-width:520px;overflow:hidden;border-radius:18px;}
+.carousel-wrap{position:relative;width:100%;max-width:624px;overflow:hidden;border-radius:18px;}
 .carousel-track{display:flex;transition:transform 0.6s cubic-bezier(0.25,0.1,0.25,1);}
-.fc{flex-shrink:0;width:100%;background:var(--card-bg);border-radius:18px;padding:28px 30px;border:1px solid var(--border);box-shadow:0 16px 48px rgba(26,38,52,0.08);}
-.fc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}.fc-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;}.cdots{display:flex;gap:6px;}.cdot{width:8px;height:8px;border-radius:50%;background:var(--border);cursor:pointer;transition:background 0.3s;}.cdot.on{background:var(--accent);}
-.fc-top{display:flex;align-items:center;margin-bottom:14px;}.fc-av{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent-light),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;color:white;font-weight:700;margin-right:16px;flex-shrink:0;}.fc-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:3px;}.fc-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);}
-.fc-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}.fm-item{text-align:center;}.fm-val{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}.fm-lbl{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--ink-soft);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
+.fc{flex-shrink:0;width:100%;background:var(--card-bg);border-radius:18px;padding:34px 36px;border:1px solid var(--border);box-shadow:0 16px 48px rgba(26,38,52,0.08);}
+.fc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}.fc-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;}.cdots{display:flex;gap:6px;align-items:center;}.cdot{width:8px;height:8px;border-radius:50%;background:var(--border);cursor:pointer;transition:all 0.3s;}.cdot.on{width:24px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--accent) var(--fill,0%),var(--border) var(--fill,0%));}
+.fc-top{display:flex;align-items:center;margin-bottom:14px;}.fc-av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent-light),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:26px;color:white;font-weight:700;margin-right:16px;flex-shrink:0;}.fc-name{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;margin-bottom:3px;}.fc-sub{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink-soft);}
+.fc-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}.fm-item{text-align:center;}.fm-val{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;}.fm-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
 .mu-sec{margin-bottom:10px;}.mu-lbl{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}.mu-lbl.tough{color:var(--red-soft);}.mu-lbl.fav{color:var(--accent);}.mu-row{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--bg);border-radius:8px;margin-bottom:4px;font-size:12.5px;}.mu-row .oname{font-weight:500;width:130px;flex-shrink:0;}.mu-row .reason{font-size:10.5px;color:var(--ink-soft);flex:1;}
 .vp-link{display:block;text-align:center;margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;transition:color 0.2s;}.vp-link:hover{color:var(--ink);}
 
@@ -77,8 +77,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="hero-stats"><div><div class="stat-num">980+</div><div class="stat-label">Players profiled</div></div><div><div class="stat-num">1.2M</div><div class="stat-label">Points analyzed</div></div><div><div class="stat-num">7,194</div><div class="stat-label">Charted matches</div></div></div>
 </div>
 <div class="hero-right">
-<div class="ball" style="width:20px;height:20px;top:22%;left:8%;animation-duration:13s;"></div>
-<div class="ball" style="width:14px;height:14px;top:68%;left:35%;animation-duration:18s;animation-delay:-6s;"></div>
 <div class="carousel-wrap" id="cw"><div class="carousel-track" id="ct"></div></div>
 </div>
 </section>
@@ -91,24 +89,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="t-details"><div class="t-det"><span>DATES</span><span class="tv">Mar 4–15, 2026</span></div><div class="t-det"><span>LOCATION</span><span class="tv">Indian Wells, CA</span></div><div class="t-det"><span>CPI</span><span class="tv">31.7</span></div><div class="t-det"><span>BALL</span><span class="tv">Dunlop</span></div></div></div>
 <div class="t-badges"><span class="t-badge level">Masters 1000</span><span class="t-badge s-hard">Hard Court</span></div>
 </div>
-<div class="t-grid">
-<div class="hm-box"><div class="box-title accent">Headline Matches — Semifinal Day</div>
-<div class="mi"><div class="mi-p"><strong>Alcaraz</strong> vs <strong>Djokovic</strong></div><div class="mi-t">8:00 PM</div><div class="mi-c">Stadium 1</div></div>
-<div class="mi"><div class="mi-p"><strong>Sinner</strong> vs <strong>Medvedev</strong></div><div class="mi-t">5:00 PM</div><div class="mi-c">Stadium 1</div></div>
-<div class="mi"><div class="mi-p"><strong>Sabalenka</strong> vs <strong>Gauff</strong></div><div class="mi-t">3:00 PM</div><div class="mi-c">Stadium 1</div></div>
-<div class="mi"><div class="mi-p"><strong>Swiatek</strong> vs <strong>Zheng</strong></div><div class="mi-t">1:00 PM</div><div class="mi-c">Stadium 2</div></div>
-<div class="mi"><div class="mi-p"><strong>Draper</strong> vs <strong>Fritz</strong></div><div class="mi-t">11:00 AM</div><div class="mi-c">Court 1</div></div>
-<div class="feed-note">Ranked by matchup potential and player rankings. Live data will be wired.</div>
+<div id="live-results-container">
+<div class="rp-box"><div class="box-title soft">Recent Results</div>
+<div style="padding:20px;text-align:center;color:var(--ink-soft);font-size:12px;">Loading results from live feed...</div>
 </div>
-<div class="rp-box"><div class="box-title soft">Yesterday's Results</div>
-<div class="rr"><span class="rr-w">Alcaraz</span><span class="rr-s">6-4 7-5</span><span class="rr-l">Hurkacz</span><span class="rr-r">QF</span></div>
-<div class="rr"><span class="rr-w">Sinner</span><span class="rr-s">7-6 6-3</span><span class="rr-l">Fritz</span><span class="rr-r">QF</span></div>
-<div class="rr"><span class="rr-w">Djokovic</span><span class="rr-s">6-3 6-4</span><span class="rr-l">Rublev</span><span class="rr-r">QF</span></div>
-<div class="rr"><span class="rr-w">Medvedev</span><span class="rr-s">6-7 6-4 6-3</span><span class="rr-l">Zverev</span><span class="rr-r">QF</span></div>
-<div class="rr"><span class="rr-w">Gauff</span><span class="rr-s">6-2 6-4</span><span class="rr-l">Pegula</span><span class="rr-r">QF</span></div>
-<div class="rr"><span class="rr-w">Sabalenka</span><span class="rr-s">7-5 6-1</span><span class="rr-l">Rybakina</span><span class="rr-r">QF</span></div>
-<div class="feed-note">Live results will be wired to tournament data feed.</div>
-</div></div>
+</div>
 </section>
 <section class="analytics-section" id="explore-section">
 <div class="section-eyebrow">Player Analytics</div>
@@ -192,7 +177,9 @@ async function buildC(){
   startA();
   const cw=document.getElementById('cw');cw.addEventListener('mouseenter',()=>{hov=true;clearInterval(autoT);});cw.addEventListener('mouseleave',()=>{hov=false;startA();});
 }
-function go(i){cs=i;document.getElementById('ct').style.transform=`translateX(-${i*(100/FP.length)}%)`;document.querySelectorAll('.cdot').forEach((d,j)=>d.classList.toggle('on',j===i));}
+var fillInterval=null;
+function go(i){cs=i;document.getElementById('ct').style.transform=`translateX(-${i*(100/FP.length)}%)`;document.querySelectorAll('.cdot').forEach((d,j)=>{d.classList.toggle('on',j===i);d.style.setProperty('--fill','0%');});startFill();}
+function startFill(){clearInterval(fillInterval);var t=0;fillInterval=setInterval(()=>{t+=50;var pct=Math.min(100,(t/5500)*100);var dot=document.querySelector('.cdot.on');if(dot)dot.style.setProperty('--fill',pct+'%');if(pct>=100)clearInterval(fillInterval);},50);}
 function startA(){clearInterval(autoT);autoT=setInterval(()=>{if(!hov){cs=(cs+1)%FP.length;go(cs);}},6000);}
 
 /* Search autocomplete */
@@ -261,15 +248,15 @@ async function loadLiveTournament() {
         + '<div class="t-det"><span>CPI</span><span class="tv">' + (d.cpi || '—') + '</span></div>'
         + '<div class="t-det"><span>BALL</span><span class="tv">' + (d.ball || '—') + '</span></div>';
     }
-    // Update results
-    var rpBox = document.querySelector('.rp-box');
-    if (rpBox && d.recent_results && d.recent_results.length > 0) {
-      var resultsHtml = '<div class="box-title soft">Recent Results</div>';
+    // Update results in dedicated container
+    var container = document.getElementById('live-results-container');
+    if (container && d.recent_results && d.recent_results.length > 0) {
+      var resultsHtml = '<div class="rp-box"><div class="box-title soft">Recent Results</div>';
       d.recent_results.forEach(function(m) {
         resultsHtml += '<div class="rr"><span class="rr-w">' + m.winner + '</span><span class="rr-s">' + m.score + '</span><span class="rr-l">' + m.loser + '</span><span class="rr-r">' + m.round + '</span></div>';
       });
-      resultsHtml += '<div class="feed-note">Last updated: ' + (d.last_updated || 'Unknown') + ' · Source: ' + (d.data_source || 'tennis-data.co.uk') + '</div>';
-      rpBox.innerHTML = resultsHtml;
+      resultsHtml += '<div class="feed-note">Last updated: ' + (d.last_updated || 'Unknown') + ' · Source: ' + (d.data_source || 'tennis-data.co.uk') + '</div></div>';
+      container.innerHTML = resultsHtml;
     }
   } catch(e) {}
 }
