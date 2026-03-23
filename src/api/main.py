@@ -264,18 +264,69 @@ def health():
     return {"status": "ok", "version": "1.0.0"}
 
 
+_HEADSHOT_CACHE_DIR = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'headshots'
+
 @app.get("/api/player-image/{code}")
 def get_player_image(code: str):
-    """Proxy ATP headshot images to avoid CORS issues in browser."""
+    """Proxy ATP headshot images with disk caching."""
+    import re
+    # Sanitize code to prevent path traversal
+    if not re.match(r'^[a-zA-Z0-9]{2,10}$', code):
+        return JSONResponse(status_code=400, content={"error": "Invalid code"})
+
+    _HEADSHOT_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cached = _HEADSHOT_CACHE_DIR / f"{code}.png"
+
+    # Serve from disk cache if available
+    if cached.exists() and cached.stat().st_size > 500:
+        return Response(content=cached.read_bytes(), media_type="image/png",
+                       headers={"Cache-Control": "public, max-age=604800"})
+
+    # Fetch from ATP and save to cache
     url = f"https://www.atptour.com/-/media/alias/player-headshot/{code}"
     try:
         r = req_lib.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
         if r.status_code == 200 and "image" in r.headers.get("content-type", ""):
+            cached.write_bytes(r.content)
             return Response(content=r.content, media_type=r.headers["content-type"],
-                          headers={"Cache-Control": "public, max-age=86400"})
+                          headers={"Cache-Control": "public, max-age=604800"})
     except Exception:
         pass
     return JSONResponse(status_code=404, content={"error": "Image not found"})
+
+
+_headshot_prefetch_started = False
+
+def _prefetch_headshots_background():
+    """Pre-fetch all player headshots to disk in a background thread."""
+    import time
+    headshots = _get_headshots()
+    if not headshots:
+        return
+    _HEADSHOT_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    codes = set()
+    for url in headshots.values():
+        if url:
+            code = url.split('/')[-1]
+            if code and len(code) >= 2:
+                codes.add(code)
+    fetched = 0
+    for code in codes:
+        cached = _HEADSHOT_CACHE_DIR / f"{code}.png"
+        if cached.exists() and cached.stat().st_size > 500:
+            continue
+        try:
+            r = req_lib.get(
+                f"https://www.atptour.com/-/media/alias/player-headshot/{code}",
+                headers={"User-Agent": "Mozilla/5.0"}, timeout=10
+            )
+            if r.status_code == 200 and "image" in r.headers.get("content-type", ""):
+                cached.write_bytes(r.content)
+                fetched += 1
+        except Exception:
+            pass
+        time.sleep(2)  # Rate limit
+    logger.info(f"Headshot pre-fetch complete: {fetched} new images cached")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -341,6 +392,14 @@ def predict_player_card(
     card = engine.get_player_card(canonical, surface)
     headshots = _get_headshots()
     card['headshot_url'] = headshots.get(canonical)
+
+    # Start background headshot pre-fetch on first request
+    global _headshot_prefetch_started
+    if not _headshot_prefetch_started:
+        _headshot_prefetch_started = True
+        import threading
+        threading.Thread(target=_prefetch_headshots_background, daemon=True).start()
+
     return card
 
 

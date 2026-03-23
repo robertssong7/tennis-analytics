@@ -350,11 +350,19 @@ async function loadAll() {
     document.title = 'TennisIQ \u2014 ' + cardData.name;
     renderHero(cardData);
 
+    // Render initial content immediately with loading placeholders
+    renderContent(cardData, null, null, null, null);
+    initSurfaceToggle();
+
+    // Fetch all secondary data in parallel and render progressively
+    var pName = encodeURIComponent(cardData.name);
+    var fetchSurf = activeSurf === 'overall' ? 'hard' : activeSurf;
+
     var [patternsRes, condRes, matchupsRes, scenariosRes] = await Promise.all([
-      fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/patterns').catch(function(){return null;}),
-      fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/conditions').catch(function(){return null;}),
-      fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/matchups?surface=hard').catch(function(){return null;}),
-      fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/scenarios').catch(function(){return null;})
+      fetch(API + '/player/' + pName + '/patterns').catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/conditions').catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/matchups?surface=' + fetchSurf).catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/scenarios').catch(function(){return null;})
     ]);
 
     patternsData = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
@@ -362,8 +370,8 @@ async function loadAll() {
     matchupsData = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
     var scenarios = scenariosRes && scenariosRes.ok ? await scenariosRes.json() : null;
 
+    // Re-render with full data
     renderContent(cardData, patternsData, matchupsData, conditions, scenarios);
-    initSurfaceToggle();
 
   } catch(e) {
     contentEl.innerHTML = '<div class="not-found">Error loading data: ' + e.message + '</div>';
