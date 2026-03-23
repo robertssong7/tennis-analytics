@@ -124,6 +124,7 @@ class PredictEngine:
         self.h2h: dict = {}            # (nameA, nameB) sorted → H2H stats
         self.player_ages: dict = {}    # player_name → latest known age (float)
         self.attribute_averages: dict = {}  # attribute_name → float average (excluding defaults)
+        self.attribute_proxies: dict = {}  # player_name → {footwork: int, volley: int}
         self._loaded = False
 
     @classmethod
@@ -214,6 +215,11 @@ class PredictEngine:
         self._compute_attribute_averages()
         logger.info(f"  ✓ Attribute averages computed ({len(self.attribute_averages)} attributes)")
 
+        # Compute footwork/volley proxies from charted data
+        logger.info("  Computing footwork/volley proxies from charted data ...")
+        self._compute_attribute_proxies()
+        logger.info(f"  ✓ Attribute proxies computed ({len(self.attribute_proxies)} players)")
+
         self._loaded = True
         logger.info("PredictEngine: ready.")
 
@@ -242,6 +248,64 @@ class PredictEngine:
                 self.attribute_averages[attr_name] = round(float(np.mean(vals)), 1)
             else:
                 self.attribute_averages[attr_name] = None
+
+    def _compute_attribute_proxies(self):
+        """Compute footwork and volley proxies from charted match data."""
+        PARQUET = BASE / 'data' / 'processed' / 'parsed_points.parquet'
+        if not PARQUET.exists():
+            logger.warning("  parsed_points.parquet not found — skipping attribute proxies")
+            return
+
+        pts = pd.read_parquet(PARQUET)
+        self.attribute_proxies = {}
+
+        all_names = sorted(set(pts["Player 1"].unique()) | set(pts["Player 2"].unique()))
+        processed = 0
+
+        for player_name in all_names:
+            mask = (pts["Player 1"] == player_name) | (pts["Player 2"] == player_name)
+            pp = pts[mask]
+            if len(pp) < 200:  # Need substantial data
+                continue
+
+            # FOOTWORK PROXY: win rate in long rallies (7+ shots) — measures movement/coverage
+            footwork = None
+            if "rally_length" in pp.columns:
+                long_rallies = pp[pp["rally_length"] >= 7]
+                if len(long_rallies) >= 50:
+                    long_won = (
+                        ((long_rallies["PtWinner"] == 1) & (long_rallies["Player 1"] == player_name)) |
+                        ((long_rallies["PtWinner"] == 2) & (long_rallies["Player 2"] == player_name))
+                    )
+                    long_wr = float(long_won.mean())
+                    # Normalize: 0.30 -> 30, 0.70 -> 99
+                    footwork = int(min(99, max(30, 30 + (long_wr - 0.30) / 0.40 * 69)))
+
+            # VOLLEY PROXY: win rate on net points (last_shot_type contains 'volley')
+            volley = None
+            if "last_shot_type" in pp.columns:
+                volley_types = ['fh_volley', 'bh_volley', 'fh_half_volley']
+                net_pts = pp[pp["last_shot_type"].isin(volley_types)]
+                if len(net_pts) >= 30:
+                    net_won = (
+                        ((net_pts["PtWinner"] == 1) & (net_pts["Player 1"] == player_name)) |
+                        ((net_pts["PtWinner"] == 2) & (net_pts["Player 2"] == player_name))
+                    )
+                    net_wr = float(net_won.mean())
+                    volley = int(min(99, max(30, 30 + (net_wr - 0.30) / 0.40 * 69)))
+
+            if footwork is not None or volley is not None:
+                # Match charted name to Glicko canonical name
+                canonical = self.find_player(player_name)
+                if canonical:
+                    self.attribute_proxies[canonical] = {}
+                    if footwork is not None:
+                        self.attribute_proxies[canonical]['footwork'] = footwork
+                    if volley is not None:
+                        self.attribute_proxies[canonical]['volley'] = volley
+                    processed += 1
+
+        logger.info(f"    Processed {processed} players with attribute proxies")
 
     def _get_feature_cols(self) -> list:
         """Return the 168 feature columns in the exact training order."""
@@ -1210,6 +1274,13 @@ class PredictEngine:
             for attr in ('serve', 'groundstroke', 'volley', 'footwork',
                          'endurance', 'durability', 'clutch', 'mental'):
                 attributes[attr] = 50
+
+        # Apply proxies for footwork/volley from charted data
+        proxies = self.attribute_proxies.get(canonical, {})
+        if attributes.get('footwork') is None and 'footwork' in proxies:
+            attributes['footwork'] = proxies['footwork']
+        if attributes.get('volley') is None and 'volley' in proxies:
+            attributes['volley'] = proxies['volley']
 
         # Country code from Sackmann data (best-effort)
         country_code = _get_player_country(canonical)

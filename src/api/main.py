@@ -17,10 +17,11 @@ from typing import Optional
 
 import psycopg2
 import psycopg2.extras
+import requests as req_lib
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
 load_dotenv()
@@ -263,6 +264,20 @@ def health():
     return {"status": "ok", "version": "1.0.0"}
 
 
+@app.get("/api/player-image/{code}")
+def get_player_image(code: str):
+    """Proxy ATP headshot images to avoid CORS issues in browser."""
+    url = f"https://www.atptour.com/-/media/alias/player-headshot/{code}"
+    try:
+        r = req_lib.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        if r.status_code == 200 and "image" in r.headers.get("content-type", ""):
+            return Response(content=r.content, media_type=r.headers["content-type"],
+                          headers={"Cache-Control": "public, max-age=86400"})
+    except Exception:
+        pass
+    return JSONResponse(status_code=404, content={"error": "Image not found"})
+
+
 # ─────────────────────────────────────────────────────────────
 # Phase 8: ML prediction endpoints (pkl-based, no DB required)
 # ─────────────────────────────────────────────────────────────
@@ -286,8 +301,13 @@ def predict_matchup(req: PredictRequest):
     """
     engine = _get_engine()
 
+    # Accept "overall" as a surface alias — use "hard" (the most common surface)
+    surface = req.surface
+    if surface.lower() == "overall":
+        surface = "hard"
+
     try:
-        result = engine.predict(req.player1, req.player2, req.surface)
+        result = engine.predict(req.player1, req.player2, surface)
     except ValueError as e:
         msg = str(e)
         if "not found" in msg.lower():
@@ -910,19 +930,18 @@ def player_matchups(
     easiest_active = [x for x in easiest if not x["is_retired"]]
 
     # Ensure we always have 5 in each active array if possible
-    # If not enough active, backfill from the full list (prioritize non-retired)
+    # Only backfill with non-retired players — never re-add retired players
     if len(toughest_active) < 5:
-        # Try to find more from all surfaces or extend from toughest
         for item in toughest:
             if len(toughest_active) >= 5:
                 break
-            if item not in toughest_active:
+            if item not in toughest_active and not item.get("is_retired", False):
                 toughest_active.append(item)
     if len(easiest_active) < 5:
         for item in easiest:
             if len(easiest_active) >= 5:
                 break
-            if item not in easiest_active:
+            if item not in easiest_active and not item.get("is_retired", False):
                 easiest_active.append(item)
 
     return {
@@ -1211,17 +1230,26 @@ def player_conditions(name: str):
         missing_categories.append("ball_type")
         all_matches.drop(columns=['_year', '_tname_lower', '_climate', '_court'], errors='ignore', inplace=True)
 
-    # Sort court_speed entries by win_rate descending; climate alphabetically; ball_type by win_rate
+    # Filter out conditions with fewer than 10 matches
+    conditions = [c for c in conditions if c['matches'] >= 10]
+
+    # Sort and assign display_mode per category
     by_category = {"climate": [], "court_speed": [], "ball_type": []}
     for c in conditions:
         cat = c['category']
         if cat in by_category:
             by_category[cat].append(c)
 
-    # Sort court_speed and ball_type by win_rate descending
+    # Sort all categories by win_rate descending
+    by_category["climate"].sort(key=lambda x: x['win_rate'], reverse=True)
     by_category["court_speed"].sort(key=lambda x: x['win_rate'], reverse=True)
     by_category["ball_type"].sort(key=lambda x: x['win_rate'], reverse=True)
-    by_category["climate"].sort(key=lambda x: x['win_rate'], reverse=True)
+
+    # Add display_mode to each category
+    _display_modes = {"climate": "best_worst", "court_speed": "ranked", "ball_type": "ranked"}
+    for cat_name, items in by_category.items():
+        for item in items:
+            item["display_mode"] = _display_modes[cat_name]
 
     result = {
         "player": canonical,
@@ -1779,6 +1807,44 @@ def player_scenarios(name: str):
                         "significance": _sig(spread),
                         "surface": surf_name,
                     })
+
+    # ── Filter obvious / uninteresting scenarios ──
+    filtered = []
+    for s in scenarios:
+        sn = s["scenario"]
+        sd = s.get("scenario_data", {})
+        bl = s.get("baseline", {})
+
+        if sn == "First vs Second Serve":
+            # Only include if drop is unusually large (>15%) or unusually small (<5%)
+            drop = sd.get("drop", 0)
+            if not (drop > 0.15 or drop < 0.05):
+                continue
+
+        elif sn == "Return Game":
+            # Only include if return win rate vs 2nd serve is >55% or <40%
+            r2_wr = sd.get("vs_second_serve_wr", 0.5)
+            if not (r2_wr > 0.55 or r2_wr < 0.40):
+                continue
+
+        elif sn == "Net Approach":
+            # Only include if deviation > 5%
+            net_wr = sd.get("win_rate", 0)
+            base_wr = bl.get("win_rate", 0)
+            if abs(net_wr - base_wr) <= 0.05:
+                continue
+
+        elif sn == "First Set Impact":
+            # Only include if deviation > 5%
+            ahead_wr = bl.get("ahead_wr", 0)
+            behind_wr = sd.get("behind_wr", 0)
+            if abs(ahead_wr - behind_wr) <= 0.05:
+                continue
+
+        # Keep all others: Serve+1 Under Pressure, Tiebreak, Down a Set,
+        # Comfort Zone, surface-specific patterns, etc.
+        filtered.append(s)
+    scenarios = filtered
 
     n_matches = int(player_pts["match_id"].nunique()) if "match_id" in player_pts.columns else 0
 
