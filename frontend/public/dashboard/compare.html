@@ -66,7 +66,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <button class="swap" id="sw">&#8644;</button>
   <div class="pinp"><input type="text" placeholder="Player B (e.g. Alcaraz)..." id="i2" autocomplete="off"/><div class="pinp-dd" id="dd2"></div></div>
   <div class="surf-select">
-    <button class="surf-btn active" data-surf="hard">Hard</button>
+    <button class="surf-btn" data-surf="hard">Hard</button>
     <button class="surf-btn" data-surf="clay">Clay</button>
     <button class="surf-btn" data-surf="grass">Grass</button>
   </div>
@@ -163,7 +163,7 @@ function renderPredPanel(pred) {
   return `<div class="pred-panel">
     <div class="pred-header">
       <span>ML Win Probability — ${activeSurf.charAt(0).toUpperCase()+activeSurf.slice(1)} Court</span>
-      <span class="pred-conf ${confClass}">${pred.confidence.toUpperCase()} CONFIDENCE</span>
+      <span class="pred-conf ${confClass}"><span class="tt" style="border:none;color:inherit;">${pred.confidence.toUpperCase()} CONFIDENCE<span class="tt-box">Based on how much recent match data both players have. Low RD = more confident.</span></span></span>
     </div>
     <div class="pred-bar-wrap">
       <div class="pred-names">
@@ -181,7 +181,7 @@ function renderPredPanel(pred) {
     </div>
     <div class="pred-meta">
       <span class="pred-meta-item"><span class="tt">Glicko-2<span class="tt-box">Chess-style rating system accounting for uncertainty and inactivity</span></span> diff: <strong>${eloSign}${pred.elo_diff}</strong></span>
-      <span class="pred-meta-item">${activeSurf} diff: <strong>${surfSign}${pred.elo_surface_diff}</strong></span>
+      <span class="pred-meta-item"><span class="tt">${activeSurf} diff<span class="tt-box">Rating gap on this specific surface</span></span>: <strong>${surfSign}${pred.elo_surface_diff}</strong></span>
       <span class="pred-meta-item"><span class="tt">RD<span class="tt-box">Rating Deviation — uncertainty in the rating. Lower = more confident</span></span> P1: <strong>${pred.rd_p1}</strong></span>
       <span class="pred-meta-item">RD P2: <strong>${pred.rd_p2}</strong></span>
       <span class="pred-meta-item">${pred.confidence_reason}</span>
@@ -231,18 +231,6 @@ async function go() {
       {n:'Far Behind Win',       v1:pr1.win_rate_far_behind||0,    v2:pr2.win_rate_far_behind||0,    mx:1,   f:pct},
       {n:'Pattern Diversity',    v1:pr1.pattern_diversity_2gram||0,v2:pr2.pattern_diversity_2gram||0,mx:5,   f:v=>v.toFixed(2)},
     ];
-
-    html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
-<div style="background:var(--card-dark);border-radius:14px;padding:22px;text-align:center;color:white;">
-  <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent-light),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin:0 auto 10px;">${ini(p1.name||a)}</div>
-  <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;">${p1.name||a}</div>
-  <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);margin:4px 0 0;">${p1.charted_matches||0} charted matches</div>
-</div>
-<div style="background:var(--card-dark);border-radius:14px;padding:22px;text-align:center;color:white;">
-  <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#E88A6A,var(--red-soft));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin:0 auto 10px;">${ini(p2.name||b)}</div>
-  <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;">${p2.name||b}</div>
-  <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);margin:4px 0 0;">${p2.charted_matches||0} charted matches</div>
-</div></div>`;
 
     html += `<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Charted Attributes</div>`;
     html += attrs.map(at => {
@@ -295,7 +283,11 @@ function setupAC(inputId, ddId) {
           ).join('');
           dd.classList.add('open');
           dd.querySelectorAll('.pinp-item').forEach(el => {
-            el.addEventListener('click', () => { inp.value = el.dataset.name; dd.classList.remove('open'); });
+            el.addEventListener('click', () => {
+              inp.value = el.dataset.name; dd.classList.remove('open');
+              const a2 = document.getElementById('i1').value.trim(), b2 = document.getElementById('i2').value.trim();
+              if (a2 && b2) go();
+            });
           });
         })
         .catch(() => { dd.classList.remove('open'); });
