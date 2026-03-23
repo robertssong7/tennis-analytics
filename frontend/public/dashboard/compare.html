@@ -24,6 +24,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .info-icon{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#999;cursor:pointer;z-index:5;}.info-icon:hover .tt-box{display:block;right:0;left:auto;transform:none;bottom:calc(100% + 8px);}
 #content{min-height:300px;}
 .loading{text-align:center;padding:60px;color:var(--ink-soft);}.empty{text-align:center;padding:40px;color:var(--ink-soft);font-size:14px;}
+.spinner{width:40px;height:40px;border:3px solid #E8E3DE;border-top:3px solid #0ABAB5;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto;}@keyframes spin{to{transform:rotate(360deg);}}
+.surf-btn[data-surf="overall"].active{background:#0ABAB5;color:white;border-color:#0ABAB5;}
 
 /* Prediction panel */
 .pred-panel{background:var(--card-dark);border-radius:16px;padding:28px 32px;margin-bottom:24px;color:white;position:relative;overflow:hidden;}
@@ -66,6 +68,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <button class="swap" id="sw">&#8644;</button>
   <div class="pinp"><input type="text" placeholder="Player B (e.g. Alcaraz)..." id="i2" autocomplete="off"/><div class="pinp-dd" id="dd2"></div></div>
   <div class="surf-select">
+    <button class="surf-btn" data-surf="overall">Overall</button>
     <button class="surf-btn" data-surf="hard">Hard</button>
     <button class="surf-btn" data-surf="clay">Clay</button>
     <button class="surf-btn" data-surf="grass">Grass</button>
@@ -106,7 +109,7 @@ const LEGACY_API = API_URL+'/api/v2';
 
 const params = new URLSearchParams(location.search);
 let n1 = params.get('p1') || '', n2 = params.get('p2') || '';
-let activeSurf = params.get('surface') || 'hard';
+let activeSurf = params.get('surface') || 'overall';
 
 document.getElementById('i1').value = n1;
 document.getElementById('i2').value = n2;
@@ -162,7 +165,7 @@ function renderPredPanel(pred) {
   const surfSign = pred.elo_surface_diff > 0 ? '+' : '';
   return `<div class="pred-panel">
     <div class="pred-header">
-      <span>ML Win Probability — ${activeSurf.charAt(0).toUpperCase()+activeSurf.slice(1)} Court</span>
+      <span>ML Win Probability${activeSurf === 'overall' ? '' : ' — '+activeSurf.charAt(0).toUpperCase()+activeSurf.slice(1)+' Court'}</span>
       <span class="pred-conf ${confClass}"><span class="tt" style="border:none;color:inherit;">${pred.confidence.toUpperCase()} CONFIDENCE<span class="tt-box">Based on how much recent match data both players have. Low RD = more confident.</span></span></span>
     </div>
     <div class="pred-bar-wrap">
@@ -193,7 +196,7 @@ function renderPredPanel(pred) {
 async function go() {
   const a = document.getElementById('i1').value.trim(), b = document.getElementById('i2').value.trim();
   const c = document.getElementById('content');
-  c.innerHTML = '<div class="loading">Loading matchup...</div>';
+  c.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:#999;font-family:\'DM Sans\';">Analyzing matchup...</p></div>';
 
   // Run ML prediction and legacy API in parallel
   const [pred, legacyData] = await Promise.all([
