@@ -18,13 +18,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .soon-badge{font-family:'DM Mono',monospace;font-size:8px;background:var(--warm);color:var(--ink);padding:2px 5px;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:super;margin-left:4px;}
 
 .hero{min-height:100vh;padding-top:74px;display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden;}
-.hero-left{display:flex;flex-direction:column;justify-content:center;padding:80px 20px 80px 9%;position:relative;z-index:4;}
+.hero-left{display:flex;flex-direction:column;justify-content:center;padding:80px 0 80px 9%;position:relative;z-index:4;}
 .eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:28px;}.eyebrow-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite;}@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}.eyebrow span{font-size:11px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;}
 .hero-title{font-family:'Playfair Display',serif;font-size:clamp(48px,5vw,66px);line-height:1.08;font-weight:700;margin-bottom:24px;}.hero-title em{font-style:italic;color:var(--accent);}
 .hero-desc{font-size:16px;line-height:1.8;color:var(--ink-mid);max-width:440px;margin-bottom:12px;}
-.hero-stats{display:flex;gap:36px;padding-top:32px;border-top:1px solid var(--border);}.stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;}.stat-label{font-size:10.5px;color:var(--ink-soft);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
+.hero-stats{display:flex;gap:36px;padding-top:32px;border-top:1px solid var(--border);max-width:440px;}.stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;}.stat-label{font-size:10.5px;color:var(--ink-soft);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
 
-.hero-right{display:flex;align-items:center;justify-content:center;padding:40px 40px 40px 10px;position:relative;overflow:hidden;}
+.hero-right{display:flex;align-items:center;justify-content:center;padding:40px 40px 40px 0;position:relative;overflow:hidden;}
 
 .carousel-wrap{position:relative;width:100%;max-width:624px;overflow:hidden;border-radius:18px;}
 .carousel-track{display:flex;transition:transform 0.6s cubic-bezier(0.25,0.1,0.25,1);}
@@ -37,7 +37,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 .tournament-section{background:var(--bg-alt);padding:60px 9%;}
 .section-eyebrow{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px;}.section-eyebrow::after{content:'';flex:0 0 48px;height:1px;background:var(--accent);opacity:0.4;}
-.section-title{font-family:'Playfair Display',serif;font-size:clamp(30px,3.5vw,44px);font-weight:700;margin-bottom:8px;}.section-sub{font-size:15px;color:var(--ink-soft);margin-bottom:32px;}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(30px,3.5vw,44px);font-weight:700;margin-bottom:8px;}.section-sub{font-size:15px;color:var(--ink-soft);margin-bottom:16px;}
 .t-banner{background:var(--card-dark);border-radius:16px;padding:22px 28px;display:flex;align-items:center;gap:24px;margin-bottom:24px;color:white;flex-wrap:wrap;}
 .t-info h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:4px;}.t-info h3 a{color:white;text-decoration:none;}.t-info h3 a:hover{color:var(--accent-light);}
 .t-details{display:flex;gap:18px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.06em;flex-wrap:wrap;}.t-det{display:flex;flex-direction:column;gap:2px;}.t-det .tv{color:rgba(255,255,255,0.85);font-size:11px;}
@@ -84,7 +84,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="section-eyebrow">Live Tournament</div>
 <h2 class="section-title">Tournament Feed</h2>
 <p class="section-sub">Results from recent and current tournaments.</p>
-<div id="tournament-feed" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+<div id="tournament-feed" style="display:grid;grid-template-columns:1fr 2fr;gap:24px;">
   <div id="feed-finished" style="padding:20px;text-align:center;color:var(--ink-soft);font-size:12px;">Loading...</div>
   <div id="feed-current" style="padding:20px;text-align:center;color:var(--ink-soft);font-size:12px;">Loading...</div>
 </div>
@@ -162,27 +162,29 @@ async function buildC(){
     var overallRating=cardData&&cardData.overall_rating!=null?cardData.overall_rating:'--';
     var toughRows='',strRows='';
     var srw=p.win_rate_short_rally||0,lrw=p.win_rate_long_rally||0,bps=bp.saved_pct||0,agg=p.aggression_index||0;
-    var toughList=[];
-    if(lrw<0.45)toughList.push({n:'Baseline grinders',r:'Long rally win '+pct(lrw)});
-    if(bps<0.6)toughList.push({n:'Aggressive returners',r:'BP saved only '+pct(bps)});
-    if(srw<0.6)toughList.push({n:'Big servers',r:'Short rally win '+pct(srw)});
-    if(toughList.length<3&&lrw>=0.45)toughList.push({n:'Baseline grinders',r:'Long rally win '+pct(lrw)});
-    if(toughList.length<3&&bps>=0.6)toughList.push({n:'Aggressive returners',r:'BP saved '+pct(bps)});
-    if(toughList.length<3&&srw>=0.6)toughList.push({n:'Big servers',r:'Short rally win '+pct(srw)});
-    toughList.slice(0,3).forEach(function(x){toughRows+='<div class="mu-row"><span class="oname">'+x.n+'</span><span class="reason">'+x.r+'</span></div>';});
-    var strList=[];
-    if(srw>0.6)strList.push({n:'First strike power',r:'Short rally win '+pct(srw)});
-    if(bps>0.6)strList.push({n:'Clutch serving',r:'BP saved '+pct(bps)});
-    if(agg>0.4)strList.push({n:'Shot-making ability',r:'Aggression '+pct(agg)});
-    if(strList.length<3&&srw<=0.6)strList.push({n:'First strike power',r:'Short rally win '+pct(srw)});
-    if(strList.length<3&&bps<=0.6)strList.push({n:'Clutch serving',r:'BP saved '+pct(bps)});
-    if(strList.length<3&&agg<=0.4)strList.push({n:'Shot-making ability',r:'Aggression '+pct(agg)});
-    strList.slice(0,3).forEach(function(x){strRows+='<div class="mu-row"><span class="oname">'+x.n+'</span><span class="reason">'+x.r+'</span></div>';});
+    var metrics=[
+      {n:'Baseline grinders',label:'Long rally win',val:lrw,avg:0.48},
+      {n:'Aggressive returners',label:'BP saved',val:bps,avg:0.62},
+      {n:'Big servers',label:'Short rally win',val:srw,avg:0.55},
+      {n:'Counter-punchers',label:'Aggression',val:agg,avg:0.40},
+      {n:'Net rushers',label:'Net approach',val:p.net_approach_pct||0,avg:0.12}
+    ];
+    var weakSorted=metrics.slice().sort(function(a,b){return (a.val-a.avg)-(b.val-b.avg);});
+    weakSorted.slice(0,3).forEach(function(x){toughRows+='<div class="mu-row"><span class="oname">'+x.n+'</span><span class="reason">'+x.label+' '+pct(x.val)+'</span></div>';});
+    var strMetrics=[
+      {n:'First strike power',label:'Short rally win',val:srw,avg:0.55},
+      {n:'Clutch serving',label:'BP saved',val:bps,avg:0.62},
+      {n:'Shot-making ability',label:'Aggression',val:agg,avg:0.40},
+      {n:'Rally dominance',label:'Long rally win',val:lrw,avg:0.48},
+      {n:'Net game',label:'Net approach',val:p.net_approach_pct||0,avg:0.12}
+    ];
+    var strSorted=strMetrics.slice().sort(function(a,b){return (b.val-b.avg)-(a.val-a.avg);});
+    strSorted.slice(0,3).forEach(function(x){strRows+='<div class="mu-row"><span class="oname">'+x.n+'</span><span class="reason">'+x.label+' '+pct(x.val)+'</span></div>';});
     c='<div class="fc-head"><span class="fc-tag">Featured Player</span><div class="cdots">'+FP.map(function(_,i){return '<div class="cdot'+(i===FP.indexOf(fp)?' on':'')+'" onclick="go('+i+')"></div>';}).join('')+'</div></div>'
     +'<div class="fc-top">'+avatarHtml+'<div><div class="fc-name">'+d.name+'</div><div class="fc-sub">'+fp.sub+'</div></div></div>'
     +'<div class="fc-meta"><div class="fm-item"><div class="fm-val">'+pct(p.aggression_index||0)+'</div><div class="fm-lbl">Aggression</div></div><div class="fm-item"><div class="fm-val">'+pct(p.win_rate_short_rally||0)+'</div><div class="fm-lbl">Short Rally</div></div><div class="fm-item"><div class="fm-val">'+pct(bp.saved_pct||0)+'</div><div class="fm-lbl">BP Saved</div></div><div class="fm-item"><div class="fm-val">'+overallRating+'</div><div class="fm-lbl">Rating</div></div></div>'
-    +'<div class="mu-sec"><div class="mu-lbl tough">Toughest Profiles</div>'+toughRows+'</div>'
     +'<div class="mu-sec"><div class="mu-lbl fav">Key Strengths</div>'+strRows+'</div>'
+    +'<div class="mu-sec"><div class="mu-lbl tough">Toughest Profiles</div>'+toughRows+'</div>'
     +'<a href="player.html?player='+encodeURIComponent(d.name)+'" class="vp-link">View Full Profile &rarr;</a>';
     }catch(e){c='<div class="fc-head"><span class="fc-tag">Featured Player</span></div><div class="fc-top"><div class="fc-av">'+ini(fp.name)+'</div><div><div class="fc-name">'+fp.name+'</div><div class="fc-sub">'+fp.sub+'</div></div></div><div style="padding:30px 0;color:var(--ink-soft);font-size:12px;text-align:center;">Start API for live data</div>';}
     html+='<div class="fc">'+c+'</div>';
@@ -229,7 +231,7 @@ async function loadTournamentPred() {
     if (!r.ok) throw 0;
     var d = await r.json();
     var title = document.getElementById('tourn-pred-title');
-    if (title) title.textContent = (d.tournament || 'Tournament') + ' — Win Probabilities';
+    if (title) title.textContent = d.tournament || 'Tournament';
     var container = document.getElementById('tourn-pred-content');
     if (!container) return;
 
@@ -252,16 +254,23 @@ async function loadTournamentPred() {
     if (d.dark_horses && d.dark_horses.length) {
       dhHtml = '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#DAA520;margin-bottom:12px;">Dark Horses</div>';
       d.dark_horses.slice(0, 5).forEach(function(f, idx) {
-        var wpct = ((f.win_prob || 0) * 100).toFixed(1);
+        var projLabel = f.projected_round || '—';
         var dhId = 'dh-expand-' + idx;
+        var reasonsHtml = '';
+        if (f.reasons && f.reasons.length) {
+          reasonsHtml = '<ul style="margin:6px 0 0 16px;padding:0;list-style:disc;">';
+          f.reasons.slice(0, 3).forEach(function(rr) { reasonsHtml += '<li style="margin-bottom:3px;">' + rr + '</li>'; });
+          reasonsHtml += '</ul>';
+        } else if (f.reason) {
+          reasonsHtml = '<div>' + f.reason + '</div>';
+        }
         dhHtml += '<div style="background:var(--card-bg);border-radius:10px;margin-bottom:8px;border:1px solid var(--border);overflow:hidden;">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;cursor:pointer;" onclick="var el=document.getElementById(\'' + dhId + '\');var arr=this.querySelector(\'.dh-arrow\');if(el.style.display===\'none\'){el.style.display=\'block\';arr.style.transform=\'rotate(180deg)\';}else{el.style.display=\'none\';arr.style.transform=\'rotate(0deg)\';}">'
           + '<span style="font-weight:500;font-size:14px;">' + f.player + '</span>'
-          + '<div style="display:flex;align-items:center;gap:10px;"><span style="font-family:\'Playfair Display\',serif;font-size:18px;font-weight:700;color:#DAA520;">' + wpct + '%</span>'
+          + '<div style="display:flex;align-items:center;gap:10px;"><span style="font-family:\'DM Mono\',monospace;font-size:12px;color:#DAA520;">' + projLabel + '</span>'
           + '<span class="dh-arrow" style="font-size:12px;transition:transform 0.2s;display:inline-block;">&#9660;</span></div></div>'
           + '<div id="' + dhId + '" style="display:none;padding:0 16px 12px;font-size:12px;color:var(--ink-soft);">'
-          + '<div>' + (f.reason || '') + '</div>'
-          + (f.projected_round ? '<div style="margin-top:4px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--ink-mid);">Projected: ' + f.projected_round + '</div>' : '')
+          + reasonsHtml
           + '</div></div>';
       });
     }
