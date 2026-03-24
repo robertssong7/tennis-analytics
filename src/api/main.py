@@ -1589,16 +1589,42 @@ _tournament_pred_cache: dict = {}
 def tournament_predictions():
     """
     Return favorites and dark horses for the current tournament (Miami Open 2026, Hard).
-    Computed from Glicko-2 hard-court ratings.
+    Computed from Glicko-2 hard-court ratings, filtered to players in the draw.
     """
     if _tournament_pred_cache:
         return _tournament_pred_cache
 
     import math as _math
+    import csv as _csv
 
     engine = _get_engine()
     _latest = engine.latest_data_date
     _retire_days = 548
+
+    # ── Load draw from supplemental CSV ──────────────────────────
+    _suppl_path = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'supplemental_matches_2025_2026.csv'
+    draw_canonical = set()
+    draw_available = False
+    if _suppl_path.exists():
+        # Use the engine's supplemental name map (abbrev -> canonical)
+        _name_map = getattr(engine, '_supplemental_name_map', {})
+        if not _name_map:
+            # Engine may not have built it yet; build on demand
+            from src.api.predict_engine import _build_supplemental_name_map
+            _name_map = _build_supplemental_name_map(engine.player_names)
+        try:
+            import pandas as _pd
+            _suppl_df = _pd.read_csv(_suppl_path)
+            _miami = _suppl_df[_suppl_df['tourney_name'].str.contains('Miami', case=False, na=False)]
+            if len(_miami) > 0:
+                draw_available = True
+                for _col in ['winner_name', 'loser_name']:
+                    for _abbrev in _miami[_col].dropna().unique():
+                        _canon = _name_map.get(str(_abbrev).strip())
+                        if _canon:
+                            draw_canonical.add(_canon)
+        except Exception as _e:
+            logger.warning(f"Could not load draw from supplemental CSV: {_e}")
 
     # Collect active players with hard court ratings
     active_hard = []
@@ -1618,8 +1644,14 @@ def tournament_predictions():
 
     active_hard.sort(key=lambda x: x[1], reverse=True)
 
-    # Top 20 for normalization
-    top20 = active_hard[:20]
+    # If draw is available, filter to draw players only
+    if draw_available and draw_canonical:
+        active_hard_in_draw = [(n, h, o) for n, h, o in active_hard if n in draw_canonical]
+    else:
+        active_hard_in_draw = active_hard
+
+    # Top 20 for normalization (from draw-filtered list)
+    top20 = active_hard_in_draw[:20]
     total_exp = sum(_math.exp(mu / 100) for _, mu, _ in top20)
 
     # Favorites: top 5
@@ -1653,11 +1685,11 @@ def tournament_predictions():
             "reasons": reasons,
         })
 
-    # Dark horses: players ranked 15-30 by hard court rating with strong recent form
+    # Dark horses: players ranked 15-30 by hard court rating (draw-filtered) with strong recent form
     # Build field average attributes for comparison
     _field_attr_avgs = {}
     _field_attr_counts = {}
-    for _fn, _fhmu, _fomu in active_hard[:30]:
+    for _fn, _fhmu, _fomu in active_hard_in_draw[:30]:
         _facc = engine.attributes.get(_fn)
         if _facc:
             try:
@@ -1674,18 +1706,16 @@ def tournament_predictions():
             _field_attr_avgs[_fa_name] = round(float(_field_attr_avgs[_fa_name]) / _field_attr_counts[_fa_name], 1)
 
     # Determine surface rating rank cutoffs for projected_round
-    _surf_rank_lookup = {n: i + 1 for i, (n, _, _) in enumerate(active_hard)}
+    _surf_rank_lookup = {n: i + 1 for i, (n, _, _) in enumerate(active_hard_in_draw)}
 
     dark_horses = []
-    for name, hard_mu, overall_mu in active_hard[14:30]:
+    for name, hard_mu, overall_mu in active_hard_in_draw[14:30]:
         form_data = engine.player_form.get(name, {})
         form_3 = form_data.get('form_3', 0.5)
         form_5 = form_data.get('form_5', 0.5)
         surf_form = form_data.get('surface_form_hard', 0.5)
         # Require strong recent form
         if form_5 >= 0.6 or surf_form >= 0.6:
-            win_prob = round(float(_math.exp(hard_mu / 100) / total_exp), 3)
-
             # Generate detailed reasons
             reasons = []
 
@@ -1735,8 +1765,18 @@ def tournament_predictions():
 
             reasons.append(f"Hard court rating: {int(hard_mu)}")
 
-            # Ensure exactly 3 reasons
+            # Ensure exactly 3 reasons (trim or pad)
             reasons = reasons[:3]
+            _generic_reasons = [
+                f"Consistent performer at Masters 1000 level",
+                f"Experienced on outdoor hard courts",
+                f"Dangerous floater in the draw",
+            ]
+            _gi = 0
+            while len(reasons) < 3 and _gi < len(_generic_reasons):
+                if _generic_reasons[_gi] not in reasons:
+                    reasons.append(_generic_reasons[_gi])
+                _gi += 1
 
             # Projected round based on surface rating rank
             _rank = _surf_rank_lookup.get(name, 99)
@@ -1767,7 +1807,6 @@ def tournament_predictions():
                 "player": name,
                 "hard_rating": round(float(hard_mu), 1),
                 "overall_rating": round(float(overall_mu), 1),
-                "win_prob": win_prob,
                 "reasons": reasons,
                 "projected_round": projected_round,
                 "reason_summary": reason_summary,
@@ -1778,6 +1817,8 @@ def tournament_predictions():
         "tournament": "Miami Open",
         "year": 2026,
         "surface": "Hard",
+        "draw_available": draw_available,
+        "draw_size": len(draw_canonical) if draw_available else None,
         "favorites": favorites,
         "dark_horses": dark_horses,
     }
