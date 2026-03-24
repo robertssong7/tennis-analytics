@@ -280,9 +280,11 @@ def get_player_image(code: str):
 
     # Serve from disk cache if available
     if cached.exists() and cached.stat().st_size > 500:
+        logger.debug(f"Headshot cache HIT: {code}")
         return Response(content=cached.read_bytes(), media_type="image/png",
                        headers={"Cache-Control": "public, max-age=604800"})
 
+    logger.info(f"Headshot cache MISS: {code} — fetching from ATP")
     # Fetch from ATP and save to cache
     url = f"https://www.atptour.com/-/media/alias/player-headshot/{code}"
     try:
@@ -845,6 +847,8 @@ def player_patterns_new(
     return result
 
 
+_matchups_result_cache: dict = {}
+
 @app.get("/player/{name}/matchups")
 def player_matchups(
     name: str,
@@ -854,6 +858,10 @@ def player_matchups(
     canonical = engine.find_player(name)
     if canonical is None:
         raise HTTPException(404, f"Player not found: {name!r}")
+
+    cache_key = f"{canonical}:{surface}"
+    if cache_key in _matchups_result_cache:
+        return _matchups_result_cache[cache_key]
 
     grid_data = _get_matchup_grid()
     if not grid_data:
@@ -1107,7 +1115,7 @@ def player_matchups(
         toughest_active.sort(key=lambda x: x['player_win_prob'])
         easiest_active.sort(key=lambda x: x['player_win_prob'], reverse=True)
 
-    return {
+    result = {
         "player": canonical,
         "surface": surface,
         "available": True,
@@ -1117,6 +1125,8 @@ def player_matchups(
         "easiest_active": easiest_active[:5],
         "top100": grid_data.get("top100", [])
     }
+    _matchups_result_cache[cache_key] = result
+    return result
 
 
 _similar_cache: dict = {}

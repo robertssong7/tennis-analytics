@@ -146,10 +146,17 @@ function ini(n){return n.split(' ').map(w=>w[0]).join('');}
 
 async function buildC(){
   const t=document.getElementById('ct');let html='';
-  for(const fp of FP){
+  // Fetch ALL player data in parallel (was sequential)
+  var allData=await Promise.all(FP.map(function(fp){
+    return Promise.all([
+      fetch(API+'/player/'+encodeURIComponent(fp.name)).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+      fetch(API_URL+'/predict/player/'+encodeURIComponent(fp.name)).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+    ]);
+  }));
+  for(var fi=0;fi<FP.length;fi++){
+    var fp=FP[fi];var fetched=allData[fi];var d=fetched[0];var cardData=fetched[1];
     let c='';
-    try{const r=await fetch(`${API}/player/${encodeURIComponent(fp.name)}`);if(!r.ok)throw 0;const d=await r.json(),p=d.profile||{},bp=d.break_points||{},ps=((p.serve_wide_pct_pressure||0)-(p.serve_wide_pct||0));
-    var cardRes=await fetch(API_URL+'/predict/player/'+encodeURIComponent(fp.name));var cardData=cardRes.ok?await cardRes.json():null;
+    try{if(!d)throw 0;var p=d.profile||{},bp=d.break_points||{},ps=((p.serve_wide_pct_pressure||0)-(p.serve_wide_pct||0));
     var hsCode=(cardData&&cardData.headshot_url||'').split('/').pop();
     var avatarHtml=hsCode?'<img src="'+API_URL+'/api/player-image/'+hsCode+'" style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-right:16px;flex-shrink:0;" onerror="this.outerHTML=\'<div class=fc-av>'+ini(d.name)+'</div>\'">':'<div class="fc-av">'+ini(d.name)+'</div>';
     var overallRating=cardData&&cardData.overall_rating!=null?cardData.overall_rating:'--';
