@@ -154,9 +154,27 @@ class PredictEngine:
             self.lgb_model = pickle.load(f)
         logger.info("  ✓ LightGBM loaded")
 
-        with open(ENSEMBLE_DIR / 'stacked_ensemble.pkl', 'rb') as f:
-            self.ensemble = pickle.load(f)
-        logger.info(f"  ✓ Stacked ensemble loaded (type={self.ensemble.get('type','?') if isinstance(self.ensemble, dict) else type(self.ensemble).__name__})")
+        # Load stacked ensemble — prefer JSON (stable) over pickle (fragile)
+        stacked_json = ENSEMBLE_DIR / 'stacked_meta.json'
+        if stacked_json.exists():
+            import json as _json
+            from sklearn.linear_model import LogisticRegression
+            with open(stacked_json) as f:
+                meta = _json.load(f)
+            stacker = LogisticRegression()
+            stacker.coef_ = np.array(meta['coef'])
+            stacker.intercept_ = np.array(meta['intercept'])
+            stacker.classes_ = np.array([0, 1])
+            self.ensemble = {
+                'type': 'stacked',
+                'stacker': stacker,
+                'model_names': meta.get('model_names', ['xgboost', 'lightgbm'])
+            }
+            logger.info(f"  ✓ Stacked ensemble loaded from JSON (coef shape: {stacker.coef_.shape})")
+        else:
+            with open(ENSEMBLE_DIR / 'stacked_ensemble.pkl', 'rb') as f:
+                self.ensemble = pickle.load(f)
+            logger.info(f"  ✓ Stacked ensemble loaded from pickle (legacy fallback)")
 
         # Player state
         with open(DATA_DIR / 'glicko2_state.pkl', 'rb') as f:
