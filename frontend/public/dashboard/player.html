@@ -309,6 +309,7 @@ var cardData = null;
 var patternsData = null;
 var matchupsData = null;
 var matchupsShowActive = true;
+var similarData = null;
 
 document.title = 'TennisIQ \u2014 ' + playerName;
 
@@ -359,17 +360,19 @@ async function loadAll() {
     var fetchSurf = activeSurf === 'overall' ? '' : activeSurf;
     var surfParam = fetchSurf ? '?surface=' + fetchSurf : '';
 
-    var [patternsRes, condRes, matchupsRes, scenariosRes] = await Promise.all([
-      fetch(API + '/player/' + pName + '/patterns').catch(function(){return null;}),
+    var [patternsRes, condRes, matchupsRes, scenariosRes, similarRes] = await Promise.all([
+      fetch(API + '/player/' + pName + '/patterns' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/conditions' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/matchups' + (fetchSurf ? '?surface=' + fetchSurf : '?surface=hard')).catch(function(){return null;}),
-      fetch(API + '/player/' + pName + '/scenarios' + surfParam).catch(function(){return null;})
+      fetch(API + '/player/' + pName + '/scenarios' + surfParam).catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/similar').catch(function(){return null;})
     ]);
 
     patternsData = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
     var conditions = condRes && condRes.ok ? await condRes.json() : null;
     matchupsData = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
     var scenarios = scenariosRes && scenariosRes.ok ? await scenariosRes.json() : null;
+    similarData = similarRes && similarRes.ok ? await similarRes.json() : null;
 
     // Re-render with full data
     renderContent(cardData, patternsData, matchupsData, conditions, scenarios);
@@ -588,8 +591,12 @@ function renderContent(card, patterns, matchups, conditions, scenarios) {
     + scenariosHtml
     + '</div>'
     + '<div class="section">'
-    + '<div class="sec-title">Matchups (Top 100)</div>'
+    + '<div class="sec-title">Matchups</div>'
     + '<div id="matchup-content">' + matchupsHtml + '</div>'
+    + '</div>'
+    + '<div class="section">'
+    + '<div class="sec-title">Similar Players</div>'
+    + renderSimilarPlayers(similarData)
     + '</div>';
 }
 
@@ -758,17 +765,19 @@ async function applySurfaceUpdate() {
   var pName = encodeURIComponent(cardData.name);
 
   try {
-    var [condRes, matchupsRes, scenariosRes] = await Promise.all([
+    var [patternsRes, condRes, matchupsRes, scenariosRes] = await Promise.all([
+      fetch(API + '/player/' + pName + '/patterns' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/conditions' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/matchups' + (fetchSurf ? '?surface=' + fetchSurf : '?surface=hard')).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/scenarios' + surfParam).catch(function(){return null;})
     ]);
 
+    patternsData = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
     var conditions = condRes && condRes.ok ? await condRes.json() : null;
     matchupsData = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
     var scenarios = scenariosRes && scenariosRes.ok ? await scenariosRes.json() : null;
 
-    // Re-render the content sections (keep patterns from initial load since they don't have surface filter)
+    // Re-render all content sections including patterns with surface filter
     renderContent(cardData, patternsData, matchupsData, conditions, scenarios);
   } catch(e) {}
 
@@ -873,6 +882,24 @@ function renderExpansion(player, opp) {
     + surfCompare
     + compareRows
     + '<a href="compare.html?p1=' + encodeURIComponent(player.name) + '&p2=' + encodeURIComponent(opp.name) + '&surface=' + fetchSurf + '" style="display:block;text-align:center;margin-top:10px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--accent);text-decoration:none;">Full Comparison \u2192</a></div>';
+}
+
+/* ── Render Similar Players ────────────────────────────── */
+function renderSimilarPlayers(data) {
+  if (!data || !data.similar_players || data.similar_players.length === 0) {
+    return '<p style="color:var(--ink-soft);font-size:13px;">Insufficient data to compute player similarities.</p>';
+  }
+  return data.similar_players.map(function(p) {
+    var pctVal = Math.round(p.similarity_score * 100);
+    var reasonsHtml = (p.reasons || []).map(function(r) {
+      return '<div style="font-size:12px;color:var(--ink-mid);padding:2px 0;">\u2022 ' + r + '</div>';
+    }).join('');
+    return '<div style="background:white;border-radius:12px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:10px;cursor:pointer;" onclick="location.href=\'player.html?name=' + encodeURIComponent(p.name) + '\'">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+      + '<span style="font-weight:500;font-size:14px;">' + p.name + '</span>'
+      + '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--accent);">' + pctVal + '% similar</span></div>'
+      + reasonsHtml + '</div>';
+  }).join('');
 }
 
 /* ── Render Scenarios ──────────────────────────────────── */
