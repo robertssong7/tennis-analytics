@@ -13,6 +13,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from datetime import timedelta
 from typing import Optional
 
 import psycopg2
@@ -690,15 +691,20 @@ def search_players(q: str = Query(..., min_length=2)):
 # ─────────────────────────────────────────────────────────────
 
 @app.get("/player/{name}/patterns")
-def player_patterns_new(name: str):
+def player_patterns_new(
+    name: str,
+    surface: Optional[str] = Query(None, description="Filter by surface: hard | clay | grass"),
+):
     """
     Returns play pattern data from parsed_points.parquet.
+    Optional ?surface= parameter filters points by Surface column.
     """
     import pandas as pd
     import numpy as np
 
-    if name in _pattern_cache:
-        return _pattern_cache[name]
+    cache_key = f"{name}:{surface}" if surface else name
+    if cache_key in _pattern_cache:
+        return _pattern_cache[cache_key]
 
     engine = _get_engine()
     canonical = engine.find_player(name)
@@ -737,15 +743,22 @@ def player_patterns_new(name: str):
             "player": canonical,
             "reason": "No charted data for this player. Coverage includes ~980 players from the Match Charting Project."
         }
-        _pattern_cache[name] = result
+        _pattern_cache[cache_key] = result
         return result
 
     mask = (pts["Player 1"] == charted_name) | (pts["Player 2"] == charted_name)
     player_pts = pts[mask].copy()
 
+    # Surface filtering if requested
+    if surface and "Surface" in player_pts.columns:
+        _surf_map = {"hard": "Hard", "clay": "Clay", "grass": "Grass"}
+        _surf_val = _surf_map.get(surface.lower())
+        if _surf_val:
+            player_pts = player_pts[player_pts["Surface"] == _surf_val]
+
     if len(player_pts) == 0:
-        result = {"available": False, "player": canonical, "reason": "No charted data"}
-        _pattern_cache[name] = result
+        result = {"available": False, "player": canonical, "reason": "No charted data" + (f" on {surface}" if surface else "")}
+        _pattern_cache[cache_key] = result
         return result
 
     # Server perspective
@@ -819,6 +832,7 @@ def player_patterns_new(name: str):
     result = {
         "available": True,
         "player": canonical,
+        "surface": surface if surface else "all",
         "charted_name": charted_name,
         "matches_charted": int(n_matches),
         "top_serve_directions": serve_dir,
@@ -827,7 +841,7 @@ def player_patterns_new(name: str):
         "aggression_index": aggression_index,
         "defensive_win_rate": defensive_wr
     }
-    _pattern_cache[name] = result
+    _pattern_cache[cache_key] = result
     return result
 
 
@@ -988,17 +1002,64 @@ def player_matchups(
     toughest_active = [x for x in toughest if not x["is_retired"]]
     easiest_active = [x for x in easiest if not x["is_retired"]]
 
+    # Get player's own Elo for proximity filtering
+    _player_ratings = engine.glicko.ratings.get(canonical, {})
+    _player_all = _player_ratings.get('all')
+    _player_elo = _player_all.mu if _player_all else 1500
+    _recency_cutoff = timedelta(days=730)  # 2 years
+
+    def _is_quality_opponent(opp_name):
+        """Check recency (2yr), tour-level (>=100 matches)."""
+        opp_ratings = engine.glicko.ratings.get(opp_name, {})
+        opp_all = opp_ratings.get('all')
+        if opp_all is None:
+            return False
+        # Recency: last match within 2 years of LATEST_DATA_DATE
+        if opp_all.last_match_date is None:
+            return False
+        if (_latest - opp_all.last_match_date) > _recency_cutoff:
+            return False
+        # Tour level: at least 100 matches
+        if opp_all.match_count < 100:
+            return False
+        return True
+
+    def _is_elo_proximate(opp_name, elo_threshold):
+        """Check opponent is within elo_threshold of player (for EASIEST)."""
+        opp_ratings = engine.glicko.ratings.get(opp_name, {})
+        opp_all = opp_ratings.get('all')
+        if opp_all is None:
+            return False
+        return opp_all.mu >= (_player_elo - elo_threshold)
+
+    # Filter precomputed easiest_active by quality + Elo proximity
+    # Try 400, then relax to 600, then 800
+    _filtered_easiest = []
+    for threshold in (400, 600, 800):
+        _filtered_easiest = [
+            x for x in easiest_active
+            if _is_quality_opponent(x['opponent']) and _is_elo_proximate(x['opponent'], threshold)
+        ]
+        if len(_filtered_easiest) >= 5:
+            break
+    easiest_active = _filtered_easiest
+
+    # Filter precomputed toughest_active by quality (recency + match count only)
+    toughest_active = [x for x in toughest_active if _is_quality_opponent(x['opponent'])]
+
     # On-the-fly prediction to fill active lists when precomputed grid lacks enough active players
     if len(toughest_active) < 5 or len(easiest_active) < 5:
         already_listed = set(
             [x['opponent'] for x in toughest] + [x['opponent'] for x in easiest]
+            + [x['opponent'] for x in toughest_active] + [x['opponent'] for x in easiest_active]
         )
         active_players = []
         for pname, surfaces_dict in engine.glicko.ratings.items():
             r = surfaces_dict.get('all')
             if r and r.last_match_date and not _is_retired(pname):
                 if pname != canonical and pname not in already_listed:
-                    active_players.append((pname, r.mu))
+                    if _is_quality_opponent(pname):
+                        active_players.append((pname, r.mu))
 
         # For toughest: pick highest-rated active players we haven't included
         if len(toughest_active) < 5:
@@ -1010,29 +1071,37 @@ def player_matchups(
                     continue
                 try:
                     result = engine.predict(canonical, opp_name, surface)
-                    wp = round(result['player1_win_prob'], 3)
+                    wp = round(float(result['player1_win_prob']), 3)
                     item = {"opponent": opp_name, "player_win_prob": wp, "is_retired": False}
                     item['reasons'] = _generate_reasons(canonical, opp_name, wp, surface)
                     toughest_active.append(item)
                 except Exception:
                     pass
 
-        # For easiest: pick lowest-rated active players
+        # For easiest: pick from active players within Elo proximity
         if len(easiest_active) < 5:
-            active_players.sort(key=lambda x: x[1])
-            for opp_name, opp_mu in active_players:
+            for threshold in (400, 600, 800):
+                elo_filtered = [
+                    (n, mu) for n, mu in active_players
+                    if mu >= (_player_elo - threshold)
+                    and n not in [x['opponent'] for x in easiest_active]
+                ]
+                elo_filtered.sort(key=lambda x: x[1])  # lowest rated first
+                for opp_name, opp_mu in elo_filtered:
+                    if len(easiest_active) >= 5:
+                        break
+                    if opp_name in [x['opponent'] for x in easiest_active]:
+                        continue
+                    try:
+                        result = engine.predict(canonical, opp_name, surface)
+                        wp = round(float(result['player1_win_prob']), 3)
+                        item = {"opponent": opp_name, "player_win_prob": wp, "is_retired": False}
+                        item['reasons'] = _generate_reasons(canonical, opp_name, wp, surface)
+                        easiest_active.append(item)
+                    except Exception:
+                        pass
                 if len(easiest_active) >= 5:
                     break
-                if opp_name in [x['opponent'] for x in easiest_active]:
-                    continue
-                try:
-                    result = engine.predict(canonical, opp_name, surface)
-                    wp = round(result['player1_win_prob'], 3)
-                    item = {"opponent": opp_name, "player_win_prob": wp, "is_retired": False}
-                    item['reasons'] = _generate_reasons(canonical, opp_name, wp, surface)
-                    easiest_active.append(item)
-                except Exception:
-                    pass
 
         # Re-sort after backfill
         toughest_active.sort(key=lambda x: x['player_win_prob'])
@@ -1048,6 +1117,71 @@ def player_matchups(
         "easiest_active": easiest_active[:5],
         "top100": grid_data.get("top100", [])
     }
+
+
+_similar_cache: dict = {}
+
+@app.get("/player/{name}/similar")
+def player_similar(name: str):
+    """Return top 5 most similar players based on attribute profiles."""
+    if name in _similar_cache:
+        return _similar_cache[name]
+
+    engine = _get_engine()
+    canonical = engine.find_player(name)
+    if canonical is None:
+        raise HTTPException(404, f"Player not found: {name!r}")
+
+    card = engine.get_player_card(canonical, 'hard')
+    attrs = card.get('attributes', {})
+    player_elo = float(card.get('elo', 1500))
+
+    # Compare against all players with charted data
+    similar = []
+    for other_name in engine.player_names:
+        if other_name == canonical:
+            continue
+        other_ratings = engine.glicko.ratings.get(other_name, {}).get('all')
+        if not other_ratings or other_ratings.match_count < 50:
+            continue
+        # Must be within 300 Elo
+        if abs(float(other_ratings.mu) - player_elo) > 300:
+            continue
+
+        other_card = engine.get_player_card(other_name, 'hard')
+        other_attrs = other_card.get('attributes', {})
+
+        # Compute similarity across available attributes
+        diffs = []
+        reasons = []
+        attr_names = ['serve', 'groundstroke', 'endurance', 'durability', 'clutch', 'mental']
+        for a in attr_names:
+            v1 = attrs.get(a)
+            v2 = other_attrs.get(a)
+            if v1 is not None and v2 is not None:
+                diff = abs(float(v1) - float(v2)) / 99.0
+                diffs.append(diff)
+                if diff < 0.08:  # Very similar
+                    reasons.append(f"Similar {a} ({int(v1)} vs {int(v2)})")
+
+        if len(diffs) < 3:
+            continue
+
+        sim_score = 1.0 - (sum(diffs) / len(diffs))
+        similar.append({
+            'name': other_name,
+            'similarity_score': round(float(sim_score), 3),
+            'reasons': reasons[:3] if reasons else [f"Similar overall profile (score: {round(float(sim_score)*100)}%)"]
+        })
+
+    similar.sort(key=lambda x: x['similarity_score'], reverse=True)
+
+    result = {
+        'player': canonical,
+        'similar_players': similar[:5]
+    }
+    _similar_cache[name] = result
+    return result
 
 
 @app.get("/player/{name}/conditions")
@@ -1510,6 +1644,28 @@ def tournament_predictions():
         })
 
     # Dark horses: players ranked 15-30 by hard court rating with strong recent form
+    # Build field average attributes for comparison
+    _field_attr_avgs = {}
+    _field_attr_counts = {}
+    for _fn, _fhmu, _fomu in active_hard[:30]:
+        _facc = engine.attributes.get(_fn)
+        if _facc:
+            try:
+                _fraw = _facc.compute_raw_attributes()
+                for _fa_name, _fa_val in _fraw.items():
+                    _mapped = int(min(99, max(30, 30 + _fa_val * 69)))
+                    if _mapped > 35:
+                        _field_attr_avgs[_fa_name] = _field_attr_avgs.get(_fa_name, 0) + _mapped
+                        _field_attr_counts[_fa_name] = _field_attr_counts.get(_fa_name, 0) + 1
+            except Exception:
+                pass
+    for _fa_name in _field_attr_avgs:
+        if _field_attr_counts.get(_fa_name, 0) > 0:
+            _field_attr_avgs[_fa_name] = round(float(_field_attr_avgs[_fa_name]) / _field_attr_counts[_fa_name], 1)
+
+    # Determine surface rating rank cutoffs for projected_round
+    _surf_rank_lookup = {n: i + 1 for i, (n, _, _) in enumerate(active_hard)}
+
     dark_horses = []
     for name, hard_mu, overall_mu in active_hard[14:30]:
         form_data = engine.player_form.get(name, {})
@@ -1518,22 +1674,93 @@ def tournament_predictions():
         surf_form = form_data.get('surface_form_hard', 0.5)
         # Require strong recent form
         if form_5 >= 0.6 or surf_form >= 0.6:
-            win_prob = round(_math.exp(hard_mu / 100) / total_exp, 3)
+            win_prob = round(float(_math.exp(hard_mu / 100) / total_exp), 3)
+
+            # Generate detailed reasons
             reasons = []
-            if form_5 >= 0.8:
-                reasons.append(f"Excellent recent form ({int(form_5*100)}% in last 5)")
-            elif form_5 >= 0.6:
-                reasons.append(f"Good recent form ({int(form_5*100)}% in last 5)")
-            if surf_form >= 0.65:
-                reasons.append(f"Strong on hard courts ({int(surf_form*100)}% win rate)")
+
+            # 1. Serve attribute vs field average
+            _dh_acc = engine.attributes.get(name)
+            _dh_serve = None
+            _dh_endurance = None
+            _dh_clutch = None
+            if _dh_acc:
+                try:
+                    _dh_raw = _dh_acc.compute_raw_attributes()
+                    _dh_serve = int(min(99, max(30, 30 + _dh_raw.get('serve', 0.5) * 69)))
+                    _dh_endurance = int(min(99, max(30, 30 + _dh_raw.get('endurance', 0.5) * 69)))
+                    _dh_clutch = int(min(99, max(30, 30 + _dh_raw.get('clutch', 0.5) * 69)))
+                except Exception:
+                    pass
+
+            if _dh_serve is not None and _dh_serve > 35:
+                _f_avg_serve = _field_attr_avgs.get('serve', 60)
+                if _dh_serve > _f_avg_serve + 3:
+                    reasons.append(f"Serve ({_dh_serve}) above field average ({int(_f_avg_serve)})")
+                elif _dh_serve >= _f_avg_serve - 3:
+                    reasons.append(f"Serve ({_dh_serve}) matches field average ({int(_f_avg_serve)})")
+
+            # 2. Surface-specific rating vs overall rating
+            surf_boost = hard_mu - overall_mu
+            if surf_boost > 20:
+                reasons.append(f"Hard court specialist (+{int(surf_boost)} rating vs overall)")
+            elif surf_boost > 0:
+                reasons.append(f"Slightly better on hard courts (+{int(surf_boost)} vs overall)")
+
+            # 3. Recent form
+            if float(form_3) >= 0.67:
+                reasons.append(f"Hot streak: {int(float(form_3)*100)}% win rate in last 3 matches")
+            elif float(form_5) >= 0.6:
+                reasons.append(f"Good recent form: {int(float(form_5)*100)}% in last 5 matches")
+
+            # 4. Endurance/clutch attributes
+            if _dh_endurance is not None and _dh_endurance > 70:
+                reasons.append(f"High endurance ({_dh_endurance}) for deep tournament runs")
+            if _dh_clutch is not None and _dh_clutch > 70:
+                reasons.append(f"Clutch performer ({_dh_clutch}) in tight moments")
+
+            # Surface form as fallback
+            if float(surf_form) >= 0.65:
+                reasons.append(f"Strong hard court form ({int(float(surf_form)*100)}% win rate)")
+
             reasons.append(f"Hard court rating: {int(hard_mu)}")
+
+            # Ensure exactly 3 reasons
+            reasons = reasons[:3]
+
+            # Projected round based on surface rating rank
+            _rank = _surf_rank_lookup.get(name, 99)
+            if _rank <= 15:
+                projected_round = "Semifinal"
+            elif _rank <= 25:
+                projected_round = "Quarterfinal"
+            else:
+                projected_round = "Round of 16"
+
+            # Build reason_summary
+            _summary_parts = []
+            if float(form_5) >= 0.8:
+                _summary_parts.append("excellent form")
+            elif float(form_5) >= 0.6:
+                _summary_parts.append("strong form")
+            if surf_boost > 20:
+                _summary_parts.append("hard court specialist")
+            elif float(surf_form) >= 0.65:
+                _summary_parts.append("hard court strength")
+            if _dh_clutch is not None and _dh_clutch > 70:
+                _summary_parts.append("clutch ability")
+            elif _dh_serve is not None and _dh_serve > _field_attr_avgs.get('serve', 60):
+                _summary_parts.append("big serve")
+            reason_summary = f"Dark horse due to {', '.join(_summary_parts[:2]) if _summary_parts else 'overall profile'}"
 
             dark_horses.append({
                 "player": name,
-                "hard_rating": round(hard_mu, 1),
-                "overall_rating": round(overall_mu, 1),
+                "hard_rating": round(float(hard_mu), 1),
+                "overall_rating": round(float(overall_mu), 1),
                 "win_prob": win_prob,
-                "reasons": reasons[:3],
+                "reasons": reasons,
+                "projected_round": projected_round,
+                "reason_summary": reason_summary,
             })
     dark_horses = dark_horses[:5]
 
