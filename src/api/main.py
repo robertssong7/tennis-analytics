@@ -988,20 +988,55 @@ def player_matchups(
     toughest_active = [x for x in toughest if not x["is_retired"]]
     easiest_active = [x for x in easiest if not x["is_retired"]]
 
-    # Ensure we always have 5 in each active array if possible
-    # Only backfill with non-retired players — never re-add retired players
-    if len(toughest_active) < 5:
-        for item in toughest:
-            if len(toughest_active) >= 5:
-                break
-            if item not in toughest_active and not item.get("is_retired", False):
-                toughest_active.append(item)
-    if len(easiest_active) < 5:
-        for item in easiest:
-            if len(easiest_active) >= 5:
-                break
-            if item not in easiest_active and not item.get("is_retired", False):
-                easiest_active.append(item)
+    # On-the-fly prediction to fill active lists when precomputed grid lacks enough active players
+    if len(toughest_active) < 5 or len(easiest_active) < 5:
+        already_listed = set(
+            [x['opponent'] for x in toughest] + [x['opponent'] for x in easiest]
+        )
+        active_players = []
+        for pname, surfaces_dict in engine.glicko.ratings.items():
+            r = surfaces_dict.get('all')
+            if r and r.last_match_date and not _is_retired(pname):
+                if pname != canonical and pname not in already_listed:
+                    active_players.append((pname, r.mu))
+
+        # For toughest: pick highest-rated active players we haven't included
+        if len(toughest_active) < 5:
+            active_players.sort(key=lambda x: x[1], reverse=True)
+            for opp_name, opp_mu in active_players:
+                if len(toughest_active) >= 5:
+                    break
+                if opp_name in [x['opponent'] for x in toughest_active]:
+                    continue
+                try:
+                    result = engine.predict(canonical, opp_name, surface)
+                    wp = round(result['player1_win_prob'], 3)
+                    item = {"opponent": opp_name, "player_win_prob": wp, "is_retired": False}
+                    item['reasons'] = _generate_reasons(canonical, opp_name, wp, surface)
+                    toughest_active.append(item)
+                except Exception:
+                    pass
+
+        # For easiest: pick lowest-rated active players
+        if len(easiest_active) < 5:
+            active_players.sort(key=lambda x: x[1])
+            for opp_name, opp_mu in active_players:
+                if len(easiest_active) >= 5:
+                    break
+                if opp_name in [x['opponent'] for x in easiest_active]:
+                    continue
+                try:
+                    result = engine.predict(canonical, opp_name, surface)
+                    wp = round(result['player1_win_prob'], 3)
+                    item = {"opponent": opp_name, "player_win_prob": wp, "is_retired": False}
+                    item['reasons'] = _generate_reasons(canonical, opp_name, wp, surface)
+                    easiest_active.append(item)
+                except Exception:
+                    pass
+
+        # Re-sort after backfill
+        toughest_active.sort(key=lambda x: x['player_win_prob'])
+        easiest_active.sort(key=lambda x: x['player_win_prob'], reverse=True)
 
     return {
         "player": canonical,
@@ -1016,12 +1051,17 @@ def player_matchups(
 
 
 @app.get("/player/{name}/conditions")
-def player_conditions(name: str):
-    """Return conditions for a player in exactly 3 categories: climate, court_speed, ball_type."""
+def player_conditions(
+    name: str,
+    surface: Optional[str] = Query(None, description="Filter by surface: hard | clay | grass"),
+):
+    """Return conditions for a player in exactly 3 categories: climate, court_speed, ball_type.
+    Optional ?surface= parameter filters matches to a specific surface before computing."""
     import pandas as pd
 
-    if name in _conditions_cache:
-        return _conditions_cache[name]
+    cache_key = f"{name}:{surface}" if surface else name
+    if cache_key in _conditions_cache:
+        return _conditions_cache[cache_key]
 
     engine = _get_engine()
     canonical = engine.find_player(name)
@@ -1119,17 +1159,22 @@ def player_conditions(name: str):
         result = {"player": canonical, "available": False,
                   "by_category": {"climate": [], "court_speed": [], "ball_type": []},
                   "missing_categories": ["climate", "court_speed", "ball_type"]}
-        _conditions_cache[name] = result
+        _conditions_cache[cache_key] = result
         return result
 
     all_matches = pd.concat(records, ignore_index=True)
+
+    # Apply surface filter if requested
+    if surface:
+        surface_norm = surface.strip().capitalize()
+        all_matches = all_matches[all_matches['surface'].str.capitalize() == surface_norm]
 
     if len(all_matches) < 20:
         result = {"player": canonical, "available": False,
                   "by_category": {"climate": [], "court_speed": [], "ball_type": []},
                   "missing_categories": ["climate", "court_speed", "ball_type"],
-                  "reason": "Insufficient match data"}
-        _conditions_cache[name] = result
+                  "reason": "Insufficient match data" + (f" on {surface}" if surface else "")}
+        _conditions_cache[cache_key] = result
         return result
 
     conditions = []
@@ -1313,10 +1358,11 @@ def player_conditions(name: str):
     result = {
         "player": canonical,
         "available": True,
+        "surface_filter": surface if surface else None,
         "by_category": by_category,
         "missing_categories": missing_categories,
     }
-    _conditions_cache[name] = result
+    _conditions_cache[cache_key] = result
     return result
 
 
@@ -1337,15 +1383,169 @@ def tournament_predict(
 
 @app.get("/api/live-tournament")
 def live_tournament():
-    """Return the current live tournament data from precomputed JSON."""
+    """Return finished and current tournament data."""
     live_path = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'live_tournament.json'
-    if not live_path.exists():
-        raise HTTPException(404, "No live tournament data available")
-    try:
-        data = json.loads(live_path.read_text())
-        return data
-    except Exception as e:
-        raise HTTPException(500, f"Error reading live tournament data: {e}")
+    suppl_csv = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'supplemental_matches_2025_2026.csv'
+
+    # Load finished tournament (BNP Paribas Open)
+    finished_data = {}
+    if live_path.exists():
+        try:
+            finished_data = json.loads(live_path.read_text())
+        except Exception:
+            pass
+
+    # Check supplemental CSV for Miami Open 2026 data
+    miami_results = []
+    if suppl_csv.exists():
+        try:
+            import pandas as pd
+            sup_df = pd.read_csv(suppl_csv)
+            miami_rows = sup_df[sup_df['tourney_name'].str.contains('Miami', case=False, na=False)]
+            # Check if any are 2026 data (tourney_date >= 20260101)
+            miami_2026 = miami_rows[miami_rows['tourney_date'].astype(int) >= 20260101]
+            if len(miami_2026) == 0:
+                # Fall back to most recent Miami data
+                miami_2026 = miami_rows
+            for _, row in miami_2026.iterrows():
+                miami_results.append({
+                    "winner": str(row.get('winner_name', '')),
+                    "loser": str(row.get('loser_name', '')),
+                    "score": str(row.get('score', '')),
+                    "round": str(row.get('round', '')),
+                })
+        except Exception:
+            pass
+
+    current_data = {
+        "tournament": "Miami Open",
+        "year": 2026,
+        "dates": "Mar 19-30, 2026",
+        "location": "Miami, FL",
+        "surface": "Hard",
+        "level": "Masters 1000",
+        "status": "In Progress",
+        "data_available": len(miami_results) > 0,
+        "results": miami_results[-20:] if miami_results else [],
+    }
+
+    return {
+        "finished": finished_data,
+        "current": current_data,
+    }
+
+
+# ─────────────────────────────────────────────────────────────
+# Tournament predictions endpoint
+# ─────────────────────────────────────────────────────────────
+
+_tournament_pred_cache: dict = {}
+
+@app.get("/api/tournament-predictions")
+def tournament_predictions():
+    """
+    Return favorites and dark horses for the current tournament (Miami Open 2026, Hard).
+    Computed from Glicko-2 hard-court ratings.
+    """
+    if _tournament_pred_cache:
+        return _tournament_pred_cache
+
+    import math as _math
+
+    engine = _get_engine()
+    _latest = engine.latest_data_date
+    _retire_days = 548
+
+    # Collect active players with hard court ratings
+    active_hard = []
+    for pname, surfaces_dict in engine.glicko.ratings.items():
+        r_all = surfaces_dict.get('all')
+        if r_all is None or r_all.last_match_date is None:
+            continue
+        days_since = (_latest - r_all.last_match_date).days
+        if days_since > _retire_days and r_all.match_count > 20:
+            continue  # retired
+        r_hard = surfaces_dict.get('hard')
+        if r_hard and r_hard.match_count >= 10:
+            hard_mu = r_hard.mu
+        else:
+            hard_mu = r_all.mu
+        active_hard.append((pname, hard_mu, r_all.mu))
+
+    active_hard.sort(key=lambda x: x[1], reverse=True)
+
+    # Top 20 for normalization
+    top20 = active_hard[:20]
+    total_exp = sum(_math.exp(mu / 100) for _, mu, _ in top20)
+
+    # Favorites: top 5
+    favorites = []
+    for name, hard_mu, overall_mu in top20[:5]:
+        win_prob = round(_math.exp(hard_mu / 100) / total_exp, 3)
+        form_data = engine.player_form.get(name, {})
+        form_3 = form_data.get('form_3', 0.5)
+        surf_form = form_data.get('surface_form_hard', 0.5)
+
+        reasons = []
+        reasons.append(f"Hard court rating: {int(hard_mu)}")
+        if surf_form > 0.65:
+            reasons.append(f"Strong recent hard court form ({int(surf_form*100)}% win rate)")
+        elif surf_form < 0.45:
+            reasons.append(f"Struggling on hard courts recently ({int(surf_form*100)}% win rate)")
+        else:
+            reasons.append(f"Solid hard court form ({int(surf_form*100)}% win rate)")
+        if form_3 >= 0.67:
+            reasons.append("Hot streak: won recent matches")
+        elif form_3 <= 0.33:
+            reasons.append("Cold streak: lost recent matches")
+        else:
+            reasons.append(f"Overall rating: {int(overall_mu)}")
+
+        favorites.append({
+            "player": name,
+            "hard_rating": round(hard_mu, 1),
+            "overall_rating": round(overall_mu, 1),
+            "win_prob": win_prob,
+            "reasons": reasons,
+        })
+
+    # Dark horses: players ranked 15-30 by hard court rating with strong recent form
+    dark_horses = []
+    for name, hard_mu, overall_mu in active_hard[14:30]:
+        form_data = engine.player_form.get(name, {})
+        form_3 = form_data.get('form_3', 0.5)
+        form_5 = form_data.get('form_5', 0.5)
+        surf_form = form_data.get('surface_form_hard', 0.5)
+        # Require strong recent form
+        if form_5 >= 0.6 or surf_form >= 0.6:
+            win_prob = round(_math.exp(hard_mu / 100) / total_exp, 3)
+            reasons = []
+            if form_5 >= 0.8:
+                reasons.append(f"Excellent recent form ({int(form_5*100)}% in last 5)")
+            elif form_5 >= 0.6:
+                reasons.append(f"Good recent form ({int(form_5*100)}% in last 5)")
+            if surf_form >= 0.65:
+                reasons.append(f"Strong on hard courts ({int(surf_form*100)}% win rate)")
+            reasons.append(f"Hard court rating: {int(hard_mu)}")
+
+            dark_horses.append({
+                "player": name,
+                "hard_rating": round(hard_mu, 1),
+                "overall_rating": round(overall_mu, 1),
+                "win_prob": win_prob,
+                "reasons": reasons[:3],
+            })
+    dark_horses = dark_horses[:5]
+
+    result = {
+        "tournament": "Miami Open",
+        "year": 2026,
+        "surface": "Hard",
+        "favorites": favorites,
+        "dark_horses": dark_horses,
+    }
+    _tournament_pred_cache.update(result)
+    return result
 
 
 # ─────────────────────────────────────────────────────────────
