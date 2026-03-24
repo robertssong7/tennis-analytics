@@ -355,10 +355,37 @@ def predict_matchup(req: PredictRequest):
     """
     engine = _get_engine()
 
-    # Accept "overall" as a surface alias — use "hard" (the most common surface)
     surface = req.surface
-    if surface.lower() == "overall":
-        surface = "hard"
+    is_overall = surface.lower() == "overall" or surface.lower() == "none" or not surface
+
+    if is_overall:
+        # Weighted average across surfaces (ATP calendar: ~50% hard, ~30% clay, ~20% grass)
+        try:
+            hard_result = engine.predict(req.player1, req.player2, "hard")
+            clay_result = engine.predict(req.player1, req.player2, "clay")
+            grass_result = engine.predict(req.player1, req.player2, "grass")
+        except ValueError as e:
+            msg = str(e)
+            if "not found" in msg.lower():
+                raise HTTPException(404, detail={"error": msg, "hint": "Try the full name"})
+            raise HTTPException(400, detail=str(e))
+
+        hard_p = float(hard_result['player1_win_prob'])
+        clay_p = float(clay_result['player1_win_prob'])
+        grass_p = float(grass_result['player1_win_prob'])
+        overall_p = 0.50 * hard_p + 0.30 * clay_p + 0.20 * grass_p
+
+        result = dict(hard_result)  # Copy structure from hard result
+        result['surface'] = 'overall'
+        result['player1_win_prob'] = float(round(overall_p, 4))
+        result['player2_win_prob'] = float(round(1.0 - overall_p, 4))
+        result['surface_breakdown'] = {
+            'hard': {'p1_win_prob': float(round(hard_p, 4))},
+            'clay': {'p1_win_prob': float(round(clay_p, 4))},
+            'grass': {'p1_win_prob': float(round(grass_p, 4))},
+        }
+        result['weights'] = {'hard': 0.50, 'clay': 0.30, 'grass': 0.20}
+        return result
 
     try:
         result = engine.predict(req.player1, req.player2, surface)

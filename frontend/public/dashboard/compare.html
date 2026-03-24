@@ -181,6 +181,7 @@ function renderPredPanel(pred) {
         <div><div class="pred-prob p1">${p1pct}%</div><div class="pred-prob-label">Win Prob</div></div>
         <div style="text-align:right"><div class="pred-prob p2">${p2pct}%</div><div class="pred-prob-label">Win Prob</div></div>
       </div>
+      ${pred.surface_breakdown ? '<div style="font-size:12px;color:rgba(255,255,255,0.45);text-align:center;margin-top:6px;font-family:\'DM Sans\',sans-serif;">Hard: '+(pred.surface_breakdown.hard.p1_win_prob*100).toFixed(1)+'% · Clay: '+(pred.surface_breakdown.clay.p1_win_prob*100).toFixed(1)+'% · Grass: '+(pred.surface_breakdown.grass.p1_win_prob*100).toFixed(1)+'%</div>' : ''}
     </div>
     <div class="pred-meta">
       <span class="pred-meta-item"><span class="tt">Glicko-2<span class="tt-box">Chess-style rating system accounting for uncertainty and inactivity</span></span> diff: <strong>${eloSign}${pred.elo_diff}</strong></span>
