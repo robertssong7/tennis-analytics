@@ -83,16 +83,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <section class="tournament-section">
 <div class="section-eyebrow">Live Tournament</div>
 <h2 class="section-title">Tournament Feed</h2>
-<p class="section-sub">Headline matchups and results from current tournaments.</p>
-<div class="t-banner">
-<div class="t-info"><h3><a href="tournament.html">Indian Wells Masters</a></h3>
-<div class="t-details"><div class="t-det"><span>DATES</span><span class="tv">Mar 4–15, 2026</span></div><div class="t-det"><span>LOCATION</span><span class="tv">Indian Wells, CA</span></div><div class="t-det"><span>CPI</span><span class="tv">31.7</span></div><div class="t-det"><span>BALL</span><span class="tv">Dunlop</span></div></div></div>
-<div class="t-badges"><span class="t-badge level">Masters 1000</span><span class="t-badge s-hard">Hard Court</span></div>
-</div>
-<div id="live-results-container">
-<div class="rp-box"><div class="box-title soft">Recent Results</div>
-<div style="padding:20px;text-align:center;color:var(--ink-soft);font-size:12px;">Loading results from live feed...</div>
-</div>
+<p class="section-sub">Results from recent and current tournaments.</p>
+<div id="tournament-feed" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+  <div id="feed-finished" style="padding:20px;text-align:center;color:var(--ink-soft);font-size:12px;">Loading...</div>
+  <div id="feed-current" style="padding:20px;text-align:center;color:var(--ink-soft);font-size:12px;">Loading...</div>
 </div>
 </section>
 <section class="analytics-section" id="explore-section">
@@ -107,20 +101,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 </section>
 <section style="padding:60px 9%;background:var(--bg);" id="tourn-probs-section">
 <div class="section-eyebrow">ML Predictions</div>
-<h2 class="section-title">Tournament Win Probabilities</h2>
-<p class="section-sub">Precomputed from the most recent Grand Slam bracket using combined ML models.</p>
-<div id="tourn-pred" style="background:var(--card-bg);border-radius:14px;border:1px solid var(--border);overflow:hidden;">
-<table style="width:100%;border-collapse:separate;border-spacing:0;"><thead><tr>
-<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:12px 14px;border-bottom:2px solid var(--border);">Player</th>
-<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">R16</th>
-<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">QF</th>
-<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">SF</th>
-<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">Final</th>
-<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">Win %</th>
-<th style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:12px 14px;border-bottom:2px solid var(--border);">Draw Diff.</th>
-</tr></thead><tbody id="tourn-tbody"><tr><td colspan="7" style="padding:30px;text-align:center;color:var(--ink-soft);font-size:13px;">Loading tournament predictions...</td></tr></tbody></table>
+<h2 class="section-title" id="tourn-pred-title">Tournament Win Probabilities</h2>
+<p class="section-sub">Based on Glicko-2 ratings, recent form, and surface-specific performance.</p>
+<div id="tourn-pred-content" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+  <div style="padding:30px;text-align:center;color:var(--ink-soft);font-size:13px;">Loading predictions...</div>
 </div>
-<div id="tourn-meta" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-soft);"></div>
 </section>
 
 <footer style="background:var(--card-dark);color:rgba(255,255,255,0.6);">
@@ -179,19 +164,24 @@ async function buildC(){
 }
 var fillInterval=null;
 function go(i){cs=i;document.getElementById('ct').style.transform=`translateX(-${i*(100/FP.length)}%)`;
-  // Reset ALL dots, then activate the current one with forced reflow
+  // Use inline styles for guaranteed dot updates
   document.querySelectorAll('.cdot').forEach((d,j)=>{
-    d.classList.remove('on');
-    d.style.setProperty('--fill','0%');
-  });
-  // Force reflow before adding 'on' class to restart visual state
-  void document.body.offsetWidth;
-  document.querySelectorAll('.cdot').forEach((d,j)=>{
-    if(Math.floor(j % FP.length)===i) d.classList.add('on');
+    var isActive = (j % FP.length) === i;
+    if(isActive){
+      d.style.width='24px';d.style.height='10px';d.style.borderRadius='5px';
+      d.style.background='linear-gradient(90deg,#4A7C6F 0%,#D0C9C0 0%)';d.style.opacity='1';
+    } else {
+      d.style.width='8px';d.style.height='8px';d.style.borderRadius='50%';
+      d.style.background='#D0C9C0';d.style.opacity='0.6';
+    }
   });
   startFill();
 }
-function startFill(){clearInterval(fillInterval);var t=0;fillInterval=setInterval(()=>{t+=50;var pct=Math.min(100,(t/5500)*100);document.querySelectorAll('.cdot.on').forEach(d=>d.style.setProperty('--fill',pct+'%'));if(pct>=100)clearInterval(fillInterval);},50);}
+function startFill(){clearInterval(fillInterval);var t=0;fillInterval=setInterval(()=>{t+=50;var pct=Math.min(100,(t/5500)*100);
+  document.querySelectorAll('.cdot').forEach(d=>{
+    if(parseFloat(d.style.width)>10){d.style.background='linear-gradient(90deg,#4A7C6F '+pct+'%,#D0C9C0 '+pct+'%)';}
+  });
+  if(pct>=100)clearInterval(fillInterval);},50);}
 function startA(){clearInterval(autoT);autoT=setInterval(()=>{if(!hov){cs=(cs+1)%FP.length;go(cs);}},6000);}
 
 /* Search autocomplete */
@@ -203,72 +193,93 @@ document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))sdd.c
 
 buildC();
 
-// Tournament predictions
+// Tournament predictions from /api/tournament-predictions
 async function loadTournamentPred() {
   try {
-    const r = await fetch(API_URL+'/tournament/predict');
-    if (!r.ok) return;
-    const d = await r.json();
-    const players = (d.players || []).slice(0, 16);
-    document.getElementById('tourn-meta').textContent = d.tournament + ' ' + d.year + ' · ' + d.surface + ' · ML Prediction';
-    document.getElementById('tourn-tbody').innerHTML = players.map(function(p, i) {
-      const probs = p.probs || {};
-      function probCell(v) {
-        if (!v || v < 0.001) return '<td style="text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--ink-soft);">—</td>';
-        const pct = (v * 100).toFixed(1) + '%';
-        const opacity = Math.max(0.3, Math.min(1, v * 4));
-        return '<td style="text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:rgba(74,124,111,' + opacity + ');">' + pct + '</td>';
-      }
-      const seedTxt = p.seed ? '<span style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--ink-soft);margin-left:6px;">[' + p.seed + ']</span>' : '';
-      const winPct = probs.W ? (probs.W * 100).toFixed(1) + '%' : '—';
-      const winColor = probs.W > 0.1 ? 'var(--accent)' : probs.W > 0.02 ? 'var(--ink)' : 'var(--ink-soft)';
-      return '<tr onclick="location.href=\'player.html?name=' + encodeURIComponent(p.player) + '\'" style="cursor:pointer;"><td style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:' + (i < 4 ? '500' : '300') + ';">' + p.player + seedTxt + '</td>'
-        + probCell(probs.R16)
-        + probCell(probs.QF)
-        + probCell(probs.SF)
-        + probCell(probs.F)
-        + '<td style="text-align:center;font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + winColor + ';padding:10px 14px;border-bottom:1px solid var(--border);">' + winPct + '</td>'
-        + '<td style="text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--ink-soft);padding:10px 14px;border-bottom:1px solid var(--border);">' + (p.draw_difficulty || '—') + '</td>'
-        + '</tr>';
-    }).join('');
+    var r = await fetch(API_URL + '/api/tournament-predictions');
+    if (!r.ok) throw 0;
+    var d = await r.json();
+    var title = document.getElementById('tourn-pred-title');
+    if (title) title.textContent = (d.tournament || 'Tournament') + ' — Win Probabilities';
+    var container = document.getElementById('tourn-pred-content');
+    if (!container) return;
+
+    function renderGroup(items, label, color) {
+      if (!items || !items.length) return '<div style="color:var(--ink-soft);font-size:13px;">No data</div>';
+      var html = '<div><div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:' + color + ';margin-bottom:12px;">' + label + '</div>';
+      items.forEach(function(f) {
+        var wpct = ((f.win_prob || 0) * 100).toFixed(1);
+        html += '<div style="background:var(--card-bg);border-radius:10px;padding:12px 16px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;" onclick="location.href=\'player.html?name=' + encodeURIComponent(f.player) + '\'">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+          + '<span style="font-weight:500;font-size:14px;">' + f.player + '</span>'
+          + '<span style="font-family:\'Playfair Display\',serif;font-size:20px;font-weight:700;color:' + color + ';">' + wpct + '%</span></div>'
+          + '<div style="height:4px;background:var(--bg-alt);border-radius:2px;overflow:hidden;margin-bottom:6px;">'
+          + '<div style="height:100%;width:' + Math.min(wpct * 2, 100) + '%;background:' + color + ';border-radius:2px;"></div></div>'
+          + '<div style="font-size:11px;color:var(--ink-soft);">' + (f.reason || '') + '</div></div>';
+      });
+      return html + '</div>';
+    }
+
+    container.innerHTML = renderGroup(d.favorites, 'Favorites', '#0ABAB5') + renderGroup(d.dark_horses, 'Dark Horses', '#DAA520');
   } catch(e) {
-    document.getElementById('tourn-tbody').innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--ink-soft);font-size:12px;">Tournament prediction data not available. Run scripts/precompute_tournament.py.</td></tr>';
+    var c = document.getElementById('tourn-pred-content');
+    if (c) c.innerHTML = '<div style="padding:20px;text-align:center;color:var(--ink-soft);font-size:12px;">Predictions unavailable for current tournament.</div>';
   }
 }
 loadTournamentPred();
 
-// Reorder: Tournament Win Probabilities ABOVE Explore the Dashboards
+// Reorder: Predictions ABOVE Explore
 var probsSec = document.getElementById('tourn-probs-section');
 var exploreSec = document.getElementById('explore-section');
-if (probsSec && exploreSec && probsSec.parentNode) {
-  probsSec.parentNode.insertBefore(probsSec, exploreSec);
-}
+if (probsSec && exploreSec && probsSec.parentNode) probsSec.parentNode.insertBefore(probsSec, exploreSec);
 
-// Load live tournament feed from API
+// Load live tournament feed (split: finished + current)
 async function loadLiveTournament() {
   try {
     var r = await fetch(API_URL + '/api/live-tournament');
     if (!r.ok) return;
     var d = await r.json();
-    // Update tournament banner
-    var banner = document.querySelector('.t-info h3 a');
-    if (banner) banner.textContent = d.tournament + ' ' + d.year;
-    var details = document.querySelector('.t-details');
-    if (details) {
-      details.innerHTML = '<div class="t-det"><span>DATES</span><span class="tv">' + (d.dates || '') + '</span></div>'
-        + '<div class="t-det"><span>LOCATION</span><span class="tv">' + (d.location || '') + '</span></div>'
-        + '<div class="t-det"><span>CPI</span><span class="tv">' + (d.cpi || '—') + '</span></div>'
-        + '<div class="t-det"><span>BALL</span><span class="tv">' + (d.ball || '—') + '</span></div>';
+
+    function renderTournBanner(t, label, badge) {
+      if (!t) return '<div style="color:var(--ink-soft);font-size:12px;padding:20px;">No data available</div>';
+      var resultsHtml = '';
+      if (t.results && t.results.length > 0) {
+        resultsHtml = '<div class="rp-box" style="margin-top:12px;"><div class="box-title soft">Results</div>';
+        t.results.slice(0, 6).forEach(function(m) {
+          resultsHtml += '<div class="rr"><span class="rr-w">' + m.winner + '</span><span class="rr-s">' + m.score + '</span><span class="rr-l">' + m.loser + '</span><span class="rr-r">' + m.round + '</span></div>';
+        });
+        resultsHtml += '</div>';
+      } else if (t.recent_results && t.recent_results.length > 0) {
+        resultsHtml = '<div class="rp-box" style="margin-top:12px;"><div class="box-title soft">Results</div>';
+        t.recent_results.slice(0, 6).forEach(function(m) {
+          resultsHtml += '<div class="rr"><span class="rr-w">' + m.winner + '</span><span class="rr-s">' + m.score + '</span><span class="rr-l">' + m.loser + '</span><span class="rr-r">' + m.round + '</span></div>';
+        });
+        resultsHtml += '</div>';
+      } else {
+        resultsHtml = '<div style="padding:16px;color:var(--ink-soft);font-size:12px;">Draw and results coming soon.</div>';
+      }
+      return '<div class="t-banner" style="margin-bottom:0;">'
+        + '<div class="t-info"><h3><a href="tournament.html" style="color:white;text-decoration:none;">' + (t.tournament || 'Tournament') + '</a></h3>'
+        + '<div class="t-details"><div class="t-det"><span>DATES</span><span class="tv">' + (t.dates || '') + '</span></div>'
+        + '<div class="t-det"><span>SURFACE</span><span class="tv">' + (t.surface || '') + '</span></div>'
+        + '<div class="t-det"><span>LOCATION</span><span class="tv">' + (t.location || '') + '</span></div></div></div>'
+        + '<div class="t-badges"><span class="t-badge level">' + badge + '</span></div></div>'
+        + resultsHtml;
     }
-    // Update results in dedicated container
-    var container = document.getElementById('live-results-container');
-    if (container && d.recent_results && d.recent_results.length > 0) {
-      var resultsHtml = '<div class="rp-box"><div class="box-title soft">Recent Results</div>';
-      d.recent_results.forEach(function(m) {
-        resultsHtml += '<div class="rr"><span class="rr-w">' + m.winner + '</span><span class="rr-s">' + m.score + '</span><span class="rr-l">' + m.loser + '</span><span class="rr-r">' + m.round + '</span></div>';
-      });
-      resultsHtml += '<div class="feed-note">Last updated: ' + (d.last_updated || 'Unknown') + ' · Source: ' + (d.data_source || 'tennis-data.co.uk') + '</div></div>';
-      container.innerHTML = resultsHtml;
+
+    var finEl = document.getElementById('feed-finished');
+    var curEl = document.getElementById('feed-current');
+
+    if (d.finished) {
+      finEl.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Just Finished</div>' + renderTournBanner(d.finished, 'Finished', 'Complete');
+    } else if (d.tournament) {
+      // Old format — single tournament
+      finEl.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Latest</div>' + renderTournBanner(d, 'Latest', d.level || 'ATP');
+    }
+    if (d.current) {
+      curEl.innerHTML = '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--warm);margin-bottom:10px;">' + (d.current.status === 'In Progress' ? 'Live Now' : 'Up Next') + '</div>' + renderTournBanner(d.current, d.current.status, d.current.level || 'ATP');
+    } else {
+      curEl.innerHTML = '<div style="color:var(--ink-soft);font-size:12px;padding:20px;">No upcoming tournament data.</div>';
     }
   } catch(e) {}
 }
