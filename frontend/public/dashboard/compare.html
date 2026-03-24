@@ -198,10 +198,13 @@ async function go() {
   const c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:#999;font-family:\'DM Sans\';">Analyzing matchup...</p></div>';
 
-  // Run ML prediction and legacy API in parallel
-  const [pred, legacyData] = await Promise.all([
+  // Run ML prediction, legacy API, and surface-specific patterns in parallel
+  const surfParam = (activeSurf && activeSurf !== 'overall') ? '?surface=' + activeSurf : '';
+  const [pred, legacyData, pat1, pat2] = await Promise.all([
     fetchPrediction(a, b, activeSurf),
     fetchLegacyMatchup(a, b),
+    fetch(ML_API + '/player/' + encodeURIComponent(a) + '/patterns' + surfParam).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch(ML_API + '/player/' + encodeURIComponent(b) + '/patterns' + surfParam).then(r => r.ok ? r.json() : null).catch(() => null),
   ]);
 
   if (!pred && !legacyData) {
@@ -218,11 +221,22 @@ async function go() {
     html += '<div style="background:rgba(196,169,125,0.12);border:1px solid rgba(196,169,125,0.3);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--ink-mid);">⚠ ML prediction unavailable — API may be loading. Showing charted data only.</div>';
   }
 
-  // Legacy charted data section
+  // Legacy charted data section (enhanced with surface-specific patterns when available)
   if (legacyData) {
     const { p1, p2, h2h } = legacyData;
     const pr1 = p1.profile || {}, pr2 = p2.profile || {};
     const bp1 = p1.break_points || {}, bp2 = p2.break_points || {};
+    // Override with surface-specific patterns if available
+    if (pat1 && pat1.available) {
+      pr1.aggression_index = pat1.aggression_index || pr1.aggression_index;
+      pr1.win_rate_short_rally = (pat1.rally_length_profile && pat1.rally_length_profile['1-3']) ? pat1.rally_length_profile['1-3'].win_rate : pr1.win_rate_short_rally;
+      pr1.win_rate_long_rally = (pat1.rally_length_profile && pat1.rally_length_profile['10+']) ? pat1.rally_length_profile['10+'].win_rate : pr1.win_rate_long_rally;
+    }
+    if (pat2 && pat2.available) {
+      pr2.aggression_index = pat2.aggression_index || pr2.aggression_index;
+      pr2.win_rate_short_rally = (pat2.rally_length_profile && pat2.rally_length_profile['1-3']) ? pat2.rally_length_profile['1-3'].win_rate : pr2.win_rate_short_rally;
+      pr2.win_rate_long_rally = (pat2.rally_length_profile && pat2.rally_length_profile['10+']) ? pat2.rally_length_profile['10+'].win_rate : pr2.win_rate_long_rally;
+    }
 
     const tooltips = {
       'Serve (Ace Rate)': 'Percentage of service points that result in aces',
