@@ -356,13 +356,14 @@ async function loadAll() {
 
     // Fetch all secondary data in parallel and render progressively
     var pName = encodeURIComponent(cardData.name);
-    var fetchSurf = activeSurf === 'overall' ? 'hard' : activeSurf;
+    var fetchSurf = activeSurf === 'overall' ? '' : activeSurf;
+    var surfParam = fetchSurf ? '?surface=' + fetchSurf : '';
 
     var [patternsRes, condRes, matchupsRes, scenariosRes] = await Promise.all([
       fetch(API + '/player/' + pName + '/patterns').catch(function(){return null;}),
-      fetch(API + '/player/' + pName + '/conditions').catch(function(){return null;}),
-      fetch(API + '/player/' + pName + '/matchups?surface=' + fetchSurf).catch(function(){return null;}),
-      fetch(API + '/player/' + pName + '/scenarios').catch(function(){return null;})
+      fetch(API + '/player/' + pName + '/conditions' + surfParam).catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/matchups' + (fetchSurf ? '?surface=' + fetchSurf : '?surface=hard')).catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/scenarios' + surfParam).catch(function(){return null;})
     ]);
 
     patternsData = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
@@ -458,6 +459,9 @@ function renderHero(card) {
     + '</div>'
     + wlHtml
     + '<div class="surface-chips">' + surfChips + '</div>'
+    + '<div id="hero-surface-note" style="font-family:\'DM Mono\',monospace;font-size:10px;color:rgba(255,255,255,0.35);margin-top:8px;letter-spacing:0.04em;">'
+    + (activeSurf !== 'overall' ? 'Surface-specific conditions and matchups' : '')
+    + '</div>'
     + '</div></div></div>';
 }
 
@@ -725,7 +729,7 @@ function initSurfaceToggle() {
 }
 
 async function applySurfaceUpdate() {
-  // Update hero rating with transition
+  // Update hero rating immediately (no fetch needed — data is in cardData.surfaces)
   var rating;
   if (activeSurf === 'overall') {
     rating = cardData.overall;
@@ -739,20 +743,36 @@ async function applySurfaceUpdate() {
   var tier = tierFromRating(rating);
   if (tEl) { tEl.className = 'tier-badge ' + tier; tEl.textContent = tier.toUpperCase(); }
 
-  // Fade matchups section
-  var muEl = document.getElementById('matchup-content');
-  if (!muEl) return;
-  muEl.style.opacity = '0.4';
-  muEl.style.transition = 'opacity 0.2s';
-  var fetchSurf = activeSurf === 'overall' ? 'hard' : activeSurf;
+  // Update surface note in hero
+  var surfNote = document.getElementById('hero-surface-note');
+  if (surfNote) {
+    surfNote.textContent = activeSurf !== 'overall' ? 'Surface-specific conditions and matchups' : '';
+  }
+
+  // Fade content during loading
+  var content = document.getElementById('page-content');
+  if (content) content.style.opacity = '0.4';
+
+  var fetchSurf = activeSurf === 'overall' ? '' : activeSurf;
+  var surfParam = fetchSurf ? '?surface=' + fetchSurf : '';
+  var pName = encodeURIComponent(cardData.name);
+
   try {
-    var res = await fetch(API + '/player/' + encodeURIComponent(cardData.name) + '/matchups?surface=' + fetchSurf);
-    if (res.ok) {
-      matchupsData = await res.json();
-      muEl.innerHTML = matchupsData.available ? renderMatchupSection(matchupsData) : '<p style="color:var(--ink-soft);">' + matchupsData.reason + '</p>';
-    }
-  } catch(e2) {}
-  muEl.style.opacity = '1';
+    var [condRes, matchupsRes, scenariosRes] = await Promise.all([
+      fetch(API + '/player/' + pName + '/conditions' + surfParam).catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/matchups' + (fetchSurf ? '?surface=' + fetchSurf : '?surface=hard')).catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/scenarios' + surfParam).catch(function(){return null;})
+    ]);
+
+    var conditions = condRes && condRes.ok ? await condRes.json() : null;
+    matchupsData = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
+    var scenarios = scenariosRes && scenariosRes.ok ? await scenariosRes.json() : null;
+
+    // Re-render the content sections (keep patterns from initial load since they don't have surface filter)
+    renderContent(cardData, patternsData, matchupsData, conditions, scenarios);
+  } catch(e) {}
+
+  if (content) content.style.opacity = '1';
 }
 
 /* ── Matchup Expansion (delegated) ─────────────────────── */
