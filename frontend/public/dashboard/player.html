@@ -691,19 +691,24 @@ function renderMatchupSection(matchups) {
 function renderMatchupCols(matchups) {
   var tough = matchupsShowActive ? (matchups.toughest_active || []) : (matchups.toughest || []);
   var easy = matchupsShowActive ? (matchups.easiest_active || []) : (matchups.easiest || []);
-  function rows(list, type) {
-    return (list || []).map(function(m) {
+  function rows(list, type, colId) {
+    var html = (list || []).map(function(m, idx) {
       var retBadge = m.is_retired ? '<span class="mu-retired-badge">Retired</span>' : '';
       var reasonsAttr = m.reasons ? ' data-reasons="' + m.reasons.map(function(r){return r.replace(/"/g,'&quot;');}).join('||') + '"' : '';
-      return '<div class="mu-item-wrap"><div class="mu-row ' + type + '-row" data-opponent="' + m.opponent + '"' + reasonsAttr + '>'
+      var hidden = idx >= 5 ? ' style="display:none" data-mu-extra="' + colId + '"' : '';
+      return '<div class="mu-item-wrap"' + hidden + '><div class="mu-row ' + type + '-row" data-opponent="' + m.opponent + '"' + reasonsAttr + '>'
         + '<span class="mu-opponent">' + m.opponent + retBadge + '</span>'
         + '<span class="mu-prob ' + type + '">' + pct(m.player_win_prob) + '</span>'
         + '<span class="mu-chevron">\u25B6</span></div></div>';
     }).join('');
+    if (list && list.length > 5) {
+      html += '<div class="mu-toggle" data-mu-toggle="' + colId + '" style="color:#2C2C2C;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:500;cursor:pointer;text-align:center;padding:8px 0;opacity:0.6;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.6\'">Show more \u25BC</div>';
+    }
+    return html;
   }
   return '<div class="matchup-cols">'
-    + '<div><div class="mu-col-title tough">Toughest</div>' + (rows(tough, 'tough') || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
-    + '<div><div class="mu-col-title easy">Easiest</div>' + (rows(easy, 'easy') || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div></div>';
+    + '<div><div class="mu-col-title tough">Toughest</div>' + (rows(tough, 'tough', 'tough') || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div>'
+    + '<div><div class="mu-col-title easy">Easiest</div>' + (rows(easy, 'easy', 'easy') || '<p style="color:var(--ink-soft);font-size:13px;">No data</p>') + '</div></div>';
 }
 
 /* ── Surface Toggle ────────────────────────────────────── */
@@ -976,9 +981,9 @@ function renderScenarios(scenarios) {
   }).join('') + '</div>';
 }
 
-/* ── Event Delegation: Matchup Toggle + Conditions Show More ── */
+/* ── Event Delegation: Matchup Toggle + Show More/Less ── */
 document.addEventListener('click', function(e) {
-  // Matchup toggle
+  // Active/All toggle
   var muBtn = e.target.closest('.mu-toggle-btn');
   if (muBtn) {
     document.querySelectorAll('.mu-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -991,6 +996,16 @@ document.addEventListener('click', function(e) {
     return;
   }
 
+  // Show more/less matchups toggle
+  var muToggle = e.target.closest('.mu-toggle');
+  if (muToggle) {
+    var colId = muToggle.dataset.muToggle;
+    var extras = document.querySelectorAll('[data-mu-extra="' + colId + '"]');
+    var isExpanded = extras[0] && extras[0].style.display !== 'none';
+    extras.forEach(function(el) { el.style.display = isExpanded ? 'none' : ''; });
+    muToggle.textContent = isExpanded ? 'Show more \u25BC' : 'Show less \u25B2';
+    return;
+  }
 });
 
 loadAll();

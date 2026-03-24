@@ -1056,7 +1056,7 @@ def player_matchups(
     toughest_active = [x for x in toughest_active if _is_quality_opponent(x['opponent'])]
 
     # On-the-fly prediction to fill active lists when precomputed grid lacks enough active players
-    if len(toughest_active) < 5 or len(easiest_active) < 5:
+    if len(toughest_active) < 10 or len(easiest_active) < 10:
         already_listed = set(
             [x['opponent'] for x in toughest] + [x['opponent'] for x in easiest]
             + [x['opponent'] for x in toughest_active] + [x['opponent'] for x in easiest_active]
@@ -1070,10 +1070,10 @@ def player_matchups(
                         active_players.append((pname, r.mu))
 
         # For toughest: pick highest-rated active players we haven't included
-        if len(toughest_active) < 5:
+        if len(toughest_active) < 10:
             active_players.sort(key=lambda x: x[1], reverse=True)
             for opp_name, opp_mu in active_players:
-                if len(toughest_active) >= 5:
+                if len(toughest_active) >= 10:
                     break
                 if opp_name in [x['opponent'] for x in toughest_active]:
                     continue
@@ -1087,7 +1087,7 @@ def player_matchups(
                     pass
 
         # For easiest: pick from active players within Elo proximity
-        if len(easiest_active) < 5:
+        if len(easiest_active) < 10:
             for threshold in (400, 600, 800):
                 elo_filtered = [
                     (n, mu) for n, mu in active_players
@@ -1096,7 +1096,7 @@ def player_matchups(
                 ]
                 elo_filtered.sort(key=lambda x: x[1])  # lowest rated first
                 for opp_name, opp_mu in elo_filtered:
-                    if len(easiest_active) >= 5:
+                    if len(easiest_active) >= 10:
                         break
                     if opp_name in [x['opponent'] for x in easiest_active]:
                         continue
@@ -1108,7 +1108,7 @@ def player_matchups(
                         easiest_active.append(item)
                     except Exception:
                         pass
-                if len(easiest_active) >= 5:
+                if len(easiest_active) >= 10:
                     break
 
         # Re-sort after backfill
@@ -1121,8 +1121,8 @@ def player_matchups(
         "available": True,
         "toughest": toughest,
         "easiest": easiest,
-        "toughest_active": toughest_active[:5],
-        "easiest_active": easiest_active[:5],
+        "toughest_active": toughest_active[:10],
+        "easiest_active": easiest_active[:10],
         "top100": grid_data.get("top100", [])
     }
     _matchups_result_cache[cache_key] = result
