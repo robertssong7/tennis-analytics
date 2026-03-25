@@ -22,11 +22,15 @@ _cache = {}
 
 def get_points():
     if "points" not in _cache:
+        if not PARSED_POINTS.exists():
+            raise HTTPException(503, "Charted data not available (parsed_points.parquet missing)")
         _cache["points"] = pd.read_parquet(PARSED_POINTS)
     return _cache["points"]
 
 def get_profiles():
     if "profiles" not in _cache:
+        if not PLAYER_PROFILES.exists():
+            raise HTTPException(503, "Player profiles not available")
         _cache["profiles"] = pd.read_parquet(PLAYER_PROFILES)
     return _cache["profiles"]
 
