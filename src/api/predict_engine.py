@@ -522,7 +522,11 @@ class PredictEngine:
                 entry['surface_wins'][surf][w] = entry['surface_wins'][surf].get(w, 0) + 1
             entry['matches'].append((tdate, w))
 
-        for csv_path in sorted(SACKMANN_DIR.glob('atp_matches_*.csv')):
+        # Only load 2010+ CSVs — older data is already baked into Glicko ratings
+        all_csvs = sorted(SACKMANN_DIR.glob('atp_matches_*.csv'))
+        csvs_2010 = [f for f in all_csvs if any(f'matches_{y}' in f.name for y in range(2010, 2030))]
+        logger.info(f"  Loading {len(csvs_2010)} match CSVs (2010+, skipping {len(all_csvs) - len(csvs_2010)} older files)")
+        for csv_path in csvs_2010:
             try:
                 df = pd.read_csv(csv_path, usecols=use_cols, low_memory=False)
             except Exception:

@@ -3,6 +3,10 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install dependencies first (cached layer)
+# Reduce memory fragmentation — critical for Railway 512MB limit
+ENV MALLOC_ARENA_MAX=2
+ENV PYTHONDONTWRITEBYTECODE=1
+
 COPY requirements.txt .
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/* && pip install --no-cache-dir -r requirements.txt
 
