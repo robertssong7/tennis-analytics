@@ -26,5 +26,5 @@ COPY data/court_speed.csv data/court_speed.csv
 
 EXPOSE 8000
 
-# Railway sets PORT env var
-CMD ["sh", "-c", "uvicorn src.api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Railway sets PORT env var. --timeout-keep-alive 120 allows slow model loading.
+CMD ["sh", "-c", "uvicorn src.api.main:app --host 0.0.0.0 --port ${PORT:-8000} --timeout-keep-alive 120"]
