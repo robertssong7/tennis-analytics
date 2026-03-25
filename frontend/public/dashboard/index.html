@@ -149,43 +149,45 @@ async function buildC(){
   // Fetch ALL player data in parallel (was sequential)
   var allData=await Promise.all(FP.map(function(fp){
     return Promise.all([
-      fetch(API+'/player/'+encodeURIComponent(fp.name)).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+      fetch(API_URL+'/player/'+encodeURIComponent(fp.name)+'/patterns').then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
       fetch(API_URL+'/predict/player/'+encodeURIComponent(fp.name)).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
     ]);
   }));
   for(var fi=0;fi<FP.length;fi++){
     var fp=FP[fi];var fetched=allData[fi];var d=fetched[0];var cardData=fetched[1];
     let c='';
-    try{if(!d)throw 0;var p=d.profile||{},bp=d.break_points||{},ps=((p.serve_wide_pct_pressure||0)-(p.serve_wide_pct||0));
+    try{if(!d||!d.available)throw 0;
+    var rally=d.rally_length_profile||{};
+    var srw=(rally["1-3"]||{}).win_rate||0,lrw=(rally["10+"]||{}).win_rate||0,agg=d.aggression_index||0,fsr=d.first_strike_rate||0,dwr=d.defensive_win_rate||0;
+    var playerName=d.player||fp.name;
     var hsCode=(cardData&&cardData.headshot_url||'').split('/').pop();
-    var avatarHtml=hsCode?'<img src="'+API_URL+'/api/player-image/'+hsCode+'" style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-right:16px;flex-shrink:0;" onerror="this.outerHTML=\'<div class=fc-av>'+ini(d.name)+'</div>\'">':'<div class="fc-av">'+ini(d.name)+'</div>';
-    var overallRating=cardData&&cardData.overall_rating!=null?cardData.overall_rating:'--';
+    var avatarHtml=hsCode?'<img src="'+API_URL+'/api/player-image/'+hsCode+'" style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-right:16px;flex-shrink:0;" onerror="this.outerHTML=\'<div class=fc-av>'+ini(playerName)+'</div>\'">':'<div class="fc-av">'+ini(playerName)+'</div>';
+    var overallRating=cardData&&cardData.overall!=null?cardData.overall:'--';
     var toughRows='',strRows='';
-    var srw=p.win_rate_short_rally||0,lrw=p.win_rate_long_rally||0,bps=bp.saved_pct||0,agg=p.aggression_index||0;
     var metrics=[
       {n:'Baseline grinders',label:'Long rally win',val:lrw,avg:0.48},
-      {n:'Aggressive returners',label:'BP saved',val:bps,avg:0.62},
+      {n:'Power players',label:'First strike',val:fsr,avg:0.50},
       {n:'Big servers',label:'Short rally win',val:srw,avg:0.55},
       {n:'Counter-punchers',label:'Aggression',val:agg,avg:0.40},
-      {n:'Net rushers',label:'Net approach',val:p.net_approach_pct||0,avg:0.12}
+      {n:'Defensive walls',label:'Defense win',val:dwr,avg:0.50}
     ];
     var weakSorted=metrics.slice().sort(function(a,b){return (a.val-a.avg)-(b.val-b.avg);});
     weakSorted.slice(0,3).forEach(function(x){toughRows+='<div class="mu-row"><span class="oname">'+x.n+'</span><span class="reason">'+x.label+' '+pct(x.val)+'</span></div>';});
     var strMetrics=[
       {n:'First strike power',label:'Short rally win',val:srw,avg:0.55},
-      {n:'Clutch serving',label:'BP saved',val:bps,avg:0.62},
+      {n:'Clutch play',label:'First strike',val:fsr,avg:0.50},
       {n:'Shot-making ability',label:'Aggression',val:agg,avg:0.40},
       {n:'Rally dominance',label:'Long rally win',val:lrw,avg:0.48},
-      {n:'Net game',label:'Net approach',val:p.net_approach_pct||0,avg:0.12}
+      {n:'Defensive resilience',label:'Defense win',val:dwr,avg:0.50}
     ];
     var strSorted=strMetrics.slice().sort(function(a,b){return (b.val-b.avg)-(a.val-a.avg);});
     strSorted.slice(0,3).forEach(function(x){strRows+='<div class="mu-row"><span class="oname">'+x.n+'</span><span class="reason">'+x.label+' '+pct(x.val)+'</span></div>';});
     c='<div class="fc-head"><span class="fc-tag">Featured Player</span><div class="cdots">'+FP.map(function(_,i){return '<div class="cdot'+(i===FP.indexOf(fp)?' on':'')+'" onclick="go('+i+')"></div>';}).join('')+'</div></div>'
-    +'<div class="fc-top">'+avatarHtml+'<div><div class="fc-name">'+d.name+'</div><div class="fc-sub">'+fp.sub+'</div></div></div>'
-    +'<div class="fc-meta"><div class="fm-item"><div class="fm-val">'+pct(p.aggression_index||0)+'</div><div class="fm-lbl">Aggression</div></div><div class="fm-item"><div class="fm-val">'+pct(p.win_rate_short_rally||0)+'</div><div class="fm-lbl">Short Rally</div></div><div class="fm-item"><div class="fm-val">'+pct(bp.saved_pct||0)+'</div><div class="fm-lbl">BP Saved</div></div><div class="fm-item"><div class="fm-val">'+overallRating+'</div><div class="fm-lbl">Rating</div></div></div>'
+    +'<div class="fc-top">'+avatarHtml+'<div><div class="fc-name">'+playerName+'</div><div class="fc-sub">'+fp.sub+'</div></div></div>'
+    +'<div class="fc-meta"><div class="fm-item"><div class="fm-val">'+pct(agg)+'</div><div class="fm-lbl">Aggression</div></div><div class="fm-item"><div class="fm-val">'+pct(srw)+'</div><div class="fm-lbl">Short Rally</div></div><div class="fm-item"><div class="fm-val">'+pct(fsr)+'</div><div class="fm-lbl">First Strike</div></div><div class="fm-item"><div class="fm-val">'+overallRating+'</div><div class="fm-lbl">Rating</div></div></div>'
     +'<div class="mu-sec"><div class="mu-lbl fav">Key Strengths</div>'+strRows+'</div>'
     +'<div class="mu-sec"><div class="mu-lbl tough">Toughest Profiles</div>'+toughRows+'</div>'
-    +'<a href="player.html?player='+encodeURIComponent(d.name)+'" class="vp-link">View Full Profile &rarr;</a>';
+    +'<a href="player.html?player='+encodeURIComponent(playerName)+'" class="vp-link">View Full Profile &rarr;</a>';
     }catch(e){c='<div class="fc-head"><span class="fc-tag">Featured Player</span></div><div class="fc-top"><div class="fc-av">'+ini(fp.name)+'</div><div><div class="fc-name">'+fp.name+'</div><div class="fc-sub">'+fp.sub+'</div></div></div><div style="padding:30px 0;color:var(--ink-soft);font-size:12px;text-align:center;">Start API for live data</div>';}
     html+='<div class="fc">'+c+'</div>';
   }
