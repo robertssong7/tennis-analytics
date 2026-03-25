@@ -1,7 +1,6 @@
 venv/
 .git/
-data/sackmann/tennis_atp/.git
-data/sackmann/tennis_atp_old/
+data/sackmann/
 data/scraped/
 data/processed/training_edge*.pkl
 data/processed/expanded_training*.pkl
@@ -9,10 +8,15 @@ data/processed/training_rolling*.pkl
 data/processed/universal_features.parquet
 data/processed/player_profiles.parquet
 data/processed/weather_cache.parquet
+data/processed/parsed_points.parquet
+data/processed/headshots/
 models/hard/
 models/ensemble/ft_transformer*.pt
 models/ensemble/avg_ensemble.pkl
+models/ensemble/ft_probs_v4.npy
 __pycache__/
 *.pyc
 .DS_Store
 notebooks/
+*.ipynb
+frontend/
