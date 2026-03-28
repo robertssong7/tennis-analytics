@@ -80,6 +80,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="carousel-wrap" id="cw"><div class="carousel-track" id="ct"></div></div>
 </div>
 </section>
+<section id="todays-matches" style="max-width:900px;margin:0 auto;padding:40px 20px;">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+    <span style="color:#0ABAB5;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Match Predictions</span>
+    <div style="flex:1;height:1px;background:#D0C9C0;"></div>
+  </div>
+  <h2 style="font-family:'Playfair Display',serif;font-size:32px;color:#2C2C2C;margin:0 0 8px;">Today's Key Matchups</h2>
+  <p style="font-family:'DM Sans',sans-serif;font-size:15px;color:#2C2C2C;opacity:0.6;margin:0 0 24px;">Deep analysis powered by our ML ensemble model. Tap any matchup for the full breakdown.</p>
+  <div id="match-insights-container"><div style="text-align:center;padding:40px;color:#2C2C2C;opacity:0.4;font-family:'DM Sans',sans-serif;font-size:13px;">Loading match predictions...</div></div>
+</section>
 <section class="tournament-section">
 <div class="section-eyebrow">Live Tournament</div>
 <h2 class="section-title">Tournament Feed</h2>
@@ -249,6 +258,65 @@ sinp.addEventListener('keydown',e=>{if(!sdd.classList.contains('open')){if(e.key
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))sdd.classList.remove('open');});
 
 buildC();
+
+// Match Insights
+async function loadMatchInsights(){
+  var container=document.getElementById('match-insights-container');
+  if(!container)return;
+  var matchups=[
+    {p1:'Sinner',p2:'Alcaraz',surface:'hard'},
+    {p1:'Djokovic',p2:'Medvedev',surface:'hard'},
+    {p1:'Zverev',p2:'Fritz',surface:'hard'}
+  ];
+  // Try live tournament data first
+  try{
+    var ltR=await fetch(API_URL+'/api/live-tournament');
+    if(ltR.ok){var lt=await ltR.json();
+      var cur=lt.current||lt;
+      if(cur&&cur.recent_results&&cur.recent_results.length>0){
+        var live=cur.recent_results.slice(-4).filter(function(r){return r.winner&&r.loser;}).map(function(r){return{p1:r.winner,p2:r.loser,surface:cur.surface||'hard'};});
+        if(live.length>=2)matchups=live;
+      }
+    }
+  }catch(e){}
+  var insights=await Promise.all(matchups.slice(0,3).map(function(m){
+    return fetch(API_URL+'/api/match-insight',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({player1:m.p1,player2:m.p2,surface:m.surface})}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+  }));
+  var html='';
+  insights.forEach(function(d){
+    if(!d||!d.available)return;
+    var p1Pct=Math.round(d.p1_win_prob*100);var p2Pct=Math.round(d.p2_win_prob*100);
+    var reasonsHtml='';
+    (d.reasons||[]).forEach(function(r,i){
+      var rc=r.favors===d.player1?'#4A90D9':r.favors===d.player2?'#D4724E':'#A8A9AD';
+      reasonsHtml+='<div style="display:flex;gap:10px;align-items:flex-start;">'
+        +'<div style="min-width:20px;height:20px;border-radius:50%;background:'+rc+';display:flex;align-items:center;justify-content:center;">'
+        +'<span style="font-family:DM Mono,monospace;font-size:10px;color:#fff;font-weight:600;">'+(i+1)+'</span></div>'
+        +'<div><div style="font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;color:#2C2C2C;">'+r.title+'</div>'
+        +'<div style="font-family:DM Sans,sans-serif;font-size:12px;color:#2C2C2C;opacity:0.6;">'+r.detail+'</div></div></div>';
+    });
+    var xf=d.x_factor||{};
+    html+='<div style="background:#FFFFFF;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:24px;margin-bottom:16px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+      +'<div style="font-family:Playfair Display,serif;font-size:18px;color:#2C2C2C;">'+d.player1+'</div>'
+      +'<div style="font-family:DM Mono,monospace;font-size:13px;color:#2C2C2C;opacity:0.5;">vs</div>'
+      +'<div style="font-family:Playfair Display,serif;font-size:18px;color:#2C2C2C;text-align:right;">'+d.player2+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">'
+      +'<span style="font-family:DM Mono,monospace;font-size:13px;font-weight:600;color:#2C2C2C;min-width:42px;">'+p1Pct+'%</span>'
+      +'<div style="flex:1;height:8px;background:#D0C9C0;border-radius:4px;overflow:hidden;">'
+      +'<div style="width:'+p1Pct+'%;height:100%;background:#0ABAB5;border-radius:4px;"></div></div>'
+      +'<span style="font-family:DM Mono,monospace;font-size:13px;font-weight:600;color:#2C2C2C;min-width:42px;text-align:right;">'+p2Pct+'%</span></div>'
+      +'<div style="font-family:DM Sans,sans-serif;font-size:13px;color:#2C2C2C;opacity:0.6;margin-bottom:16px;padding:8px 12px;background:#F5F0EB;border-radius:8px;">'
+      +'<strong>Predicted:</strong> '+(d.predicted_score||'')+' \u2014 '+(d.score_detail||'')+'</div>'
+      +'<div style="padding:12px 16px;background:#F5F0EB;border-left:3px solid #0ABAB5;border-radius:0 8px 8px 0;margin-bottom:16px;">'
+      +'<div style="font-family:DM Sans,sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#0ABAB5;margin-bottom:4px;">X-Factor</div>'
+      +'<div style="font-family:DM Sans,sans-serif;font-size:14px;color:#2C2C2C;font-weight:500;">'+(xf.title||'')+'</div>'
+      +'<div style="font-family:DM Sans,sans-serif;font-size:13px;color:#2C2C2C;opacity:0.7;margin-top:4px;">'+(xf.detail||'')+'</div></div>'
+      +'<div style="display:flex;flex-direction:column;gap:8px;">'+reasonsHtml+'</div></div>';
+  });
+  container.innerHTML=html||'<div style="text-align:center;padding:40px;color:#2C2C2C;opacity:0.4;font-family:DM Sans,sans-serif;font-size:13px;">No match insights available.</div>';
+}
+loadMatchInsights();
 
 // Tournament predictions from /api/tournament-predictions
 async function loadTournamentPred() {
