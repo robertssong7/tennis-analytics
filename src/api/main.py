@@ -20,7 +20,7 @@ import psycopg2
 import psycopg2.extras
 import requests as req_lib
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
@@ -1609,6 +1609,170 @@ def live_tournament():
 # ─────────────────────────────────────────────────────────────
 # Tournament predictions endpoint
 # ─────────────────────────────────────────────────────────────
+
+@app.post("/api/match-insight")
+async def match_insight(request: Request):
+    """Deep match analysis: prediction + reasons + x-factor + upset indicators."""
+    body = await request.json()
+    p1_raw = body.get("player1", "")
+    p2_raw = body.get("player2", "")
+    surface = body.get("surface", "hard")
+
+    engine = _get_engine()
+    p1 = engine.find_player(p1_raw)
+    p2 = engine.find_player(p2_raw)
+    if not p1 or not p2:
+        return {"available": False, "reason": "Player not found"}
+
+    if surface.lower() == "overall":
+        surface = "hard"
+
+    try:
+        pred = engine.predict(p1, p2, surface)
+    except Exception as e:
+        return {"available": False, "reason": str(e)}
+
+    p1_prob = float(pred.get("player1_win_prob", 0.5))
+    p2_prob = float(1 - p1_prob)
+
+    card1 = engine.get_player_card(p1, surface)
+    card2 = engine.get_player_card(p2, surface)
+    if not card1 or not card2:
+        return {"available": False, "reason": "Player data unavailable"}
+
+    favorite = p1 if p1_prob >= 0.5 else p2
+    underdog = p2 if p1_prob >= 0.5 else p1
+    fav_prob = float(max(p1_prob, p2_prob))
+    dog_prob = float(min(p1_prob, p2_prob))
+    fav_card = card1 if favorite == p1 else card2
+    dog_card = card2 if favorite == p1 else card1
+
+    elo1 = float(card1.get("elo", 1500))
+    elo2 = float(card2.get("elo", 1500))
+    elo_diff = abs(elo1 - elo2)
+    higher_elo = p1 if elo1 > elo2 else p2
+
+    reasons = []
+
+    # 1. Rating gap
+    if elo_diff > 200:
+        reasons.append({"type": "rating_gap", "title": "Significant rating advantage",
+            "detail": f"{higher_elo} holds a {int(elo_diff)}-point Elo edge ({int(max(elo1,elo2))} vs {int(min(elo1,elo2))}). Gaps this large typically decide matches.",
+            "favors": higher_elo, "weight": "high"})
+    elif elo_diff > 80:
+        reasons.append({"type": "rating_gap", "title": "Moderate rating edge",
+            "detail": f"{higher_elo} leads by {int(elo_diff)} Elo points. Meaningful but not decisive.",
+            "favors": higher_elo, "weight": "medium"})
+    elif elo_diff < 40:
+        reasons.append({"type": "rating_gap", "title": "Razor-thin ratings gap",
+            "detail": f"Only {int(elo_diff)} Elo points separate them. A true coin-flip on ratings alone.",
+            "favors": "neither", "weight": "low"})
+
+    # 2. Surface edge
+    surf_r = {}
+    for p, card in [(p1, card1), (p2, card2)]:
+        s = card.get("surfaces", {})
+        surf_r[p] = float(s.get(surface, card.get("overall", 80)) or card.get("overall", 80))
+    surf_diff = abs(surf_r[p1] - surf_r[p2])
+    better_surf = p1 if surf_r[p1] > surf_r[p2] else p2
+    worse_surf = p2 if better_surf == p1 else p1
+    if surf_diff > 5:
+        reasons.append({"type": "surface_edge", "title": f"{surface.capitalize()} court specialist advantage",
+            "detail": f"{better_surf} rates {surf_r[better_surf]:.1f} on {surface} vs {surf_r[worse_surf]:.1f}. This surface amplifies the gap.",
+            "favors": better_surf, "weight": "high"})
+    elif surf_diff > 2:
+        reasons.append({"type": "surface_edge", "title": f"Slight {surface} court edge",
+            "detail": f"{better_surf} has a small edge on {surface} ({surf_r[better_surf]:.1f} vs {surf_r[worse_surf]:.1f}).",
+            "favors": better_surf, "weight": "medium"})
+
+    # 3. Attribute mismatches
+    attrs1, attrs2 = card1.get("attributes", {}), card2.get("attributes", {})
+    dog_adv, fav_adv = [], []
+    for attr in ["serve", "groundstroke", "volley", "footwork", "endurance", "durability", "clutch", "mental"]:
+        v1 = attrs1.get(attr); v2 = attrs2.get(attr)
+        if v1 is None or v2 is None: continue
+        v1, v2 = float(v1), float(v2)
+        diff = (v1 - v2) if underdog == p1 else (v2 - v1)
+        if diff > 8:
+            dog_adv.append({"attr": attr, "diff": int(abs(diff)), "dog_val": int(v1 if underdog == p1 else v2), "fav_val": int(v2 if underdog == p1 else v1)})
+        elif diff < -8:
+            fav_adv.append({"attr": attr, "diff": int(abs(diff)), "fav_val": int(v1 if favorite == p1 else v2), "dog_val": int(v2 if favorite == p1 else v1)})
+
+    if dog_adv:
+        top = sorted(dog_adv, key=lambda x: x["diff"], reverse=True)[:2]
+        txt = ", ".join([f"{a['attr']} ({a['dog_val']} vs {a['fav_val']})" for a in top])
+        reasons.append({"type": "attribute_mismatch", "title": f"{underdog}'s hidden edges",
+            "detail": f"Despite being the underdog, {underdog} is stronger in: {txt}. If the match flows toward these skills, the upset window opens.",
+            "favors": underdog, "weight": "medium"})
+    if fav_adv:
+        top = sorted(fav_adv, key=lambda x: x["diff"], reverse=True)[:2]
+        txt = ", ".join([f"{a['attr']} ({a['fav_val']} vs {a['dog_val']})" for a in top])
+        reasons.append({"type": "attribute_dominance", "title": f"{favorite} dominates key skills",
+            "detail": f"{favorite} holds clear edges in: {txt}. These advantages are hard to overcome.",
+            "favors": favorite, "weight": "high"})
+
+    # 4. H2H
+    h2h_key = tuple(sorted([p1, p2]))
+    h2h_entry = engine.h2h.get(h2h_key)
+    if h2h_entry:
+        w1 = int(h2h_entry['wins'].get(p1, 0))
+        w2 = int(h2h_entry['wins'].get(p2, 0))
+        total = w1 + w2
+        if total > 0:
+            leader = p1 if w1 > w2 else p2
+            bigger, smaller = max(w1, w2), min(w1, w2)
+            reasons.append({"type": "h2h", "title": f"Head-to-head: {leader} leads {bigger}-{smaller}",
+                "detail": f"Historical matchup favors {leader}. Past results indicate a stylistic edge.",
+                "favors": leader, "weight": "medium" if bigger - smaller >= 2 else "low"})
+
+    # X-Factor
+    x_factor = None
+    if dog_prob > 0.35 and elo_diff > 100:
+        x_factor = {"title": f"Upset alert: {underdog} at {dog_prob*100:.0f}%",
+            "detail": f"The model gives {underdog} a {dog_prob*100:.0f}% chance despite a {int(elo_diff)}-point Elo deficit. ", "type": "upset_potential"}
+        if dog_adv:
+            x_factor["detail"] += f"Key driver: {underdog}'s {dog_adv[0]['attr']} ({dog_adv[0]['dog_val']}) outclasses {favorite}'s ({dog_adv[0]['fav_val']}). "
+    elif fav_prob > 0.75:
+        x_factor = {"title": f"{favorite} heavily favored at {fav_prob*100:.0f}%",
+            "detail": f"Almost everything points to {favorite}. ", "type": "dominant_favorite"}
+        if dog_adv:
+            x_factor["detail"] += f"The only crack: {underdog}'s {dog_adv[0]['attr']} ({dog_adv[0]['dog_val']}) is actually better."
+        else:
+            x_factor["detail"] += f"{favorite} holds advantages across virtually every dimension."
+    else:
+        x_factor = {"title": "Competitive match — here's the tipping point", "detail": "", "type": "competitive"}
+        if surf_diff > 3:
+            x_factor["detail"] = f"The {surface} surface slightly favors {better_surf}. In a tight match, surface comfort could be the decider."
+        else:
+            x_factor["detail"] = f"Remarkably evenly matched on {surface}. Mental toughness in the big moments will separate the winner."
+
+    # Sort and take top 3
+    wo = {"high": 0, "medium": 1, "low": 2}
+    reasons.sort(key=lambda r: wo.get(r.get("weight", "low"), 2))
+
+    # Predicted score
+    if fav_prob > 0.72:
+        ps, sd = "Straight sets (2-0)", f"{favorite} likely wins in two sets."
+    elif fav_prob > 0.58:
+        ps, sd = "Three sets likely (2-1)", f"Expect a competitive match. {underdog} should take a set."
+    else:
+        ps, sd = "Could go either way (2-1)", f"Going the distance. Both have legitimate paths to winning."
+
+    return {
+        "available": True, "player1": p1, "player2": p2, "surface": surface,
+        "p1_win_prob": float(p1_prob), "p2_win_prob": float(p2_prob),
+        "favorite": favorite, "underdog": underdog,
+        "fav_prob": float(fav_prob), "dog_prob": float(dog_prob),
+        "predicted_score": ps, "score_detail": sd,
+        "reasons": reasons[:3], "x_factor": x_factor,
+        "dog_advantages": [{"attr": a["attr"], "dog_val": int(a["dog_val"]), "fav_val": int(a["fav_val"])} for a in dog_adv[:3]],
+        "fav_advantages": [{"attr": a["attr"], "fav_val": int(a["fav_val"]), "dog_val": int(a["dog_val"])} for a in fav_adv[:3]],
+        "cards": {
+            "p1": {"name": p1, "overall": float(card1.get("overall", 0)), "tier": card1.get("tier", ""), "elo": float(elo1)},
+            "p2": {"name": p2, "overall": float(card2.get("overall", 0)), "tier": card2.get("tier", ""), "elo": float(elo2)}
+        }
+    }
+
 
 _tournament_pred_cache: dict = {}
 
