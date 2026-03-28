@@ -1280,7 +1280,7 @@ def player_conditions(
     }
 
     records = []
-    for year in range(2010, 2025):
+    for year in range(2015, 2025):
         csv_path = SACKMANN / f'atp_matches_{year}.csv'
         if not csv_path.exists():
             continue
