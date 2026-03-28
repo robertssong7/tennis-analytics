@@ -190,18 +190,24 @@ async function buildC(){
       +'<div class="mu-sec"><div class="mu-lbl tough">Toughest Profiles</div>'+toughRows+'</div>'
       +'<a href="player.html?name='+encodeURIComponent(playerName)+'" class="vp-link">View Full Profile &rarr;</a>';
     } else if(cardData){
-      // Card without patterns — show ratings and surfaces
-      var tier=cardData.tier||'';
+      // Card without patterns — show ratings, surfaces, top attributes
+      var tier=cardData.tier||'bronze';
+      var tierColors={legendary:'#0ABAB5',gold:'#DAA520',silver:'#A8A9AD',bronze:'#CD7F32'};
+      var tierCol=tierColors[tier]||'#CD7F32';
       var surfs=cardData.surfaces||{};
       var wl=(cardData.wins!=null&&cardData.losses!=null)?(cardData.wins+'W \u2013 '+cardData.losses+'L'):'';
       var bestSurf='',bestVal=0;
-      ['hard','clay','grass'].forEach(function(s){var v=surfs[s];if(v&&v>bestVal){bestVal=v;bestSurf=s.charAt(0).toUpperCase()+s.slice(1);}});
+      ['hard','clay','grass'].forEach(function(s){var v=surfs[s];if(v!=null&&v>bestVal){bestVal=v;bestSurf=s.charAt(0).toUpperCase()+s.slice(1);}});
+      var eloVal=cardData.elo?Math.round(cardData.elo):'--';
+      // Sort attributes by value descending, get top 3
       var attrs=cardData.attributes||{};
-      var bestAttr='',bestAttrVal=0;
-      Object.keys(attrs).forEach(function(k){var v=attrs[k];if(v&&v>bestAttrVal){bestAttrVal=v;bestAttr=k.charAt(0).toUpperCase()+k.slice(1);}});
+      var attrList=Object.keys(attrs).filter(function(k){return attrs[k]!=null;}).map(function(k){return {name:k.charAt(0).toUpperCase()+k.slice(1),val:attrs[k]};}).sort(function(a,b){return b.val-a.val;});
+      var topAttrsHtml='';
+      attrList.slice(0,3).forEach(function(a){topAttrsHtml+='<div class="mu-row"><span class="oname">'+a.name+'</span><span class="reason">'+a.val+'</span></div>';});
       c='<div class="fc-head"><span class="fc-tag">Featured Player</span>'+dotsHtml+'</div>'
       +'<div class="fc-top">'+avatarHtml+'<div><div class="fc-name">'+playerName+'</div><div class="fc-sub">'+(wl||fp.sub)+'</div></div></div>'
-      +'<div class="fc-meta"><div class="fm-item"><div class="fm-val">'+overallRating+'</div><div class="fm-lbl">Rating</div></div><div class="fm-item"><div class="fm-val">'+tier.toUpperCase()+'</div><div class="fm-lbl">Tier</div></div><div class="fm-item"><div class="fm-val">'+(bestSurf?parseFloat(bestVal).toFixed(0):'\u2014')+'</div><div class="fm-lbl">'+(bestSurf||'Surface')+'</div></div><div class="fm-item"><div class="fm-val">'+(bestAttrVal||'\u2014')+'</div><div class="fm-lbl">'+(bestAttr||'Attribute')+'</div></div></div>'
+      +'<div class="fc-meta"><div class="fm-item"><div class="fm-val" style="color:'+tierCol+';">'+overallRating+'</div><div class="fm-lbl">Rating</div></div><div class="fm-item"><div class="fm-val" style="color:'+tierCol+';">'+tier.charAt(0).toUpperCase()+tier.slice(1)+'</div><div class="fm-lbl">Tier</div></div><div class="fm-item"><div class="fm-val">'+(bestSurf?parseFloat(bestVal).toFixed(0):'\u2014')+'</div><div class="fm-lbl">'+(bestSurf||'Best')+'</div></div><div class="fm-item"><div class="fm-val">'+eloVal+'</div><div class="fm-lbl">Elo</div></div></div>'
+      +(topAttrsHtml?'<div class="mu-sec"><div class="mu-lbl fav">Top Attributes</div>'+topAttrsHtml+'</div>':'')
       +'<a href="player.html?name='+encodeURIComponent(playerName)+'" class="vp-link">View Full Profile &rarr;</a>';
     } else {
       // Neither available — true fallback
