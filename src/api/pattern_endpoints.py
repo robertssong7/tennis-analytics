@@ -36,6 +36,8 @@ def get_profiles():
 
 def get_court_speed():
     if "court_speed" not in _cache:
+        if not COURT_SPEED.exists():
+            raise HTTPException(503, "Court speed data not available")
         _cache["court_speed"] = pd.read_csv(COURT_SPEED)
     return _cache["court_speed"]
 
@@ -314,10 +316,24 @@ def court_speed(
 
 @router.get("/search")
 def search_players(q: str = Query(..., min_length=2)):
-    profiles = get_profiles()
-    matches = profiles[profiles["player"].str.contains(q, case=False, na=False)]
-    matches = matches.nlargest(10, "n_charted_matches")
-    return [{"name": r["player"], "matches": int(r["n_charted_matches"])} for _, r in matches.iterrows()]
+    try:
+        profiles = get_profiles()
+        matches = profiles[profiles["player"].str.contains(q, case=False, na=False)]
+        matches = matches.nlargest(10, "n_charted_matches")
+        return [{"name": r["player"], "matches": int(r["n_charted_matches"])} for _, r in matches.iterrows()]
+    except Exception:
+        # Fallback: search Glicko roster when profiles parquet is missing
+        try:
+            from src.api.predict_engine import PredictEngine
+            engine = PredictEngine.get()
+            if not engine._loaded:
+                return []
+            ql = q.strip().lower()
+            results = [n for n in engine.player_names if ql in n.lower()]
+            results.sort(key=lambda n: engine.glicko.ratings.get(n, {}).get('all', type('', (), {'mu': 0})).mu, reverse=True)
+            return [{"name": n, "matches": 0} for n in results[:10]]
+        except Exception:
+            return []
 
 
 @router.get("/player/{name}/deep")
