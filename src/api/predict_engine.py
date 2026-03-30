@@ -77,10 +77,38 @@ def _build_supplemental_name_map(glicko_names: list) -> dict:
         set(df['winner_name'].dropna().unique()) | set(df['loser_name'].dropna().unique())
     )
 
+    # Manual overrides for names the automatic mapping can't handle
+    MANUAL_OVERRIDES = {
+        'Auger-Aliassime F.': 'Felix Auger Aliassime',
+        'Mpetshi G.': 'Giovanni Mpetshi Perricard',
+        'Mpetshi Perricard G.': 'Giovanni Mpetshi Perricard',
+        'Struff J.L.': 'Jan Lennard Struff',
+        'Bu Y.': 'Yunchaokete Bu',
+        'O Connell C.': 'Christopher O Connell',
+        "O'Connell C.": 'Christopher O Connell',
+        'Cerundolo J.M.': 'Juan Manuel Cerundolo',
+        'Tseng C.H.': 'Chun Hsin Tseng',
+        'Zhang Zh.': 'Zhizhen Zhang',
+        'Tirante T.A.': 'Thiago Agustin Tirante',
+        'Barrios M.': 'Tomas Barrios Vera',
+        'Galan D.E.': 'Daniel Elahi Galan',
+        'Ficovich J.P.': 'Juan Pablo Ficovich',
+        'Blanch Dar.': 'Darwin Blanch',
+        'Bailly G.A.': 'Gilles Arnaud Bailly',
+        'Royer V.': 'Valentin Royer',
+        'Boyer T.': 'Timofej Skatov',  # Known name change
+    }
+
     name_map = {}
+    # Apply manual overrides first (only if the canonical name exists in Glicko)
+    glicko_set = set(glicko_names)
+    for short, full in MANUAL_OVERRIDES.items():
+        if full in glicko_set:
+            name_map[short] = full
+
     for sname in all_suppl_names:
         sname = str(sname).strip()
-        if not sname or sname == 'nan':
+        if not sname or sname == 'nan' or sname in name_map:
             continue
         # Format: "LastName F." or "Hyphen-Last F." or "Two Word F."
         parts = sname.rsplit(' ', 1)
