@@ -552,7 +552,7 @@ class PredictEngine:
 
         # Only load 2015+ CSVs — older data is already baked into Glicko ratings
         all_csvs = sorted(SACKMANN_DIR.glob('atp_matches_*.csv'))
-        csvs_2010 = [f for f in all_csvs if any(f'matches_{y}' in f.name for y in range(2015, 2030))]
+        csvs_2010 = [f for f in all_csvs if any(f'matches_{y}' in f.name for y in range(1968, 2030))]
         logger.info(f"  Loading {len(csvs_2010)} match CSVs (2015+, skipping {len(all_csvs) - len(csvs_2010)} older files)")
         for csv_path in csvs_2010:
             try:
