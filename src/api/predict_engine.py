@@ -550,10 +550,15 @@ class PredictEngine:
                 entry['surface_wins'][surf][w] = entry['surface_wins'][surf].get(w, 0) + 1
             entry['matches'].append((tdate, w))
 
-        # Load ALL Sackmann CSVs for comprehensive W/L and H2H data
+        # Load Sackmann main-tour CSVs (exclude quals, futures, doubles, amateur, supplement)
         all_csvs = sorted(SACKMANN_DIR.glob('atp_matches_*.csv'))
-        csv_files = [f for f in all_csvs if any(f'matches_{y}' in f.name for y in range(1968, 2030))]
-        logger.info(f"  Loading {len(csv_files)} match CSVs (all years)")
+        csv_files = [f for f in all_csvs
+                     if 'qual' not in f.name
+                     and 'futures' not in f.name
+                     and 'doubles' not in f.name
+                     and 'amateur' not in f.name
+                     and 'supplement' not in f.name]
+        logger.info(f"  Loading {len(csv_files)} main-tour match CSVs")
         for csv_path in csv_files:
             try:
                 df = pd.read_csv(csv_path, usecols=use_cols, low_memory=False)
