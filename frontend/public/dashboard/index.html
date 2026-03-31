@@ -80,14 +80,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="carousel-wrap" id="cw"><div class="carousel-track" id="ct"></div></div>
 </div>
 </section>
-<section id="todays-matches" style="max-width:900px;margin:0 auto;padding:40px 20px;">
+<section id="todays-matches" style="max-width:1000px;margin:0 auto;padding:40px 20px;">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
     <span style="color:#0ABAB5;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Match Predictions</span>
     <div style="flex:1;height:1px;background:#D0C9C0;"></div>
   </div>
-  <h2 style="font-family:'Playfair Display',serif;font-size:32px;color:#2C2C2C;margin:0 0 8px;">Today's Key Matchups</h2>
-  <p style="font-family:'DM Sans',sans-serif;font-size:15px;color:#2C2C2C;opacity:0.6;margin:0 0 24px;">Deep analysis powered by our ML ensemble model. Tap any matchup for the full breakdown.</p>
-  <div id="match-insights-container"><div style="text-align:center;padding:40px;color:#2C2C2C;opacity:0.4;font-family:'DM Sans',sans-serif;font-size:13px;">Loading match predictions...</div></div>
+  <h2 id="matchups-heading" style="font-family:'Playfair Display',serif;font-size:32px;color:#2C2C2C;margin:0 0 8px;">Featured Rivalries</h2>
+  <p id="matchups-subtext" style="font-family:'DM Sans',sans-serif;font-size:15px;color:#2C2C2C;opacity:0.6;margin:0 0 20px;">Top matchups analyzed by our ML ensemble model.</p>
+  <div id="match-insights-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;"></div>
 </section>
 <section class="tournament-section">
 <div class="section-eyebrow">Live Tournament</div>
@@ -263,10 +263,14 @@ buildC();
 async function loadMatchInsights(){
   var container=document.getElementById('match-insights-container');
   if(!container)return;
+  var heading=document.getElementById('matchups-heading');
+  var subtext=document.getElementById('matchups-subtext');
+  var isLive=false;
   var matchups=[
     {p1:'Sinner',p2:'Alcaraz',surface:'hard'},
-    {p1:'Djokovic',p2:'Medvedev',surface:'hard'},
-    {p1:'Zverev',p2:'Fritz',surface:'hard'}
+    {p1:'Djokovic',p2:'Alcaraz',surface:'hard'},
+    {p1:'Sinner',p2:'Djokovic',surface:'hard'},
+    {p1:'Zverev',p2:'Medvedev',surface:'hard'}
   ];
   // Try live tournament data first
   try{
@@ -275,10 +279,12 @@ async function loadMatchInsights(){
       var cur=lt.current||lt;
       if(cur&&cur.recent_results&&cur.recent_results.length>0){
         var live=cur.recent_results.slice(-4).filter(function(r){return r.winner&&r.loser;}).map(function(r){return{p1:r.winner,p2:r.loser,surface:cur.surface||'hard'};});
-        if(live.length>=2)matchups=live;
+        if(live.length>=2){matchups=live;isLive=true;}
       }
     }
   }catch(e){}
+  if(heading){heading.textContent=isLive?'Today\'s Key Matchups':'Featured Rivalries';}
+  if(subtext){subtext.textContent=isLive?'Deep analysis powered by our ML ensemble model.':'Top matchups analyzed by our ML ensemble model.';}
   var insights=await Promise.all(matchups.slice(0,3).map(function(m){
     return fetch(API_URL+'/api/match-insight',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({player1:m.p1,player2:m.p2,surface:m.surface})}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
   }));
@@ -296,7 +302,7 @@ async function loadMatchInsights(){
         +'<div style="font-family:DM Sans,sans-serif;font-size:12px;color:#2C2C2C;opacity:0.6;">'+r.detail+'</div></div></div>';
     });
     var xf=d.x_factor||{};
-    html+='<div style="background:#FFFFFF;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:24px;margin-bottom:16px;">'
+    html+='<div style="background:#FFFFFF;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:24px;">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
       +'<div style="font-family:Playfair Display,serif;font-size:18px;color:#2C2C2C;">'+d.player1+'</div>'
       +'<div style="font-family:DM Mono,monospace;font-size:13px;color:#2C2C2C;opacity:0.5;">vs</div>'
