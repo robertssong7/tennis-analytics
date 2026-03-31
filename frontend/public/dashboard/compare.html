@@ -199,13 +199,15 @@ async function go() {
   const c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:#999;font-family:\'DM Sans\';">Analyzing matchup...</p></div>';
 
-  // Run ML prediction, legacy API, and surface-specific patterns in parallel
+  // Run ML prediction, legacy API, patterns, and card data in parallel
   const surfParam = (activeSurf && activeSurf !== 'overall') ? '?surface=' + activeSurf : '';
-  const [pred, legacyData, pat1, pat2] = await Promise.all([
+  const [pred, legacyData, pat1, pat2, card1, card2] = await Promise.all([
     fetchPrediction(a, b, activeSurf),
     fetchLegacyMatchup(a, b),
     fetch(ML_API + '/player/' + encodeURIComponent(a) + '/patterns' + surfParam).then(r => r.ok ? r.json() : null).catch(() => null),
     fetch(ML_API + '/player/' + encodeURIComponent(b) + '/patterns' + surfParam).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch(ML_API + '/predict/player/' + encodeURIComponent(a)).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch(ML_API + '/predict/player/' + encodeURIComponent(b)).then(r => r.ok ? r.json() : null).catch(() => null),
   ]);
 
   if (!pred && !legacyData) {
@@ -272,6 +274,24 @@ async function go() {
 <div style="text-align:center;font-size:11px;font-weight:500;color:var(--ink-mid);position:relative;cursor:help;" class="tt">${at.n}<span class="tt-box">${tooltips[at.n] || ''}</span></div>
 <div style="height:8px;background:var(--bg-alt);border-radius:4px;overflow:hidden;position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:${w2}%;background:var(--p2);border-radius:4px;"></div></div>
 <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:${b2?'var(--p2)':'var(--ink-mid)'};">${at.f(at.v2)}</div></div>`;
+    }).join('');
+  } else if (card1 && card2) {
+    // Fallback: show card-based attributes when charted data unavailable
+    const a1 = card1.attributes || {}, a2 = card2.attributes || {};
+    const attrNames = ['serve','groundstroke','volley','footwork','endurance','durability','clutch','mental'];
+    const attrLabels = {serve:'Serve',groundstroke:'Groundstroke',volley:'Volley',footwork:'Footwork',endurance:'Endurance',durability:'Durability',clutch:'Clutch',mental:'Mental'};
+    const attrTips = {serve:'Ace rate, first serve win %, serve points won',groundstroke:'Rally win rate, consistency, baseline construction',volley:'Net approach success, volley winner %',footwork:'Defensive saves, rally coverage',endurance:'Long rally performance, 3rd/5th set win rates',durability:'Career longevity, match load, season consistency',clutch:'Break point conversion, tiebreak wins, deciding sets',mental:'Performance when behind, comeback frequency'};
+    html += `<div style="font-family:'DM Mono',monospace;font-size:11.5px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Player Attributes</div>`;
+    html += attrNames.map(attr => {
+      const v1 = a1[attr] || 0, v2 = a2[attr] || 0;
+      const w1 = Math.min(100, v1), w2 = Math.min(100, v2);
+      const b1 = v1 >= v2, b2 = v2 > v1;
+      return `<div style="display:grid;grid-template-columns:55px 1fr 120px 1fr 55px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+<div style="font-family:'DM Mono',monospace;font-size:13px;text-align:right;font-weight:500;color:${b1?'var(--p1)':'var(--ink-mid)'};">${v1}</div>
+<div style="height:8px;background:var(--bg-alt);border-radius:4px;overflow:hidden;position:relative;"><div style="position:absolute;right:0;top:0;height:100%;width:${w1}%;background:var(--p1);border-radius:4px;"></div></div>
+<div style="text-align:center;font-size:11px;font-weight:500;color:var(--ink-mid);position:relative;cursor:help;" class="tt">${attrLabels[attr]}<span class="tt-box">${attrTips[attr]||''}</span></div>
+<div style="height:8px;background:var(--bg-alt);border-radius:4px;overflow:hidden;position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:${w2}%;background:var(--p2);border-radius:4px;"></div></div>
+<div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:${b2?'var(--p2)':'var(--ink-mid)'};">${v2}</div></div>`;
     }).join('');
   }
 
