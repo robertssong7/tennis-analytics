@@ -6,7 +6,13 @@ venv/
 .env.*
 node_modules/
 data/scraped/
-data/sackmann/
+data/sackmann/tennis_atp/.git
+data/sackmann/tennis_atp_old/
+data/sackmann/tennis_MatchChartingProject
+data/sackmann/tennis_atp/atp_matches_qual_chall_*.csv
+data/sackmann/tennis_atp/atp_matches_futures_*.csv
+data/sackmann/tennis_atp/atp_matches_doubles_*.csv
+data/sackmann/tennis_atp/atp_matches_amateur.csv
 data/processed/parsed_points.parquet
 data/processed/training_edge*.pkl
 data/processed/expanded_training*.pkl
@@ -26,3 +32,4 @@ notebooks/
 overnight_report*.md
 session*_report.md
 SESSION_*_REPORT.md
+DATA_AUDIT_REPORT.md
