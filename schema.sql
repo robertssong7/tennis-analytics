@@ -118,6 +118,15 @@ CREATE INDEX IF NOT EXISTS idx_shots_point  ON shots(point_id);
 CREATE INDEX IF NOT EXISTS idx_shots_player ON shots(player_id);
 
 -- ──────────────────────────────────────────────────────────
+-- File Read Status (incremental pipeline bookkeeping)
+-- ──────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS "FileReadStatus" (
+    file_name            TEXT PRIMARY KEY,
+    last_read_timestamp  TIMESTAMPTZ NOT NULL,
+    latest_row_timestamp TIMESTAMPTZ
+);
+
+-- ──────────────────────────────────────────────────────────
 -- Elo History
 -- ──────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS elo_history (
