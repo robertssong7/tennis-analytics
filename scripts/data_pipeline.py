@@ -23,11 +23,14 @@ import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Optional, Tuple
+from collections import defaultdict
 
 import psycopg2
 from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 from shot_sequence_parser import ShotSequenceParser
+
+from result import Err, Ok, Result
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -40,102 +43,40 @@ SACK_DIR = DATA_DIR / "sackmann"
 ATP_DIR = SACK_DIR / "tennis_atp"
 MCP_DIR = SACK_DIR / "tennis_MatchChartingProject"
 
-# ─────────────────────────────────────────────────────────────
-# Tournament surface lookup (from spec doc 6)
-# ─────────────────────────────────────────────────────────────
-
-HARD_TOURNAMENTS = {
-    "Australian Open": "hard",
-    "US Open": "hard",
-    "Indian Wells Masters": "hard",
-    "Miami Open": "hard",
-    "Canadian Open": "hard",
-    "Rogers Cup": "hard",
-    "Western & Southern Open": "hard",
-    "Cincinnati": "hard",
-    "Shanghai Masters": "hard",
-    "Paris Masters": "hard",
-    "Rolex Paris Masters": "hard",
-    "BNP Paribas Masters": "hard",
-    "Dubai Duty Free Tennis Championships": "hard",
-    "Qatar ExxonMobil Open": "hard",
-    "Abierto Mexicano Telcel": "hard",
-    "Brisbane International": "hard",
-    "Sydney International": "hard",
-    "Auckland Open": "hard",
-    "Delray Beach Open": "hard",
-    "Winston-Salem Open": "hard",
-    "Erste Bank Open": "hard",
-    "Swiss Indoors Basel": "hard",
-}
-
-CLAY_TOURNAMENTS = {
-    "Roland Garros": "clay",
-    "Monte-Carlo Masters": "clay",
-    "Madrid Open": "clay",
-    "Italian Open": "clay",
-    "Barcelona Open": "clay",
-    "Geneva Open": "clay",
-    "Lyon Open": "clay",
-    "Hamburg": "clay",
-}
-
-GRASS_TOURNAMENTS = {
-    "Wimbledon": "grass",
-    "Queens Club": "grass",
-    "Halle Open": "grass",
-    "Eastbourne International": "grass",
-    "Stuttgart Open": "grass",
-}
-
-ALL_TOURNAMENT_SURFACES = {**HARD_TOURNAMENTS, **CLAY_TOURNAMENTS, **GRASS_TOURNAMENTS}
-
-
-def get_surface_for_tournament(name: str) -> Optional[str]:
-    """Look up surface for a tournament name (exact then fuzzy)."""
-    if not name:
-        return None
-    exact = ALL_TOURNAMENT_SURFACES.get(name)
-    if exact:
-        return exact
-    name_lower = name.lower()
-    for known, surface in ALL_TOURNAMENT_SURFACES.items():
-        if known.lower() in name_lower or name_lower in known.lower():
-            return surface
-    return None
-
 
 # ─────────────────────────────────────────────────────────────
 # Sackmann ATP result parser
 # ─────────────────────────────────────────────────────────────
 
+INVALID_DATE_ERROR_CODE = 101
+MISSING_WINNER_OR_LOSER_ERROR_CODE = 102
+DUPLICATE_MATCH_ERROR_CODE = 103
 
-def parse_sackmann_match_row(row: dict) -> Optional[dict]:
+
+def parse_sackmann_match_row(row: dict) -> Result[dict, int]:
     """Parse one row from Sackmann atp_matches_YYYY.csv"""
-    try:
-        match_date_str = str(row.get("tourney_date", "")).strip()
-        if len(match_date_str) == 8:
-            match_date = date(
-                int(match_date_str[:4]),
-                int(match_date_str[4:6]),
-                int(match_date_str[6:8]),
-            )
-        else:
-            return None
+    match_date_str = str(row.get("tourney_date", "")).strip()
+    if len(match_date_str) == 8:
+        match_date = date(
+            int(match_date_str[:4]),
+            int(match_date_str[4:6]),
+            int(match_date_str[6:8]),
+        )
+    else:
+        return Err(INVALID_DATE_ERROR_CODE)
 
-        winner_name = row.get("winner_name", "").strip()
-        loser_name = row.get("loser_name", "").strip()
-        if not winner_name or not loser_name:
-            return None
+    winner_name = row.get("winner_name", "").strip()
+    loser_name = row.get("loser_name", "").strip()
+    if not winner_name or not loser_name:
+        return Err(MISSING_WINNER_OR_LOSER_ERROR_CODE)
 
-        tournament = row.get("tourney_name", "").strip()
-        surface_raw = row.get("surface", "").strip().lower()
-        surface = get_surface_for_tournament(tournament) or surface_raw or None
+    tournament_name = row.get("tourney_name", "").strip()
 
-        return {
+    return Ok(
+        {
             "match_date": match_date,
-            "tournament": tournament,
-            "surface": surface,
+            "tournament": tournament_name,
+            "surface": row.get("surface", ""),
             "round": row.get("round", ""),
             "winner_name": winner_name,
             "loser_name": loser_name,
@@ -148,8 +89,7 @@ def parse_sackmann_match_row(row: dict) -> Optional[dict]:
             "loser_ht": _safe_int(row.get("loser_ht")),
             "source": "sackmann_atp",
         }
-    except Exception as e:
-        return None
+    )
 
 
 def _safe_int(val) -> Optional[int]:
@@ -243,13 +183,6 @@ def get_or_create_player(conn, name: str, hand: str = None, height: int = None) 
     return ids[normalize_name(name)]
 
 
-def get_or_create_tournament(conn, name: str, surface: str = None) -> int:
-    """Single-tournament upsert (used by MCP loader)."""
-    ids = bulk_upsert_tournaments(conn, {name: surface})
-    conn.commit()
-    return ids[name]
-
-
 def upsert_file_read_status(
     conn,
     file_name: str,
@@ -259,7 +192,7 @@ def upsert_file_read_status(
     with conn.cursor() as cur:
         cur.execute(
             """
-            INSERT INTO "FileReadStatus" (file_name, last_read_timestamp, latest_row_timestamp)
+            INSERT INTO "file_read_status" (file_name, last_read_timestamp, latest_row_timestamp)
             VALUES (%s, %s, %s)
             ON CONFLICT (file_name) DO UPDATE
             SET last_read_timestamp = EXCLUDED.last_read_timestamp,
@@ -291,14 +224,19 @@ def clone_or_update(url: str, target: Path):
 # ─────────────────────────────────────────────────────────────
 
 
-def load_atp_matches(conn, unmatched_log: list, file_read_statuses: dict):
+def load_atp_matches(
+    conn,
+    unmatched_log: list,
+    file_read_statuses: dict,
+):
     """Load all Sackmann ATP match result CSVs into database."""
     match_files = sorted(ATP_DIR.glob("atp_matches_????.csv"))
     logger.info("Found %d ATP match result files", len(match_files))
 
     total_loaded = 0
     total_skipped = 0
-    seen_keys = set()
+    seen_match_keys = set()
+    parsing_error_codes_to_count = defaultdict(int)
 
     for fpath in match_files:
         logger.info("  Loading %s...", fpath.name)
@@ -307,8 +245,8 @@ def load_atp_matches(conn, unmatched_log: list, file_read_statuses: dict):
         )
         file_last_read_status = file_read_statuses.get(fpath.name)
         if (
-            file_last_read_status is None
-            or file_last_modified_timestamp
+            file_last_read_status is not None
+            and file_last_modified_timestamp
             < file_last_read_status.get("last_read_timestamp")
         ):
             logger.info(
@@ -322,20 +260,24 @@ def load_atp_matches(conn, unmatched_log: list, file_read_statuses: dict):
             reader = csv.DictReader(f)
             batch = []
             for row in reader:
-                parsed = parse_sackmann_match_row(row)
-                if not parsed:
+                parsed_result = parse_sackmann_match_row(row)
+                if isinstance(parsed_result, Err):
                     total_skipped += 1
+                    parsing_error_codes_to_count[parsed_result.error] += 1
                     continue
+
+                parsed = parsed_result.value
                 key = dedup_key(
                     parsed["tournament"],
                     parsed["match_date"],
                     parsed["winner_name"],
                     parsed["loser_name"],
                 )
-                if key in seen_keys:
+                if key in seen_match_keys:
+                    parsing_error_codes_to_count[DUPLICATE_MATCH_ERROR_CODE] += 1
                     total_skipped += 1
                     continue
-                seen_keys.add(key)
+                seen_match_keys.add(key)
                 batch.append(parsed)
                 row_match_date = parsed.get("match_date")
                 if row_match_date and (
@@ -443,6 +385,7 @@ def load_atp_matches(conn, unmatched_log: list, file_read_statuses: dict):
                 total_skipped += len(batch)
 
     logger.info("ATP matches: %d loaded, %d skipped", total_loaded, total_skipped)
+    logger.info("ATP matches parsing info: %s", parsing_error_codes_to_count)
     return total_loaded
 
 
@@ -477,7 +420,11 @@ def _normalize_serve_direction(val: Optional[str]) -> Optional[str]:
     return None
 
 
-def load_mcp_matches(conn, unmatched_log: list, file_read_statuses: dict) -> int:
+def load_mcp_matches(
+    conn,
+    unmatched_log: list,
+    file_read_statuses: dict,
+) -> int:
     """Load MCP matches, points, and parsed shots into database."""
     mcp_matches_file = MCP_DIR / "charting-m-matches.csv"
     if not mcp_matches_file.exists():
@@ -521,7 +468,6 @@ def load_mcp_matches(conn, unmatched_log: list, file_read_statuses: dict) -> int
 
                 tournament = row.get("Tournament", "").strip()
                 surface_raw = row.get("Surface", "").strip().lower()
-                surface = get_surface_for_tournament(tournament) or surface_raw or None
                 round_name = row.get("Round", "").strip()
                 hand1 = row.get("Pl 1 hand", "").strip() or None
                 hand2 = row.get("Pl 2 hand", "").strip() or None
@@ -531,7 +477,7 @@ def load_mcp_matches(conn, unmatched_log: list, file_read_statuses: dict) -> int
                         "match_id_str": match_id_str,
                         "match_date": match_date,
                         "tournament": tournament,
-                        "surface": surface,
+                        "surface": surface_raw,
                         "round": round_name,
                         "winner_name": player1,
                         "loser_name": player2,
@@ -609,7 +555,7 @@ def load_mcp_matches(conn, unmatched_log: list, file_read_statuses: dict) -> int
         logger.error("MCP load error: %s", e)
 
     logger.info(
-        "MCP matches: %d loaded | points: %d | shots: %d",
+        "MCP matches: %d loaded",
         total_matches,
     )
     return total_matches
@@ -959,7 +905,9 @@ def run_quality_checks(conn) -> dict:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--phase", choices=["init", "sync", "validate", "splits"], default="validate"
+        "--phase",
+        choices=["init", "sync", "validate", "splits", "clear"],
+        default="validate",
     )
     parser.add_argument("--sources", choices=["all", "atp", "mcp"], default="all")
     args = parser.parse_args()
@@ -975,10 +923,16 @@ def main():
 
     conn = psycopg2.connect(db_url, connect_timeout=30)
 
-    if args.phase in ("init", "sync"):
-        clone_or_update(SACKMANN_ATP_URL, ATP_DIR)
-        clone_or_update(SACKMANN_MCP_URL, MCP_DIR)
+    if args.phase == "clear":
+        reset_sql = Path("reset.sql").read_text()
+        with conn.cursor() as cur:
+            cur.execute(reset_sql)
 
+        conn.commit()
+        conn.close()
+        return
+
+    if args.phase in ("init", "sync"):
         # Run schema
         schema_sql = Path("schema.sql").read_text()
         with conn.cursor() as cur:
@@ -991,24 +945,31 @@ def main():
         conn = reconnect(db_url)
         n_atp = 0
 
+        conn.commit()
         file_read_statuses = {}
         with conn.cursor() as cursor:
-            cursor.execute('SELECT * FROM "FileReadStatus"')
+            cursor.execute('SELECT * FROM "file_read_status"')
             file_read_statuses = {
                 row[0]: {"last_read_timestamp": row[1], "latest_row_timestamp": row[2]}
                 for row in cursor.fetchall()
             }
         if args.sources in ("all", "atp"):
+            clone_or_update(SACKMANN_ATP_URL, ATP_DIR)
             n_atp = load_atp_matches(
-                conn, unmatched, file_read_statuses=file_read_statuses
+                conn,
+                unmatched,
+                file_read_statuses=file_read_statuses,
             )
         conn.close()
         conn = reconnect(db_url)
 
         n_mcp = 0
         if args.sources in ("all", "mcp"):
+            clone_or_update(SACKMANN_MCP_URL, MCP_DIR)
             n_mcp = load_mcp_matches(
-                conn, unmatched, file_read_statuses=file_read_statuses
+                conn,
+                unmatched,
+                file_read_statuses=file_read_statuses,
             )
 
         if unmatched:

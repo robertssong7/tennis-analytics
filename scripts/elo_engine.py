@@ -15,9 +15,13 @@ import json
 import logging
 import os
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from utils.tournament import (
+    ALL_TOURNAMENTS_BY_NAME,
+    ALL_TOURNAMENTS_BY_LOWER_NAME,
+)
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -28,65 +32,27 @@ logger = logging.getLogger(__name__)
 # K-Factor table by tournament level and round
 # ─────────────────────────────────────────────────────────────
 K_FACTORS: Dict[str, int] = {
-    "grand_slam_final":    32,
-    "grand_slam":          24,
-    "masters_final":       20,
-    "masters":             16,
-    "atp_500":             12,
-    "atp_250":              8,
-    "challenger":           4,
-    "default":              8,
-}
-
-# Tournament → level lookup
-TOURNAMENT_LEVELS: Dict[str, str] = {
-    # Grand Slams
-    "Australian Open":          "grand_slam",
-    "Roland Garros":            "grand_slam",
-    "Wimbledon":                "grand_slam",
-    "US Open":                  "grand_slam",
-    # Masters 1000
-    "Indian Wells Masters":     "masters",
-    "Miami Open":               "masters",
-    "Monte-Carlo Masters":      "masters",
-    "Madrid Open":              "masters",
-    "Italian Open":             "masters",
-    "Canadian Open":            "masters",
-    "Rogers Cup":               "masters",
-    "Western & Southern Open":  "masters",
-    "Cincinnati":               "masters",
-    "Shanghai Masters":         "masters",
-    "Paris Masters":            "masters",
-    "Rolex Paris Masters":      "masters",
-    "BNP Paribas Masters":      "masters",
-    "Monte Carlo":              "masters",
-    "Rome":                     "masters",
-    # ATP 500
-    "Dubai Duty Free Tennis Championships": "atp_500",
-    "Qatar ExxonMobil Open":    "atp_500",
-    "Abierto Mexicano Telcel":  "atp_500",
-    "BB&T Atlanta Open":        "atp_500",
-    "Erste Bank Open":          "atp_500",
-    "Swiss Indoors Basel":      "atp_500",
-    "Barcelona Open":           "atp_500",
-    "Hamburg":                  "atp_500",
-    "Washington":               "atp_500",
-    "Beijing":                  "atp_500",
-    "Tokyo":                    "atp_500",
-    "Vienna":                   "atp_500",
-    "Basel":                    "atp_500",
+    "grand_slam_final": 32,
+    "grand_slam": 24,
+    "masters_final": 20,
+    "masters": 16,
+    "atp_500": 12,
+    "atp_250": 8,
+    "challenger": 4,
+    "default": 8,
 }
 
 GRAND_SLAMS = {"Australian Open", "Roland Garros", "Wimbledon", "US Open"}
 FINALS_ROUNDS = {"F", "final", "Final", "Finals"}
 
 ELO_INIT = 1500.0
-DECAY_RATE = 0.997   # Monthly decay for inactive players (30-day no-match)
+DECAY_RATE = 0.997  # Monthly decay for inactive players (30-day no-match)
 
 
 # ─────────────────────────────────────────────────────────────
 # Helper functions
 # ─────────────────────────────────────────────────────────────
+
 
 def get_tournament_level(tournament_name: str, round_name: str = "") -> str:
     """Return tournament level string for K-factor lookup."""
@@ -96,33 +62,26 @@ def get_tournament_level(tournament_name: str, round_name: str = "") -> str:
     name = tournament_name.strip()
 
     # Exact match first
-    level = TOURNAMENT_LEVELS.get(name)
-    if not level:
-        # Fuzzy: check if any known name is a substring
-        name_lower = name.lower()
-        for known, lvl in TOURNAMENT_LEVELS.items():
-            if known.lower() in name_lower or name_lower in known.lower():
-                level = lvl
-                break
-
-    if not level:
-        # Infer from common keywords
-        if any(x in name_lower for x in ["challenger", "chall"]):
-            level = "challenger"
-        elif any(x in name_lower for x in ["masters", "1000"]):
-            level = "masters"
-        else:
-            level = "default"
+    tournament = ALL_TOURNAMENTS_BY_NAME.get(name)
+    name_lower = str.lower(name)
+    if tournament is None:
+        tournament = ALL_TOURNAMENTS_BY_LOWER_NAME.get(name_lower)
 
     # Check for final
     is_final = round_name.strip() in FINALS_ROUNDS
-    if is_final:
-        if level == "grand_slam":
-            return "grand_slam_final"
-        elif level == "masters":
-            return "masters_final"
+    if tournament is not None:
+        if is_final:
+            return tournament.name + "_final"
+        else:
+            return tournament.name
 
-    return level
+    # Infer from common keywords
+    if any(x in name_lower for x in ["challenger", "chall"]):
+        return "challenger"
+    elif any(x in name_lower for x in ["masters", "1000"]):
+        return "masters"
+
+    return "default"
 
 
 def get_k_factor(tournament_name: str, round_name: str = "") -> int:
@@ -142,9 +101,9 @@ def update_ratings(
 ) -> Tuple[float, float]:
     """Return (new_winner_rating, new_loser_rating)."""
     e_winner = expected_score(winner_rating, loser_rating)
-    e_loser  = 1.0 - e_winner
+    e_loser = 1.0 - e_winner
     new_winner = winner_rating + k * (1.0 - e_winner)
-    new_loser  = loser_rating  + k * (0.0 - e_loser)
+    new_loser = loser_rating + k * (0.0 - e_loser)
     return new_winner, new_loser
 
 
@@ -185,15 +144,16 @@ def get_elo_badge(match_count: int) -> Optional[str]:
 # Player Elo state container
 # ─────────────────────────────────────────────────────────────
 
+
 class PlayerElo:
     def __init__(self, player_id: str):
-        self.player_id    = player_id
-        self.overall      = ELO_INIT
-        self.hard         = ELO_INIT
-        self.clay         = ELO_INIT
-        self.grass        = ELO_INIT
-        self.match_count  = 0
-        self.peak         = ELO_INIT
+        self.player_id = player_id
+        self.overall = ELO_INIT
+        self.hard = ELO_INIT
+        self.clay = ELO_INIT
+        self.grass = ELO_INIT
+        self.match_count = 0
+        self.peak = ELO_INIT
         self.peak_date: Optional[date] = None
         self.last_match_date: Optional[date] = None
         self.history: List[dict] = []
@@ -237,7 +197,7 @@ class PlayerElo:
         if days_inactive < 30:
             return
         months = days_inactive / 30.0
-        factor = DECAY_RATE ** months
+        factor = DECAY_RATE**months
         for attr in ("overall", "hard", "clay", "grass"):
             current = getattr(self, attr)
             # Pull toward 1500 baseline
@@ -262,22 +222,25 @@ class PlayerElo:
         if self.overall > self.peak:
             self.peak = self.overall
             self.peak_date = match_date
-        self.history.append({
-            "match_id":          match_id,
-            "match_date":        match_date.isoformat() if match_date else None,
-            "surface":           surface,
-            "elo_before":        round(elo_before, 2),
-            "elo_after":         round(elo_after, 2),
-            "opponent_elo":      round(opponent_elo, 2),
-            "tournament_level":  get_tournament_level(tournament, round_name),
-            "k_factor":          k_factor,
-            "won":               won,
-        })
+        self.history.append(
+            {
+                "match_id": match_id,
+                "match_date": match_date.isoformat() if match_date else None,
+                "surface": surface,
+                "elo_before": round(elo_before, 2),
+                "elo_after": round(elo_after, 2),
+                "opponent_elo": round(opponent_elo, 2),
+                "tournament_level": get_tournament_level(tournament, round_name),
+                "k_factor": k_factor,
+                "won": won,
+            }
+        )
 
 
 # ─────────────────────────────────────────────────────────────
 # Core Elo Engine
 # ─────────────────────────────────────────────────────────────
+
 
 class EloEngine:
     def __init__(self):
@@ -326,14 +289,28 @@ class EloEngine:
 
         # Record history
         w.record_match(
-            match_date, match_id, surface,
-            w_before_overall, new_w_overall, l_before_overall,
-            tournament, round_name, k, won=True
+            match_date,
+            match_id,
+            surface,
+            w_before_overall,
+            new_w_overall,
+            l_before_overall,
+            tournament,
+            round_name,
+            k,
+            won=True,
         )
         l.record_match(
-            match_date, match_id, surface,
-            l_before_overall, new_l_overall, w_before_overall,
-            tournament, round_name, k, won=False
+            match_date,
+            match_id,
+            surface,
+            l_before_overall,
+            new_l_overall,
+            w_before_overall,
+            tournament,
+            round_name,
+            k,
+            won=False,
         )
 
         w.last_match_date = match_date
@@ -346,6 +323,7 @@ class EloEngine:
             winner_id, loser_id, match_date (date or str),
             surface, tournament, round, match_id (optional)
         """
+
         # Sort strictly chronologically
         def parse_date(m):
             d = m.get("match_date")
@@ -384,27 +362,24 @@ class EloEngine:
             return None
         badge = get_elo_badge(p.match_count)
         return {
-            "player_id":       player_id,
-            "elo_overall":     round(p.overall, 2),
-            "elo_hard":        round(p.hard, 2),
-            "elo_clay":        round(p.clay, 2),
-            "elo_grass":       round(p.grass, 2),
-            "elo_display":     round(p.display, 2),
-            "fifa_rating":     p.fifa if badge not in ("unrated", "early") else None,
-            "card_tier":       p.card_tier if badge not in ("unrated", "early") else None,
-            "elo_peak":        round(p.peak, 2),
-            "elo_peak_date":   p.peak_date.isoformat() if p.peak_date else None,
+            "player_id": player_id,
+            "elo_overall": round(p.overall, 2),
+            "elo_hard": round(p.hard, 2),
+            "elo_clay": round(p.clay, 2),
+            "elo_grass": round(p.grass, 2),
+            "elo_display": round(p.display, 2),
+            "fifa_rating": p.fifa if badge not in ("unrated", "early") else None,
+            "card_tier": p.card_tier if badge not in ("unrated", "early") else None,
+            "elo_peak": round(p.peak, 2),
+            "elo_peak_date": p.peak_date.isoformat() if p.peak_date else None,
             "elo_match_count": p.match_count,
-            "elo_badge":       badge,
+            "elo_badge": badge,
             "elo_last_updated": datetime.now().isoformat(),
         }
 
     def get_top_players(self, n: int = 20, surface: str = "display") -> List[dict]:
         """Return top N players by display (or surface) Elo."""
-        rated = [
-            p for p in self.players.values()
-            if p.match_count >= 5
-        ]
+        rated = [p for p in self.players.values() if p.match_count >= 5]
         if surface == "display":
             rated.sort(key=lambda p: p.display, reverse=True)
         elif surface == "hard":
@@ -436,8 +411,9 @@ class EloEngine:
             return {"ok": False, "issues": ["No rated players found"]}
 
         import statistics
+
         mean_elo = statistics.mean(all_display)
-        stdev    = statistics.stdev(all_display) if len(all_display) > 1 else 0
+        stdev = statistics.stdev(all_display) if len(all_display) > 1 else 0
 
         if abs(mean_elo - 1500) > 100:
             issues.append(f"Mean Elo {mean_elo:.0f} deviates significantly from 1500")
@@ -445,7 +421,8 @@ class EloEngine:
         # Top-50 check
         top_50 = sorted(
             [p for p in self.players.values() if p.match_count >= 15],
-            key=lambda p: p.display, reverse=True
+            key=lambda p: p.display,
+            reverse=True,
         )[:50]
         for p in top_50:
             if p.fifa < 60:
@@ -462,18 +439,19 @@ class EloEngine:
             "issues": issues,
             "stats": {
                 "n_players": len(self.players),
-                "n_rated":   len(all_display),
-                "mean_elo":  round(mean_elo, 1),
+                "n_rated": len(all_display),
+                "mean_elo": round(mean_elo, 1),
                 "stdev_elo": round(stdev, 1),
-                "min_elo":   round(min(all_display), 1),
-                "max_elo":   round(max(all_display), 1),
-            }
+                "min_elo": round(min(all_display), 1),
+                "max_elo": round(max(all_display), 1),
+            },
         }
 
 
 # ─────────────────────────────────────────────────────────────
 # Card attribute computation (SRV/RET/PAT/SPD/HRD/CLY)
 # ─────────────────────────────────────────────────────────────
+
 
 def compute_card_attributes(
     player_id: str,
@@ -485,6 +463,7 @@ def compute_card_attributes(
     Falls back to 50 if insufficient data.
     All values are integers 1-99, never null/NaN.
     """
+
     def safe(value, fallback=50) -> int:
         try:
             v = float(value)
@@ -502,7 +481,7 @@ def compute_card_attributes(
     if srv_raw is None:
         first_srv_won = p.get("first_serve_won", 0.5)
         second_srv_won = p.get("second_serve_won", 0.5)
-        srv_raw = (float(first_srv_won or 0.5) * 0.6 + float(second_srv_won or 0.5) * 0.4)
+        srv_raw = float(first_srv_won or 0.5) * 0.6 + float(second_srv_won or 0.5) * 0.4
         srv_raw = (srv_raw - 0.3) / (0.8 - 0.3) * 99
     srv = safe(srv_raw)
 
@@ -517,8 +496,10 @@ def compute_card_attributes(
     pat_raw = p.get("pat_score")
     if pat_raw is None:
         winner_rate = p.get("winner_rate", 0.1)
-        uf_error    = p.get("uf_error_rate", 0.15)
-        pat_raw = ((float(winner_rate or 0.1) - float(uf_error or 0.15) + 0.15) / 0.35) * 99
+        uf_error = p.get("uf_error_rate", 0.15)
+        pat_raw = (
+            (float(winner_rate or 0.1) - float(uf_error or 0.15) + 0.15) / 0.35
+        ) * 99
     pat = safe(pat_raw)
 
     # SPD — speed (inverse of avg rally length, normalized)
@@ -556,10 +537,12 @@ def compute_card_attributes(
 # Database integration helpers
 # ─────────────────────────────────────────────────────────────
 
+
 def load_matches_from_db(conn) -> List[dict]:
     """Load all matches from PostgreSQL for Elo processing."""
     with conn.cursor() as cur:
-        cur.execute("""
+        cur.execute(
+            """
             SELECT
                 m.match_id,
                 m.match_date,
@@ -574,7 +557,8 @@ def load_matches_from_db(conn) -> List[dict]:
                 AND m.winner_id IS NOT NULL
                 AND m.loser_id IS NOT NULL
             ORDER BY m.match_date ASC
-        """)
+        """
+        )
         cols = [d[0] for d in cur.description]
         return [dict(zip(cols, row)) for row in cur.fetchall()]
 
@@ -587,12 +571,21 @@ def write_elo_to_db(conn, engine: EloEngine):
     player_rows = []
     for player_id, p in engine.players.items():
         s = engine.get_player_summary(player_id)
-        player_rows.append((
-            s["elo_overall"], s["elo_hard"], s["elo_clay"], s["elo_grass"],
-            s["elo_display"], s["fifa_rating"], s["card_tier"],
-            s["elo_peak"], s["elo_peak_date"], s["elo_match_count"],
-            int(player_id),
-        ))
+        player_rows.append(
+            (
+                s["elo_overall"],
+                s["elo_hard"],
+                s["elo_clay"],
+                s["elo_grass"],
+                s["elo_display"],
+                s["fifa_rating"],
+                s["card_tier"],
+                s["elo_peak"],
+                s["elo_peak_date"],
+                s["elo_match_count"],
+                int(player_id),
+            )
+        )
 
     with conn.cursor() as cur:
         execute_values(
@@ -628,17 +621,19 @@ def write_elo_to_db(conn, engine: EloEngine):
     history_rows = []
     for player_id, p in engine.players.items():
         for h in p.history:
-            history_rows.append((
-                player_id,
-                h.get("match_id"),
-                h.get("match_date"),
-                h.get("surface"),
-                h.get("elo_before"),
-                h.get("elo_after"),
-                h.get("opponent_elo"),
-                h.get("tournament_level"),
-                h.get("k_factor"),
-            ))
+            history_rows.append(
+                (
+                    player_id,
+                    h.get("match_id"),
+                    h.get("match_date"),
+                    h.get("surface"),
+                    h.get("elo_before"),
+                    h.get("elo_after"),
+                    h.get("opponent_elo"),
+                    h.get("tournament_level"),
+                    h.get("k_factor"),
+                )
+            )
 
     CHUNK = 5000
     with conn.cursor() as cur:
@@ -654,7 +649,11 @@ def write_elo_to_db(conn, engine: EloEngine):
                 page_size=CHUNK,
             )
             conn.commit()
-            logger.info("  elo_history: %d/%d rows written", min(i + CHUNK, len(history_rows)), len(history_rows))
+            logger.info(
+                "  elo_history: %d/%d rows written",
+                min(i + CHUNK, len(history_rows)),
+                len(history_rows),
+            )
 
     logger.info("Elo data written to database.")
 
@@ -700,14 +699,21 @@ CREATE INDEX IF NOT EXISTS idx_elo_history_date   ON elo_history(match_date);
 # CLI entry point
 # ─────────────────────────────────────────────────────────────
 
+
 def main():
     parser = argparse.ArgumentParser(description="TennisIQ Elo Engine")
-    parser.add_argument("--validate", action="store_true", help="Run validation checks after processing")
+    parser.add_argument(
+        "--validate", action="store_true", help="Run validation checks after processing"
+    )
     parser.add_argument("--top", type=int, default=10, help="Show top N players")
-    parser.add_argument("--from-json", type=str, help="Load matches from JSON file instead of DB")
+    parser.add_argument(
+        "--from-json", type=str, help="Load matches from JSON file instead of DB"
+    )
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
+    )
 
     engine = EloEngine()
 
@@ -724,6 +730,7 @@ def main():
         try:
             import psycopg2
             from dotenv import load_dotenv
+
             load_dotenv()
             conn = psycopg2.connect(os.getenv("DATABASE_URL"), connect_timeout=30)
             matches = load_matches_from_db(conn)
@@ -766,9 +773,7 @@ def main():
         print(json.dumps(result, indent=2))
         if not result["ok"]:
             logger.warning("Validation issues found. Check data/elo_validation.log")
-            Path("data/elo_validation.log").write_text(
-                json.dumps(result, indent=2)
-            )
+            Path("data/elo_validation.log").write_text(json.dumps(result, indent=2))
             sys.exit(1)
         else:
             print("All validation checks passed.")

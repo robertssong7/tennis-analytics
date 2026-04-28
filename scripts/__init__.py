@@ -1,0 +1,1 @@
+from utils.tournament import ALL_TOURNAMENTS_BY_LOWER_NAME, ALL_TOURNAMENTS_BY_NAME

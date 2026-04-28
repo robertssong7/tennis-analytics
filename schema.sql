@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS tournaments (
     ball_brand      TEXT,
     court_pace_idx  FLOAT,
     microclimate    JSONB,
+    level           TEXT,
     created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 DROP INDEX IF EXISTS idx_tournaments_name;
@@ -120,7 +121,7 @@ CREATE INDEX IF NOT EXISTS idx_shots_player ON shots(player_id);
 -- ──────────────────────────────────────────────────────────
 -- File Read Status (incremental pipeline bookkeeping)
 -- ──────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS "FileReadStatus" (
+CREATE TABLE IF NOT EXISTS file_read_status (
     file_name            TEXT PRIMARY KEY,
     last_read_timestamp  TIMESTAMPTZ NOT NULL,
     latest_row_timestamp TIMESTAMPTZ
