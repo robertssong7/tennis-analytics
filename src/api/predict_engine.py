@@ -335,13 +335,37 @@ class PredictEngine:
             else:
                 self.attribute_averages[attr_name] = None
 
+    @staticmethod
+    def _ensure_parsed_points() -> str:
+        """Download parsed_points.parquet from S3 if not present locally."""
+        import os
+        import urllib.request
+        local_path = str(BASE / "data" / "processed" / "parsed_points.parquet")
+        s3_url = "https://tennisiq-data-assets.s3.us-east-1.amazonaws.com/parsed_points.parquet"
+        if os.path.exists(local_path) and os.path.getsize(local_path) > 1_000_000:
+            return local_path
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        logger.info("[parsed_points] downloading from S3...")
+        try:
+            urllib.request.urlretrieve(s3_url, local_path)
+            logger.info(f"[parsed_points] downloaded {os.path.getsize(local_path)} bytes")
+        except Exception as e:
+            logger.warning(f"[parsed_points] S3 download failed: {e}")
+            return ""
+        return local_path
+
     def _compute_attribute_proxies(self):
         """Compute footwork and volley proxies from charted match data."""
         PARQUET = BASE / "data" / "processed" / "parsed_points.parquet"
         if not PARQUET.exists():
-            logger.warning(
-                "  parsed_points.parquet not found — skipping attribute proxies"
-            )
+            # Try to download from S3
+            dl_path = self._ensure_parsed_points()
+            if not dl_path:
+                logger.warning(
+                    "  parsed_points.parquet not found and S3 download failed — skipping attribute proxies"
+                )
+                return
+        if not PARQUET.exists():
             return
 
         pts = pd.read_parquet(PARQUET)

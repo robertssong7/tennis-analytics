@@ -742,6 +742,9 @@ def player_patterns_new(
 
     PARQUET = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'parsed_points.parquet'
     if not PARQUET.exists():
+        from src.api.predict_engine import PredictEngine
+        PredictEngine._ensure_parsed_points()
+    if not PARQUET.exists():
         return {"available": False, "reason": "Charted data file not found"}
 
     pts = pd.read_parquet(PARQUET)
