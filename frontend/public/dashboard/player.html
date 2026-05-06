@@ -455,6 +455,7 @@ function renderHero(card) {
     + '<span class="tier-badge ' + displayTier + '" id="hero-tier">' + displayTier.toUpperCase() + '</span>'
     + retiredHtml
     + '</div>'
+    + (card.rating_label ? '<div style="font-family:DM Sans,sans-serif;font-size:11px;color:rgba(255,255,255,0.6);margin-top:-4px;">' + card.rating_label + '</div>' : '')
     + '<div class="player-name">' + card.name + '</div>'
     + '<div class="player-meta">'
     + '<span class="country-tag">' + (card.flag || '') + ' ' + (card.country || '') + '</span>'
