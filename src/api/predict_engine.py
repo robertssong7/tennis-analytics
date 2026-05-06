@@ -46,7 +46,6 @@ RETIREMENT_THRESHOLD_DAYS = 548
 LATEST_DATA_DATE = date(2024, 12, 31)
 
 SUPPLEMENTAL_CSV = DATA_DIR / "supplemental_matches_2025_2026.csv"
-PEAK_ELO_JSON = DATA_DIR / "peak_elo.json"
 
 
 def _build_supplemental_name_map(glicko_names: list) -> dict:
@@ -160,7 +159,6 @@ class PredictEngine:
             {}
         )  # attribute_name → float average (excluding defaults)
         self.attribute_proxies: dict = {}  # player_name → {footwork: int, volley: int}
-        self.peak_elo_data: dict = {}  # player_name → {peak_elo, current_elo, peak_year, last_match_year, total_matches}
         self._loaded = False
 
     @classmethod
@@ -289,15 +287,6 @@ class PredictEngine:
             f"  ✓ Attribute proxies computed ({len(self.attribute_proxies)} players)"
         )
 
-        # Load peak Elo data for retired player tier correction
-        if PEAK_ELO_JSON.exists():
-            import json as _json
-            with open(PEAK_ELO_JSON, "r") as f:
-                self.peak_elo_data = _json.load(f)
-            logger.info(f"  ✓ Peak Elo data loaded ({len(self.peak_elo_data):,} players)")
-        else:
-            logger.warning("  Peak Elo JSON not found; retired player tiers may be inaccurate")
-
         self._loaded = True
         logger.info("PredictEngine: ready.")
 
@@ -335,37 +324,13 @@ class PredictEngine:
             else:
                 self.attribute_averages[attr_name] = None
 
-    @staticmethod
-    def _ensure_parsed_points() -> str:
-        """Download parsed_points.parquet from S3 if not present locally."""
-        import os
-        import urllib.request
-        local_path = str(BASE / "data" / "processed" / "parsed_points.parquet")
-        s3_url = "https://tennisiq-data-assets.s3.us-east-1.amazonaws.com/parsed_points.parquet"
-        if os.path.exists(local_path) and os.path.getsize(local_path) > 1_000_000:
-            return local_path
-        os.makedirs(os.path.dirname(local_path), exist_ok=True)
-        logger.info("[parsed_points] downloading from S3...")
-        try:
-            urllib.request.urlretrieve(s3_url, local_path)
-            logger.info(f"[parsed_points] downloaded {os.path.getsize(local_path)} bytes")
-        except Exception as e:
-            logger.warning(f"[parsed_points] S3 download failed: {e}")
-            return ""
-        return local_path
-
     def _compute_attribute_proxies(self):
         """Compute footwork and volley proxies from charted match data."""
         PARQUET = BASE / "data" / "processed" / "parsed_points.parquet"
         if not PARQUET.exists():
-            # Try to download from S3
-            dl_path = self._ensure_parsed_points()
-            if not dl_path:
-                logger.warning(
-                    "  parsed_points.parquet not found and S3 download failed — skipping attribute proxies"
-                )
-                return
-        if not PARQUET.exists():
+            logger.warning(
+                "  parsed_points.parquet not found — skipping attribute proxies"
+            )
             return
 
         pts = pd.read_parquet(PARQUET)
@@ -1483,19 +1448,12 @@ class PredictEngine:
         surface = surface.lower()
         p1g = self._get_glicko_state(canonical, surface)
 
-        # Retirement detection: year-based test + peak Elo data
+        # Retirement detection: no match in 18+ months from latest data date
         is_retired = False
-        latest_data_year = int(LATEST_DATA_DATE.year)
-        peak_elo_entry = self.peak_elo_data.get(canonical, {})
-        last_match_year_elo = int(peak_elo_entry.get("last_match_year", 0))
-        # Also check Glicko last_match_date
         if p1g["last_match_date"] is not None:
-            last_match_year_glicko = int(p1g["last_match_date"].year)
-            effective_last_year = max(last_match_year_elo, last_match_year_glicko)
-        else:
-            effective_last_year = last_match_year_elo
-        if effective_last_year > 0 and effective_last_year < (latest_data_year - 1) and p1g["match_count"] > 20:
-            is_retired = True
+            days_since = (LATEST_DATA_DATE - p1g["last_match_date"]).days
+            if days_since > RETIREMENT_THRESHOLD_DAYS and p1g["match_count"] > 20:
+                is_retired = True
 
         # Form modifier from recent form
         form_data = self.player_form.get(canonical, {})
@@ -1503,13 +1461,8 @@ class PredictEngine:
 
         # Compute FIFA rating manually to bypass glicko2.get_fifa_rating()'s
         # broken is_retired logic (it checks match_count > 20 instead of date).
-        def _compute_card(mu, peak_mu, rd, is_ret, form_3_val, peak_elo_override=None):
-            if is_ret and peak_elo_override is not None:
-                elo_for_rating = float(peak_elo_override)
-            elif is_ret:
-                elo_for_rating = peak_mu
-            else:
-                elo_for_rating = mu
+        def _compute_card(mu, peak_mu, rd, is_ret, form_3_val):
+            elo_for_rating = peak_mu if is_ret else mu
             base = 55.0 + 42.0 / (1.0 + math.exp(-0.004 * (elo_for_rating - 1750.0)))
             form_mod = (form_3_val - 0.5) * 8.0 if not is_ret else 0.0
             display = base + form_mod
@@ -1538,12 +1491,9 @@ class PredictEngine:
             }
 
         r_all = self.glicko.ratings.get(canonical, {}).get("all")
-        # Use peak Elo from independent calculation for retired players
-        _peak_elo_val = float(peak_elo_entry.get("peak_elo", 0)) if peak_elo_entry else None
         rating = (
             _compute_card(
-                p1g["mu_all"], p1g["peak_mu"], p1g["rd_all"], is_retired, form_3,
-                peak_elo_override=_peak_elo_val if is_retired and _peak_elo_val and _peak_elo_val > 0 else None
+                p1g["mu_all"], p1g["peak_mu"], p1g["rd_all"], is_retired, form_3
             )
             if r_all
             else {
@@ -1556,16 +1506,8 @@ class PredictEngine:
             }
         )
 
-        # Peak year: prefer peak Elo data, fall back to Glicko
-        if peak_elo_entry and int(peak_elo_entry.get("peak_year", 0)) > 0:
-            peak_year = int(peak_elo_entry["peak_year"])
-        elif p1g["peak_date"]:
-            peak_year = int(p1g["peak_date"].year)
-        else:
-            peak_year = None
-
-        # Rating label for retired players
-        rating_label = f"Peak: {peak_year}" if is_retired and peak_year else None
+        # Peak year
+        peak_year = p1g["peak_date"].year if p1g["peak_date"] else None
 
         # Surface ratings
         surfaces_out = {}
@@ -1627,7 +1569,6 @@ class PredictEngine:
             "form_modifier": rating["form_modifier"],
             "is_retired": is_retired,
             "peak_year": peak_year,
-            "rating_label": rating_label,
             "glow": rating["has_glow"],
             "glow_direction": rating["glow_direction"],
             "elo": round(p1g["mu_all"], 1),

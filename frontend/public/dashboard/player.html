@@ -352,7 +352,7 @@ async function loadAll() {
     renderHero(cardData);
 
     // Render initial content immediately with loading placeholders
-    renderContent(cardData, null, null, null, null);
+    renderContent(cardData, null, null, null, null, null);
     initSurfaceToggle();
 
     // Fetch all secondary data in parallel and render progressively
@@ -360,12 +360,13 @@ async function loadAll() {
     var fetchSurf = activeSurf === 'overall' ? '' : activeSurf;
     var surfParam = fetchSurf ? '?surface=' + fetchSurf : '';
 
-    var [patternsRes, condRes, matchupsRes, scenariosRes, similarRes] = await Promise.all([
+    var [patternsRes, condRes, matchupsRes, scenariosRes, similarRes, surfDnaRes] = await Promise.all([
       fetch(API + '/player/' + pName + '/patterns' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/conditions' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/matchups' + (fetchSurf ? '?surface=' + fetchSurf : '?surface=hard')).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/scenarios' + surfParam).catch(function(){return null;}),
-      fetch(API + '/player/' + pName + '/similar').catch(function(){return null;})
+      fetch(API + '/player/' + pName + '/similar').catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/surface-dna').catch(function(){return null;})
     ]);
 
     patternsData = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
@@ -373,9 +374,10 @@ async function loadAll() {
     matchupsData = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
     var scenarios = scenariosRes && scenariosRes.ok ? await scenariosRes.json() : null;
     similarData = similarRes && similarRes.ok ? await similarRes.json() : null;
+    var surfDna = surfDnaRes && surfDnaRes.ok ? await surfDnaRes.json() : null;
 
     // Re-render with full data
-    renderContent(cardData, patternsData, matchupsData, conditions, scenarios);
+    renderContent(cardData, patternsData, matchupsData, conditions, scenarios, surfDna);
 
   } catch(e) {
     contentEl.innerHTML = '<div class="not-found">Error loading data: ' + e.message + '</div>';
@@ -455,7 +457,6 @@ function renderHero(card) {
     + '<span class="tier-badge ' + displayTier + '" id="hero-tier">' + displayTier.toUpperCase() + '</span>'
     + retiredHtml
     + '</div>'
-    + (card.rating_label ? '<div style="font-family:DM Sans,sans-serif;font-size:11px;color:rgba(255,255,255,0.6);margin-top:-4px;">' + card.rating_label + '</div>' : '')
     + '<div class="player-name">' + card.name + '</div>'
     + '<div class="player-meta">'
     + '<span class="country-tag">' + (card.flag || '') + ' ' + (card.country || '') + '</span>'
@@ -516,7 +517,7 @@ function renderAttrRow(a, attrs, averages) {
     + '<div class="attr-bar-wrap-fifa"><div class="attr-bar-fifa ' + barTier + '" style="width:' + score + '%"></div>' + avgLine + '</div></div>';
 }
 
-function renderContent(card, patterns, matchups, conditions, scenarios) {
+function renderContent(card, patterns, matchups, conditions, scenarios, surfDna) {
   var attrs = card.attributes || {};
   var averages = card.attribute_averages || {};
   var leftAttrs = ['serve','groundstroke','volley','footwork'];
@@ -573,12 +574,40 @@ function renderContent(card, patterns, matchups, conditions, scenarios) {
   // Scenarios
   var scenariosHtml = renderScenarios(scenarios);
 
+  // Surface DNA
+  var surfDnaHtml = '';
+  if (surfDna && surfDna.available) {
+    var dnaCards = '';
+    ['hard','clay','grass'].forEach(function(surf) {
+      var p = surfDna.profiles[surf];
+      if (!p) return;
+      var diffSign = p.diff_from_overall > 0 ? '+' : '';
+      var diffColor = p.diff_from_overall > 0 ? '#5AA469' : p.diff_from_overall < -2 ? '#E24B4A' : '#2C2C2C';
+      dnaCards += '<div style="background:#FFFFFF;border-radius:12px;padding:16px;border-top:3px solid '+p.color+';box-shadow:0 2px 8px rgba(0,0,0,0.08);">'
+        + '<div style="font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;color:'+p.color+';text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">'+p.surface_name+'</div>'
+        + '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px;">'
+        + '<span style="font-family:Playfair Display,serif;font-size:28px;color:#2C2C2C;">'+p.rating.toFixed(1)+'</span>'
+        + '<span style="font-family:DM Mono,monospace;font-size:12px;color:'+diffColor+';">'+diffSign+p.diff_from_overall.toFixed(1)+'</span>'
+        + '</div>'
+        + '<div style="font-family:DM Sans,sans-serif;font-size:12px;color:#2C2C2C;opacity:0.7;line-height:1.5;">'+p.narrative+'</div>'
+        + '</div>';
+    });
+    surfDnaHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+      + '<span style="color:#0ABAB5;font-family:DM Sans,sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Surface Intelligence</span>'
+      + '<div style="flex:1;height:1px;background:#D0C9C0;"></div></div>'
+      + '<h3 style="font-family:Playfair Display,serif;font-size:24px;color:#2C2C2C;margin:0 0 4px;">Surface DNA</h3>'
+      + '<div style="font-family:DM Sans,sans-serif;font-size:14px;color:#0ABAB5;font-weight:600;margin-bottom:8px;">'+surfDna.dna_type+'</div>'
+      + '<div style="font-family:DM Sans,sans-serif;font-size:14px;color:#2C2C2C;opacity:0.7;margin-bottom:20px;">'+surfDna.dna_summary+'</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">'+dnaCards+'</div>';
+  }
+
   document.getElementById('page-content').innerHTML =
     '<div class="section">'
     + '<div class="sec-title">Player Attributes</div>'
     + avgLegend
     + '<div class="attr-grid-fifa"><div>' + leftHtml + '</div><div>' + rightHtml + '</div></div>'
     + '</div>'
+    + (surfDnaHtml ? '<div class="section">'+surfDnaHtml+'</div>' : '')
     + '<div class="section">'
     + '<div class="sec-title">Play Patterns</div>'
     + patternsHtml
@@ -771,20 +800,22 @@ async function applySurfaceUpdate() {
   var pName = encodeURIComponent(cardData.name);
 
   try {
-    var [patternsRes, condRes, matchupsRes, scenariosRes] = await Promise.all([
+    var [patternsRes, condRes, matchupsRes, scenariosRes, surfDnaRes2] = await Promise.all([
       fetch(API + '/player/' + pName + '/patterns' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/conditions' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/matchups' + (fetchSurf ? '?surface=' + fetchSurf : '?surface=hard')).catch(function(){return null;}),
-      fetch(API + '/player/' + pName + '/scenarios' + surfParam).catch(function(){return null;})
+      fetch(API + '/player/' + pName + '/scenarios' + surfParam).catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/surface-dna').catch(function(){return null;})
     ]);
 
     patternsData = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
     var conditions = condRes && condRes.ok ? await condRes.json() : null;
     matchupsData = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
     var scenarios = scenariosRes && scenariosRes.ok ? await scenariosRes.json() : null;
+    var surfDna2 = surfDnaRes2 && surfDnaRes2.ok ? await surfDnaRes2.json() : null;
 
     // Re-render all content sections including patterns with surface filter
-    renderContent(cardData, patternsData, matchupsData, conditions, scenarios);
+    renderContent(cardData, patternsData, matchupsData, conditions, scenarios, surfDna2);
   } catch(e) {}
 
   if (content) content.style.opacity = '1';

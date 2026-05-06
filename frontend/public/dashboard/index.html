@@ -302,7 +302,11 @@ async function loadMatchInsights(){
         +'<div style="font-family:DM Sans,sans-serif;font-size:12px;color:#2C2C2C;opacity:0.6;">'+r.detail+'</div></div></div>';
     });
     var xf=d.x_factor||{};
-    html+='<div style="background:#FFFFFF;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:24px;">'
+    var riskScore=d.upset_risk?d.upset_risk.score:0;
+    var riskColor=riskScore>=75?'#E24B4A':riskScore>=50?'#EF9F27':riskScore>=30?'#DAA520':'#5AA469';
+    var riskBadge=d.upset_risk?'<div style="position:absolute;top:12px;right:12px;background:'+riskColor+';color:#fff;border-radius:12px;padding:3px 10px;font-family:DM Mono,monospace;font-size:11px;font-weight:600;">Upset '+riskScore+'</div>':'';
+    html+='<div style="position:relative;background:#FFFFFF;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:24px;">'
+      +riskBadge
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
       +'<div style="font-family:Playfair Display,serif;font-size:18px;color:#2C2C2C;">'+d.player1+'</div>'
       +'<div style="font-family:DM Mono,monospace;font-size:13px;color:#2C2C2C;opacity:0.5;">vs</div>'

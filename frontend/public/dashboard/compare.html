@@ -199,16 +199,21 @@ async function go() {
   const c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:#999;font-family:\'DM Sans\';">Analyzing matchup...</p></div>';
 
-  // Run ML prediction, legacy API, patterns, and card data in parallel
+  // Run ML prediction, legacy API, patterns, card data, and match-insight in parallel
   const surfParam = (activeSurf && activeSurf !== 'overall') ? '?surface=' + activeSurf : '';
-  const [pred, legacyData, pat1, pat2, card1, card2] = await Promise.all([
+  const [pred, legacyData, pat1, pat2, card1, card2, insightData] = await Promise.all([
     fetchPrediction(a, b, activeSurf),
     fetchLegacyMatchup(a, b),
     fetch(ML_API + '/player/' + encodeURIComponent(a) + '/patterns' + surfParam).then(r => r.ok ? r.json() : null).catch(() => null),
     fetch(ML_API + '/player/' + encodeURIComponent(b) + '/patterns' + surfParam).then(r => r.ok ? r.json() : null).catch(() => null),
     fetch(ML_API + '/predict/player/' + encodeURIComponent(a)).then(r => r.ok ? r.json() : null).catch(() => null),
     fetch(ML_API + '/predict/player/' + encodeURIComponent(b)).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch(ML_API + '/api/match-insight', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({player1:a,player2:b,surface:activeSurf})}).then(r => r.ok ? r.json() : null).catch(() => null),
   ]);
+  // Store for narrative generator
+  window._currentP1 = a;
+  window._currentP2 = b;
+  window._currentSurface = activeSurf;
 
   if (!pred && !legacyData) {
     c.innerHTML = '<div class="empty">Players not found. Try full names like "Jannik Sinner" or "Carlos Alcaraz".</div>';
@@ -222,6 +227,20 @@ async function go() {
     html += renderPredPanel(pred);
   } else {
     html += '<div style="background:rgba(196,169,125,0.12);border:1px solid rgba(196,169,125,0.3);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--ink-mid);">⚠ ML prediction unavailable — API may be loading. Showing charted data only.</div>';
+  }
+
+  // Upset Risk Badge
+  if (insightData && insightData.upset_risk) {
+    var risk = insightData.upset_risk;
+    var score = risk.score;
+    var riskColor = score >= 75 ? '#E24B4A' : score >= 50 ? '#EF9F27' : score >= 30 ? '#DAA520' : '#5AA469';
+    html += '<div style="text-align:center;margin:16px 0;">'
+      + '<div style="display:inline-flex;align-items:center;gap:10px;padding:10px 20px;background:#FFFFFF;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">'
+      + '<div style="width:44px;height:44px;border-radius:50%;background:'+riskColor+';display:flex;align-items:center;justify-content:center;">'
+      + '<span style="font-family:DM Mono,monospace;font-size:16px;font-weight:600;color:#fff;">'+score+'</span></div>'
+      + '<div><div style="font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;color:#2C2C2C;">'+risk.label+'</div>'
+      + '<div style="font-family:DM Sans,sans-serif;font-size:12px;color:#2C2C2C;opacity:0.6;max-width:300px;">'+risk.detail+'</div></div>'
+      + '</div></div>';
   }
 
   // Legacy charted data section (enhanced with surface-specific patterns when available)
@@ -295,7 +314,41 @@ async function go() {
     }).join('');
   }
 
+  // Match Narrative button
+  html += '<div style="max-width:700px;margin:24px auto;">'
+    + '<button id="narrative-btn" onclick="loadNarrative()" style="display:block;width:100%;padding:12px;background:#2C2C2C;color:#F5F0EB;border:none;border-radius:8px;cursor:pointer;font-family:DM Sans,sans-serif;font-size:14px;font-weight:500;margin-bottom:16px;transition:opacity 0.2s;">Generate Match Analysis</button>'
+    + '<div id="narrative-content" style="display:none;"></div></div>';
+
   c.innerHTML = html || '<div class="empty">No data found for these players.</div>';
+}
+
+async function loadNarrative() {
+  var btn = document.getElementById('narrative-btn');
+  btn.textContent = 'Analyzing...';
+  btn.style.opacity = '0.5';
+  try {
+    var r = await fetch(ML_API + '/api/match-narrative', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({player1: window._currentP1, player2: window._currentP2, surface: window._currentSurface})
+    });
+    var data = await r.json();
+    if (data.available && data.narrative) {
+      var nh = '<div style="background:#FFFFFF;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">';
+      nh += '<div style="font-family:DM Sans,sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0ABAB5;margin-bottom:12px;">Match Analysis</div>';
+      data.narrative.forEach(function(para) {
+        nh += '<p style="font-family:DM Sans,sans-serif;font-size:14px;color:#2C2C2C;line-height:1.7;margin:0 0 12px;">' + para + '</p>';
+      });
+      nh += '</div>';
+      document.getElementById('narrative-content').innerHTML = nh;
+      document.getElementById('narrative-content').style.display = 'block';
+      btn.textContent = 'Regenerate Analysis';
+      btn.style.opacity = '1';
+    }
+  } catch(e) {
+    btn.textContent = 'Generate Match Analysis';
+    btn.style.opacity = '1';
+  }
 }
 
 async function fetchLegacyMatchup(a, b) {

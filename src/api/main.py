@@ -742,9 +742,6 @@ def player_patterns_new(
 
     PARQUET = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'parsed_points.parquet'
     if not PARQUET.exists():
-        from src.api.predict_engine import PredictEngine
-        PredictEngine._ensure_parsed_points()
-    if not PARQUET.exists():
         return {"available": False, "reason": "Charted data file not found"}
 
     pts = pd.read_parquet(PARQUET)
@@ -1761,6 +1758,69 @@ async def match_insight(request: Request):
     else:
         ps, sd = "Could go either way (2-1)", f"Going the distance. Both have legitimate paths to winning."
 
+    # ── Upset Risk Score (0-100) ──
+    base_risk = dog_prob * 100
+    adjustments = 0
+
+    # 1. Close Elo = higher risk
+    if elo_diff < 50:
+        adjustments += 15
+    elif elo_diff < 100:
+        adjustments += 10
+    elif elo_diff < 200:
+        adjustments += 5
+
+    # 2. H2H favors underdog
+    h2h_key_ur = tuple(sorted([p1, p2]))
+    h2h_entry_ur = engine.h2h.get(h2h_key_ur)
+    if h2h_entry_ur:
+        dog_h2h = int(h2h_entry_ur['wins'].get(underdog, 0))
+        fav_h2h = int(h2h_entry_ur['wins'].get(favorite, 0))
+        if dog_h2h + fav_h2h > 0:
+            if dog_h2h > fav_h2h:
+                adjustments += 12
+            elif dog_h2h == fav_h2h:
+                adjustments += 6
+
+    # 3. Underdog has better form
+    f3_dog = float(engine.player_form.get(underdog, {}).get("form_3", 0.5))
+    f3_fav = float(engine.player_form.get(favorite, {}).get("form_3", 0.5))
+    if f3_dog > f3_fav + 0.2:
+        adjustments += 8
+    elif f3_dog > f3_fav:
+        adjustments += 4
+
+    # 4. Surface favors underdog
+    dog_surf = float(surf_r.get(underdog, 80))
+    fav_surf = float(surf_r.get(favorite, 80))
+    if dog_surf > fav_surf:
+        adjustments += 10
+
+    # 5. Attribute advantages for underdog
+    if len(dog_adv) >= 2:
+        adjustments += 8
+    elif len(dog_adv) >= 1:
+        adjustments += 4
+
+    upset_risk = min(100, int(base_risk * 1.5 + adjustments))
+
+    if upset_risk >= 75:
+        risk_label = "High upset potential"
+        risk_detail = f"{underdog} has multiple edges that could flip this match."
+    elif upset_risk >= 50:
+        risk_label = "Moderate upset risk"
+        risk_detail = f"{underdog} has real paths to winning — don't sleep on this one."
+    elif upset_risk >= 30:
+        risk_label = "Low but possible"
+        risk_detail = f"{favorite} is clearly favored, but {underdog} isn't helpless."
+    else:
+        risk_label = "Heavy favorite"
+        risk_detail = f"{favorite} dominates across nearly every dimension."
+
+    if dog_adv:
+        best = dog_adv[0]
+        risk_detail += f" Watch for {underdog}'s {best['attr']}."
+
     return {
         "available": True, "player1": p1, "player2": p2, "surface": surface,
         "p1_win_prob": float(p1_prob), "p2_win_prob": float(p2_prob),
@@ -1768,12 +1828,294 @@ async def match_insight(request: Request):
         "fav_prob": float(fav_prob), "dog_prob": float(dog_prob),
         "predicted_score": ps, "score_detail": sd,
         "reasons": reasons[:3], "x_factor": x_factor,
+        "upset_risk": {
+            "score": int(upset_risk),
+            "label": risk_label,
+            "detail": risk_detail,
+        },
         "dog_advantages": [{"attr": a["attr"], "dog_val": int(a["dog_val"]), "fav_val": int(a["fav_val"])} for a in dog_adv[:3]],
         "fav_advantages": [{"attr": a["attr"], "fav_val": int(a["fav_val"]), "dog_val": int(a["dog_val"])} for a in fav_adv[:3]],
         "cards": {
             "p1": {"name": p1, "overall": float(card1.get("overall", 0)), "tier": card1.get("tier", ""), "elo": float(elo1)},
             "p2": {"name": p2, "overall": float(card2.get("overall", 0)), "tier": card2.get("tier", ""), "elo": float(elo2)}
         }
+    }
+
+
+# ─────────────────────────────────────────────────────────────
+# Surface DNA Profile
+# ─────────────────────────────────────────────────────────────
+
+@app.get("/player/{name}/surface-dna")
+async def player_surface_dna(name: str):
+    """Per-surface identity analysis — how a player's game changes across surfaces."""
+    engine = _get_engine()
+    matched = engine.find_player(name)
+    if not matched:
+        return {"available": False, "reason": "Player not found"}
+
+    card = engine.get_player_card(matched)
+    if not card:
+        return {"available": False, "reason": "Player data unavailable"}
+
+    surfaces_data = card.get("surfaces", {})
+    attributes = card.get("attributes", {})
+    overall = float(card.get("overall", 0))
+
+    if not surfaces_data:
+        return {"available": False, "reason": "No surface data available"}
+
+    surface_names = {"hard": "Hard Court", "clay": "Clay Court", "grass": "Grass Court"}
+    surface_colors = {"hard": "#4A90D9", "clay": "#D4724E", "grass": "#5AA469"}
+
+    profiles = {}
+    best_surface = max(surfaces_data.items(), key=lambda x: float(x[1]))
+    worst_surface = min(surfaces_data.items(), key=lambda x: float(x[1]))
+    last_name = matched.split()[-1] if len(matched.split()) > 1 else matched
+
+    for surf, rating in surfaces_data.items():
+        rating = float(rating)
+        diff_from_overall = rating - overall
+
+        if diff_from_overall > 3:
+            identity = "thrives"
+            narrative = f"This is where {last_name} elevates. "
+        elif diff_from_overall > 0:
+            identity = "comfortable"
+            narrative = f"A solid surface that suits {last_name}'s game. "
+        elif diff_from_overall > -3:
+            identity = "neutral"
+            narrative = "Neither an advantage nor a liability. "
+        else:
+            identity = "vulnerable"
+            narrative = "A surface that exposes weaknesses. "
+
+        if surf == "clay":
+            endurance = float(attributes.get("endurance", 50))
+            groundstroke = float(attributes.get("groundstroke", 50))
+            if endurance > 80:
+                narrative += f"High endurance ({int(endurance)}) helps grind through long clay rallies. "
+            if groundstroke > 75:
+                narrative += f"Strong groundstrokes ({int(groundstroke)}) provide the heavy topspin clay demands."
+            elif groundstroke < 55:
+                narrative += f"Groundstroke rating ({int(groundstroke)}) may struggle against clay-court baseliners."
+        elif surf == "grass":
+            serve = float(attributes.get("serve", 50))
+            volley = float(attributes.get("volley", 50))
+            if serve > 75:
+                narrative += f"Big serve ({int(serve)}) translates well to fast grass conditions. "
+            if volley > 60:
+                narrative += f"Net skills ({int(volley)}) allow effective serve-and-volley tactics."
+            elif volley < 40:
+                narrative += f"Limited net game ({int(volley)}) means relying on baseline play even on grass."
+        elif surf == "hard":
+            mental = float(attributes.get("mental", 50))
+            clutch = float(attributes.get("clutch", 50))
+            serve = float(attributes.get("serve", 50))
+            if mental > 75 and clutch > 75:
+                narrative += f"Mental strength ({int(mental)}) and clutch play ({int(clutch)}) thrive in hard-court pressure points."
+            elif serve > 70:
+                narrative += f"Serve ({int(serve)}) anchors the game on the sport's most common surface."
+
+        profiles[surf] = {
+            "surface": surf,
+            "surface_name": surface_names.get(surf, surf),
+            "rating": float(rating),
+            "diff_from_overall": round(float(diff_from_overall), 1),
+            "identity": identity,
+            "narrative": narrative.strip(),
+            "color": surface_colors.get(surf, "#A8A9AD"),
+        }
+
+    spread = float(best_surface[1]) - float(worst_surface[1])
+    if spread < 3:
+        dna_type = "All-Court"
+        dna_summary = f"{matched} performs consistently across all surfaces. No clear weakness to exploit, no standout surface to target."
+    elif best_surface[0] == "clay":
+        dna_type = "Clay Specialist"
+        dna_summary = f"{matched}'s game is built for clay — patience, topspin, and endurance define the identity. Other surfaces require adaptation."
+    elif best_surface[0] == "grass":
+        dna_type = "Grass Specialist"
+        dna_summary = f"{matched} comes alive on grass. The fast, low-bouncing conditions reward the aggressive, serve-dominant style."
+    elif best_surface[0] == "hard":
+        dna_type = "Hard Court Specialist"
+        dna_summary = f"{matched} is most dangerous on hard courts — the neutral surface rewards the complete, well-rounded game."
+    else:
+        dna_type = "Balanced"
+        dna_summary = f"{matched} shows reasonable comfort across surfaces."
+
+    return {
+        "available": True,
+        "player": matched,
+        "dna_type": dna_type,
+        "dna_summary": dna_summary,
+        "overall_rating": float(overall),
+        "best_surface": {"surface": best_surface[0], "rating": float(best_surface[1])},
+        "worst_surface": {"surface": worst_surface[0], "rating": float(worst_surface[1])},
+        "spread": round(float(spread), 1),
+        "profiles": profiles,
+    }
+
+
+# ─────────────────────────────────────────────────────────────
+# Match Narrative Generator
+# ─────────────────────────────────────────────────────────────
+
+@app.post("/api/match-narrative")
+async def match_narrative(request: Request):
+    """Template-based analyst-style match narrative. Reads like ESPN commentary."""
+    body = await request.json()
+    p1_raw = body.get("player1", "")
+    p2_raw = body.get("player2", "")
+    surface = body.get("surface", "hard")
+
+    engine = _get_engine()
+    p1 = engine.find_player(p1_raw)
+    p2 = engine.find_player(p2_raw)
+    if not p1 or not p2:
+        return {"available": False, "reason": "Player not found"}
+
+    try:
+        pred = engine.predict(p1, p2, surface)
+    except Exception:
+        return {"available": False, "reason": "Prediction failed"}
+
+    p1_prob = float(pred.get("player1_win_prob", 0.5))
+    card1 = engine.get_player_card(p1, surface)
+    card2 = engine.get_player_card(p2, surface)
+    if not card1 or not card2:
+        return {"available": False, "reason": "Player data unavailable"}
+
+    p1_last = p1.split()[-1]
+    p2_last = p2.split()[-1]
+    elo1 = float(card1.get("elo", 1500))
+    elo2 = float(card2.get("elo", 1500))
+    elo_diff = abs(elo1 - elo2)
+    attrs1 = card1.get("attributes", {})
+    attrs2 = card2.get("attributes", {})
+    surfs1 = card1.get("surfaces", {})
+    surfs2 = card2.get("surfaces", {})
+
+    f3_1 = float(engine.player_form.get(p1, {}).get("form_3", 0.5))
+    f3_2 = float(engine.player_form.get(p2, {}).get("form_3", 0.5))
+
+    favorite = p1 if p1_prob >= 0.5 else p2
+    underdog = p2 if p1_prob >= 0.5 else p1
+    fav_last = favorite.split()[-1]
+    dog_last = underdog.split()[-1]
+    fav_prob = max(p1_prob, 1 - p1_prob)
+
+    fav_attrs = attrs1 if favorite == p1 else attrs2
+    dog_attrs = attrs2 if favorite == p1 else attrs1
+    fav_surfs = surfs1 if favorite == p1 else surfs2
+    dog_surfs = surfs2 if favorite == p1 else surfs1
+    fav_form = f3_1 if favorite == p1 else f3_2
+    dog_form = f3_2 if favorite == p1 else f3_1
+
+    surface_name = {"hard": "hard court", "clay": "clay", "grass": "grass"}.get(surface, surface)
+
+    paragraphs = []
+
+    # PARAGRAPH 1: The Setup
+    if fav_prob > 0.70:
+        opener = f"This is {fav_last}'s match to lose."
+        if elo_diff > 200:
+            opener += f" A {int(elo_diff)}-point Elo gap tells you everything about the class difference here."
+        else:
+            opener += f" The model gives {fav_last} a commanding {fav_prob*100:.0f}% edge on {surface_name}."
+    elif fav_prob > 0.55:
+        opener = f"Slight edge to {fav_last}, but this is far from a foregone conclusion."
+        opener += f" At {fav_prob*100:.0f}-{(1-fav_prob)*100:.0f}, the margins are thin enough that one service break could flip the script."
+    else:
+        opener = f"Throw the rankings out — this is a genuine coin-flip."
+        opener += f" {p1_last} and {p2_last} are separated by just {int(elo_diff)} Elo points, and the model sees it at {p1_prob*100:.0f}-{(1-p1_prob)*100:.0f}."
+    paragraphs.append(opener)
+
+    # PARAGRAPH 2: The Key Matchup Dynamic
+    biggest_gap = None
+    biggest_gap_val = 0
+    for attr in ["serve", "groundstroke", "endurance", "mental", "clutch"]:
+        v1 = float(fav_attrs.get(attr, 50))
+        v2 = float(dog_attrs.get(attr, 50))
+        gap = abs(v1 - v2)
+        if gap > biggest_gap_val:
+            biggest_gap_val = gap
+            biggest_gap = {"attr": attr, "fav_val": int(v1), "dog_val": int(v2), "favors": "favorite" if v1 > v2 else "underdog"}
+
+    if biggest_gap and biggest_gap_val > 10:
+        attr_name = biggest_gap["attr"]
+        if biggest_gap["favors"] == "favorite":
+            dynamic = f"The matchup hinges on {attr_name}. {fav_last} holds a clear {biggest_gap['fav_val']}-to-{biggest_gap['dog_val']} advantage there"
+            if attr_name == "serve":
+                dynamic += " — expect free points on the first serve and pressure in return games."
+            elif attr_name == "endurance":
+                dynamic += " — if this goes three sets, the fitness edge becomes decisive."
+            elif attr_name == "mental":
+                dynamic += " — in the big moments, tiebreaks and break points, that mental edge separates the professionals from the pretenders."
+            elif attr_name == "groundstroke":
+                dynamic += f" — on {surface_name}, that baseline superiority should dictate rallies."
+            elif attr_name == "clutch":
+                dynamic += " — when the pressure peaks, clutch players find a way. That's the difference-maker."
+            else:
+                dynamic += "."
+        else:
+            dynamic = f"Here's what makes this interesting: {dog_last} actually outscores {fav_last} in {attr_name}, {biggest_gap['dog_val']} to {biggest_gap['fav_val']}."
+            dynamic += f" If {dog_last} can steer the match into a {attr_name}-heavy battle, the upset window cracks open."
+    else:
+        dynamic = "These two mirror each other across the stat sheet — no clear technical mismatch to exploit."
+        dynamic += " It comes down to who executes better on the day."
+    paragraphs.append(dynamic)
+
+    # PARAGRAPH 3: The Surface Factor
+    fav_surf_rating = float(fav_surfs.get(surface, 80))
+    dog_surf_rating = float(dog_surfs.get(surface, 80))
+    sf_diff = fav_surf_rating - dog_surf_rating
+
+    if abs(sf_diff) > 5:
+        better = fav_last if sf_diff > 0 else dog_last
+        worse = dog_last if sf_diff > 0 else fav_last
+        surface_para = f"The {surface_name} surface tilts this. {better} rates {max(fav_surf_rating, dog_surf_rating):.1f} here versus {min(fav_surf_rating, dog_surf_rating):.1f} for {worse}."
+        if surface == "clay":
+            surface_para += f" Clay rewards patience and topspin — {better}'s game translates better to the slow, high-bouncing conditions."
+        elif surface == "grass":
+            surface_para += f" Grass is about first-strike tennis — serve, slice, get to the net. {better} is more equipped for that style."
+        else:
+            surface_para += f" Hard court is the great equalizer in tennis, but even here, the numbers favor {better}."
+    elif abs(sf_diff) < 2:
+        surface_para = f"Surface is a non-factor — both players rate within {abs(sf_diff):.1f} points on {surface_name}. This one will be decided by execution, not conditions."
+    else:
+        surface_para = f"Slight {surface_name} edge to {fav_last if sf_diff > 0 else dog_last}, but not enough to be a decisive factor."
+    paragraphs.append(surface_para)
+
+    # PARAGRAPH 4: The Prediction
+    if fav_prob > 0.70:
+        prediction = f"The call: {fav_last} in straight sets."
+        prediction += f" The gap is too wide across too many dimensions for {dog_last} to overcome in a best-of-three."
+        prediction += f" {dog_last} will have moments — maybe a break in the first set — but {fav_last} has the tools to reset and close."
+    elif fav_prob > 0.58:
+        prediction = f"The call: {fav_last} in three sets."
+        prediction += f" {dog_last} has enough game to take a set, and the margins suggest this will be competitive throughout."
+        prediction += f" But {fav_last}'s edge in the key areas should prove just enough to close it out."
+    else:
+        prediction = f"The call: pick'em, but lean {fav_last}."
+        prediction += " This is a match where form on the day matters more than any stat line."
+        if fav_form > dog_form + 0.15:
+            prediction += f" {fav_last}'s recent form ({int(fav_form*3)}-of-3 recent wins) provides the tiebreaker."
+        elif dog_form > fav_form + 0.15:
+            prediction += f" But watch out — {dog_last} is actually in better recent form. This could easily go the other way."
+        else:
+            prediction += " Both are in similar form. Expect a war."
+    paragraphs.append(prediction)
+
+    return {
+        "available": True,
+        "player1": p1,
+        "player2": p2,
+        "surface": surface,
+        "narrative": paragraphs,
+        "favorite": favorite,
+        "underdog": underdog,
+        "fav_prob": float(fav_prob),
     }
 
 
