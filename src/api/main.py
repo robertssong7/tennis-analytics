@@ -1977,6 +1977,118 @@ async def match_insight(request: Request):
 
 
 # ─────────────────────────────────────────────────────────────
+# Percentile Outliers — "What Makes Them Different"
+# ─────────────────────────────────────────────────────────────
+
+_PERCENTILE_PATH = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'percentile_rankings.json'
+_percentile_cache: dict = {}
+
+_STAT_LABELS = {
+    "tiebreak_win_rate": "Tiebreak Win Rate",
+    "deciding_set_wr": "Deciding Set Win Rate",
+    "three_set_wr": "3-Set Match Win Rate",
+    "vs_top10_wr": "vs Top-10 Win Rate",
+    "vs_top20_wr": "vs Top-20 Win Rate",
+    "comeback_rate": "Comeback Rate",
+    "first_set_winner_conv": "First-Set Conversion",
+    "bagels_per_match": "Bagels Delivered per Match",
+    "bagels_conceded_per_match": "Bagels Conceded per Match",
+    "hold_pct": "Hold %",
+    "break_pct": "Break %",
+    "bp_save_pct": "Break Point Save %",
+    "bp_convert_pct": "Break Point Convert %",
+    "first_serve_win_pct": "1st Serve Win %",
+    "second_serve_win_pct": "2nd Serve Win %",
+    "aces_per_match": "Aces per Match",
+    "df_per_match": "Double Faults per Match",
+}
+
+
+def _get_percentiles() -> dict:
+    global _percentile_cache
+    if not _percentile_cache and _PERCENTILE_PATH.exists():
+        try:
+            _percentile_cache = json.loads(_PERCENTILE_PATH.read_text())
+        except Exception as e:
+            logger.warning(f"Failed to load percentile_rankings.json: {e}")
+    return _percentile_cache
+
+
+def _outlier_narrative(stat: str, val: float, percentile: float, rank: int,
+                       total: int, sample_size: int, direction: str) -> str:
+    label = _STAT_LABELS.get(stat, stat)
+    pct_label = f"{int(percentile)}th percentile"
+    if direction == "top":
+        if rank == 1:
+            return f"#1 of {total} qualifying players in {label} ({val:.1f}, n={sample_size})."
+        if rank <= 5:
+            return f"Top {rank} all-time in {label} ({val:.1f}, {pct_label}, n={sample_size})."
+        return f"{pct_label} in {label} ({val:.1f}, ranked #{rank} of {total}, n={sample_size})."
+    return f"Bottom {int(100 - percentile)}% in {label} ({val:.1f}, ranked #{rank} of {total}). A genuine weakness."
+
+
+@app.get("/player/{name}/outliers")
+def player_outliers(name: str):
+    """Return the 5 most-extreme percentile rankings for this player.
+    Stats above 90th percentile (top tier) or below 10th (genuine weakness)
+    are surfaced. Sorted by abs(percentile - 50) descending."""
+    engine = _get_engine()
+    canonical = engine.find_player(name)
+    if not canonical:
+        return {"available": False, "reason": "Player not found"}
+
+    pcts = _get_percentiles()
+    if not pcts:
+        return {"available": False, "reason": "Percentile data unavailable"}
+
+    entry = pcts.get(canonical)
+    if not entry:
+        return {
+            "available": False,
+            "player": canonical,
+            "reason": "Not enough match history for percentile analysis (need 20+ matches)",
+        }
+
+    candidates = []
+    for stat, e in entry.items():
+        pct = e.get("percentile")
+        if pct is None:
+            continue
+        if pct >= 90:
+            direction = "top"
+        elif pct <= 10:
+            direction = "bottom"
+        else:
+            continue
+        candidates.append({
+            "stat": stat,
+            "label": _STAT_LABELS.get(stat, stat),
+            "value": float(e["value"]),
+            "percentile": float(pct),
+            "rank": int(e["rank"]) if e.get("rank") else None,
+            "total_qualifying": int(e["total_qualifying"]),
+            "sample_size": int(e["sample_size"]),
+            "direction": direction,
+            "narrative": _outlier_narrative(
+                stat, float(e["value"]), float(pct),
+                int(e["rank"]) if e.get("rank") else 0,
+                int(e["total_qualifying"]),
+                int(e["sample_size"]),
+                direction,
+            ),
+        })
+
+    candidates.sort(key=lambda x: abs(x["percentile"] - 50), reverse=True)
+    out = candidates[:5]
+
+    return {
+        "available": len(out) > 0,
+        "player": canonical,
+        "outliers": out,
+    }
+
+
+# ─────────────────────────────────────────────────────────────
 # Surface DNA Profile
 # ─────────────────────────────────────────────────────────────
 

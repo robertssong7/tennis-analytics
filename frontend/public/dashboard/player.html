@@ -361,13 +361,14 @@ async function loadAll() {
     var fetchSurf = activeSurf === 'overall' ? '' : activeSurf;
     var surfParam = fetchSurf ? '?surface=' + fetchSurf : '';
 
-    var [patternsRes, condRes, matchupsRes, scenariosRes, similarRes, surfDnaRes] = await Promise.all([
+    var [patternsRes, condRes, matchupsRes, scenariosRes, similarRes, surfDnaRes, outliersRes] = await Promise.all([
       fetch(API + '/player/' + pName + '/patterns' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/conditions' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/matchups' + (fetchSurf ? '?surface=' + fetchSurf : '?surface=hard')).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/scenarios' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/similar').catch(function(){return null;}),
-      fetch(API + '/player/' + pName + '/surface-dna').catch(function(){return null;})
+      fetch(API + '/player/' + pName + '/surface-dna').catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/outliers').catch(function(){return null;})
     ]);
 
     patternsData = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
@@ -376,9 +377,10 @@ async function loadAll() {
     var scenarios = scenariosRes && scenariosRes.ok ? await scenariosRes.json() : null;
     similarData = similarRes && similarRes.ok ? await similarRes.json() : null;
     var surfDna = surfDnaRes && surfDnaRes.ok ? await surfDnaRes.json() : null;
+    var outliers = outliersRes && outliersRes.ok ? await outliersRes.json() : null;
 
     // Re-render with full data
-    renderContent(cardData, patternsData, matchupsData, conditions, scenarios, surfDna);
+    renderContent(cardData, patternsData, matchupsData, conditions, scenarios, surfDna, outliers);
 
   } catch(e) {
     contentEl.innerHTML = '<div class="not-found">Error loading data: ' + e.message + '</div>';
@@ -518,7 +520,37 @@ function renderAttrRow(a, attrs, averages) {
     + '<div class="attr-bar-wrap-fifa"><div class="attr-bar-fifa ' + barTier + '" style="width:' + score + '%"></div>' + avgLine + '</div></div>';
 }
 
-function renderContent(card, patterns, matchups, conditions, scenarios, surfDna) {
+function renderOutliers(outliers, playerName) {
+  if (!outliers || !outliers.available || !outliers.outliers || outliers.outliers.length === 0) {
+    if (outliers && outliers.reason && outliers.reason.indexOf('Not enough') >= 0) {
+      return '';  // Don't show section header for low-history players
+    }
+    return '';
+  }
+  var first = playerName.split(' ')[0];
+  var cards = outliers.outliers.map(function(o) {
+    var fillColor = o.direction === 'top' ? '#0ABAB5' : '#E24B4A';
+    var pct = Math.max(0, Math.min(100, o.percentile));
+    return '<div style="background:#FFFFFF;border-radius:12px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px;">'
+      + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">'
+      + '<span style="font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;color:#2C2C2C;flex:1;">' + o.label + '</span>'
+      + '<span style="font-family:DM Mono,monospace;font-size:14px;color:' + fillColor + ';font-weight:600;">' + o.value.toFixed(1) + '</span>'
+      + '<span style="font-family:DM Mono,monospace;font-size:11px;color:#2C2C2C;opacity:0.5;">' + Math.round(o.percentile) + 'th</span>'
+      + '</div>'
+      + '<div style="height:8px;background:#D0C9C0;border-radius:4px;overflow:hidden;margin-bottom:6px;">'
+      + '<div style="height:100%;width:' + pct + '%;background:' + fillColor + ';border-radius:4px;"></div>'
+      + '</div>'
+      + '<div style="font-family:DM Sans,sans-serif;font-size:12px;color:#2C2C2C;opacity:0.7;line-height:1.4;">' + o.narrative + '</div>'
+      + '</div>';
+  }).join('');
+  return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+    + '<span style="color:#0ABAB5;font-family:DM Sans,sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Percentile Outliers</span>'
+    + '<div style="flex:1;height:1px;background:#D0C9C0;"></div></div>'
+    + '<h3 style="font-family:Playfair Display,serif;font-size:22px;color:#2C2C2C;margin:0 0 16px;">What Makes ' + first + ' Different</h3>'
+    + cards;
+}
+
+function renderContent(card, patterns, matchups, conditions, scenarios, surfDna, outliers) {
   var attrs = card.attributes || {};
   var averages = card.attribute_averages || {};
   var leftAttrs = ['serve','groundstroke','volley','footwork'];
@@ -602,6 +634,9 @@ function renderContent(card, patterns, matchups, conditions, scenarios, surfDna)
       + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">'+dnaCards+'</div>';
   }
 
+  // Outliers section ("What Makes X Different")
+  var outliersHtml = renderOutliers(outliers, card.name || '');
+
   document.getElementById('page-content').innerHTML =
     '<div class="section">'
     + '<div class="sec-title">Player Attributes</div>'
@@ -609,6 +644,7 @@ function renderContent(card, patterns, matchups, conditions, scenarios, surfDna)
     + '<div class="attr-grid-fifa"><div>' + leftHtml + '</div><div>' + rightHtml + '</div></div>'
     + '</div>'
     + (surfDnaHtml ? '<div class="section">'+surfDnaHtml+'</div>' : '')
+    + (outliersHtml ? '<div class="section">'+outliersHtml+'</div>' : '')
     + '<div class="section">'
     + '<div class="sec-title">Play Patterns</div>'
     + patternsHtml
@@ -804,12 +840,13 @@ async function applySurfaceUpdate() {
   var pName = encodeURIComponent(cardData.name);
 
   try {
-    var [patternsRes, condRes, matchupsRes, scenariosRes, surfDnaRes2] = await Promise.all([
+    var [patternsRes, condRes, matchupsRes, scenariosRes, surfDnaRes2, outliersRes2] = await Promise.all([
       fetch(API + '/player/' + pName + '/patterns' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/conditions' + surfParam).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/matchups' + (fetchSurf ? '?surface=' + fetchSurf : '?surface=hard')).catch(function(){return null;}),
       fetch(API + '/player/' + pName + '/scenarios' + surfParam).catch(function(){return null;}),
-      fetch(API + '/player/' + pName + '/surface-dna').catch(function(){return null;})
+      fetch(API + '/player/' + pName + '/surface-dna').catch(function(){return null;}),
+      fetch(API + '/player/' + pName + '/outliers').catch(function(){return null;})
     ]);
 
     patternsData = patternsRes && patternsRes.ok ? await patternsRes.json() : null;
@@ -817,9 +854,10 @@ async function applySurfaceUpdate() {
     matchupsData = matchupsRes && matchupsRes.ok ? await matchupsRes.json() : null;
     var scenarios = scenariosRes && scenariosRes.ok ? await scenariosRes.json() : null;
     var surfDna2 = surfDnaRes2 && surfDnaRes2.ok ? await surfDnaRes2.json() : null;
+    var outliers2 = outliersRes2 && outliersRes2.ok ? await outliersRes2.json() : null;
 
     // Re-render all content sections including patterns with surface filter
-    renderContent(cardData, patternsData, matchupsData, conditions, scenarios, surfDna2);
+    renderContent(cardData, patternsData, matchupsData, conditions, scenarios, surfDna2, outliers2);
   } catch(e) {}
 
   if (content) content.style.opacity = '1';
