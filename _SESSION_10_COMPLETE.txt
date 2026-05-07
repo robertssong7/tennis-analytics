@@ -54,5 +54,6 @@ Final production verification (after column-prune redeploy):
   - Rome weather: 18C, 66% humidity ✓
   - Headshot: HTTP 200 (placeholder SVG; ATP origin blocked by Cloudflare,
               cache PNGs excluded by .dockerignore) ✓
-  - Sinner volley/footwork: pending App Runner redeploy as of completion;
-    will be populated once column-pruned parquet load deploys
+  - Sinner volley=64, footwork=71 ✓ (column-pruned parquet load deployed)
+
+All 6 prod checks PASS. Session 10 fully landed.
