@@ -1859,10 +1859,12 @@ async def player_surface_dna(name: str):
         if not card:
             return {"available": False, "reason": "Player data unavailable"}
 
-        surfaces_data = card.get("surfaces", {})
-        attributes = card.get("attributes", {})
-        overall = float(card.get("overall", 0))
+        surfaces_data = card.get("surfaces") or {}
+        attributes = card.get("attributes") or {}
+        overall = float(card.get("overall") or 0)
 
+        # Filter out None surface values
+        surfaces_data = {k: v for k, v in surfaces_data.items() if v is not None}
         if not surfaces_data:
             return {"available": False, "reason": "No surface data available"}
 
