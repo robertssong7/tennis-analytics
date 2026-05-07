@@ -52,3 +52,23 @@ jobs:
           git config user.email "tennisiq-bot@users.noreply.github.com"
           git commit -m "Daily data update — $(date +%Y-%m-%d)"
           git push origin main
+
+      - name: Refresh live tournament metadata
+        if: success()
+        run: python3 -u tools/refresh_live_tournament.py || echo "Live tournament refresh failed"
+
+      - name: Sync frontend to S3
+        if: success()
+        run: aws s3 sync frontend/public/dashboard/ s3://tennisiq-frontend/ --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+
+      - name: Invalidate CloudFront
+        if: success()
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DIST_ID }} --paths "/*"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
