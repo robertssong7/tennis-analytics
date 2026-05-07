@@ -430,13 +430,20 @@ async function loadLiveTournament() {
     var finEl = document.getElementById('feed-finished');
     var curEl = document.getElementById('feed-current');
 
-    if (d.finished) {
-      finEl.innerHTML = '<div style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:700;color:var(--accent);margin-bottom:10px;">Just Finished</div>' + renderTournBanner(d.finished, 'Finished', 'Complete');
+    var finished = d.just_finished || d.finished || null;
+    var live = d.live || null;
+    var upcoming = d.next_upcoming || null;
+
+    if (finished) {
+      finEl.innerHTML = '<div style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:700;color:var(--accent);margin-bottom:10px;">Just Finished</div>' + renderTournBanner(finished, finished.level || 'Finished', 'Complete');
     } else if (d.tournament) {
-      // Old format — single tournament
       finEl.innerHTML = '<div style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:700;color:var(--accent);margin-bottom:10px;">Latest</div>' + renderTournBanner(d, 'Latest', d.level || 'ATP');
     }
-    if (d.current) {
+    if (live) {
+      curEl.innerHTML = '<div style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:700;color:var(--warm);margin-bottom:10px;">Live Now</div>' + renderTournBanner(live, live.level || 'ATP', 'Live');
+    } else if (upcoming) {
+      curEl.innerHTML = '<div style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:700;color:var(--warm);margin-bottom:10px;">Up Next</div>' + renderTournBanner(upcoming, upcoming.level || 'ATP', 'Upcoming');
+    } else if (d.current) {
       curEl.innerHTML = '<div style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:700;color:var(--warm);margin-bottom:10px;">' + (d.current.status === 'In Progress' ? 'Live Now' : 'Up Next') + '</div>' + renderTournBanner(d.current, d.current.status, d.current.level || 'ATP');
     } else {
       curEl.innerHTML = '<div style="color:var(--ink-soft);font-size:12px;padding:20px;">No upcoming tournament data.</div>';

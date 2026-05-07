@@ -1,64 +1,281 @@
 {
-  "tournament": "BNP Paribas Open",
-  "year": 2026,
-  "dates": "Mar 2026",
-  "location": "Indian Wells",
-  "surface": "Hard",
-  "level": "Masters 1000",
-  "cpi": 34.3,
-  "ball": "Dunlop",
-  "indoor_outdoor": "Outdoor",
-  "current_round": "F",
-  "recent_results": [
-    {
-      "winner": "Sinner J.",
-      "loser": "Medvedev D.",
-      "score": "7-6 7-6",
-      "round": "F"
-    },
-    {
-      "winner": "Medvedev D.",
-      "loser": "Alcaraz C.",
-      "score": "6-3 7-6",
-      "round": "SF"
-    },
-    {
-      "winner": "Sinner J.",
-      "loser": "Zverev A.",
-      "score": "6-2 6-4",
-      "round": "SF"
-    },
-    {
-      "winner": "Alcaraz C.",
-      "loser": "Norrie C.",
-      "score": "6-3 6-4",
-      "round": "QF"
-    },
-    {
-      "winner": "Medvedev D.",
-      "loser": "Draper J.",
-      "score": "6-1 7-5",
-      "round": "QF"
-    },
-    {
-      "winner": "Sinner J.",
-      "loser": "Tien L.",
-      "score": "6-1 6-2",
-      "round": "QF"
-    },
-    {
-      "winner": "Zverev A.",
-      "loser": "Fils A.",
-      "score": "6-2 6-3",
-      "round": "QF"
-    },
-    {
-      "winner": "Draper J.",
-      "loser": "Djokovic N.",
-      "score": "4-6 6-4 7-6",
-      "round": "R16"
-    }
-  ],
-  "last_updated": "2026-03-15",
-  "data_source": "tennis-data.co.uk"
+  "live": {
+    "tournament": "Italian Open",
+    "year": 2026,
+    "dates": "May 6-17, 2026",
+    "location": "Rome, ITA",
+    "surface": "Clay",
+    "level": "Masters 1000",
+    "indoor_outdoor": "Outdoor",
+    "status": "Live",
+    "results": [
+      {
+        "winner": "Hurkacz H.",
+        "loser": "Giron M.",
+        "score": "6-3 1-6 6-1",
+        "round": "R32"
+      },
+      {
+        "winner": "Cerundolo F.",
+        "loser": "Ofner S.",
+        "score": "6-2 6-4",
+        "round": "R32"
+      },
+      {
+        "winner": "Sinner J.",
+        "loser": "De Jong J.",
+        "score": "6-4 6-2",
+        "round": "R32"
+      },
+      {
+        "winner": "Munar J.",
+        "loser": "Korda S.",
+        "score": "6-4 6-2",
+        "round": "R32"
+      },
+      {
+        "winner": "Ruud C.",
+        "loser": "Berrettini M.",
+        "score": "7-5 2-0",
+        "round": "R32"
+      },
+      {
+        "winner": "Paul T.",
+        "loser": "De Minaur A.",
+        "score": "7-5 6-3",
+        "round": "R16"
+      },
+      {
+        "winner": "Zverev A.",
+        "loser": "Fils A.",
+        "score": "7-6 6-1",
+        "round": "R16"
+      },
+      {
+        "winner": "Sinner J.",
+        "loser": "Cerundolo F.",
+        "score": "7-6 6-3",
+        "round": "R16"
+      },
+      {
+        "winner": "Draper J.",
+        "loser": "Moutet C.",
+        "score": "1-6 6-4 6-3",
+        "round": "R16"
+      },
+      {
+        "winner": "Hurkacz H.",
+        "loser": "Mensik J.",
+        "score": "7-6 4-6 7-6",
+        "round": "R16"
+      },
+      {
+        "winner": "Alcaraz C.",
+        "loser": "Khachanov K.",
+        "score": "6-3 3-6 7-5",
+        "round": "R16"
+      },
+      {
+        "winner": "Musetti L.",
+        "loser": "Medvedev D.",
+        "score": "7-5 6-4",
+        "round": "R16"
+      },
+      {
+        "winner": "Ruud C.",
+        "loser": "Munar J.",
+        "score": "6-3 6-4",
+        "round": "R16"
+      },
+      {
+        "winner": "Alcaraz C.",
+        "loser": "Draper J.",
+        "score": "6-4 6-4",
+        "round": "QF"
+      },
+      {
+        "winner": "Musetti L.",
+        "loser": "Zverev A.",
+        "score": "7-6 6-4",
+        "round": "QF"
+      },
+      {
+        "winner": "Paul T.",
+        "loser": "Hurkacz H.",
+        "score": "7-6 6-3",
+        "round": "QF"
+      },
+      {
+        "winner": "Sinner J.",
+        "loser": "Ruud C.",
+        "score": "6-0 6-1",
+        "round": "QF"
+      },
+      {
+        "winner": "Sinner J.",
+        "loser": "Paul T.",
+        "score": "1-6 6-0 6-3",
+        "round": "SF"
+      },
+      {
+        "winner": "Alcaraz C.",
+        "loser": "Musetti L.",
+        "score": "6-3 7-6",
+        "round": "SF"
+      },
+      {
+        "winner": "Alcaraz C.",
+        "loser": "Sinner J.",
+        "score": "7-6 6-1",
+        "round": "F"
+      }
+    ],
+    "data_available": true
+  },
+  "just_finished": {
+    "tournament": "Madrid Open",
+    "year": 2026,
+    "dates": "Apr 22 - May 4, 2026",
+    "location": "Madrid, ESP",
+    "surface": "Clay",
+    "level": "Masters 1000",
+    "indoor_outdoor": "Outdoor",
+    "status": "Complete",
+    "results": [
+      {
+        "winner": "Mensik J.",
+        "loser": "Bublik A.",
+        "score": "6-3 6-2",
+        "round": "R16"
+      },
+      {
+        "winner": "Musetti L.",
+        "loser": "Tsitsipas S.",
+        "score": "7-5 7-6",
+        "round": "R32"
+      },
+      {
+        "winner": "Draper J.",
+        "loser": "Berrettini M.",
+        "score": "7-6",
+        "round": "R32"
+      },
+      {
+        "winner": "Cerundolo F.",
+        "loser": "Zverev A.",
+        "score": "7-5 6-3",
+        "round": "R16"
+      },
+      {
+        "winner": "Diallo G.",
+        "loser": "Norrie C.",
+        "score": "2-6 6-4 6-4",
+        "round": "R32"
+      },
+      {
+        "winner": "Tiafoe F.",
+        "loser": "Muller A.",
+        "score": "6-3 6-3",
+        "round": "R32"
+      },
+      {
+        "winner": "Paul T.",
+        "loser": "Khachanov K.",
+        "score": "6-3 3-6 6-2",
+        "round": "R32"
+      },
+      {
+        "winner": "De Minaur A.",
+        "loser": "Shapovalov D.",
+        "score": "6-3 7-6",
+        "round": "R32"
+      },
+      {
+        "winner": "Dimitrov G.",
+        "loser": "Fearnley J.",
+        "score": "6-4 7-6",
+        "round": "R32"
+      },
+      {
+        "winner": "Arnaldi M.",
+        "loser": "Tiafoe F.",
+        "score": "6-3 7-5",
+        "round": "R16"
+      },
+      {
+        "winner": "Draper J.",
+        "loser": "Paul T.",
+        "score": "6-2 6-2",
+        "round": "R16"
+      },
+      {
+        "winner": "Diallo G.",
+        "loser": "Dimitrov G.",
+        "score": "5-7 7-6 6-4",
+        "round": "R16"
+      },
+      {
+        "winner": "Musetti L.",
+        "loser": "De Minaur A.",
+        "score": "6-4 6-2",
+        "round": "R16"
+      },
+      {
+        "winner": "Ruud C.",
+        "loser": "Medvedev D.",
+        "score": "6-3 7-5",
+        "round": "QF"
+      },
+      {
+        "winner": "Cerundolo F.",
+        "loser": "Mensik J.",
+        "score": "3-6 7-6 6-2",
+        "round": "QF"
+      },
+      {
+        "winner": "Draper J.",
+        "loser": "Arnaldi M.",
+        "score": "6-0 6-4",
+        "round": "QF"
+      },
+      {
+        "winner": "Musetti L.",
+        "loser": "Diallo G.",
+        "score": "6-4 6-3",
+        "round": "QF"
+      },
+      {
+        "winner": "Draper J.",
+        "loser": "Musetti L.",
+        "score": "6-3 7-6",
+        "round": "SF"
+      },
+      {
+        "winner": "Ruud C.",
+        "loser": "Cerundolo F.",
+        "score": "6-4 7-5",
+        "round": "SF"
+      },
+      {
+        "winner": "Ruud C.",
+        "loser": "Draper J.",
+        "score": "7-5 3-6 6-4",
+        "round": "F"
+      }
+    ],
+    "data_available": true
+  },
+  "next_upcoming": {
+    "tournament": "Roland Garros",
+    "year": 2026,
+    "dates": "May 24 - Jun 7, 2026",
+    "location": "Paris, FRA",
+    "surface": "Clay",
+    "level": "Grand Slam",
+    "indoor_outdoor": "Outdoor",
+    "status": "Upcoming",
+    "results": [],
+    "data_available": false
+  },
+  "generated_at": "2026-05-07T07:17:18.388534Z"
 }

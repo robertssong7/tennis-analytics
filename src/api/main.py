@@ -13,7 +13,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from datetime import timedelta
+from datetime import datetime, date, timedelta
 from typing import Optional
 
 import psycopg2
@@ -81,6 +81,62 @@ _pattern_cache: dict = {}
 _conditions_cache: dict = {}
 _matchup_grid: dict = {}
 _tournament_predictions: dict = {}
+
+# ── ATP 2026 Calendar ────────────────────────────────────────
+_CALENDAR_PATH = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'atp_calendar_2026.json'
+_calendar_cache: list = []
+
+
+def _load_calendar() -> list:
+    """Load ATP 2026 calendar from disk. Cached per process."""
+    global _calendar_cache
+    if not _calendar_cache and _CALENDAR_PATH.exists():
+        try:
+            _calendar_cache = json.loads(_CALENDAR_PATH.read_text())
+        except Exception as e:
+            logger.warning(f"Failed to load atp_calendar_2026.json: {e}")
+    return _calendar_cache
+
+
+def get_live_tournament(today=None):
+    """Return the calendar entry for the tournament being played today, or None."""
+    today = today or date.today()
+    for t in _load_calendar():
+        try:
+            if datetime.fromisoformat(t["start"]).date() <= today <= datetime.fromisoformat(t["end"]).date():
+                return t
+        except Exception:
+            continue
+    return None
+
+
+def get_just_finished(today=None):
+    """Most recent Masters 1000 / Slam / Finals that has ended."""
+    today = today or date.today()
+    finished = []
+    for t in _load_calendar():
+        try:
+            end_d = datetime.fromisoformat(t["end"]).date()
+        except Exception:
+            continue
+        if end_d < today and t.get("category") in ("Masters 1000", "Grand Slam", "ATP Finals"):
+            finished.append(t)
+    if not finished:
+        return None
+    return max(finished, key=lambda t: t["end"])
+
+
+def get_next_upcoming(today=None):
+    """Next tournament whose start is in the future."""
+    today = today or date.today()
+    upcoming = []
+    for t in _load_calendar():
+        try:
+            if datetime.fromisoformat(t["start"]).date() > today:
+                upcoming.append(t)
+        except Exception:
+            continue
+    return min(upcoming, key=lambda t: t["start"]) if upcoming else None
 
 def _get_matchup_grid() -> dict:
     global _matchup_grid
@@ -1575,57 +1631,112 @@ def tournament_predict(
 # Live tournament endpoint
 # ─────────────────────────────────────────────────────────────
 
-@app.get("/api/live-tournament")
-def live_tournament():
-    """Return finished and current tournament data."""
-    live_path = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'live_tournament.json'
-    suppl_csv = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'supplemental_matches_2025_2026.csv'
-
-    # Load finished tournament (BNP Paribas Open)
-    finished_data = {}
-    if live_path.exists():
-        try:
-            finished_data = json.loads(live_path.read_text())
-        except Exception:
-            pass
-
-    # Check supplemental CSV for Miami Open 2026 data
-    miami_results = []
-    if suppl_csv.exists():
-        try:
-            import pandas as pd
-            sup_df = pd.read_csv(suppl_csv)
-            miami_rows = sup_df[sup_df['tourney_name'].str.contains('Miami', case=False, na=False)]
-            # Check if any are 2026 data (tourney_date >= 20260101)
-            miami_2026 = miami_rows[miami_rows['tourney_date'].astype(int) >= 20260101]
-            if len(miami_2026) == 0:
-                # Fall back to most recent Miami data
-                miami_2026 = miami_rows
-            for _, row in miami_2026.iterrows():
-                miami_results.append({
-                    "winner": str(row.get('winner_name', '')),
-                    "loser": str(row.get('loser_name', '')),
-                    "score": str(row.get('score', '')),
-                    "round": str(row.get('round', '')),
-                })
-        except Exception:
-            pass
-
-    current_data = {
-        "tournament": "Miami Open",
-        "year": 2026,
-        "dates": "Mar 19-30, 2026",
-        "location": "Miami, FL",
-        "surface": "Hard",
-        "level": "Masters 1000",
-        "status": "In Progress",
-        "data_available": len(miami_results) > 0,
-        "results": miami_results[-20:] if miami_results else [],
+def _calendar_to_feed(t: dict, status: str) -> dict:
+    """Convert a calendar entry to the feed dict shape (tournament/dates/location/...)."""
+    if not t:
+        return None
+    try:
+        start_d = datetime.fromisoformat(t["start"]).date()
+        end_d = datetime.fromisoformat(t["end"]).date()
+        # "May 6-17, 2026" or "Aug 31 - Sep 13, 2026"
+        if start_d.month == end_d.month:
+            dates_str = f"{start_d.strftime('%b %-d')}-{end_d.day}, {end_d.year}"
+        else:
+            dates_str = f"{start_d.strftime('%b %-d')} - {end_d.strftime('%b %-d')}, {end_d.year}"
+    except Exception:
+        dates_str = ""
+    return {
+        "tournament": t.get("name"),
+        "year": int(t["start"][:4]) if t.get("start") else None,
+        "dates": dates_str,
+        "location": f"{t.get('city', '')}, {t.get('country', '')}".strip(", "),
+        "surface": (t.get("surface") or "").capitalize(),
+        "level": t.get("category"),
+        "indoor_outdoor": "Indoor" if t.get("indoor") else "Outdoor",
+        "status": status,
+        "draw_size": t.get("draw_size"),
     }
 
+
+def _scrape_results_for_tournament(tournament_name: str, year: int):
+    """Pull results for a tournament+year from the supplemental CSV."""
+    suppl_csv = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'supplemental_matches_2025_2026.csv'
+    if not suppl_csv.exists():
+        return []
+    try:
+        import pandas as pd
+        df = pd.read_csv(suppl_csv)
+        df = df.dropna(subset=['winner_name', 'loser_name', 'tourney_name'])
+        df['tourney_date'] = pd.to_numeric(df['tourney_date'], errors='coerce').fillna(0).astype(int)
+        # Token-match: try a few aliases
+        name_lower = tournament_name.lower()
+        aliases = [name_lower]
+        if 'italian' in name_lower or 'rome' in name_lower:
+            aliases += ['italian', 'rome', 'internazionali']
+        if 'madrid' in name_lower:
+            aliases += ['madrid']
+        if 'monte carlo' in name_lower:
+            aliases += ['monte carlo']
+        if 'indian wells' in name_lower or 'bnp' in name_lower:
+            aliases += ['indian wells', 'bnp']
+        if 'miami' in name_lower:
+            aliases += ['miami']
+        mask = False
+        for alias in aliases:
+            mask = mask | df['tourney_name'].str.lower().str.contains(alias, na=False)
+        sub = df[mask & (df['tourney_date'] >= year * 10000) & (df['tourney_date'] < (year + 1) * 10000)]
+        if len(sub) == 0:
+            sub = df[mask]  # fallback to any year
+        sub = sub.sort_values('tourney_date')
+        return [
+            {
+                "winner": str(r.get('winner_name', '')),
+                "loser": str(r.get('loser_name', '')),
+                "score": str(r.get('score', '')),
+                "round": str(r.get('round', '')),
+            }
+            for _, r in sub.iterrows()
+        ]
+    except Exception as e:
+        logger.warning(f"Could not scrape results for {tournament_name}: {e}")
+        return []
+
+
+@app.get("/api/live-tournament")
+def live_tournament():
+    """Return live, just_finished, and next_upcoming tournament metadata
+    derived from the ATP 2026 calendar. Match-level results inside each
+    section are pulled from the supplemental CSV when available.
+    Backward-compat: also returns 'finished' and 'current' keys for older
+    frontends."""
+    today = date.today()
+    live = get_live_tournament(today)
+    finished = get_just_finished(today)
+    upcoming = get_next_upcoming(today)
+
+    live_feed = _calendar_to_feed(live, status="Live") if live else None
+    finished_feed = _calendar_to_feed(finished, status="Complete") if finished else None
+    upcoming_feed = _calendar_to_feed(upcoming, status="Upcoming") if upcoming else None
+
+    if live_feed:
+        live_results = _scrape_results_for_tournament(live["name"], int(live["start"][:4]))
+        live_feed["results"] = live_results[-20:]
+        live_feed["data_available"] = len(live_results) > 0
+    if finished_feed:
+        fr = _scrape_results_for_tournament(finished["name"], int(finished["start"][:4]))
+        finished_feed["results"] = fr[-20:]
+        finished_feed["data_available"] = len(fr) > 0
+        # Court-speed CPI placeholder for downstream tournament hero
+        finished_feed["cpi"] = None
+
     return {
-        "finished": finished_data,
-        "current": current_data,
+        # New keys (Session 10)
+        "live": live_feed,
+        "just_finished": finished_feed,
+        "next_upcoming": upcoming_feed,
+        # Backward compat for older frontends
+        "finished": finished_feed,
+        "current": live_feed or upcoming_feed,
     }
 
 
@@ -2157,10 +2268,19 @@ _tournament_pred_cache: dict = {}
 @app.get("/api/tournament-predictions")
 def tournament_predictions():
     """
-    Return favorites and dark horses for the current tournament (Miami Open 2026, Hard).
-    Computed from Glicko-2 hard-court ratings, filtered to players in the draw.
+    Return favorites and dark horses for the live tournament from the ATP 2026
+    calendar. Falls back to most-recent-finished if nothing is live, and to
+    next-upcoming if nothing has finished. Surface taken from calendar.
     """
-    if _tournament_pred_cache:
+    # Pick target tournament from the calendar
+    today = date.today()
+    target = get_live_tournament(today) or get_just_finished(today) or get_next_upcoming(today)
+    if not target:
+        return {"available": False, "reason": "No tournament in calendar"}
+    surface = (target.get("surface") or "hard").lower()
+    tour_name = target.get("name", "")
+    cache_key = f"{tour_name}:{surface}"
+    if _tournament_pred_cache.get("_key") == cache_key:
         return _tournament_pred_cache
 
     import math as _math
@@ -2168,50 +2288,74 @@ def tournament_predictions():
 
     engine = _get_engine()
     _latest = engine.latest_data_date
-    _retire_days = 548
+    _retire_days = 425
 
-    # ── Load draw from supplemental CSV ──────────────────────────
+    # ── Load draw from supplemental CSV (fuzzy match by tournament name) ──
     _suppl_path = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'supplemental_matches_2025_2026.csv'
     draw_canonical = set()
     draw_available = False
+
+    # Token aliases for matching the calendar tournament name to supplemental rows
+    _tname_lower = tour_name.lower()
+    _aliases = [_tname_lower]
+    if 'italian' in _tname_lower or 'rome' in _tname_lower:
+        _aliases += ['italian', 'rome', 'internazionali']
+    if 'madrid' in _tname_lower:
+        _aliases += ['madrid']
+    if 'monte carlo' in _tname_lower:
+        _aliases += ['monte carlo']
+    if 'indian wells' in _tname_lower:
+        _aliases += ['indian wells', 'bnp']
+    if 'miami' in _tname_lower:
+        _aliases += ['miami']
+    if 'cincinnati' in _tname_lower:
+        _aliases += ['cincinnati']
+    if 'canadian' in _tname_lower:
+        _aliases += ['canadian', 'toronto']
     if _suppl_path.exists():
-        # Use the engine's supplemental name map (abbrev -> canonical)
         _name_map = getattr(engine, '_supplemental_name_map', {})
         if not _name_map:
-            # Engine may not have built it yet; build on demand
             from src.api.predict_engine import _build_supplemental_name_map
             _name_map = _build_supplemental_name_map(engine.player_names)
         try:
             import pandas as _pd
             _suppl_df = _pd.read_csv(_suppl_path)
-            _miami = _suppl_df[_suppl_df['tourney_name'].str.contains('Miami', case=False, na=False)]
-            if len(_miami) > 0:
+            _suppl_df = _suppl_df.dropna(subset=['tourney_name'])
+            _mask = False
+            for _alias in _aliases:
+                _mask = _mask | _suppl_df['tourney_name'].str.lower().str.contains(_alias, na=False)
+            _draw_rows = _suppl_df[_mask] if _aliases else _suppl_df
+            if len(_draw_rows) > 0:
                 draw_available = True
                 for _col in ['winner_name', 'loser_name']:
-                    for _abbrev in _miami[_col].dropna().unique():
+                    for _abbrev in _draw_rows[_col].dropna().unique():
                         _canon = _name_map.get(str(_abbrev).strip())
                         if _canon:
                             draw_canonical.add(_canon)
         except Exception as _e:
             logger.warning(f"Could not load draw from supplemental CSV: {_e}")
 
-    # Collect active players with hard court ratings
-    active_hard = []
+    # Collect active players with surface-specific ratings
+    surface_key = surface if surface in ("hard", "clay", "grass") else "hard"
+    active_surf = []
+    _today_dt = datetime.now()
     for pname, surfaces_dict in engine.glicko.ratings.items():
         r_all = surfaces_dict.get('all')
         if r_all is None or r_all.last_match_date is None:
             continue
-        days_since = (_latest - r_all.last_match_date).days
+        days_since = (_today_dt - datetime.combine(r_all.last_match_date, datetime.min.time())).days
         if days_since > _retire_days and r_all.match_count > 20:
             continue  # retired
-        r_hard = surfaces_dict.get('hard')
-        if r_hard and r_hard.match_count >= 10:
-            hard_mu = r_hard.mu
+        r_surf = surfaces_dict.get(surface_key)
+        if r_surf and r_surf.match_count >= 10:
+            surf_mu = r_surf.mu
         else:
-            hard_mu = r_all.mu
-        active_hard.append((pname, hard_mu, r_all.mu))
+            surf_mu = r_all.mu
+        active_surf.append((pname, surf_mu, r_all.mu))
 
-    active_hard.sort(key=lambda x: x[1], reverse=True)
+    active_surf.sort(key=lambda x: x[1], reverse=True)
+    # alias for the rest of the function which uses active_hard
+    active_hard = active_surf
 
     # If draw is available, filter to draw players only
     if draw_available and draw_canonical:
@@ -2383,14 +2527,17 @@ def tournament_predictions():
     dark_horses = dark_horses[:5]
 
     result = {
-        "tournament": "Miami Open",
-        "year": 2026,
-        "surface": "Hard",
+        "tournament": tour_name,
+        "year": int(target["start"][:4]) if target.get("start") else None,
+        "surface": surface_key.capitalize(),
+        "category": target.get("category"),
         "draw_available": draw_available,
         "draw_size": len(draw_canonical) if draw_available else None,
         "favorites": favorites,
         "dark_horses": dark_horses,
+        "_key": cache_key,
     }
+    _tournament_pred_cache.clear()
     _tournament_pred_cache.update(result)
     return result
 
