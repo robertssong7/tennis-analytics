@@ -1891,9 +1891,13 @@ async def player_surface_dna(name: str):
                 identity = "vulnerable"
                 narrative = "A surface that exposes weaknesses. "
 
+            def _attr(name):
+                v = attributes.get(name)
+                return float(v) if v is not None else 50.0
+
             if surf == "clay":
-                endurance = float(attributes.get("endurance", 50))
-                groundstroke = float(attributes.get("groundstroke", 50))
+                endurance = _attr("endurance")
+                groundstroke = _attr("groundstroke")
                 if endurance > 80:
                     narrative += f"High endurance ({int(endurance)}) helps grind through long clay rallies. "
                 if groundstroke > 75:
@@ -1901,8 +1905,8 @@ async def player_surface_dna(name: str):
                 elif groundstroke < 55:
                     narrative += f"Groundstroke rating ({int(groundstroke)}) may struggle against clay-court baseliners."
             elif surf == "grass":
-                serve = float(attributes.get("serve", 50))
-                volley = float(attributes.get("volley", 50))
+                serve = _attr("serve")
+                volley = _attr("volley")
                 if serve > 75:
                     narrative += f"Big serve ({int(serve)}) translates well to fast grass conditions. "
                 if volley > 60:
@@ -1910,9 +1914,9 @@ async def player_surface_dna(name: str):
                 elif volley < 40:
                     narrative += f"Limited net game ({int(volley)}) means relying on baseline play even on grass."
             elif surf == "hard":
-                mental = float(attributes.get("mental", 50))
-                clutch = float(attributes.get("clutch", 50))
-                serve = float(attributes.get("serve", 50))
+                mental = _attr("mental")
+                clutch = _attr("clutch")
+                serve = _attr("serve")
                 if mental > 75 and clutch > 75:
                     narrative += f"Mental strength ({int(mental)}) and clutch play ({int(clutch)}) thrive in hard-court pressure points."
                 elif serve > 70:
@@ -2039,8 +2043,8 @@ async def match_narrative(request: Request):
     biggest_gap = None
     biggest_gap_val = 0
     for attr in ["serve", "groundstroke", "endurance", "mental", "clutch"]:
-        v1 = float(fav_attrs.get(attr, 50))
-        v2 = float(dog_attrs.get(attr, 50))
+        v1 = float(fav_attrs.get(attr) or 50)
+        v2 = float(dog_attrs.get(attr) or 50)
         gap = abs(v1 - v2)
         if gap > biggest_gap_val:
             biggest_gap_val = gap
