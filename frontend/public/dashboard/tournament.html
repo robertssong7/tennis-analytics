@@ -39,6 +39,7 @@ table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card
 <div class="nav-links"><a href="index.html">Home</a><a href="compare.html">Compare</a><a href="tournament.html" class="active">Tournaments</a><a href="odds.html">Odds<span class="soon-badge">Soon</span></a><a href="about.html">About</a></div>
 </nav>
 <div class="page">
+<div id="live-hero" style="margin-bottom:32px;"></div>
 <div class="pt">Court Speed & Tournament Intel</div>
 <div class="ps">Court Pace Index (CPI) data from 14 major ATP tournaments, 2012-2026. Sourced from courtspeed.com (CC BY 4.0).</div>
 <div id="cpi-legend-top"></div>
@@ -85,6 +86,85 @@ function speedLabel(cpi){if(cpi>44)return'Fast';if(cpi>39)return'Med-Fast';if(cp
 var TOURN_MONTH={'Australian Open':1,'Rotterdam':2,'Marseille':2,'Indian Wells':3,'Miami':3,'Monte Carlo':4,'Madrid':5,'Rome':5,'Roland Garros':6,'Wimbledon':7,'Canadian Open':8,'Cincinnati':8,'US Open':9,'Shanghai':10,'Basel':10,'Vienna':10,'Paris':10,'ATP Finals':11,'Stockholm':10,'Sofia':9,'Antwerp':10};
 var TOURN_DATES={'Australian Open':'Jan 12-26','Rotterdam':'Feb 3-9','Marseille':'Feb 17-23','Indian Wells':'Mar 4-15','Miami':'Mar 19-30','Monte Carlo':'Apr 7-13','Madrid':'Apr 28 - May 4','Rome':'May 12-18','Roland Garros':'May 25 - Jun 8','Wimbledon':'Jun 30 - Jul 13','Canadian Open':'Aug 4-10','Cincinnati':'Aug 11-17','US Open':'Aug 25 - Sep 7','Shanghai':'Oct 6-12','Basel':'Oct 20-26','Vienna':'Oct 20-26','Paris':'Oct 27 - Nov 2','ATP Finals':'Nov 9-16'};
 function tournMonth(name){for(var k in TOURN_MONTH){if(name.toLowerCase().indexOf(k.toLowerCase())>=0)return TOURN_MONTH[k];}return 6;}
+async function loadLiveHero(){
+  try{
+    var r = await fetch(API_URL + '/api/live-tournament');
+    if (!r.ok) return;
+    var d = await r.json();
+    var t = d.live || d.next_upcoming || d.just_finished;
+    if (!t) return;
+    var status = d.live ? 'Live' : (d.next_upcoming && !d.live) ? 'Up Next' : 'Just Finished';
+    var statusColor = d.live ? '#0ABAB5' : (d.next_upcoming && !d.live) ? '#DAA520' : '#A8A9AD';
+    var sfc = (t.surface || 'Hard').toLowerCase();
+    var surfBadgeColor = sfc==='clay'?'#D4724E':sfc==='grass'?'#5AA469':'#4A90D9';
+    var ioPill = t.indoor_outdoor === 'Indoor'
+      ? '<span style="background:#555;color:white;font-family:DM Mono,monospace;font-size:10px;padding:3px 10px;border-radius:100px;letter-spacing:0.04em;text-transform:uppercase;">Indoor</span>'
+      : '<span style="background:#E8F5E9;color:#2E7D32;font-family:DM Mono,monospace;font-size:10px;padding:3px 10px;border-radius:100px;letter-spacing:0.04em;text-transform:uppercase;">Outdoor</span>';
+    var cs = t.court_speed || null;
+    var speedBadge = cs
+      ? '<span style="background:'+cs.color+';color:white;font-family:DM Mono,monospace;font-size:11px;padding:4px 12px;border-radius:100px;font-weight:600;">'+cs.label+' (CPI '+cs.cpi+')</span>'
+      : '';
+    var heroHtml = '<div style="background:#FFFFFF;border-radius:14px;padding:24px 28px;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:6px solid '+surfBadgeColor+';">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'
+      + '<span style="font-family:DM Mono,monospace;font-size:11px;color:'+statusColor+';font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">'+status+'</span>'
+      + '<span style="font-family:DM Mono,monospace;font-size:10px;background:'+surfBadgeColor+';color:white;padding:2px 8px;border-radius:100px;text-transform:uppercase;letter-spacing:0.06em;">'+(t.surface||'')+'</span>'
+      + ioPill
+      + '<span style="font-family:DM Mono,monospace;font-size:10px;background:#2C2C2C;color:white;padding:2px 8px;border-radius:100px;text-transform:uppercase;letter-spacing:0.06em;">'+(t.level||'ATP')+'</span>'
+      + '</div>'
+      + '<h2 style="font-family:Playfair Display,serif;font-size:28px;color:#2C2C2C;margin:0 0 6px;">'+(t.tournament||'')+'</h2>'
+      + '<div style="font-family:DM Sans,sans-serif;font-size:14px;color:#3D4F5E;margin-bottom:12px;">'+(t.dates||'')+' · '+(t.location||'')+'</div>'
+      + '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+      + speedBadge
+      + '<button id="hero-conditions-btn" style="background:transparent;border:1.5px solid #2C2C2C;color:#2C2C2C;font-family:DM Sans,sans-serif;font-size:12px;padding:6px 14px;border-radius:100px;cursor:pointer;">View Conditions</button>'
+      + '</div>'
+      + '<div id="hero-conditions-panel" style="max-height:0;overflow:hidden;transition:max-height 0.4s ease;margin-top:0;"></div>'
+      + '</div>';
+    document.getElementById('live-hero').innerHTML = heroHtml;
+    var btn = document.getElementById('hero-conditions-btn');
+    var panel = document.getElementById('hero-conditions-panel');
+    var loaded = false;
+    var open = false;
+    btn.addEventListener('click', async function(){
+      if (!loaded){
+        var w = t.weather || null;
+        if (!w && t.location){
+          var city = (t.location||'').split(',')[0].trim();
+          try { var wr = await fetch(API_URL+'/api/tournament-weather?city='+encodeURIComponent(city)); w = await wr.json(); } catch(e){ w = null; }
+        }
+        var cur = w && w.available ? w.current : null;
+        var fc = w && w.available ? (w.forecast || []) : [];
+        var todayHtml = cur
+          ? '<div style="font-family:DM Mono,monospace;font-size:11px;color:#7A8A96;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Today</div>'
+            + '<div style="font-family:Playfair Display,serif;font-size:28px;color:#2C2C2C;">'+Math.round(cur.temp_c)+'°C</div>'
+            + '<div style="font-family:DM Sans,sans-serif;font-size:13px;color:#3D4F5E;margin-top:4px;">'+cur.humidity+'% humidity · '+Math.round(cur.wind_kmh)+' km/h wind</div>'
+          : '<div style="color:#7A8A96;font-size:13px;">Weather unavailable</div>';
+        var fcHtml = fc.map(function(f){
+          return '<div style="background:#F5F0EB;border-radius:8px;padding:12px;text-align:center;">'
+            + '<div style="font-family:DM Mono,monospace;font-size:10px;color:#7A8A96;text-transform:uppercase;">'+f.date+'</div>'
+            + '<div style="font-family:Playfair Display,serif;font-size:20px;color:#2C2C2C;margin:4px 0;">'+Math.round(f.high_c)+'° / '+Math.round(f.low_c)+'°</div>'
+            + '<div style="font-family:DM Sans,sans-serif;font-size:11px;color:#3D4F5E;">'+f.rain_pct+'% rain</div>'
+            + '</div>';
+        }).join('');
+        var courtHtml = cs
+          ? '<div style="font-family:DM Mono,monospace;font-size:11px;color:#7A8A96;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Court Speed</div>'
+            + '<div style="font-family:Playfair Display,serif;font-size:28px;color:'+cs.color+';">'+cs.label+'</div>'
+            + '<div style="font-family:DM Mono,monospace;font-size:13px;color:#3D4F5E;margin-top:4px;">CPI '+cs.cpi+'</div>'
+          : '';
+        panel.innerHTML = '<div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:16px;padding:20px 0 0;">'
+          + '<div style="background:#FFFFFF;border-top:1px solid #D0C9C0;padding-top:16px;">'+todayHtml+'</div>'
+          + '<div><div style="font-family:DM Mono,monospace;font-size:11px;color:#7A8A96;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">3-Day Forecast</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">'+(fcHtml||'<div style="color:#7A8A96;font-size:13px;">Forecast unavailable</div>')+'</div></div>'
+          + '<div style="border-top:1px solid #D0C9C0;padding-top:16px;">'+courtHtml+'</div>'
+          + '</div>';
+        loaded = true;
+      }
+      open = !open;
+      panel.style.maxHeight = open ? '320px' : '0';
+      btn.textContent = open ? 'Hide Conditions' : 'View Conditions';
+    });
+  } catch(e) {}
+}
+loadLiveHero();
+
 async function init(){try{const r=await fetch(`${API}/court-speed`);const d=await r.json();renderLegend();renderSum(d);renderGrid(d);renderTable(d);}catch(e){document.getElementById('tgrid').innerHTML='<div style="color:var(--ink-soft);padding:40px;">Start the API to load CPI data.</div>';}}
 function renderLegend(){document.getElementById('cpi-legend-top').innerHTML='<div class="cpi-legend" style="margin-bottom:24px;"><span style="font-weight:500;margin-right:4px;">Court Speed:</span>'
 +'<div class="cpi-leg-item"><div class="cpi-leg-dot" style="background:#F8B4B4;"></div>Slow (&lt;30)</div>'

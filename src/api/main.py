@@ -138,6 +138,124 @@ def get_next_upcoming(today=None):
             continue
     return min(upcoming, key=lambda t: t["start"]) if upcoming else None
 
+
+# ── Open-Meteo weather + court speed badge ───────────────────
+TOURNAMENT_GEO = {
+    "Melbourne": (-37.8136, 144.9631),
+    "Indian Wells": (33.7175, -116.2156),
+    "Miami": (25.7617, -80.1918),
+    "Monte Carlo": (43.7384, 7.4246),
+    "Madrid": (40.4168, -3.7038),
+    "Rome": (41.9028, 12.4964),
+    "Paris": (48.8566, 2.3522),
+    "London": (51.5074, -0.1278),
+    "Toronto": (43.6532, -79.3832),
+    "Cincinnati": (39.1031, -84.5120),
+    "New York": (40.7128, -74.0060),
+    "Shanghai": (31.2304, 121.4737),
+    "Turin": (45.0703, 7.6869),
+}
+
+# Per-city CPI baselines (avg from data/processed/court_speed.csv recent years).
+# Used when no precise CPI lookup is available for a tournament-year.
+CITY_CPI_BASELINE = {
+    "Melbourne": 36.0,
+    "Indian Wells": 33.0,
+    "Miami": 38.0,
+    "Monte Carlo": 23.0,
+    "Madrid": 28.0,
+    "Rome": 25.0,
+    "Paris": 38.0,
+    "London": 38.5,
+    "Toronto": 39.0,
+    "Cincinnati": 41.0,
+    "New York": 39.0,
+    "Shanghai": 38.0,
+    "Turin": 42.0,
+}
+
+_weather_cache: dict = {}  # city -> (timestamp, payload)
+
+
+def _fetch_weather(city: str):
+    """Open-Meteo current + 3-day forecast. 1-hour in-memory cache."""
+    if city not in TOURNAMENT_GEO:
+        return {"available": False, "reason": f"No coordinates for {city}"}
+    import time
+    now = time.time()
+    cached = _weather_cache.get(city)
+    if cached and now - cached[0] < 3600:
+        return cached[1]
+    lat, lon = TOURNAMENT_GEO[city]
+    url = (
+        f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
+        f"&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code"
+        f"&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max"
+        f"&forecast_days=3&timezone=auto"
+    )
+    try:
+        import urllib.request
+        with urllib.request.urlopen(url, timeout=8) as r:
+            data = json.loads(r.read())
+        cur = data.get("current", {}) or {}
+        daily = data.get("daily", {}) or {}
+        forecast = []
+        days = daily.get("time", []) or []
+        for i in range(min(3, len(days))):
+            forecast.append({
+                "date": daily["time"][i],
+                "high_c": float(daily["temperature_2m_max"][i] or 0),
+                "low_c": float(daily["temperature_2m_min"][i] or 0),
+                "rain_pct": int(daily["precipitation_probability_max"][i] or 0),
+                "wind_kmh": float(daily["wind_speed_10m_max"][i] or 0),
+            })
+        payload = {
+            "available": True,
+            "city": city,
+            "current": {
+                "temp_c": float(cur.get("temperature_2m") or 0),
+                "humidity": int(cur.get("relative_humidity_2m") or 0),
+                "wind_kmh": float(cur.get("wind_speed_10m") or 0),
+                "weather_code": int(cur.get("weather_code") or 0),
+            },
+            "forecast": forecast,
+        }
+        _weather_cache[city] = (now, payload)
+        return payload
+    except Exception as e:
+        payload = {"available": False, "reason": str(e)}
+        _weather_cache[city] = (now, payload)
+        return payload
+
+
+@app.get("/api/tournament-weather")
+def tournament_weather(city: str):
+    """Live weather for a tournament city (Open-Meteo, no API key)."""
+    return _fetch_weather(city)
+
+
+def get_court_speed_label(cpi_base: float, weather: dict | None) -> dict:
+    """Combine baseline CPI with weather adjustments to return slow/medium/fast badge.
+    Hot air → faster ball flight; humidity → slower; wind → unpredictable but
+    biased fast. Returns {label, cpi, color}."""
+    cpi = float(cpi_base) if cpi_base is not None else 36.0
+    if weather and weather.get("available"):
+        c = weather.get("current") or {}
+        try:
+            if float(c.get("temp_c") or 0) > 28:
+                cpi += 3
+            if float(c.get("humidity") or 0) > 75:
+                cpi -= 3
+            if float(c.get("wind_kmh") or 0) > 25:
+                cpi += 2
+        except Exception:
+            pass
+    if cpi < 35:
+        return {"label": "Slow", "cpi": round(cpi, 1), "color": "#D4724E"}
+    if cpi < 45:
+        return {"label": "Medium", "cpi": round(cpi, 1), "color": "#DAA520"}
+    return {"label": "Fast", "cpi": round(cpi, 1), "color": "#4A90D9"}
+
 def _get_matchup_grid() -> dict:
     global _matchup_grid
     if not _matchup_grid:
@@ -1722,12 +1840,20 @@ def live_tournament():
         live_results = _scrape_results_for_tournament(live["name"], int(live["start"][:4]))
         live_feed["results"] = live_results[-20:]
         live_feed["data_available"] = len(live_results) > 0
+        city = live.get("city")
+        cpi_base = CITY_CPI_BASELINE.get(city, 36.0)
+        weather = _fetch_weather(city) if city else None
+        live_feed["weather"] = weather
+        live_feed["court_speed"] = get_court_speed_label(cpi_base, weather)
+        live_feed["cpi_base"] = cpi_base
     if finished_feed:
         fr = _scrape_results_for_tournament(finished["name"], int(finished["start"][:4]))
         finished_feed["results"] = fr[-20:]
         finished_feed["data_available"] = len(fr) > 0
-        # Court-speed CPI placeholder for downstream tournament hero
-        finished_feed["cpi"] = None
+        city = finished.get("city")
+        cpi_base = CITY_CPI_BASELINE.get(city, 36.0)
+        finished_feed["court_speed"] = get_court_speed_label(cpi_base, None)
+        finished_feed["cpi_base"] = cpi_base
 
     return {
         # New keys (Session 10)
