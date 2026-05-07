@@ -49,6 +49,43 @@ LATEST_DATA_DATE = date(2024, 12, 31)
 
 SUPPLEMENTAL_CSV = DATA_DIR / "supplemental_matches_2025_2026.csv"
 PEAK_ELO_PATH = DATA_DIR / "peak_elo.json"
+PARSED_POINTS_PATH = DATA_DIR / "parsed_points.parquet"
+PARSED_POINTS_S3_URL = (
+    "https://tennisiq-data-assets.s3.us-east-1.amazonaws.com/parsed_points.parquet"
+)
+
+
+def _ensure_parsed_points() -> str:
+    """Download parsed_points.parquet from S3 if not present locally.
+    Returns local path if file is present (or successfully downloaded), else ''.
+    Idempotent and safe to call at module load and again at engine init."""
+    import os
+    import urllib.request
+
+    local_path = str(PARSED_POINTS_PATH)
+    if os.path.exists(local_path) and os.path.getsize(local_path) > 1_000_000:
+        return local_path
+    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+    try:
+        urllib.request.urlretrieve(PARSED_POINTS_S3_URL, local_path)
+        size = os.path.getsize(local_path)
+        print(f"[parsed_points] downloaded {size:,} bytes from S3", flush=True)
+        return local_path
+    except Exception as e:
+        print(f"[parsed_points] S3 download failed: {e}", flush=True)
+        return ""
+
+
+# Eager: pull parsed_points at module import so any subsequent reader sees the file.
+_ensure_parsed_points()
+if PARSED_POINTS_PATH.exists():
+    try:
+        _pp_size = PARSED_POINTS_PATH.stat().st_size
+        print(f"[parsed_points] available locally: {_pp_size:,} bytes", flush=True)
+    except Exception:
+        pass
+else:
+    print("[parsed_points] NOT available — pattern endpoints + proxies will degrade", flush=True)
 
 
 def _is_retired(last_match_date_str):
@@ -389,7 +426,10 @@ class PredictEngine:
 
     def _compute_attribute_proxies(self):
         """Compute footwork and volley proxies from charted match data."""
-        PARQUET = BASE / "data" / "processed" / "parsed_points.parquet"
+        PARQUET = PARSED_POINTS_PATH
+        if not PARQUET.exists():
+            # Retry S3 fetch in case the module-level call lost the race or no-cached.
+            _ensure_parsed_points()
         if not PARQUET.exists():
             logger.warning(
                 "  parsed_points.parquet not found — skipping attribute proxies"

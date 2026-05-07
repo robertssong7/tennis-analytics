@@ -83,7 +83,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .sec-title::after{content:'';flex:0 0 40px;height:1px;background:var(--accent);opacity:0.4;}
 
 /* ATTRIBUTES — FIFA 2-COLUMN */
-.attr-grid-fifa{display:grid;grid-template-columns:1fr 1fr;gap:12px 32px;}
+.attr-grid-fifa{display:grid;grid-template-columns:1fr 1fr;gap:8px 32px;max-width:920px;}
+.attr-grid-fifa>div{display:flex;flex-direction:column;gap:2px;}
 .attr-avg-legend{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-soft);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
 .attr-avg-legend-line{display:inline-block;width:2px;height:12px;background:#2C2C2C;}
 .attr-row-fifa{display:flex;align-items:center;gap:8px;padding:5px 0;position:relative;}
@@ -218,7 +219,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .skeleton{background:linear-gradient(90deg,var(--bg-alt) 25%,var(--bg) 50%,var(--bg-alt) 75%);background-size:200% 100%;animation:skel 1.5s ease-in-out infinite;border-radius:6px;}@keyframes skel{0%{background-position:200%}100%{background-position:-200%}}
 .not-found{text-align:center;padding:80px 20px;color:var(--ink-soft);font-size:15px;}
 
-@media(max-width:768px){
+@media(max-width:900px){
   nav{padding:0 20px;}
   .hero-inner{padding:24px 20px 0;flex-direction:column;align-items:center;text-align:center;}
   .surface-chips{justify-content:center;}
