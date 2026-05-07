@@ -267,26 +267,36 @@ def health():
 
 _HEADSHOT_CACHE_DIR = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'headshots'
 
+_PLACEHOLDER_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+    '<rect width="100" height="100" fill="#F5F0EB"/>'
+    '<circle cx="50" cy="38" r="18" fill="#D0C9C0"/>'
+    '<path d="M 18 92 Q 18 60 50 60 Q 82 60 82 92 Z" fill="#D0C9C0"/>'
+    '</svg>'
+)
+
+
 @app.get("/api/player-image/{code}")
 def get_player_image(code: str):
-    """Proxy ATP headshot images with disk caching."""
+    """Proxy ATP headshot images with disk caching. On upstream failure,
+    return a silhouette SVG placeholder so the frontend never sees broken images."""
     import re
     # Sanitize code to prevent path traversal
     if not re.match(r'^[a-zA-Z0-9]{2,10}$', code):
         return JSONResponse(status_code=400, content={"error": "Invalid code"})
 
+    # Disk cache files are stored lowercase. Normalize to match.
+    code_lc = code.lower()
     _HEADSHOT_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    cached = _HEADSHOT_CACHE_DIR / f"{code}.png"
+    cached = _HEADSHOT_CACHE_DIR / f"{code_lc}.png"
 
     # Serve from disk cache if available
     if cached.exists() and cached.stat().st_size > 500:
-        logger.debug(f"Headshot cache HIT: {code}")
         return Response(content=cached.read_bytes(), media_type="image/png",
                        headers={"Cache-Control": "public, max-age=604800"})
 
-    logger.info(f"Headshot cache MISS: {code} — fetching from ATP")
-    # Fetch from ATP and save to cache
-    url = f"https://www.atptour.com/-/media/alias/player-headshot/{code}"
+    logger.info(f"Headshot cache MISS: {code_lc} — fetching from ATP")
+    url = f"https://www.atptour.com/-/media/alias/player-headshot/{code_lc}"
     try:
         r = req_lib.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
         if r.status_code == 200 and "image" in r.headers.get("content-type", ""):
@@ -295,7 +305,12 @@ def get_player_image(code: str):
                           headers={"Cache-Control": "public, max-age=604800"})
     except Exception:
         pass
-    return JSONResponse(status_code=404, content={"error": "Image not found"})
+    # Upstream failure (404, 403 Cloudflare challenge, network) → silhouette placeholder.
+    return Response(
+        content=_PLACEHOLDER_SVG,
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
 
 
 _headshot_prefetch_started = False
