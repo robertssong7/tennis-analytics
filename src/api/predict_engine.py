@@ -441,10 +441,11 @@ class PredictEngine:
                 self.attribute_averages[attr_name] = None
 
     def _compute_attribute_proxies(self):
-        """Compute footwork and volley proxies from charted match data."""
+        """Compute footwork and volley proxies from charted match data.
+        Loads only the 5 columns we need to keep peak memory low — App Runner
+        has 2GB and the full parquet expanded would push us over."""
         PARQUET = PARSED_POINTS_PATH
         if not PARQUET.exists():
-            # Retry S3 fetch in case the module-level call lost the race or no-cached.
             _ensure_parsed_points()
         if not PARQUET.exists():
             logger.warning(
@@ -452,7 +453,10 @@ class PredictEngine:
             )
             return
 
-        pts = pd.read_parquet(PARQUET)
+        pts = pd.read_parquet(
+            PARQUET,
+            columns=["Player 1", "Player 2", "PtWinner", "rally_length", "last_shot_type"],
+        )
         self.attribute_proxies = {}
 
         all_names = sorted(
@@ -508,6 +512,10 @@ class PredictEngine:
                     if volley is not None:
                         self.attribute_proxies[canonical]["volley"] = volley
                     processed += 1
+
+        # Free the parquet DataFrame — peak memory matters on App Runner (2GB).
+        # Pattern endpoints reload the parquet on demand from disk.
+        del pts
 
         logger.info(f"    Processed {processed} players with attribute proxies")
 
