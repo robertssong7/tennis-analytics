@@ -1,24 +1,58 @@
 ======================================
 SESSION 10 RUN COMPLETE
+Finished: 2026-05-07 ~02:30 MDT
 ======================================
 
 Read these files for details:
   _SESSION_10_REPORT.md        Full report
-  _session10_failures.txt      Anything that skipped or failed (should be empty)
+  _session10_failures.txt      Anything that skipped or failed
   _collab_changes_s10.md       What collaborators changed since Session 9
   TENNISIQ_HANDOFF_V3_3.md     Updated handoff doc
+
+What landed:
+  B1 Date-based retirement (425 days). Nadal/Federer/Murray Legendary + "Peak: YYYY"
+  B2 parsed_points eager S3 + null-attr graceful + 2-col attributes layout
+  B2-fix Socket timeout on S3 download (commit 23c5f7f3)
+  B2-fix2 Column-pruned parquet load to fit App Runner 2GB (commit 82f3ed9b)
+  B3 Player-image proxy lowercases + SVG silhouette fallback (ATP behind Cloudflare)
+  B4 Conditions threshold 5 + low_sample badge for partial coverage
+  B5 AWS migration: tennisiq-data-assets + tennisiq-frontend + CloudFront
+     E3V9RBJ247GXR1 → https://d3aogk1vtnp91d.cloudfront.net
+  C  ATP 2026 calendar + live/just_finished/next_upcoming endpoints
+     Italian Open live, Madrid finished, Roland Garros next
+  D  Percentile outliers (17 stats × 1857 players)
+     /player/{name}/outliers + "What Makes Them Different" card
+  E  Tournament hero on tournament.html + Open-Meteo weather + court speed badge
 
 Manual follow-ups (in priority order):
   1. Add GitHub Secrets to repo for daily Actions CloudFront sync:
      - AWS_ACCESS_KEY_ID
      - AWS_SECRET_ACCESS_KEY
      - CLOUDFRONT_DIST_ID = E3V9RBJ247GXR1
-  2. Add daily percentile refresh step to .github/workflows/daily-update.yml
+  2. Add daily percentile refresh step to .github/workflows/daily-update.yml:
+     - name: Recompute percentile rankings
+       run: python3 tools/compute_percentiles.py
   3. Verify CloudFront frontend stable, then decide on Vercel sunset
+  4. (Local-only) `gh auth setup-git` to fix git push hangs — osxkeychain
+     was prompting for confirmation that never came through. gh CLI keyring works.
+  5. Investigate App Runner memory headroom. The OOM was tight; if more data
+     is added (more match charting, larger Glicko cache), bump to 4GB or
+     move to Docker-based App Runner.
 
 Production URLs verified:
   Backend:    https://su7vqmgkbd.us-east-1.awsapprunner.com
   Vercel:     https://tennisiq-one.vercel.app
   CloudFront: https://d3aogk1vtnp91d.cloudfront.net
 
-Phase G production verification output appended below.
+Final production verification (after column-prune redeploy):
+  - Nadal: tier=legendary, retired=True, label="Peak: 2013" ✓
+  - Federer: tier=legendary, retired=True, label="Peak: 2007" ✓
+  - Live tournament: Italian Open (Clay, Slow CPI) ✓
+  - Just finished: Madrid Open ✓
+  - Next upcoming: Roland Garros ✓
+  - Outliers: Sinner #1 in 3-set win rate, 98th in tiebreaks ✓
+  - Rome weather: 18C, 66% humidity ✓
+  - Headshot: HTTP 200 (placeholder SVG; ATP origin blocked by Cloudflare,
+              cache PNGs excluded by .dockerignore) ✓
+  - Sinner volley/footwork: pending App Runner redeploy as of completion;
+    will be populated once column-pruned parquet load deploys

@@ -21,7 +21,7 @@
 | D — Percentile outlier engine | PASS | 17 stats × 1857 qualifying players; Djokovic #1 tiebreaks, Sinner top three-set WR |
 | E — Tournament hero + weather | PASS | Open-Meteo (no key, 1hr cache), court speed badge, expandable hero on tournament.html |
 | F — Local verification | PASS | 7/7 checks pass |
-| G — Deploy | IN PROGRESS at time of writing | Vercel + S3+CloudFront synced; App Runner cold-starting (8 min) |
+| G — Deploy | PASS (with mid-flight fix) | Vercel + S3+CloudFront synced. App Runner OOM-killed first deploy on engine load (parsed_points parquet + existing models exceeded 2GB). Mitigated by column-pruning the parquet read (commit 82f3ed9b) and S3 swap. Final prod verifies all Phase F checks. |
 | H — Handoff + report | PASS | TENNISIQ_HANDOFF_V3_3.md updated; this report |
 
 ---
@@ -65,6 +65,17 @@ If any production check fails after 8-min wait, see `_session10_failures.txt` an
 4. **Calendar maintenance.** `data/processed/atp_calendar_2026.json` is hardcoded for 2026. At year-end, copy to `atp_calendar_2027.json` and update dates. A future session could automate by scraping ATP tour schedule.
 
 5. **Live tournament results.** Italian Open results currently come from supplemental_matches_2025_2026.csv which lags by a day or two via the daily scraper. For real-time, integrate an actual live-scores API (paid, e.g. SportRadar; free options exist but with delays).
+
+---
+
+## Mid-Flight Issues + Mitigations
+
+**Git push hung silently for ~30 minutes during Phase G/H.** The macOS osxkeychain credential helper required interactive confirmation to release the GitHub token, which is impossible inside a non-interactive shell. `/usr/bin/git push` would print "Pushing to..." and hang indefinitely with no error. Resolved by running `gh auth setup-git` which configures git to use the GitHub CLI's keyring directly — push then completed instantly.
+
+**App Runner OOM-killed uvicorn on first /predict request.** The new code's eager `_ensure_parsed_points()` download succeeded (22MB on disk) but then `_compute_attribute_proxies()` did `pd.read_parquet(PARQUET)` which loaded all columns into memory. Combined with existing glicko/attributes/ML models, peak memory exceeded the 2GB App Runner limit. Mitigated in two steps:
+1. Temporarily moved `parsed_points.parquet` → `parsed_points.parquet.bak` in S3 to break the OOM restart loop. Engine then loaded without proxies (volley/footwork null, same as Session 9 baseline).
+2. Pushed memory-fix commit 82f3ed9b that loads only the 5 columns needed for proxies (Player 1, Player 2, PtWinner, rally_length, last_shot_type) and frees the DataFrame after computation.
+3. Restored `parsed_points.parquet` to S3 once the fix was on main; App Runner auto-redeployed.
 
 ---
 
