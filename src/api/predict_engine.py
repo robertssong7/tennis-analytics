@@ -58,34 +58,50 @@ PARSED_POINTS_S3_URL = (
 def _ensure_parsed_points() -> str:
     """Download parsed_points.parquet from S3 if not present locally.
     Returns local path if file is present (or successfully downloaded), else ''.
-    Idempotent and safe to call at module load and again at engine init."""
+    Idempotent and safe to call at module load and again at engine init.
+    Uses a 30-second socket timeout so a hanging S3 connection cannot
+    block uvicorn startup (App Runner health-check would kill us)."""
     import os
+    import socket
     import urllib.request
 
     local_path = str(PARSED_POINTS_PATH)
     if os.path.exists(local_path) and os.path.getsize(local_path) > 1_000_000:
         return local_path
     os.makedirs(os.path.dirname(local_path), exist_ok=True)
+    # Save and restore the global socket default so we don't leak the timeout
+    # to the rest of the process (urlretrieve has no timeout argument).
+    prev_default = socket.getdefaulttimeout()
     try:
+        socket.setdefaulttimeout(30)
         urllib.request.urlretrieve(PARSED_POINTS_S3_URL, local_path)
         size = os.path.getsize(local_path)
         print(f"[parsed_points] downloaded {size:,} bytes from S3", flush=True)
         return local_path
     except Exception as e:
         print(f"[parsed_points] S3 download failed: {e}", flush=True)
+        # Clean up partial file
+        try:
+            if os.path.exists(local_path) and os.path.getsize(local_path) < 1_000_000:
+                os.remove(local_path)
+        except Exception:
+            pass
         return ""
+    finally:
+        socket.setdefaulttimeout(prev_default)
 
 
 # Eager: pull parsed_points at module import so any subsequent reader sees the file.
-_ensure_parsed_points()
-if PARSED_POINTS_PATH.exists():
-    try:
+# Wrapped in try/except as a final safety net — module import must never raise.
+try:
+    _ensure_parsed_points()
+    if PARSED_POINTS_PATH.exists():
         _pp_size = PARSED_POINTS_PATH.stat().st_size
         print(f"[parsed_points] available locally: {_pp_size:,} bytes", flush=True)
-    except Exception:
-        pass
-else:
-    print("[parsed_points] NOT available — pattern endpoints + proxies will degrade", flush=True)
+    else:
+        print("[parsed_points] NOT available — pattern endpoints + proxies will degrade", flush=True)
+except Exception as _e:
+    print(f"[parsed_points] eager-load error (continuing without): {_e}", flush=True)
 
 
 def _is_retired(last_match_date_str):
