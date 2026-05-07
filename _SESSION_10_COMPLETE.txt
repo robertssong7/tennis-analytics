@@ -1,0 +1,24 @@
+======================================
+SESSION 10 RUN COMPLETE
+======================================
+
+Read these files for details:
+  _SESSION_10_REPORT.md        Full report
+  _session10_failures.txt      Anything that skipped or failed (should be empty)
+  _collab_changes_s10.md       What collaborators changed since Session 9
+  TENNISIQ_HANDOFF_V3_3.md     Updated handoff doc
+
+Manual follow-ups (in priority order):
+  1. Add GitHub Secrets to repo for daily Actions CloudFront sync:
+     - AWS_ACCESS_KEY_ID
+     - AWS_SECRET_ACCESS_KEY
+     - CLOUDFRONT_DIST_ID = E3V9RBJ247GXR1
+  2. Add daily percentile refresh step to .github/workflows/daily-update.yml
+  3. Verify CloudFront frontend stable, then decide on Vercel sunset
+
+Production URLs verified:
+  Backend:    https://su7vqmgkbd.us-east-1.awsapprunner.com
+  Vercel:     https://tennisiq-one.vercel.app
+  CloudFront: https://d3aogk1vtnp91d.cloudfront.net
+
+Phase G production verification output appended below.
