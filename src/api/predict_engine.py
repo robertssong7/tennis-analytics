@@ -15,10 +15,11 @@ CPU-only: torch.set_num_threads(1) called before any PyTorch ops (if ever used).
 """
 
 import math
+import json
 import pickle
 import difflib
 import re
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Optional
 import logging
@@ -38,14 +39,41 @@ SACKMANN_DIR = BASE / "data" / "sackmann" / "tennis_atp"
 SURFACE_CODE = {"hard": 0, "clay": 1, "grass": 2}
 SURFACE_CPI = {"hard": 36.0, "clay": 24.5, "grass": 37.0}
 
-# Retirement threshold: 18 months (548 days)
-RETIREMENT_THRESHOLD_DAYS = 548
+# Retirement threshold: ~14 months. Conservative — avoids flagging injured players
+# but catches genuine retirements (Nadal, Federer, Murray, Wawrinka post-career).
+RETIREMENT_THRESHOLD_DAYS = 425
 
 # Will be set dynamically after Glicko data loads (max last_match_date across all players).
 # Fallback to Dec 2024 if Glicko hasn't loaded yet.
 LATEST_DATA_DATE = date(2024, 12, 31)
 
 SUPPLEMENTAL_CSV = DATA_DIR / "supplemental_matches_2025_2026.csv"
+PEAK_ELO_PATH = DATA_DIR / "peak_elo.json"
+
+
+def _is_retired(last_match_date_str):
+    """Return True if last match was more than RETIREMENT_THRESHOLD_DAYS ago.
+    Accepts an ISO-format date string (YYYY-MM-DD). Returns False on bad input."""
+    if not last_match_date_str:
+        return False
+    try:
+        last = datetime.fromisoformat(last_match_date_str)
+    except (ValueError, TypeError):
+        return False
+    return (datetime.now() - last).days > RETIREMENT_THRESHOLD_DAYS
+
+
+def _is_retired_dt(last_match_dt):
+    """Date-object variant of _is_retired for callers holding a date/datetime."""
+    if last_match_dt is None:
+        return False
+    if isinstance(last_match_dt, datetime):
+        last_dt = last_match_dt
+    elif isinstance(last_match_dt, date):
+        last_dt = datetime(last_match_dt.year, last_match_dt.month, last_match_dt.day)
+    else:
+        return False
+    return (datetime.now() - last_dt).days > RETIREMENT_THRESHOLD_DAYS
 
 
 def _build_supplemental_name_map(glicko_names: list) -> dict:
@@ -258,6 +286,16 @@ class PredictEngine:
             self.attributes = pickle.load(f)
         logger.info(f"  ✓ Player attributes loaded ({len(self.attributes):,} players)")
 
+        # Load peak Elo data (per-player peak ratings + last match date).
+        self.peak_elo_data = {}
+        if PEAK_ELO_PATH.exists():
+            try:
+                with open(PEAK_ELO_PATH, "r") as f:
+                    self.peak_elo_data = json.load(f)
+                logger.info(f"  ✓ Peak Elo data loaded ({len(self.peak_elo_data):,} players)")
+            except Exception as e:
+                logger.warning(f"  Could not load peak_elo.json: {e}")
+
         # Build player name list from glicko2 (has all players)
         self.player_names = sorted(self.glicko.ratings.keys())
 
@@ -287,8 +325,33 @@ class PredictEngine:
             f"  ✓ Attribute proxies computed ({len(self.attribute_proxies)} players)"
         )
 
+        # Audit: list top retired players from peak_elo data
+        self._audit_retired_players()
+
         self._loaded = True
         logger.info("PredictEngine: ready.")
+
+    def _audit_retired_players(self):
+        """Log the top-10 retired players (by peak Elo) for sanity-check on cold start."""
+        if not self.peak_elo_data:
+            return
+        flagged = []
+        for name, data in self.peak_elo_data.items():
+            if _is_retired(data.get("last_match_date")):
+                flagged.append(
+                    (
+                        name,
+                        data.get("peak_elo"),
+                        data.get("peak_year"),
+                        data.get("last_match_date"),
+                    )
+                )
+        flagged.sort(key=lambda x: x[1] or 0, reverse=True)
+        logger.info(
+            f"  [retired] {len(flagged)} players flagged retired. Top 10 by peak:"
+        )
+        for name, peak, year, last in flagged[:10]:
+            logger.info(f"    {name}: peak {peak} ({year}), last match {last}")
 
     def _compute_attribute_averages(self):
         """Compute ATP-wide averages for each attribute, excluding default values."""
@@ -1448,12 +1511,14 @@ class PredictEngine:
         surface = surface.lower()
         p1g = self._get_glicko_state(canonical, surface)
 
-        # Retirement detection: no match in 18+ months from latest data date
-        is_retired = False
-        if p1g["last_match_date"] is not None:
-            days_since = (LATEST_DATA_DATE - p1g["last_match_date"]).days
-            if days_since > RETIREMENT_THRESHOLD_DAYS and p1g["match_count"] > 20:
-                is_retired = True
+        # Retirement detection: 14+ months since last match (datetime.now() vs glicko date).
+        # Glicko's last_match_date is fed by Sackmann + supplemental, so it's current
+        # for active players (Djokovic 2026-03) and stale-correctly for retirees (Nadal 2024-11).
+        peak_elo_entry = self.peak_elo_data.get(canonical, {}) if self.peak_elo_data else {}
+        is_retired = (
+            _is_retired_dt(p1g["last_match_date"])
+            and p1g["match_count"] > 20
+        )
 
         # Form modifier from recent form
         form_data = self.player_form.get(canonical, {})
@@ -1506,8 +1571,15 @@ class PredictEngine:
             }
         )
 
-        # Peak year
-        peak_year = p1g["peak_date"].year if p1g["peak_date"] else None
+        # Peak year — prefer Elo-based peak from peak_elo.json (trained over full
+        # career), fall back to glicko peak date.
+        peak_year = None
+        if peak_elo_entry.get("peak_year"):
+            peak_year = int(peak_elo_entry["peak_year"])
+        elif p1g["peak_date"]:
+            peak_year = p1g["peak_date"].year
+
+        rating_label = f"Peak: {peak_year}" if (is_retired and peak_year) else None
 
         # Surface ratings
         surfaces_out = {}
@@ -1569,6 +1641,7 @@ class PredictEngine:
             "form_modifier": rating["form_modifier"],
             "is_retired": is_retired,
             "peak_year": peak_year,
+            "rating_label": rating_label,
             "glow": rating["has_glow"],
             "glow_direction": rating["glow_direction"],
             "elo": round(p1g["mu_all"], 1),

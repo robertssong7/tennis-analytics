@@ -54,19 +54,31 @@ def compute_peak_elo():
 
     # Run Elo calculation
     elo = {}  # player -> current Elo
-    peak = {}  # player -> {peak_elo, peak_year, last_match_year, total_matches}
+    peak = {}  # player -> {peak_elo, peak_year, last_match_year, last_match_date, total_matches}
     K = 32
+
+    def _to_iso(tdate):
+        if tdate <= 0:
+            return None
+        s = str(tdate)
+        if len(s) != 8:
+            return None
+        try:
+            return f"{s[0:4]}-{s[4:6]}-{s[6:8]}"
+        except Exception:
+            return None
 
     for tdate, winner, loser in matches:
         year = tdate // 10000 if tdate > 0 else 0
+        iso_date = _to_iso(tdate)
 
         # Initialize if needed
         if winner not in elo:
             elo[winner] = 1500.0
-            peak[winner] = {"peak_elo": 1500.0, "peak_year": year, "last_match_year": year, "total_matches": 0}
+            peak[winner] = {"peak_elo": 1500.0, "peak_year": year, "last_match_year": year, "last_match_date": iso_date, "total_matches": 0}
         if loser not in elo:
             elo[loser] = 1500.0
-            peak[loser] = {"peak_elo": 1500.0, "peak_year": year, "last_match_year": year, "total_matches": 0}
+            peak[loser] = {"peak_elo": 1500.0, "peak_year": year, "last_match_year": year, "last_match_date": iso_date, "total_matches": 0}
 
         # Expected scores
         ew = 1.0 / (1.0 + 10.0 ** ((elo[loser] - elo[winner]) / 400.0))
@@ -79,8 +91,12 @@ def compute_peak_elo():
         peak[winner]["total_matches"] += 1
         peak[loser]["total_matches"] += 1
         if year > 0:
-            peak[winner]["last_match_year"] = max(peak[winner]["last_match_year"], year)
-            peak[loser]["last_match_year"] = max(peak[loser]["last_match_year"], year)
+            if year >= peak[winner]["last_match_year"]:
+                peak[winner]["last_match_year"] = year
+                peak[winner]["last_match_date"] = iso_date or peak[winner]["last_match_date"]
+            if year >= peak[loser]["last_match_year"]:
+                peak[loser]["last_match_year"] = year
+                peak[loser]["last_match_date"] = iso_date or peak[loser]["last_match_date"]
 
         if elo[winner] > peak[winner]["peak_elo"]:
             peak[winner]["peak_elo"] = elo[winner]
@@ -98,6 +114,7 @@ def compute_peak_elo():
             "current_elo": round(float(elo[player]), 1),
             "peak_year": int(data["peak_year"]),
             "last_match_year": int(data["last_match_year"]),
+            "last_match_date": data.get("last_match_date"),
             "total_matches": int(data["total_matches"]),
         }
 
@@ -112,7 +129,7 @@ def compute_peak_elo():
                   "Jannik Sinner", "Carlos Alcaraz"]:
         d = result.get(name)
         if d:
-            print(f"  {name:20s}  peak={d['peak_elo']:7.1f}  year={d['peak_year']}  last={d['last_match_year']}  matches={d['total_matches']}")
+            print(f"  {name:20s}  peak={d['peak_elo']:7.1f}  year={d['peak_year']}  last_date={d.get('last_match_date')}  matches={d['total_matches']}")
         else:
             print(f"  {name:20s}  NOT FOUND")
 
