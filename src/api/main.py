@@ -1366,16 +1366,23 @@ def player_conditions(
     conditions = []
     missing_categories = []
 
+    # Sample-size cutoffs: previously 10. Halved so partial coverage shows with
+    # a low_sample flag. Anything below MIN_TOTAL is still dropped.
+    MIN_TOTAL = 5
+    LOW_SAMPLE_CUTOFF = 10
+
     def _make_cond(name_str, subset, category):
         wins = int(subset['won'].sum())
-        losses = int(len(subset) - wins)
+        n = int(len(subset))
+        losses = n - wins
         return {
             "condition": name_str,
-            "win_rate": float(round(wins / len(subset), 3)),
+            "win_rate": float(round(wins / n, 3)),
             "wins": wins,
             "losses": losses,
-            "matches": int(len(subset)),
-            "category": category
+            "matches": n,
+            "category": category,
+            "low_sample": n < LOW_SAMPLE_CUTOFF,
         }
 
     # Build CPI map for court speed + ball type from court_speed.csv
@@ -1434,10 +1441,10 @@ def player_conditions(
     # ── Climate: aggregated weather buckets ──
     has_climate = False
     climate_labeled = all_matches[all_matches['_climate'].notna()]
-    if len(climate_labeled) >= 10:
+    if len(climate_labeled) >= MIN_TOTAL:
         for bucket_name in sorted(climate_labeled['_climate'].unique()):
             bucket = climate_labeled[climate_labeled['_climate'] == bucket_name]
-            if len(bucket) >= 5:
+            if len(bucket) >= MIN_TOTAL:
                 conditions.append(_make_cond(bucket_name, bucket, "climate"))
                 has_climate = True
     if not has_climate:
@@ -1453,17 +1460,17 @@ def player_conditions(
 
         cpi_matches = all_matches[all_matches['_cpi'].notna()]
         has_court_speed = False
-        if len(cpi_matches) >= 10:
+        if len(cpi_matches) >= MIN_TOTAL:
             for label, lo, hi in [('Slow (CPI < 30)', 0, 30), ('Medium (CPI 30-40)', 30, 40), ('Fast (CPI > 40)', 40, 100)]:
                 bucket = cpi_matches[(cpi_matches['_cpi'] >= lo) & (cpi_matches['_cpi'] < hi)]
-                if len(bucket) >= 10:
+                if len(bucket) >= MIN_TOTAL:
                     conditions.append(_make_cond(label, bucket, "court_speed"))
                     has_court_speed = True
 
         if not has_court_speed:
             for surf, label in [('Clay', 'Slow (est.)'), ('Hard', 'Medium (est.)'), ('Grass', 'Fast (est.)')]:
                 bucket = all_matches[all_matches['surface'] == surf]
-                if len(bucket) >= 10:
+                if len(bucket) >= MIN_TOTAL:
                     conditions.append(_make_cond(label, bucket, "court_speed"))
                     has_court_speed = True
 
@@ -1482,7 +1489,7 @@ def player_conditions(
 
         ball_matches = all_matches[all_matches['_ball'].notna() & (all_matches['_ball'] != '')]
         has_ball = False
-        if len(ball_matches) >= 10:
+        if len(ball_matches) >= MIN_TOTAL:
             # Split combined ball types like "Penn/Head" into separate entries
             expanded_rows = []
             for idx, row in ball_matches.iterrows():
@@ -1500,7 +1507,7 @@ def player_conditions(
                 ball_expanded = pd.DataFrame(expanded_rows)
                 for ball_name in sorted(ball_expanded['_ball'].unique()):
                     bucket = ball_expanded[ball_expanded['_ball'] == ball_name]
-                    if len(bucket) >= 10:
+                    if len(bucket) >= MIN_TOTAL:
                         conditions.append(_make_cond(ball_name, bucket, "ball_type"))
                         has_ball = True
 
@@ -1512,7 +1519,7 @@ def player_conditions(
         has_court_speed = False
         for surf, label in [('Clay', 'Slow (est.)'), ('Hard', 'Medium (est.)'), ('Grass', 'Fast (est.)')]:
             bucket = all_matches[all_matches['surface'] == surf]
-            if len(bucket) >= 10:
+            if len(bucket) >= MIN_TOTAL:
                 conditions.append(_make_cond(label, bucket, "court_speed"))
                 has_court_speed = True
         if not has_court_speed:
@@ -1520,8 +1527,9 @@ def player_conditions(
         missing_categories.append("ball_type")
         all_matches.drop(columns=['_year', '_tname_lower', '_climate', '_court'], errors='ignore', inplace=True)
 
-    # Filter out conditions with fewer than 10 matches
-    conditions = [c for c in conditions if c['matches'] >= 10]
+    # Drop only those below the new (lower) MIN_TOTAL cutoff. Anything between
+    # MIN_TOTAL and LOW_SAMPLE_CUTOFF stays but carries the low_sample flag.
+    conditions = [c for c in conditions if c['matches'] >= MIN_TOTAL]
 
     # Sort and assign display_mode per category
     by_category = {"climate": [], "court_speed": [], "ball_type": []}
