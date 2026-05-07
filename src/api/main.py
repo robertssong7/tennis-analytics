@@ -1849,112 +1849,116 @@ async def match_insight(request: Request):
 @app.get("/player/{name}/surface-dna")
 async def player_surface_dna(name: str):
     """Per-surface identity analysis — how a player's game changes across surfaces."""
-    engine = _get_engine()
-    matched = engine.find_player(name)
-    if not matched:
-        return {"available": False, "reason": "Player not found"}
+    try:
+        engine = _get_engine()
+        matched = engine.find_player(name)
+        if not matched:
+            return {"available": False, "reason": "Player not found"}
 
-    card = engine.get_player_card(matched)
-    if not card:
-        return {"available": False, "reason": "Player data unavailable"}
+        card = engine.get_player_card(matched, "hard")
+        if not card:
+            return {"available": False, "reason": "Player data unavailable"}
 
-    surfaces_data = card.get("surfaces", {})
-    attributes = card.get("attributes", {})
-    overall = float(card.get("overall", 0))
+        surfaces_data = card.get("surfaces", {})
+        attributes = card.get("attributes", {})
+        overall = float(card.get("overall", 0))
 
-    if not surfaces_data:
-        return {"available": False, "reason": "No surface data available"}
+        if not surfaces_data:
+            return {"available": False, "reason": "No surface data available"}
 
-    surface_names = {"hard": "Hard Court", "clay": "Clay Court", "grass": "Grass Court"}
-    surface_colors = {"hard": "#4A90D9", "clay": "#D4724E", "grass": "#5AA469"}
+        surface_names = {"hard": "Hard Court", "clay": "Clay Court", "grass": "Grass Court"}
+        surface_colors = {"hard": "#4A90D9", "clay": "#D4724E", "grass": "#5AA469"}
 
-    profiles = {}
-    best_surface = max(surfaces_data.items(), key=lambda x: float(x[1]))
-    worst_surface = min(surfaces_data.items(), key=lambda x: float(x[1]))
-    last_name = matched.split()[-1] if len(matched.split()) > 1 else matched
+        profiles = {}
+        best_surface = max(surfaces_data.items(), key=lambda x: float(x[1]))
+        worst_surface = min(surfaces_data.items(), key=lambda x: float(x[1]))
+        last_name = matched.split()[-1] if len(matched.split()) > 1 else matched
 
-    for surf, rating in surfaces_data.items():
-        rating = float(rating)
-        diff_from_overall = rating - overall
+        for surf, rating in surfaces_data.items():
+            rating = float(rating)
+            diff_from_overall = rating - overall
 
-        if diff_from_overall > 3:
-            identity = "thrives"
-            narrative = f"This is where {last_name} elevates. "
-        elif diff_from_overall > 0:
-            identity = "comfortable"
-            narrative = f"A solid surface that suits {last_name}'s game. "
-        elif diff_from_overall > -3:
-            identity = "neutral"
-            narrative = "Neither an advantage nor a liability. "
+            if diff_from_overall > 3:
+                identity = "thrives"
+                narrative = f"This is where {last_name} elevates. "
+            elif diff_from_overall > 0:
+                identity = "comfortable"
+                narrative = f"A solid surface that suits {last_name}'s game. "
+            elif diff_from_overall > -3:
+                identity = "neutral"
+                narrative = "Neither an advantage nor a liability. "
+            else:
+                identity = "vulnerable"
+                narrative = "A surface that exposes weaknesses. "
+
+            if surf == "clay":
+                endurance = float(attributes.get("endurance", 50))
+                groundstroke = float(attributes.get("groundstroke", 50))
+                if endurance > 80:
+                    narrative += f"High endurance ({int(endurance)}) helps grind through long clay rallies. "
+                if groundstroke > 75:
+                    narrative += f"Strong groundstrokes ({int(groundstroke)}) provide the heavy topspin clay demands."
+                elif groundstroke < 55:
+                    narrative += f"Groundstroke rating ({int(groundstroke)}) may struggle against clay-court baseliners."
+            elif surf == "grass":
+                serve = float(attributes.get("serve", 50))
+                volley = float(attributes.get("volley", 50))
+                if serve > 75:
+                    narrative += f"Big serve ({int(serve)}) translates well to fast grass conditions. "
+                if volley > 60:
+                    narrative += f"Net skills ({int(volley)}) allow effective serve-and-volley tactics."
+                elif volley < 40:
+                    narrative += f"Limited net game ({int(volley)}) means relying on baseline play even on grass."
+            elif surf == "hard":
+                mental = float(attributes.get("mental", 50))
+                clutch = float(attributes.get("clutch", 50))
+                serve = float(attributes.get("serve", 50))
+                if mental > 75 and clutch > 75:
+                    narrative += f"Mental strength ({int(mental)}) and clutch play ({int(clutch)}) thrive in hard-court pressure points."
+                elif serve > 70:
+                    narrative += f"Serve ({int(serve)}) anchors the game on the sport's most common surface."
+
+            profiles[surf] = {
+                "surface": surf,
+                "surface_name": surface_names.get(surf, surf),
+                "rating": float(rating),
+                "diff_from_overall": round(float(diff_from_overall), 1),
+                "identity": identity,
+                "narrative": narrative.strip(),
+                "color": surface_colors.get(surf, "#A8A9AD"),
+            }
+
+        spread = float(best_surface[1]) - float(worst_surface[1])
+        if spread < 3:
+            dna_type = "All-Court"
+            dna_summary = f"{matched} performs consistently across all surfaces. No clear weakness to exploit, no standout surface to target."
+        elif best_surface[0] == "clay":
+            dna_type = "Clay Specialist"
+            dna_summary = f"{matched}'s game is built for clay — patience, topspin, and endurance define the identity. Other surfaces require adaptation."
+        elif best_surface[0] == "grass":
+            dna_type = "Grass Specialist"
+            dna_summary = f"{matched} comes alive on grass. The fast, low-bouncing conditions reward the aggressive, serve-dominant style."
+        elif best_surface[0] == "hard":
+            dna_type = "Hard Court Specialist"
+            dna_summary = f"{matched} is most dangerous on hard courts — the neutral surface rewards the complete, well-rounded game."
         else:
-            identity = "vulnerable"
-            narrative = "A surface that exposes weaknesses. "
+            dna_type = "Balanced"
+            dna_summary = f"{matched} shows reasonable comfort across surfaces."
 
-        if surf == "clay":
-            endurance = float(attributes.get("endurance", 50))
-            groundstroke = float(attributes.get("groundstroke", 50))
-            if endurance > 80:
-                narrative += f"High endurance ({int(endurance)}) helps grind through long clay rallies. "
-            if groundstroke > 75:
-                narrative += f"Strong groundstrokes ({int(groundstroke)}) provide the heavy topspin clay demands."
-            elif groundstroke < 55:
-                narrative += f"Groundstroke rating ({int(groundstroke)}) may struggle against clay-court baseliners."
-        elif surf == "grass":
-            serve = float(attributes.get("serve", 50))
-            volley = float(attributes.get("volley", 50))
-            if serve > 75:
-                narrative += f"Big serve ({int(serve)}) translates well to fast grass conditions. "
-            if volley > 60:
-                narrative += f"Net skills ({int(volley)}) allow effective serve-and-volley tactics."
-            elif volley < 40:
-                narrative += f"Limited net game ({int(volley)}) means relying on baseline play even on grass."
-        elif surf == "hard":
-            mental = float(attributes.get("mental", 50))
-            clutch = float(attributes.get("clutch", 50))
-            serve = float(attributes.get("serve", 50))
-            if mental > 75 and clutch > 75:
-                narrative += f"Mental strength ({int(mental)}) and clutch play ({int(clutch)}) thrive in hard-court pressure points."
-            elif serve > 70:
-                narrative += f"Serve ({int(serve)}) anchors the game on the sport's most common surface."
-
-        profiles[surf] = {
-            "surface": surf,
-            "surface_name": surface_names.get(surf, surf),
-            "rating": float(rating),
-            "diff_from_overall": round(float(diff_from_overall), 1),
-            "identity": identity,
-            "narrative": narrative.strip(),
-            "color": surface_colors.get(surf, "#A8A9AD"),
+        return {
+            "available": True,
+            "player": matched,
+            "dna_type": dna_type,
+            "dna_summary": dna_summary,
+            "overall_rating": float(overall),
+            "best_surface": {"surface": best_surface[0], "rating": float(best_surface[1])},
+            "worst_surface": {"surface": worst_surface[0], "rating": float(worst_surface[1])},
+            "spread": round(float(spread), 1),
+            "profiles": profiles,
         }
-
-    spread = float(best_surface[1]) - float(worst_surface[1])
-    if spread < 3:
-        dna_type = "All-Court"
-        dna_summary = f"{matched} performs consistently across all surfaces. No clear weakness to exploit, no standout surface to target."
-    elif best_surface[0] == "clay":
-        dna_type = "Clay Specialist"
-        dna_summary = f"{matched}'s game is built for clay — patience, topspin, and endurance define the identity. Other surfaces require adaptation."
-    elif best_surface[0] == "grass":
-        dna_type = "Grass Specialist"
-        dna_summary = f"{matched} comes alive on grass. The fast, low-bouncing conditions reward the aggressive, serve-dominant style."
-    elif best_surface[0] == "hard":
-        dna_type = "Hard Court Specialist"
-        dna_summary = f"{matched} is most dangerous on hard courts — the neutral surface rewards the complete, well-rounded game."
-    else:
-        dna_type = "Balanced"
-        dna_summary = f"{matched} shows reasonable comfort across surfaces."
-
-    return {
-        "available": True,
-        "player": matched,
-        "dna_type": dna_type,
-        "dna_summary": dna_summary,
-        "overall_rating": float(overall),
-        "best_surface": {"surface": best_surface[0], "rating": float(best_surface[1])},
-        "worst_surface": {"surface": worst_surface[0], "rating": float(worst_surface[1])},
-        "spread": round(float(spread), 1),
-        "profiles": profiles,
-    }
+    except Exception as e:
+        logger.exception("surface-dna error for %s", name)
+        return {"available": False, "reason": str(e)}
 
 
 # ─────────────────────────────────────────────────────────────
