@@ -99,11 +99,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .attr-bar-fifa.tier-bronze{background:#CD7F32;}
 .attr-avg-line{position:absolute;top:-4px;width:2px;height:16px;background:#2C2C2C;z-index:2;border-radius:1px;}
 .attr-limited-text{font-family:'DM Mono',monospace;font-size:10px;color:#999;font-style:italic;flex:1;}
+.attr-info{font-family:'DM Sans',sans-serif;font-size:10px;color:#2C2C2C;opacity:0.4;cursor:help;margin-left:2px;position:relative;}
+.attr-info:hover{opacity:0.9;}
+.attr-source{font-family:'DM Mono',monospace;font-size:9px;color:#2C2C2C;opacity:0.5;margin-left:8px;flex-shrink:0;letter-spacing:0.04em;}
 
 /* ATTRIBUTE TOOLTIPS */
 .attr-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:0;background:#2C2C2C;color:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;padding:10px 14px;border-radius:8px;max-width:250px;line-height:1.5;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.2);pointer-events:none;white-space:normal;}
 .attr-tooltip::after{content:'';position:absolute;top:100%;left:20px;border:6px solid transparent;border-top-color:#2C2C2C;}
 .attr-name-fifa:hover .attr-tooltip,.attr-name-fifa:active .attr-tooltip{display:block;}
+.attr-info:hover .attr-tooltip,.attr-info:active .attr-tooltip{display:block;}
 
 /* WIN-LOSS */
 .wl-record{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.55);margin-top:4px;}
@@ -475,14 +479,26 @@ function renderHero(card) {
 
 /* ── Render Content ────────────────────────────────────── */
 var ATTR_TOOLTIPS = {
-  serve: "Based on ace rate, first serve win %, and serve points won across all charted matches",
-  groundstroke: "Composite of rally win rate, forehand/backhand consistency, and baseline point construction",
-  volley: "Net approach success rate and volley winner percentage from charted point data",
-  footwork: "Derived from defensive point saves, rally coverage, and movement-intensive point wins. Requires charted match data.",
-  endurance: "Performance in long rallies (10+ shots) and 3rd/5th set win rates over career",
-  durability: "Career longevity, match load tolerance, and consistency across a season",
-  clutch: "Break point conversion rate, tiebreak win rate, and deciding set performance",
-  mental: "Performance when down in score, comeback frequency, and pressure point win rate"
+  serve: "Composite of ace rate, 1st-serve %, and points won on serve. Source: Sackmann match data.",
+  groundstroke: "Composite of forehand and backhand effectiveness from charted points. Source: Match Charting Project.",
+  volley: "Net approach success rate and volley winners. Source: Match Charting Project (charted matches only).",
+  footwork: "Defensive movement and recovery shots. Source: Match Charting Project (charted matches only).",
+  endurance: "Performance in matches over 3 hours. Source: Sackmann match data.",
+  durability: "Career match volume and injury withdrawal rate. Source: Sackmann match data.",
+  clutch: "Performance in tiebreaks and deciding sets. Source: Sackmann match data.",
+  mental: "Comeback wins and BP-saved rate. Source: Sackmann match data."
+};
+
+// Per-attribute coverage label (Sackmann year range vs Match Charting Project).
+var ATTR_SOURCE_BADGE = {
+  serve: '1968\u20132024',
+  groundstroke: 'MCP charted',
+  volley: 'MCP charted',
+  footwork: 'MCP charted',
+  endurance: '1968\u20132024',
+  durability: '1968\u20132024',
+  clutch: '1968\u20132024',
+  mental: '1968\u20132024'
 };
 
 function renderAttrRow(a, attrs, averages) {
@@ -490,12 +506,14 @@ function renderAttrRow(a, attrs, averages) {
   var nullableAttrs = ['footwork','volley'];
   var score = attrs[a];
   var tooltip = '<span class="attr-tooltip">' + (ATTR_TOOLTIPS[a] || '') + '</span>';
+  var infoIcon = '<span class="attr-info">(?)' + tooltip + '</span>';
+  var srcBadge = '<span class="attr-source">' + (ATTR_SOURCE_BADGE[a] || '') + '</span>';
 
   // If footwork/volley is null, show insufficient data
   if (score == null && nullableAttrs.indexOf(a) >= 0) {
     return '<div class="attr-row-fifa">'
       + '<span class="attr-val-fifa limited">\u2014</span>'
-      + '<span class="attr-name-fifa">' + labels[a] + tooltip + '</span>'
+      + '<span class="attr-name-fifa">' + labels[a] + ' ' + infoIcon + '</span>'
       + '<span class="attr-limited-text">Insufficient data</span></div>';
   }
 
@@ -516,8 +534,13 @@ function renderAttrRow(a, attrs, averages) {
 
   return '<div class="attr-row-fifa">'
     + '<span class="attr-val-fifa">' + score + '</span>'
-    + '<span class="attr-name-fifa">' + labels[a] + tooltip + '</span>'
-    + '<div class="attr-bar-wrap-fifa"><div class="attr-bar-fifa ' + barTier + '" style="width:' + score + '%"></div>' + avgLine + '</div></div>';
+    + '<span class="attr-name-fifa">' + labels[a] + ' ' + infoIcon + '</span>'
+    + '<div class="attr-bar-wrap-fifa">'
+    + '<div class="attr-bar-fifa ' + barTier + '" style="width:' + score + '%"></div>'
+    + avgLine
+    + '</div>'
+    + srcBadge
+    + '</div>';
 }
 
 function renderOutliers(outliers, playerName) {
