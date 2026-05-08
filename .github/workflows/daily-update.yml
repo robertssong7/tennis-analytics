@@ -15,7 +15,7 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0
-          submodules: true
+          submodules: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -27,12 +27,16 @@ jobs:
 
       - name: Pull latest Sackmann data
         run: |
-          cd data/sackmann/tennis_atp
-          git pull origin master || git pull origin main || echo "Sackmann pull failed"
-          cd ../../..
+          if [ -d data/sackmann/tennis_atp/.git ]; then
+            cd data/sackmann/tennis_atp
+            git pull origin master || git pull origin main || echo "Sackmann pull failed"
+            cd ../../..
+          else
+            echo "Sackmann is not a git repo locally; skipping pull (files are direct)."
+          fi
 
-      - name: Run match scraper
-        run: python3 -u scripts/scrape_atp_results.py || echo "Scraper failed"
+      - name: Refresh supplement (tennis-data.co.uk)
+        run: python3 -u tools/refresh_supplement_data.py || echo "Supplement refresh failed"
 
       - name: Check for changes
         id: changes

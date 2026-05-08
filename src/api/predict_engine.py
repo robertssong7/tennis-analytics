@@ -882,6 +882,11 @@ class PredictEngine:
                 sup_df = pd.read_csv(SUPPLEMENTAL_CSV)
                 sup_df = sup_df.dropna(subset=["winner_name", "loser_name"])
                 suppl_count = 0
+                # Track per-player most recent match date from supplement.
+                # Glicko's pickled last_match_date can be months stale; we patch
+                # it in-memory so the retirement detector + system-status see
+                # current data even without a Glicko retrain.
+                latest_per_player: dict = {}
                 for _, row in sup_df.iterrows():
                     w_raw = str(row["winner_name"]).strip()
                     l_raw = str(row["loser_name"]).strip()
@@ -897,8 +902,35 @@ class PredictEngine:
                     )
                     _process_match(w, l, surf, tdate)
                     suppl_count += 1
+                    # Convert YYYYMMDD int to date and remember latest per player
+                    if tdate >= 19000101:
+                        try:
+                            d = pd.to_datetime(str(tdate), format="%Y%m%d").date()
+                            for p in (w, l):
+                                prev = latest_per_player.get(p)
+                                if prev is None or d > prev:
+                                    latest_per_player[p] = d
+                        except Exception:
+                            pass
+
+                # Patch glicko's last_match_date in-memory from supplement
+                patched = 0
+                for player, d in latest_per_player.items():
+                    surfaces = self.glicko.ratings.get(player)
+                    if not surfaces:
+                        continue
+                    r = surfaces.get("all")
+                    if r is None:
+                        continue
+                    if r.last_match_date is None or d > r.last_match_date:
+                        r.last_match_date = d
+                        patched += 1
+
                 logger.info(
                     f"  ✓ Supplemental matches loaded ({suppl_count} mapped out of {len(sup_df)})"
+                )
+                logger.info(
+                    f"  ✓ Glicko last_match_date patched for {patched} players from supplement"
                 )
             except Exception as e:
                 logger.warning(f"  Could not load supplemental matches: {e}")
