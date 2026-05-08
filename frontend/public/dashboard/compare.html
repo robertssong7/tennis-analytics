@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TennisIQ — Compare Players</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -51,6 +51,27 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .pred-meta-item{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);}.pred-meta-item strong{color:rgba(255,255,255,0.75);font-weight:500;}
 
 .footer{background:var(--ink);padding:28px 9%;display:flex;align-items:center;justify-content:space-between;margin-top:40px;}.footer-logo{display:flex;align-items:center;gap:10px;color:rgba(233,229,220,.7);font-family:'Playfair Display',serif;font-size:15px;}.footer-note{font-family:'DM Mono',monospace;font-size:10.5px;color:rgba(233,229,220,.3);}
+
+/* Mobile + tablet responsive */
+@media(max-width:1023px){
+  .page{padding:88px 5% 32px;}
+  .ctrl-row{grid-template-columns:1fr;gap:8px;}
+  .swap{margin:0 auto;}
+  .surf-select{justify-content:center;flex-wrap:wrap;}
+}
+@media(max-width:767px){
+  nav{padding:0 16px;height:62px;}
+  .nav-center{display:none;}
+  .nav-links{gap:12px;}.nav-links a{font-size:12.5px;}
+  .page{padding:74px 5% 32px;}
+  .pt{font-size:24px;}
+  .pred-panel{padding:18px 18px;}
+  .pred-name{font-size:14px;}
+  .pred-prob{font-size:32px !important;}
+  .pred-meta{gap:10px;font-size:10px;}
+  .surf-btn{padding:0 10px;height:42px;font-size:10px;}
+  .footer{flex-direction:column;gap:10px;text-align:center;padding:18px 5%;}
+}
 </style>
 </head>
 <body>

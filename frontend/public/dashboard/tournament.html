@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TennisIQ — Tournaments</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -30,6 +30,27 @@ table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card
 .cpv{font-family:'Playfair Display',serif;font-weight:700;font-size:16px;}.cpv.fast{color:var(--accent);}.cpv.slow{color:var(--warm);}
 .sdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}.sdot.hard{background:var(--hard);}.sdot.clay{background:var(--clay);}.sdot.grass{background:var(--grass);}.sdot.indoor{background:var(--ink-mid);}
 .footer{background:var(--ink);padding:28px 9%;display:flex;align-items:center;justify-content:space-between;margin-top:40px;}.footer-logo{display:flex;align-items:center;gap:10px;color:rgba(233,229,220,.7);font-family:'Playfair Display',serif;font-size:15px;}.footer-note{font-family:'DM Mono',monospace;font-size:10.5px;color:rgba(233,229,220,.3);}
+
+/* Mobile + tablet responsive */
+@media(max-width:1023px){
+  .sum-cards{grid-template-columns:repeat(2,1fr);}
+  .tg{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:767px){
+  nav{padding:0 16px;height:62px;}
+  .nav-center{display:none;}
+  .nav-links{gap:12px;}.nav-links a{font-size:12.5px;}
+  .page{padding:88px 5% 32px;}
+  .pt{font-size:24px;}
+  .ps{font-size:13px;}
+  .sum-cards{grid-template-columns:1fr 1fr;gap:8px;}
+  .sum-c{padding:12px;}
+  .sum-cpi{font-size:24px;}
+  .tg{grid-template-columns:1fr;gap:12px;}
+  table{font-size:12px;}
+  th,td{padding:8px 6px;}
+  .footer{flex-direction:column;gap:10px;text-align:center;padding:18px 5%;}
+}
 </style>
 </head>
 <body>

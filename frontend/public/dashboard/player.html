@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title id="pt">TennisIQ — Player Profile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -237,6 +237,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   .scenario-grid{grid-template-columns:1fr;}
   .footer-inner{grid-template-columns:1fr;}
   .page-content{padding:0 5%;}
+}
+@media(max-width:767px){
+  nav{padding:0 16px;height:62px;}
+  .nav-center{display:none;}
+  .nav-links{gap:12px;}.nav-links a{font-size:12.5px;}
+  .hero{padding-top:62px;}
+  .player-name{font-size:32px !important;}
+  .section{padding:24px 0;}
+  .sec-title{font-size:10px;margin-bottom:16px;}
+  .attr-row-fifa{padding:4px 0;gap:6px;}
+  .attr-source{display:none;}
+  .footer{padding:24px 5%;}
 }
 </style>
 </head>

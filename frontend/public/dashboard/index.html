@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TennisIQ — Tennis Intelligence Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -60,6 +60,32 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .c-info{padding:20px 22px;flex:1;display:flex;flex-direction:column;}.c-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:8px;}.c-desc{font-size:13px;color:var(--ink-soft);line-height:1.65;margin-bottom:14px;flex:1;}.c-tags{display:flex;gap:6px;flex-wrap:wrap;}.tag{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:100px;background:rgba(74,124,111,0.1);color:var(--accent);border:1px solid rgba(74,124,111,0.2);}
 
 .footer-band{background:var(--ink);padding:32px 9%;display:flex;align-items:center;justify-content:space-between;}.footer-logo{display:flex;align-items:center;gap:10px;color:rgba(233,229,220,.7);font-family:'Playfair Display',serif;font-size:15px;}.footer-logo .logo-mark{background:rgba(233,229,220,.1);border:1px solid rgba(233,229,220,.2);}.footer-note{font-family:'DM Mono',monospace;font-size:10.5px;color:rgba(233,229,220,.3);}
+
+/* Mobile + tablet responsive */
+@media(max-width:1023px){
+  .hero{grid-template-columns:1fr;}
+  .hero-right{padding:0 9% 60px;}
+  .hero-left{padding:80px 9% 40px;}
+}
+@media(max-width:767px){
+  nav{padding:0 16px;height:62px;}
+  .nav-center{display:none;}
+  .nav-links{gap:14px;}.nav-links a{font-size:12.5px;}
+  .hero{padding-top:62px;}
+  .hero-left{padding:32px 6% 24px;}
+  .hero-right{padding:0 6% 40px;}
+  .hero-stats{gap:18px;flex-wrap:wrap;padding-top:20px;}
+  .hero-title{font-size:36px !important;}
+  .tournament-section,.analytics-section{padding:36px 6%;}
+  .feed-grid{grid-template-columns:1fr !important;gap:14px;}
+  .a-cards{grid-template-columns:1fr !important;gap:12px;}
+  .fc{padding:22px 22px;}
+  .fc-name{font-size:24px;}
+  .fc-meta{grid-template-columns:repeat(2,1fr);gap:6px;}
+  .fm-val{font-size:18px;}
+  .t-banner{padding:18px 20px;gap:12px;}
+  .footer-band{flex-direction:column;gap:10px;text-align:center;padding:20px 6%;}
+}
 </style>
 </head>
 <body>
