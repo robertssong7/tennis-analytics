@@ -280,6 +280,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     <a href="tournament.html">Tournaments</a>
     <a href="odds.html">Odds<span class="soon-badge">Soon</span></a>
     <a href="about.html">About</a>
+    <a id="health-dot-link" href="status.html" title="System status" style="display:inline-flex;align-items:center;gap:6px;">
+      <span id="health-dot" style="width:8px;height:8px;border-radius:50%;background:#A8A9AD;display:inline-block;" title="Loading"></span>
+    </a>
   </div>
 </nav>
 
@@ -1141,6 +1144,18 @@ function _relTime(iso) {
   if (diff < 24) return Math.floor(diff) + 'h ago';
   return Math.floor(diff / 24) + 'd ago';
 }
+// Health dot in nav reflects /api/system-status
+fetch(API + '/api/system-status').then(function(r){return r.ok ? r.json() : null;}).then(function(d){
+  var dot = document.getElementById('health-dot');
+  if (!dot || !d) return;
+  var color = d.overall === 'healthy' ? '#5AA469' : d.overall === 'degraded' ? '#DAA520' : '#E24B4A';
+  var label = d.overall === 'healthy' ? 'All systems healthy' : d.overall === 'degraded' ? 'Some data is stale' : 'Data is stale';
+  dot.style.background = color;
+  dot.title = label;
+  var link = document.getElementById('health-dot-link');
+  if (link) link.title = label;
+}).catch(function(){});
+
 fetch(API + '/api/system-status').then(function(r){return r.ok ? r.json() : null;}).then(function(d){
   if (!d || !d.data_freshness) return;
   var f = d.data_freshness;
@@ -1148,7 +1163,7 @@ fetch(API + '/api/system-status').then(function(r){return r.ok ? r.json() : null
   if (!el) return;
   el.innerHTML = 'Data through ' + (f.matches_through || 'unknown') +
     ' · Predictions updated ' + _relTime(f.glicko_updated) +
-    ' · <a href="methodology.html" style="color:rgba(255,255,255,0.7);text-decoration:underline;">Methodology</a>';
+    ' · <a href="methodology.html" style="color:rgba(255,255,255,0.7);text-decoration:underline;">Methodology</a> · <a href="status.html" style="color:rgba(255,255,255,0.7);text-decoration:underline;">Status</a>';
 }).catch(function(){});
 </script>
 </body>

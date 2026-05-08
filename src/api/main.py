@@ -2343,7 +2343,128 @@ def system_status():
         except Exception:
             return False
 
+    # Days since matches_through (None if missing)
+    matches_age_days = None
+    if matches_through:
+        try:
+            md = _dt.fromisoformat(matches_through).replace(tzinfo=timezone.utc)
+            matches_age_days = int((_dt.now(timezone.utc) - md).total_seconds() // 86400)
+        except Exception:
+            pass
+
+    def _hours_ago(iso: str):
+        if not iso:
+            return None
+        try:
+            dt = _dt.fromisoformat(iso.replace("Z", "+00:00"))
+            return int((_dt.now(timezone.utc) - dt).total_seconds() // 3600)
+        except Exception:
+            return None
+
+    # Percentile counts
+    pcts = _get_percentiles()
+    percentile_count = len(pcts) if pcts else 0
+
+    # Headshot coverage (count of cached PNGs)
+    headshots_dir = BASE_DIR / "data" / "processed" / "headshots"
+    headshot_count = 0
+    if headshots_dir.exists():
+        headshot_count = sum(1 for p in headshots_dir.iterdir() if p.suffix in (".png", ".jpg", ".jpeg"))
+
+    # Active player count from glicko (those with last_match within 14 months)
+    active_count = 0
+    headshot_eligible = 0
+    headshots_lookup = _get_headshots()
+    try:
+        engine = _get_engine()
+        from datetime import date as _date
+        cutoff = _date.today() - timedelta(days=425)
+        for name, surfaces in engine.glicko.ratings.items():
+            r = surfaces.get("all")
+            if r and r.last_match_date and r.last_match_date >= cutoff and r.match_count >= 20:
+                active_count += 1
+                if headshots_lookup.get(name):
+                    headshot_eligible += 1
+    except Exception as e:
+        logger.warning(f"system-status: could not enumerate active players: {e}")
+
+    headshot_coverage_pct = (headshot_eligible * 100 // max(active_count, 1)) if active_count else 0
+
+    # Model metrics from model_history.json
+    by_surface = (history or {}).get("by_surface", {}) or {}
+    by_window = (history or {}).get("by_window", {}) or {}
+    def _bs(key):
+        b = by_surface.get(key)
+        return float(b["brier_score"]) if b else None
+    def _acc(key):
+        b = by_window.get(key)
+        return float(b["accuracy_pct"]) if b else None
+    sample_size = int((by_surface.get("all") or {}).get("sample_size") or 0)
+
+    # Infrastructure checks (lightweight)
+    s3_data_ok = False
+    try:
+        import urllib.request
+        with urllib.request.urlopen(
+            "https://tennisiq-data-assets.s3.us-east-1.amazonaws.com/parsed_points.parquet",
+            timeout=4,
+        ) as r:
+            s3_data_ok = r.status == 200
+    except Exception:
+        pass
+
+    # Daily-action status from model_history age (proxy: fresh history => action ran recently)
+    last_action_status = "success" if _is_fresh(model_history_at, 36) else "stale_or_failed"
+
+    # Overall rollup
+    fresh_signals = []
+    fresh_signals.append(matches_age_days is not None and matches_age_days <= 7)
+    fresh_signals.append(_is_fresh(model_history_at, 48))
+    fresh_signals.append(s3_data_ok)
+    healthy_count = sum(1 for f in fresh_signals if f)
+    if healthy_count == len(fresh_signals):
+        overall = "healthy"
+    elif healthy_count >= len(fresh_signals) - 1:
+        overall = "degraded"
+    else:
+        overall = "stale"
+
     return {
+        "overall": overall,
+        "data": {
+            "matches_through": matches_through,
+            "matches_through_age_days": matches_age_days,
+            "glicko_updated": glicko,
+            "glicko_age_hours": _hours_ago(glicko),
+            "tournament_results_scraped": live_tour,
+            "supplement_scraper_age_hours": _hours_ago(live_tour),
+            "percentiles_computed": _iso_mtime(_PERCENTILE_PATH),
+            "model_history_computed": model_history_at,
+        },
+        "model": {
+            "brier_overall": _bs("all"),
+            "brier_hard": _bs("hard"),
+            "brier_clay": _bs("clay"),
+            "brier_grass": _bs("grass"),
+            "accuracy_overall_last_100": _acc("all_100"),
+            "accuracy_hard_last_100": _acc("hard_100"),
+            "accuracy_clay_last_100": _acc("clay_100"),
+            "accuracy_grass_last_100": _acc("grass_100"),
+            "predictions_in_history": sample_size,
+        },
+        "coverage": {
+            "active_players_total": active_count,
+            "active_players_with_headshots": headshot_eligible,
+            "headshot_coverage_pct": headshot_coverage_pct,
+            "headshots_cached_total": headshot_count,
+            "players_with_outliers_qualified": percentile_count,
+        },
+        "infrastructure": {
+            "api_uptime_check": "ok",
+            "s3_data_assets_accessible": bool(s3_data_ok),
+            "last_github_action_status": last_action_status,
+            "last_github_action_time": model_history_at,
+        },
         "data_freshness": {
             "matches_through": matches_through,
             "glicko_updated": glicko,

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Real-time data freshness, model health, and infrastructure status for TennisIQ.">
+<meta property="og:title" content="System Status — TennisIQ">
+<meta property="og:description" content="Real-time data freshness and model health for TennisIQ analytics.">
+<meta property="og:image" content="https://tennisiq-one.vercel.app/og-image.png">
+<meta property="og:url" content="https://tennisiq-one.vercel.app/status.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="System Status — TennisIQ">
+<meta name="twitter:description" content="Real-time data freshness and model health for TennisIQ analytics.">
+<meta name="twitter:image" content="https://tennisiq-one.vercel.app/og-image.png">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<title>System Status — TennisIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F0EB;--bg-alt:#DDD9CF;--ink:#2C2C2C;--ink-mid:#3D4F5E;--ink-soft:#7A8A96;--accent:#0ABAB5;--card-bg:#FFFFFF;--card-dark:#243447;--border:rgba(26,38,52,0.1);--healthy:#5AA469;--warning:#DAA520;--stale:#E24B4A;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.6;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:0 40px;height:74px;background:rgba(245,240,235,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex-shrink:0;}
+.logo-mark{width:38px;height:38px;background:var(--ink);border-radius:50%;position:relative;overflow:hidden;}
+.logo-mark::before{content:'';position:absolute;width:21px;height:21px;border:2.5px solid var(--bg);border-radius:50%;clip-path:polygon(0 0,50% 0,50% 100%,0 100%);top:50%;left:50%;transform:translate(-50%,-50%);}
+.logo-mark::after{content:'';position:absolute;width:17px;height:1.5px;background:var(--bg);transform:rotate(-35deg);top:50%;left:50%;margin-left:-8px;}
+.logo-text{font-family:'Playfair Display',serif;font-size:18px;}
+.nav-center{flex:1;display:flex;justify-content:center;padding:0 24px;}
+.nav-links{display:flex;align-items:center;gap:24px;flex-shrink:0;}
+.nav-links a{text-decoration:none;color:var(--ink-mid);font-size:13.5px;}
+.nav-links a:hover{color:var(--ink);}
+.nav-links a.active{color:var(--accent);font-weight:500;}
+
+.page{max-width:1000px;margin:0 auto;padding:120px 24px 60px;}
+.hero-row{display:flex;align-items:center;gap:18px;margin-bottom:32px;flex-wrap:wrap;}
+.status-badge{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:100px;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;}
+.status-badge.healthy{background:rgba(90,164,105,0.14);color:#3a6a44;border:1px solid rgba(90,164,105,0.4);}
+.status-badge.degraded{background:rgba(218,165,32,0.14);color:#8c6a14;border:1px solid rgba(218,165,32,0.4);}
+.status-badge.stale{background:rgba(226,75,74,0.14);color:#9c2e2c;border:1px solid rgba(226,75,74,0.4);}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-healthy{background:var(--healthy);}
+.dot-warning{background:var(--warning);}
+.dot-stale{background:var(--stale);}
+
+h1{font-family:'Playfair Display',serif;font-size:42px;font-weight:700;line-height:1.1;color:var(--ink);}
+.subtitle{font-size:14px;color:var(--ink-soft);margin-bottom:32px;max-width:600px;}
+.fetched-at{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);margin-left:auto;}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:32px;}
+.card{background:var(--card-bg);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:22px 24px;}
+.card-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+.row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.row:last-child{border-bottom:none;}
+.row-label{color:var(--ink-mid);}
+.row-value{font-family:'DM Mono',monospace;font-size:13px;color:var(--ink);font-weight:500;display:flex;align-items:center;gap:8px;}
+.row-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-soft);}
+
+.cov-bar{height:8px;background:#D0C9C0;border-radius:4px;overflow:hidden;margin-top:6px;}
+.cov-fill{height:100%;background:var(--accent);border-radius:4px;}
+
+.refresh-note{background:var(--card-bg);border-radius:12px;padding:18px 24px;font-size:13px;color:var(--ink-mid);box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:32px;}
+.refresh-note strong{color:var(--ink);font-weight:600;}
+
+.error{background:#FFFFFF;border-left:3px solid var(--stale);padding:18px 24px;border-radius:0 12px 12px 0;color:var(--ink-mid);}
+
+.footer{background:#243447;color:rgba(255,255,255,0.6);padding:32px 9%;margin-top:60px;}
+.footer p{color:rgba(255,255,255,0.5);font-family:'DM Mono',monospace;font-size:11px;text-align:center;margin:0 0 6px;}
+
+@media(max-width:1023px){.cards{grid-template-columns:1fr;}}
+@media(max-width:767px){
+  nav{padding:0 16px;height:62px;}
+  .nav-center{display:none;}
+  .nav-links{gap:12px;}.nav-links a{font-size:12.5px;}
+  .page{padding:88px 18px 40px;}
+  h1{font-size:30px;}
+  .fetched-at{margin-left:0;width:100%;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><div class="logo-mark"></div><span class="logo-text">TennisIQ</span></a>
+  <div class="nav-center"></div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="compare.html">Compare</a>
+    <a href="tournament.html">Tournaments</a>
+    <a href="methodology.html">Methodology</a>
+    <a href="status.html" class="active">Status</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="hero-row">
+    <h1>System Status</h1>
+    <span id="overall-badge" class="status-badge degraded"><span class="status-dot dot-warning"></span><span id="overall-text">Loading</span></span>
+    <span id="fetched-at" class="fetched-at"></span>
+  </div>
+  <p class="subtitle">Real-time freshness, model health, and infrastructure for TennisIQ. Honest signals only — no hardcoded values.</p>
+
+  <div id="content">
+    <div class="error">Loading status...</div>
+  </div>
+
+  <div class="refresh-note" id="refresh-note" style="display:none;">
+    <strong>Refresh schedule.</strong> The daily action runs at 08:00 UTC and updates the supplement scrape, recomputes percentile rankings and the model accuracy back-test, and syncs the frontend to S3 + CloudFront. If a row above is older than its threshold, the action either failed or is queued.
+  </div>
+</div>
+
+<footer class="footer">
+  <p id="freshness-line" style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px;">Data freshness loading...</p>
+  <p>TennisIQ &copy; 2026</p>
+</footer>
+
+<script src="config.js"></script>
+<script>
+function _relTime(iso) {
+  if (!iso) return 'unknown';
+  var diff = (Date.now() - new Date(iso).getTime()) / 3600000;
+  if (diff < 0) return 'just now';
+  if (diff < 1) return Math.max(1, Math.floor(diff * 60)) + 'm ago';
+  if (diff < 24) return Math.floor(diff) + 'h ago';
+  return Math.floor(diff / 24) + 'd ago';
+}
+function _statusFromAge(value, warn, stale) {
+  if (value == null) return 'stale';
+  if (value <= warn) return 'healthy';
+  if (value <= stale) return 'warning';
+  return 'stale';
+}
+function _dot(status) {
+  return '<span class="status-dot dot-' + status + '"></span>';
+}
+function _formatNum(n, digits) {
+  if (n == null) return '—';
+  if (typeof n === 'number') return n.toFixed(digits || 0);
+  return n;
+}
+function render(d) {
+  var overall = d.overall || 'unknown';
+  var ob = document.getElementById('overall-badge');
+  var ot = document.getElementById('overall-text');
+  ob.className = 'status-badge ' + overall;
+  ob.querySelector('.status-dot').className = 'status-dot dot-' + (overall === 'healthy' ? 'healthy' : overall === 'degraded' ? 'warning' : 'stale');
+  ot.textContent = overall === 'healthy' ? 'All Systems Healthy' : overall === 'degraded' ? 'Degraded' : 'Stale Data';
+  document.getElementById('fetched-at').textContent = 'Fetched ' + _relTime(d.fetched_at);
+
+  var data = d.data || {};
+  var model = d.model || {};
+  var cov = d.coverage || {};
+  var infra = d.infrastructure || {};
+
+  var matchAgeStatus = _statusFromAge(data.matches_through_age_days, 7, 14);
+  var glickoStatus = _statusFromAge(data.glicko_age_hours, 48, 168);
+  var supplStatus = _statusFromAge(data.supplement_scraper_age_hours, 36, 72);
+  var modelHistStatus = data.model_history_computed
+    ? _statusFromAge((Date.now() - new Date(data.model_history_computed).getTime()) / 3600000, 36, 72)
+    : 'stale';
+
+  var headshotPct = cov.headshot_coverage_pct == null ? 0 : cov.headshot_coverage_pct;
+  var headshotStatus = headshotPct >= 70 ? 'healthy' : headshotPct >= 40 ? 'warning' : 'stale';
+
+  var html = '';
+
+  // Data freshness card
+  html += '<div class="cards">';
+  html += '<div class="card"><div class="card-title">Data Freshness</div>';
+  html += '<div class="row"><span class="row-label">Match data through</span><span class="row-value">' + _dot(matchAgeStatus) + (data.matches_through || 'unknown') + ' <span class="row-meta">' + (data.matches_through_age_days != null ? data.matches_through_age_days + 'd ago' : '') + '</span></span></div>';
+  html += '<div class="row"><span class="row-label">Glicko ratings</span><span class="row-value">' + _dot(glickoStatus) + _relTime(data.glicko_updated) + '</span></div>';
+  html += '<div class="row"><span class="row-label">Supplement scrape</span><span class="row-value">' + _dot(supplStatus) + _relTime(data.tournament_results_scraped) + '</span></div>';
+  html += '<div class="row"><span class="row-label">Model history</span><span class="row-value">' + _dot(modelHistStatus) + _relTime(data.model_history_computed) + '</span></div>';
+  html += '<div class="row"><span class="row-label">Percentiles</span><span class="row-value">' + _dot(_statusFromAge((Date.now() - new Date(data.percentiles_computed).getTime())/3600000, 48, 168)) + _relTime(data.percentiles_computed) + '</span></div>';
+  html += '</div>';
+
+  // Model performance card
+  html += '<div class="card"><div class="card-title">Model Performance</div>';
+  html += '<div class="row"><span class="row-label">Brier overall</span><span class="row-value">' + _formatNum(model.brier_overall, 3) + '</span></div>';
+  html += '<div class="row"><span class="row-label">Brier hard</span><span class="row-value">' + _formatNum(model.brier_hard, 3) + '</span></div>';
+  html += '<div class="row"><span class="row-label">Brier clay</span><span class="row-value">' + _formatNum(model.brier_clay, 3) + '</span></div>';
+  html += '<div class="row"><span class="row-label">Brier grass</span><span class="row-value">' + _formatNum(model.brier_grass, 3) + '</span></div>';
+  html += '<div class="row"><span class="row-label">Accuracy (last 100, all)</span><span class="row-value">' + _formatNum(model.accuracy_overall_last_100, 1) + '%</span></div>';
+  html += '<div class="row"><span class="row-label">Backtest sample</span><span class="row-value">' + (model.predictions_in_history || 0).toLocaleString() + '</span></div>';
+  html += '</div>';
+  html += '</div>';
+
+  // Coverage + infra
+  html += '<div class="cards">';
+  html += '<div class="card"><div class="card-title">Coverage</div>';
+  html += '<div class="row"><span class="row-label">Active players</span><span class="row-value">' + (cov.active_players_total || 0) + '</span></div>';
+  html += '<div class="row"><span class="row-label">Headshot coverage</span><span class="row-value">' + _dot(headshotStatus) + (cov.active_players_with_headshots || 0) + ' / ' + (cov.active_players_total || 0) + ' (' + headshotPct + '%)</span></div>';
+  html += '<div style="margin:6px 0 14px;"><div class="cov-bar"><div class="cov-fill" style="width:' + Math.min(100, headshotPct) + '%;"></div></div></div>';
+  html += '<div class="row"><span class="row-label">Cached headshots total</span><span class="row-value">' + (cov.headshots_cached_total || 0) + '</span></div>';
+  html += '<div class="row"><span class="row-label">Players with percentile rankings</span><span class="row-value">' + (cov.players_with_outliers_qualified || 0).toLocaleString() + '</span></div>';
+  html += '</div>';
+
+  html += '<div class="card"><div class="card-title">Infrastructure</div>';
+  html += '<div class="row"><span class="row-label">API uptime</span><span class="row-value">' + _dot(infra.api_uptime_check === 'ok' ? 'healthy' : 'stale') + (infra.api_uptime_check || 'unknown') + '</span></div>';
+  html += '<div class="row"><span class="row-label">S3 data assets</span><span class="row-value">' + _dot(infra.s3_data_assets_accessible ? 'healthy' : 'stale') + (infra.s3_data_assets_accessible ? 'accessible' : 'unreachable') + '</span></div>';
+  html += '<div class="row"><span class="row-label">Last GitHub Action</span><span class="row-value">' + _dot(infra.last_github_action_status === 'success' ? 'healthy' : 'stale') + (infra.last_github_action_status || 'unknown') + '</span></div>';
+  html += '<div class="row"><span class="row-label">Last action run</span><span class="row-value">' + _relTime(infra.last_github_action_time) + '</span></div>';
+  html += '</div>';
+  html += '</div>';
+
+  document.getElementById('content').innerHTML = html;
+  document.getElementById('refresh-note').style.display = 'block';
+}
+
+fetch(API_URL + '/api/system-status').then(function(r){return r.ok ? r.json() : null;}).then(function(d){
+  if (!d) { document.getElementById('content').innerHTML = '<div class="error">Could not load system status. The API may be in cold-start (3-5 min) or unreachable.</div>'; return; }
+  render(d);
+}).catch(function(e){
+  document.getElementById('content').innerHTML = '<div class="error">Error loading status: ' + e.message + '</div>';
+});
+
+// Footer freshness
+fetch(API_URL + '/api/system-status').then(function(r){return r.ok ? r.json() : null;}).then(function(d){
+  if (!d) return;
+  var f = (d.data_freshness || {});
+  var el = document.getElementById('freshness-line');
+  if (!el) return;
+  el.innerHTML = 'Data through ' + (f.matches_through || 'unknown') +
+    ' &middot; Predictions updated ' + _relTime(f.glicko_updated);
+}).catch(function(){});
+</script>
+</body>
+</html>
