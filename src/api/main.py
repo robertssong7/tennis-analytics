@@ -14,7 +14,7 @@ import math
 import os
 import sys
 from pathlib import Path
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from typing import Optional
 
 import psycopg2
@@ -2300,6 +2300,63 @@ def _get_model_history() -> dict:
         except Exception as e:
             logger.warning(f"Failed to load model_history.json: {e}")
     return _model_history_cache
+
+
+@app.get("/api/system-status")
+def system_status():
+    """Data freshness signals for the footer / live tournament hero. Reads
+    file mtimes for source-of-truth artifacts plus the latest match date
+    in the supplemental CSV. Cheap — no engine load required."""
+    BASE_DIR = Path(__file__).parent.parent.parent
+    DATA_DIR = BASE_DIR / "data" / "processed"
+
+    def _iso_mtime(path: Path):
+        if not path.exists():
+            return None
+        return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+
+    matches_through = None
+    suppl = DATA_DIR / "supplemental_matches_2025_2026.csv"
+    if suppl.exists():
+        try:
+            import pandas as _pd
+            mx = int(_pd.read_csv(suppl, usecols=["tourney_date"])["tourney_date"].max())
+            s = str(mx)
+            if len(s) == 8:
+                matches_through = f"{s[0:4]}-{s[4:6]}-{s[6:8]}"
+        except Exception:
+            pass
+
+    glicko = _iso_mtime(DATA_DIR / "glicko2_state.pkl")
+    live_tour = _iso_mtime(DATA_DIR / "live_tournament.json")
+    history = _get_model_history()
+    model_history_at = (history or {}).get("computed_at")
+
+    # Health rollup: stale if 36+ hours old
+    from datetime import datetime as _dt
+    def _is_fresh(iso: str, hours: int) -> bool:
+        if not iso:
+            return False
+        try:
+            dt = _dt.fromisoformat(iso.replace("Z", "+00:00"))
+            return (_dt.now(timezone.utc) - dt).total_seconds() < hours * 3600
+        except Exception:
+            return False
+
+    return {
+        "data_freshness": {
+            "matches_through": matches_through,
+            "glicko_updated": glicko,
+            "tournament_results_scraped": live_tour,
+            "model_history_computed": model_history_at,
+        },
+        "data_health": {
+            "live_tournament_results": "current" if _is_fresh(live_tour, 36) else "stale",
+            "predictions": "current" if _is_fresh(glicko, 72) else "stale",
+            "model_history": "current" if _is_fresh(model_history_at, 36) else "stale",
+        },
+        "fetched_at": _dt.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+    }
 
 
 @app.get("/api/model-accuracy")

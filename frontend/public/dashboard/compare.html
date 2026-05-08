@@ -99,7 +99,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
       <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">Jeff Sackmann / Tennis Abstract<br>Match Charting Project<br>Open-Meteo Historical Weather<br>ATP Tour Player Headshots</div>
     </div>
   </div>
-  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;"><p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">TennisIQ &copy; 2025</p></div>
+  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:16px 9%;text-align:center;">
+    <p id="freshness-line" style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px;">Data freshness loading...</p>
+    <p style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);">TennisIQ &copy; 2026</p>
+  </div>
 </footer>
 <script src="config.js"></script>
 <script src="autocomplete.js"></script>
@@ -455,6 +458,25 @@ setupAC('i1', 'dd1');
 setupAC('i2', 'dd2');
 
 if (n1 && n2) go();
+
+// Footer freshness line.
+function _relTime(iso) {
+  if (!iso) return 'unknown';
+  var diff = (Date.now() - new Date(iso).getTime()) / 3600000;
+  if (diff < 0) return 'just now';
+  if (diff < 1) return Math.max(1, Math.floor(diff * 60)) + 'm ago';
+  if (diff < 24) return Math.floor(diff) + 'h ago';
+  return Math.floor(diff / 24) + 'd ago';
+}
+fetch(API_URL + '/api/system-status').then(function(r){return r.ok ? r.json() : null;}).then(function(d){
+  if (!d || !d.data_freshness) return;
+  var f = d.data_freshness;
+  var el = document.getElementById('freshness-line');
+  if (!el) return;
+  el.innerHTML = 'Data through ' + (f.matches_through || 'unknown') +
+    ' · Predictions updated ' + _relTime(f.glicko_updated) +
+    ' · <a href="methodology.html" style="color:rgba(255,255,255,0.7);text-decoration:underline;">Methodology</a>';
+}).catch(function(){});
 </script>
 </body>
 </html>

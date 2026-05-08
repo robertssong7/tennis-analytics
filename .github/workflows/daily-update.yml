@@ -23,7 +23,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install pandas requests openpyxl xlrd
+        run: pip install pandas requests openpyxl xlrd scipy
 
       - name: Pull latest Sackmann data
         run: |
@@ -56,6 +56,14 @@ jobs:
       - name: Refresh live tournament metadata
         if: success()
         run: python3 -u tools/refresh_live_tournament.py || echo "Live tournament refresh failed"
+
+      - name: Recompute percentile rankings
+        if: success()
+        run: python3 -u tools/compute_percentiles.py || echo "Percentile compute failed"
+
+      - name: Recompute model accuracy history
+        if: success()
+        run: python3 -u tools/compute_model_accuracy.py || echo "Model accuracy compute failed"
 
       - name: Sync frontend to S3
         if: success()
