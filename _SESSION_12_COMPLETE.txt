@@ -1,0 +1,67 @@
+======================================
+SESSION 12 — INTEGRITY + OBSERVABILITY COMPLETE
+Finished: 2026-05-08 evening
+======================================
+
+WHAT'S NOW HONEST AND VISIBLE:
+
+Data freshness:
+  - Matches through: 2026-05-03 (was 2026-03-15, 8 weeks stale)
+  - Glicko age: 6 weeks (in-memory last_match_date patched from supplement on engine load)
+  - Pipeline status: daily action no longer broken at checkout step
+
+System observability:
+  - /status.html shows real-time health with overall + data + model + coverage + infra
+  - 8px health dot in nav links to /status.html (green/amber/red)
+  - /api/system-status returns comprehensive schema
+
+Coverage:
+  - Real headshot photos: 81 -> 114 (cleaned 44 placeholder/silhouette files)
+  - Mobile audit: 0 horizontal-scroll across 21 page-viewport pairs
+  - Favicon (T white-on-teal) on every page
+
+URLS TO VERIFY ON YOUR PHONE:
+  https://tennisiq-one.vercel.app/
+  https://tennisiq-one.vercel.app/status.html
+  https://tennisiq-one.vercel.app/methodology.html
+  https://tennisiq-one.vercel.app/player.html?name=Sinner
+  https://tennisiq-one.vercel.app/compare.html
+
+ROOT CAUSE OF DATA FREEZE:
+  Two compounding defects in daily GitHub Action, broken since 2026-04-30:
+  1. Phantom git submodule data/sackmann/tennis_MatchChartingProject in
+     git index (mode 160000) without a .gitmodules file. Checkout step
+     with submodules:true exited code 128.
+  2. Daily action invoked scripts/scrape_atp_results.py which never
+     existed. Would have failed with || echo swallow.
+  Both fixed in commit B.
+
+LINK PREVIEW VALIDATION:
+  Paste homepage URL into LinkedIn or Twitter compose box.
+  Should display branded card with TennisIQ + tagline + 3 callouts.
+  Methodology page produces a different OG title.
+
+REMAINING MANUAL FOLLOW-UPS:
+  1. Verify tomorrow's GH Action run succeeds (gh run list --workflow=daily-update.yml --limit 1)
+  2. Add three GitHub Secrets:
+     - AWS_ACCESS_KEY_ID
+     - AWS_SECRET_ACCESS_KEY
+     - CLOUDFRONT_DIST_ID = E3V9RBJ247GXR1
+  3. Open the site on your phone — every page should be usable
+  4. Paste a TennisIQ URL into a tweet draft to confirm OG card renders
+  5. Decide on Vercel sunset date
+  6. (Optional) Unlock scripts/ to retrain Glicko if you want full Session
+     12+ matches reflected in ratings. Currently we patch last_match_date
+     in-memory which handles retirement detection but not rating drift.
+
+WHAT'S STILL HONESTLY ROUGH:
+  - Glicko ratings reflect a 2026-03-25 snapshot. Patched in-memory
+    from supplement for last_match_date only.
+  - Headshot coverage at 114 of ~280 active players. Wikipedia covers
+    most named tour players but mid-tour challengers without wiki pages
+    still show branded initials avatar.
+  - App Runner cold-start is slow (30-60s on first request after redeploy).
+
+This site is now defensible to share publicly. Read _SESSION_12_REPORT.md
+for full detail and TENNISIQ_HANDOFF_V3_5.md sections 26-28 for the
+new pipeline / status / headshot infrastructure.
