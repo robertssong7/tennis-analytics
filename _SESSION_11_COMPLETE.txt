@@ -1,0 +1,47 @@
+======================================
+SESSION 11 — PRODUCT POLISH COMPLETE
+Finished: 2026-05-08
+======================================
+
+VISIBLE IMPROVEMENTS NOW LIVE:
+  - Player photos display on every card (S3 mirror + branded initials avatar)
+  - Compare page shows model accuracy badge, confidence band, top 3 drivers
+  - Player page attributes show source attribution + coverage badge per row
+  - Footer timestamps on every page (Data through X · Predictions updated Yh ago)
+  - Site fully responsive on mobile/tablet (768/1024 breakpoints)
+  - /methodology page explaining the system (10 sections)
+  - Shared URLs produce branded 1200x630 link preview cards
+
+URLs to verify:
+  https://tennisiq-one.vercel.app/
+  https://tennisiq-one.vercel.app/methodology.html
+  https://tennisiq-one.vercel.app/player.html?name=Sinner
+  https://tennisiq-one.vercel.app/compare.html?p1=Sinner&p2=Alcaraz
+  https://d3aogk1vtnp91d.cloudfront.net/
+
+Test on phone:
+  Open the homepage URL on a phone. Should be fully usable, single column,
+  no horizontal scroll.
+
+Test sharing:
+  Paste https://tennisiq-one.vercel.app into a draft tweet or LinkedIn post.
+  Should show branded 1200x630 card with TennisIQ + tagline + 3 callouts.
+  Validate at https://www.opengraph.xyz/
+
+Read for full detail:
+  _SESSION_11_REPORT.md
+  _session11_failures.txt (should be empty)
+  TENNISIQ_HANDOFF_V3_4.md (sections 22-25 are new)
+
+Manual follow-ups (priority order):
+  1. Add GitHub Secrets to repo so daily Action S3 sync works:
+     - AWS_ACCESS_KEY_ID
+     - AWS_SECRET_ACCESS_KEY
+     - CLOUDFRONT_DIST_ID = E3V9RBJ247GXR1
+  2. Pick a sunset date for Vercel — CloudFront has been stable for a session
+  3. Find a non-Cloudflare source for ATP headshots to expand the 81-player set
+  4. Optionally tighten the OG image numbers if the model improves
+
+Production endpoints added:
+  GET /api/model-accuracy?surface=&window=
+  GET /api/system-status
