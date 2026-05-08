@@ -1,0 +1,37 @@
+===== DATA FRESHNESS AUDIT =====
+Today: Fri May  8 06:44:00 UTC 2026
+
+--- Sackmann directory state ---
+total 508088
+drwxr-xr-x  175 robertsong  staff      5600 Mar 30 22:57 .
+drwxr-xr-x    5 robertsong  staff       160 Mar 19 22:55 ..
+-rw-r--r--    1 robertsong  staff       378 Mar 19 23:20 .gitattributes
+-rw-r--r--    1 robertsong  staff      4673 Mar 19 23:20 README.md
+data/sackmann/tennis_atp/atp_matches_qual_chall_2015.csv
+data/sackmann/tennis_atp/atp_matches_qual_chall_2016.csv
+data/sackmann/tennis_atp/atp_matches_qual_chall_2017.csv
+data/sackmann/tennis_atp/atp_matches_qual_chall_2018.csv
+data/sackmann/tennis_atp/atp_matches_qual_chall_2019.csv
+data/sackmann/tennis_atp/atp_matches_qual_chall_2020.csv
+data/sackmann/tennis_atp/atp_matches_qual_chall_2021.csv
+data/sackmann/tennis_atp/atp_matches_qual_chall_2022.csv
+data/sackmann/tennis_atp/atp_matches_qual_chall_2023.csv
+data/sackmann/tennis_atp/atp_matches_qual_chall_2024.csv
+
+--- Most recent match dates per file ---
+2023:     2987 lines, last_date=20230203
+2024:     3077 lines, last_date=20240202
+2025: MISSING
+2026: MISSING
+
+--- Glicko + processed file mtimes ---
+Mar 24 23:24 data/processed/glicko2_state.pkl
+Mar 24 23:24 data/processed/player_attributes_v2.pkl
+May 7 00:58 data/processed/peak_elo.json
+May 7 01:20 data/processed/percentile_rankings.json
+May 8 00:08 data/processed/model_history.json
+May 7 01:17 data/processed/live_tournament.json
+Mar 24 23:24 data/processed/supplemental_matches_2025_2026.csv
+
+--- Sackmann git log (is the submodule a real git repo?) ---
+Sackmann is NOT a git submodule. Files are direct.
