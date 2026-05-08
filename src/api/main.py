@@ -10,6 +10,7 @@ Run:
 
 import json
 import logging
+import math
 import os
 import sys
 from pathlib import Path
@@ -2141,6 +2142,18 @@ async def match_insight(request: Request):
         best = dog_adv[0]
         risk_detail += f" Watch for {underdog}'s {best['attr']}."
 
+    # ── Confidence band ──
+    confidence = _confidence_band(fav_prob, surface, elo_diff)
+
+    # ── Drivers: top 3 reasons rendered as ▲/▼ percentage-point contributions ──
+    drivers = _build_drivers(
+        p1=p1, p2=p2, favorite=favorite, underdog=underdog,
+        elo1=elo1, elo2=elo2, surf_r=surf_r, surf_diff=surf_diff,
+        better_surf=better_surf, dog_adv=dog_adv, fav_adv=fav_adv,
+        h2h_entry=h2h_entry, fav_prob=fav_prob, surface=surface,
+        engine=engine,
+    )
+
     return {
         "available": True, "player1": p1, "player2": p2, "surface": surface,
         "p1_win_prob": float(p1_prob), "p2_win_prob": float(p2_prob),
@@ -2148,6 +2161,8 @@ async def match_insight(request: Request):
         "fav_prob": float(fav_prob), "dog_prob": float(dog_prob),
         "predicted_score": ps, "score_detail": sd,
         "reasons": reasons[:3], "x_factor": x_factor,
+        "confidence": confidence,
+        "drivers": drivers,
         "upset_risk": {
             "score": int(upset_risk),
             "label": risk_label,
@@ -2162,12 +2177,158 @@ async def match_insight(request: Request):
     }
 
 
+def _confidence_band(fav_prob: float, surface: str, elo_diff: float) -> dict:
+    """Confidence interval on the predicted probability based on the Brier
+    score from similar matchups (same surface, similar Elo gap) in the
+    last-365-day back-test. Wider band when sample is small."""
+    history = _get_model_history()
+    by_surface = (history or {}).get("by_surface", {}) or {}
+    surf_key = surface if surface in ("hard", "clay", "grass") else "all"
+    bucket = by_surface.get(surf_key) or by_surface.get("all") or {}
+    brier = float(bucket.get("brier_score") or 0.22)
+    n = int(bucket.get("sample_size") or 0)
+    # Convert Brier to a +/- band on probability. sqrt(Brier) is roughly the
+    # RMS error on the prediction. Cap at 15 percentage points.
+    err = min(0.15, math.sqrt(brier) * 0.35)
+    lower = max(0.0, float(fav_prob) - err)
+    upper = min(1.0, float(fav_prob) + err)
+    return {
+        "prob": round(float(fav_prob), 3),
+        "lower": round(lower, 3),
+        "upper": round(upper, 3),
+        "band_pp": int(round(err * 100)),
+        "sample_size": n,
+        "surface": surf_key,
+        "brier_score": round(brier, 4),
+    }
+
+
+def _build_drivers(p1, p2, favorite, underdog, elo1, elo2, surf_r, surf_diff,
+                   better_surf, dog_adv, fav_adv, h2h_entry, fav_prob, surface,
+                   engine) -> list:
+    """Top 3 numerical drivers of the prediction, signed in favor of the
+    predicted winner. ▲ = nudges toward favorite, ▼ = pulls toward upset."""
+    drivers = []
+    p_winner = favorite
+
+    # Rating gap. Logistic-ish: 100 Elo points ≈ 11pp shift.
+    elo_diff_signed = (elo1 - elo2) if p_winner == p1 else (elo2 - elo1)
+    if abs(elo_diff_signed) >= 20:
+        pp = max(-30, min(30, elo_diff_signed * 0.11))
+        drivers.append({
+            "label": f"Rating gap ({int(abs(elo_diff_signed))} Elo)",
+            "magnitude_pp": round(pp, 1),
+            "direction": "for_favorite" if pp > 0 else "against_favorite",
+        })
+
+    # Surface fit
+    surf_signed = (surf_r[p_winner] - surf_r[underdog])
+    if abs(surf_signed) >= 1:
+        pp = max(-15, min(15, surf_signed * 0.7))
+        drivers.append({
+            "label": f"Surface fit ({surface})",
+            "magnitude_pp": round(pp, 1),
+            "direction": "for_favorite" if pp > 0 else "against_favorite",
+        })
+
+    # H2H
+    if h2h_entry:
+        w_fav = int(h2h_entry["wins"].get(p_winner, 0))
+        w_dog = int(h2h_entry["wins"].get(underdog, 0))
+        total = w_fav + w_dog
+        if total >= 2:
+            net = w_fav - w_dog
+            pp = max(-12, min(12, net * 1.5))
+            drivers.append({
+                "label": f"H2H ({w_fav}-{w_dog})",
+                "magnitude_pp": round(pp, 1),
+                "direction": "for_favorite" if pp > 0 else "against_favorite",
+            })
+
+    # Recent form (last 3 matches)
+    f3_fav = float(engine.player_form.get(p_winner, {}).get("form_3", 0.5))
+    f3_dog = float(engine.player_form.get(underdog, {}).get("form_3", 0.5))
+    form_signed = f3_fav - f3_dog
+    if abs(form_signed) >= 0.1:
+        pp = max(-10, min(10, form_signed * 20))
+        drivers.append({
+            "label": "Recent form (last 3)",
+            "magnitude_pp": round(pp, 1),
+            "direction": "for_favorite" if pp > 0 else "against_favorite",
+        })
+
+    # Top attribute mismatch in favorite's favor (or biggest dog edge against)
+    if fav_adv:
+        a = fav_adv[0]
+        pp = max(0, min(8, float(a["diff"]) * 0.4))
+        drivers.append({
+            "label": f"{a['attr'].capitalize()} edge ({int(a['fav_val'])} vs {int(a['dog_val'])})",
+            "magnitude_pp": round(pp, 1),
+            "direction": "for_favorite",
+        })
+    if dog_adv:
+        a = dog_adv[0]
+        pp = -max(0, min(8, float(a["diff"]) * 0.4))
+        drivers.append({
+            "label": f"{underdog.split()[-1]}'s {a['attr']} ({int(a['dog_val'])} vs {int(a['fav_val'])})",
+            "magnitude_pp": round(pp, 1),
+            "direction": "against_favorite",
+        })
+
+    # Sort by absolute magnitude, take top 3, drop near-zero
+    drivers = [d for d in drivers if abs(d["magnitude_pp"]) >= 0.5]
+    drivers.sort(key=lambda d: abs(d["magnitude_pp"]), reverse=True)
+    return drivers[:3]
+
+
 # ─────────────────────────────────────────────────────────────
 # Percentile Outliers — "What Makes Them Different"
 # ─────────────────────────────────────────────────────────────
 
 _PERCENTILE_PATH = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'percentile_rankings.json'
 _percentile_cache: dict = {}
+
+_MODEL_HISTORY_PATH = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'model_history.json'
+_model_history_cache: dict = {}
+
+
+def _get_model_history() -> dict:
+    global _model_history_cache
+    if not _model_history_cache and _MODEL_HISTORY_PATH.exists():
+        try:
+            _model_history_cache = json.loads(_MODEL_HISTORY_PATH.read_text())
+        except Exception as e:
+            logger.warning(f"Failed to load model_history.json: {e}")
+    return _model_history_cache
+
+
+@app.get("/api/model-accuracy")
+def model_accuracy(
+    surface: str = Query("all", description="hard | clay | grass | all"),
+    window: int = Query(100, description="last N matches; one of 50, 100, 200, 500"),
+):
+    """Honest back-tested accuracy for the prediction model on the most recent
+    matches in the requested surface. Read from data/processed/model_history.json
+    (refreshed daily by tools/compute_model_accuracy.py)."""
+    history = _get_model_history()
+    if not history:
+        return {"available": False, "reason": "Model history unavailable"}
+    surface_norm = surface.lower() if surface and surface.lower() in ("hard", "clay", "grass") else "all"
+    window = int(window) if int(window) in (50, 100, 200, 500) else 100
+    by_window = (history.get("by_window") or {})
+    bucket = by_window.get(f"{surface_norm}_{window}")
+    if not bucket:
+        return {"available": False, "reason": f"No data for {surface_norm}/last {window}"}
+    return {
+        "available": True,
+        "surface": surface_norm,
+        "window_label": bucket.get("window_label"),
+        "accuracy_pct": float(bucket.get("accuracy_pct", 0)),
+        "brier_score": float(bucket.get("brier_score", 0)),
+        "sample_size": int(bucket.get("sample_size", 0)),
+        "computed_at": history.get("computed_at"),
+        "methodology_note": history.get("methodology", {}).get("model"),
+    }
 
 _STAT_LABELS = {
     "tiebreak_win_rate": "Tiebreak Win Rate",

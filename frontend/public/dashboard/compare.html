@@ -156,13 +156,18 @@ async function fetchPrediction(p1, p2, surface) {
   } catch { return null; }
 }
 
-function renderPredPanel(pred) {
+function renderPredPanel(pred, insight) {
   if (!pred) return '';
   const p1pct = (pred.player1_win_prob * 100).toFixed(1);
   const p2pct = (pred.player2_win_prob * 100).toFixed(1);
   const confClass = pred.confidence;
   const eloSign = pred.elo_diff > 0 ? '+' : '';
   const surfSign = pred.elo_surface_diff > 0 ? '+' : '';
+  // Confidence band from insight payload (Brier-derived ± on the favorite's prob)
+  const c = insight && insight.confidence ? insight.confidence : null;
+  const bandStr = c
+    ? ' <span style="color:rgba(255,255,255,0.55);font-family:\'DM Mono\',monospace;font-size:13px;font-weight:400;cursor:help;" class="tt">±' + c.band_pp + 'pp<span class="tt-box">Confidence band based on Brier score over the last ' + c.sample_size + ' similar matches on ' + c.surface + ' (Brier ' + c.brier_score + ')</span></span>'
+    : '';
   return `<div class="pred-panel">
     <div class="pred-header">
       <span>ML Win Probability${activeSurf === 'overall' ? '' : ' — '+activeSurf.charAt(0).toUpperCase()+activeSurf.slice(1)+' Court'}</span>
@@ -178,8 +183,8 @@ function renderPredPanel(pred) {
         <div class="pred-fill-p2" style="width:${p2pct}%"></div>
       </div>
       <div class="pred-probs">
-        <div><div class="pred-prob p1">${p1pct}%</div><div class="pred-prob-label">Win Prob</div></div>
-        <div style="text-align:right"><div class="pred-prob p2">${p2pct}%</div><div class="pred-prob-label">Win Prob</div></div>
+        <div><div class="pred-prob p1">${p1pct}%${insight && insight.favorite === pred.player1_name ? bandStr : ''}</div><div class="pred-prob-label">Win Prob</div></div>
+        <div style="text-align:right"><div class="pred-prob p2">${p2pct}%${insight && insight.favorite === pred.player2_name ? bandStr : ''}</div><div class="pred-prob-label">Win Prob</div></div>
       </div>
       ${pred.surface_breakdown ? '<div style="font-size:12px;color:rgba(255,255,255,0.45);text-align:center;margin-top:6px;font-family:\'DM Sans\',sans-serif;">Hard: '+(pred.surface_breakdown.hard.p1_win_prob*100).toFixed(1)+'% · Clay: '+(pred.surface_breakdown.clay.p1_win_prob*100).toFixed(1)+'% · Grass: '+(pred.surface_breakdown.grass.p1_win_prob*100).toFixed(1)+'%</div>' : ''}
     </div>
@@ -199,9 +204,10 @@ async function go() {
   const c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:#999;font-family:\'DM Sans\';">Analyzing matchup...</p></div>';
 
-  // Run ML prediction, legacy API, patterns, card data, and match-insight in parallel
+  // Run ML prediction, legacy API, patterns, card data, match-insight, and model-accuracy in parallel
   const surfParam = (activeSurf && activeSurf !== 'overall') ? '?surface=' + activeSurf : '';
-  const [pred, legacyData, pat1, pat2, card1, card2, insightData] = await Promise.all([
+  const accSurface = (activeSurf && activeSurf !== 'overall') ? activeSurf : 'all';
+  const [pred, legacyData, pat1, pat2, card1, card2, insightData, accuracyData] = await Promise.all([
     fetchPrediction(a, b, activeSurf),
     fetchLegacyMatchup(a, b),
     fetch(ML_API + '/player/' + encodeURIComponent(a) + '/patterns' + surfParam).then(r => r.ok ? r.json() : null).catch(() => null),
@@ -209,6 +215,7 @@ async function go() {
     fetch(ML_API + '/predict/player/' + encodeURIComponent(a)).then(r => r.ok ? r.json() : null).catch(() => null),
     fetch(ML_API + '/predict/player/' + encodeURIComponent(b)).then(r => r.ok ? r.json() : null).catch(() => null),
     fetch(ML_API + '/api/match-insight', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({player1:a,player2:b,surface:activeSurf})}).then(r => r.ok ? r.json() : null).catch(() => null),
+    fetch(ML_API + '/api/model-accuracy?surface=' + accSurface + '&window=100').then(r => r.ok ? r.json() : null).catch(() => null),
   ]);
   // Store for narrative generator
   window._currentP1 = a;
@@ -222,11 +229,41 @@ async function go() {
 
   let html = '';
 
+  // Model accuracy badge — honest back-tested accuracy on similar matches
+  if (accuracyData && accuracyData.available) {
+    var acc = accuracyData;
+    var surfLabel = acc.surface === 'all' ? 'all surfaces' : acc.surface;
+    html += '<div style="display:flex;align-items:center;gap:10px;font-family:DM Mono,monospace;font-size:11px;color:#2C2C2C;opacity:0.65;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;">'
+      + '<span>Model accuracy (' + surfLabel + ', last ' + acc.sample_size + '): <strong style="color:#0ABAB5;">' + acc.accuracy_pct.toFixed(1) + '%</strong></span>'
+      + '<span style="opacity:0.6;">Brier ' + acc.brier_score.toFixed(3) + '</span>'
+      + '</div>';
+  }
+
   // ML Prediction panel (primary)
   if (pred) {
-    html += renderPredPanel(pred);
+    html += renderPredPanel(pred, insightData);
   } else {
-    html += '<div style="background:rgba(196,169,125,0.12);border:1px solid rgba(196,169,125,0.3);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--ink-mid);">⚠ ML prediction unavailable — API may be loading. Showing charted data only.</div>';
+    html += '<div style="background:rgba(196,169,125,0.12);border:1px solid rgba(196,169,125,0.3);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--ink-mid);">ML prediction unavailable — API may be loading. Showing charted data only.</div>';
+  }
+
+  // Drivers panel — top 3 numerical reasons behind the prediction
+  if (insightData && Array.isArray(insightData.drivers) && insightData.drivers.length > 0) {
+    var favName = insightData.favorite || '';
+    var favPct = ((insightData.fav_prob || 0) * 100).toFixed(0);
+    html += '<div style="background:#FFFFFF;border-radius:12px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:18px;">'
+      + '<div style="font-family:DM Mono,monospace;font-size:11px;color:#0ABAB5;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;">Why ' + favName + ' (' + favPct + '%)</div>';
+    insightData.drivers.forEach(function(d) {
+      var pp = d.magnitude_pp;
+      var arrow = pp > 0 ? '▲' : '▼';
+      var color = pp > 0 ? '#0ABAB5' : '#E24B4A';
+      var ppStr = (pp > 0 ? '+' : '') + pp.toFixed(1) + 'pp';
+      html += '<div style="display:flex;align-items:center;gap:14px;padding:6px 0;border-bottom:1px solid rgba(208,201,192,0.4);">'
+        + '<span style="color:' + color + ';font-family:DM Mono,monospace;font-size:14px;width:18px;flex-shrink:0;">' + arrow + '</span>'
+        + '<span style="font-family:DM Sans,sans-serif;font-size:13px;color:#2C2C2C;flex:1;">' + d.label + '</span>'
+        + '<span style="font-family:DM Mono,monospace;font-size:14px;color:' + color + ';font-weight:500;">' + ppStr + '</span>'
+        + '</div>';
+    });
+    html += '</div>';
   }
 
   // Upset Risk Badge
