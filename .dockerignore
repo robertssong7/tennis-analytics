@@ -20,7 +20,8 @@ data/processed/training_rolling*.pkl
 data/processed/universal_features.parquet
 data/processed/weather_cache.parquet
 data/processed/player_profiles.parquet
-data/processed/headshots/
+# headshots/ now ships to prod (1.7MB total) so tier-1 cache hits work
+# data/processed/headshots/
 models/hard/
 models/ensemble/ft_transformer*.pt
 models/ensemble/avg_ensemble.pkl

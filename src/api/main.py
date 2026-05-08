@@ -440,50 +440,110 @@ def health():
 
 
 _HEADSHOT_CACHE_DIR = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'headshots'
+_HEADSHOTS_S3_BASE = "https://tennisiq-data-assets.s3.us-east-1.amazonaws.com/headshots"
+_HEADSHOT_CACHE_TTL_SEC = 30 * 24 * 3600  # 30 days
 
-_PLACEHOLDER_SVG = (
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
-    '<rect width="100" height="100" fill="#F5F0EB"/>'
-    '<circle cx="50" cy="38" r="18" fill="#D0C9C0"/>'
-    '<path d="M 18 92 Q 18 60 50 60 Q 82 60 82 92 Z" fill="#D0C9C0"/>'
-    '</svg>'
-)
+# Inverse code → player name map. Built lazily from player_headshots.json
+# so we can generate initials when neither cache nor S3 nor ATP have the file.
+_CODE_TO_NAME: dict = {}
+
+
+def _build_code_to_name():
+    global _CODE_TO_NAME
+    if _CODE_TO_NAME:
+        return
+    headshots = _get_headshots()
+    for name, url in headshots.items():
+        if not url:
+            continue
+        code = url.rsplit('/', 1)[-1].strip().lower()
+        if code:
+            _CODE_TO_NAME[code] = name
+
+
+def _make_initials_svg(player_name: str) -> bytes:
+    """Branded initials SVG when no real headshot is available. Deterministic
+    color from the player's name so the same player always gets the same
+    background."""
+    parts = (player_name or "").strip().split()
+    if len(parts) >= 2:
+        initials = (parts[0][0] + parts[-1][0]).upper()
+    elif parts:
+        initials = parts[0][:2].upper()
+    else:
+        initials = "??"
+    hash_val = sum(ord(c) for c in (player_name or "?")) % 5
+    colors = ['#0ABAB5', '#4A90D9', '#D4724E', '#5AA469', '#DAA520']
+    bg = colors[hash_val]
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+        f'<rect width="100" height="100" fill="{bg}" rx="50"/>'
+        '<text x="50" y="62" font-family="Playfair Display, Georgia, serif" '
+        f'font-size="42" font-weight="600" fill="#FFFFFF" text-anchor="middle">{initials}</text>'
+        '</svg>'
+    )
+    return svg.encode('utf-8')
 
 
 @app.get("/api/player-image/{code}")
 def get_player_image(code: str):
-    """Proxy ATP headshot images with disk caching. On upstream failure,
-    return a silhouette SVG placeholder so the frontend never sees broken images."""
+    """Headshot proxy with 4-tier fallback:
+    1. Local disk cache (fast path on warm container)
+    2. S3 mirror at tennisiq-data-assets/headshots/<code>.png
+    3. ATP CDN (mostly fails — Cloudflare bot challenge)
+    4. Branded initials SVG keyed off the player's name
+    Cache for 30 days so CloudFront and browsers don't refetch on every page."""
     import re
-    # Sanitize code to prevent path traversal
     if not re.match(r'^[a-zA-Z0-9]{2,10}$', code):
         return JSONResponse(status_code=400, content={"error": "Invalid code"})
 
-    # Disk cache files are stored lowercase. Normalize to match.
     code_lc = code.lower()
     _HEADSHOT_CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cached = _HEADSHOT_CACHE_DIR / f"{code_lc}.png"
 
-    # Serve from disk cache if available
+    # 1. Local disk cache
     if cached.exists() and cached.stat().st_size > 500:
-        return Response(content=cached.read_bytes(), media_type="image/png",
-                       headers={"Cache-Control": "public, max-age=604800"})
+        return Response(
+            content=cached.read_bytes(),
+            media_type="image/png",
+            headers={"Cache-Control": f"public, max-age={_HEADSHOT_CACHE_TTL_SEC}"},
+        )
 
-    logger.info(f"Headshot cache MISS: {code_lc} — fetching from ATP")
-    url = f"https://www.atptour.com/-/media/alias/player-headshot/{code_lc}"
+    # 2. S3 mirror
+    s3_url = f"{_HEADSHOTS_S3_BASE}/{code_lc}.png"
     try:
-        r = req_lib.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        r = req_lib.get(s3_url, timeout=10)
+        if r.status_code == 200 and len(r.content) > 500:
+            cached.write_bytes(r.content)
+            return Response(
+                content=r.content,
+                media_type="image/png",
+                headers={"Cache-Control": f"public, max-age={_HEADSHOT_CACHE_TTL_SEC}"},
+            )
+    except Exception as e:
+        logger.info(f"S3 headshot miss for {code_lc}: {e}")
+
+    # 3. ATP CDN (best effort, will mostly 403 due to Cloudflare)
+    try:
+        atp_url = f"https://www.atptour.com/-/media/alias/player-headshot/{code_lc}"
+        r = req_lib.get(atp_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=5)
         if r.status_code == 200 and "image" in r.headers.get("content-type", ""):
             cached.write_bytes(r.content)
-            return Response(content=r.content, media_type=r.headers["content-type"],
-                          headers={"Cache-Control": "public, max-age=604800"})
+            return Response(
+                content=r.content,
+                media_type=r.headers["content-type"],
+                headers={"Cache-Control": f"public, max-age={_HEADSHOT_CACHE_TTL_SEC}"},
+            )
     except Exception:
         pass
-    # Upstream failure (404, 403 Cloudflare challenge, network) → silhouette placeholder.
+
+    # 4. Branded initials SVG
+    _build_code_to_name()
+    player_name = _CODE_TO_NAME.get(code_lc, "")
     return Response(
-        content=_PLACEHOLDER_SVG,
+        content=_make_initials_svg(player_name),
         media_type="image/svg+xml",
-        headers={"Cache-Control": "public, max-age=3600"},
+        headers={"Cache-Control": f"public, max-age={_HEADSHOT_CACHE_TTL_SEC}"},
     )
 
 
