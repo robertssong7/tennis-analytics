@@ -444,19 +444,16 @@ class PredictEngine:
         """Compute footwork and volley proxies from charted match data.
         Loads only the 5 columns we need to keep peak memory low — App Runner
         has 2GB and the full parquet expanded would push us over."""
-        PARQUET = PARSED_POINTS_PATH
-        if not PARQUET.exists():
-            _ensure_parsed_points()
-        if not PARQUET.exists():
+        try:
+            from src.api.data_loaders import load_parsed_points
+            pts = load_parsed_points(
+                columns=["Player 1", "Player 2", "PtWinner", "rally_length", "last_shot_type"],
+            )
+        except FileNotFoundError:
             logger.warning(
                 "  parsed_points.parquet not found — skipping attribute proxies"
             )
             return
-
-        pts = pd.read_parquet(
-            PARQUET,
-            columns=["Player 1", "Player 2", "PtWinner", "rally_length", "last_shot_type"],
-        )
         self.attribute_proxies = {}
 
         all_names = sorted(
