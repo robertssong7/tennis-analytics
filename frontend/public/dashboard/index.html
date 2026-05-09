@@ -187,12 +187,49 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <script src="config.js"></script>
 <script>
 const API=API_URL+'/api/v2';
-const FP=[{name:'Carlos Alcaraz',sub:'206 charted · Right-handed'},{name:'Novak Djokovic',sub:'540 charted · Right-handed'},{name:'Jannik Sinner',sub:'260 charted · Right-handed'},{name:'Roger Federer',sub:'689 charted · Right-handed'},{name:'Rafael Nadal',sub:'416 charted · Left-handed'}];
+const FP_STATIC=[{name:'Carlos Alcaraz',sub:'206 charted · Right-handed'},{name:'Novak Djokovic',sub:'540 charted · Right-handed'},{name:'Jannik Sinner',sub:'260 charted · Right-handed'},{name:'Roger Federer',sub:'689 charted · Right-handed'},{name:'Rafael Nadal',sub:'416 charted · Left-handed'}];
+let FP=FP_STATIC;
+let CAROUSEL_LABEL='Featured Player';
+let PLAYER_TOURNAMENT_BADGE={};
 let cs=0,autoT,hov=false;
 function pct(v){return(v*100).toFixed(1)+'%';}
 function ini(n){return n.split(' ').map(w=>w[0]).join('');}
 
+async function applyLiveFilter(){
+  try{
+    var r=await fetch(API_URL+'/api/active-players');
+    if(!r.ok) return;
+    var data=await r.json();
+    if(!data || data.active_player_count<4){
+      CAROUSEL_LABEL='Top of the ATP';
+      return;
+    }
+    // Build per-player tournament badge
+    var badge={};
+    (data.tournaments||[]).forEach(function(t){
+      var label=(t.name||'').split(' ')[0]+' '+(t.round||'');
+      label=label.trim();
+      (t.active_players||[]).forEach(function(p){ badge[p]=label; });
+    });
+    // Fetch ratings for active players in parallel, sort by rating desc, cap 12
+    var actives=(data.active_players||[]).slice(0,30);
+    var ratings=await Promise.all(actives.map(function(name){
+      return fetch(API_URL+'/predict/player/'+encodeURIComponent(name)).then(function(rr){return rr.ok?rr.json():null;}).catch(function(){return null;});
+    }));
+    var combined=actives.map(function(name,i){
+      var d=ratings[i];
+      return {name:name, elo:(d&&d.elo)||0, sub:((d&&d.wins!=null)?(d.wins+'W – '+d.losses+'L'):'Currently in the draw')};
+    }).filter(function(x){return x.elo>0;}).sort(function(a,b){return b.elo-a.elo;}).slice(0,12);
+    if(combined.length>=4){
+      FP=combined.map(function(x){return {name:x.name, sub:x.sub};});
+      CAROUSEL_LABEL='Currently in the Draw';
+      PLAYER_TOURNAMENT_BADGE=badge;
+    }
+  }catch(e){}
+}
+
 async function buildC(){
+  await applyLiveFilter();
   const t=document.getElementById('ct');let html='';
   // Fetch ALL player data in parallel (was sequential)
   var allData=await Promise.all(FP.map(function(fp){
@@ -231,7 +268,7 @@ async function buildC(){
         {n:'Defensive resilience',label:'Defense win',val:dwr,avg:0.50}
       ];
       strMetrics.slice().sort(function(a,b){return (b.val-b.avg)-(a.val-a.avg);}).slice(0,3).forEach(function(x){strRows+='<div class="mu-row"><span class="oname">'+x.n+'</span><span class="reason">'+x.label+' '+pct(x.val)+'</span></div>';});
-      c='<div class="fc-head"><span class="fc-tag">Featured Player</span>'+dotsHtml+'</div>'
+      c='<div class="fc-head"><span class="fc-tag">'+(PLAYER_TOURNAMENT_BADGE[playerName]||CAROUSEL_LABEL)+'</span>'+dotsHtml+'</div>'
       +'<div class="fc-top">'+avatarHtml+'<div><div class="fc-name">'+playerName+'</div><div class="fc-sub">'+fp.sub+'</div></div></div>'
       +'<div class="fc-meta"><div class="fm-item"><div class="fm-val">'+pct(agg)+'</div><div class="fm-lbl">Aggression</div></div><div class="fm-item"><div class="fm-val">'+pct(srw)+'</div><div class="fm-lbl">Short Rally</div></div><div class="fm-item"><div class="fm-val">'+pct(fsr)+'</div><div class="fm-lbl">First Strike</div></div><div class="fm-item"><div class="fm-val">'+overallRating+'</div><div class="fm-lbl">Rating</div></div></div>'
       +'<div class="mu-sec"><div class="mu-lbl fav">Key Strengths</div>'+strRows+'</div>'
@@ -252,14 +289,14 @@ async function buildC(){
       var attrList=Object.keys(attrs).filter(function(k){return attrs[k]!=null;}).map(function(k){return {name:k.charAt(0).toUpperCase()+k.slice(1),val:attrs[k]};}).sort(function(a,b){return b.val-a.val;});
       var topAttrsHtml='';
       attrList.slice(0,3).forEach(function(a){topAttrsHtml+='<div class="mu-row"><span class="oname">'+a.name+'</span><span class="reason">'+a.val+'</span></div>';});
-      c='<div class="fc-head"><span class="fc-tag">Featured Player</span>'+dotsHtml+'</div>'
+      c='<div class="fc-head"><span class="fc-tag">'+(PLAYER_TOURNAMENT_BADGE[playerName]||CAROUSEL_LABEL)+'</span>'+dotsHtml+'</div>'
       +'<div class="fc-top">'+avatarHtml+'<div><div class="fc-name">'+playerName+'</div><div class="fc-sub">'+(wl||fp.sub)+'</div></div></div>'
       +'<div class="fc-meta"><div class="fm-item"><div class="fm-val" style="color:'+tierCol+';">'+overallRating+'</div><div class="fm-lbl">Rating</div></div><div class="fm-item"><div class="fm-val" style="color:'+tierCol+';">'+tier.charAt(0).toUpperCase()+tier.slice(1)+'</div><div class="fm-lbl">Tier</div></div><div class="fm-item"><div class="fm-val">'+(bestSurf?parseFloat(bestVal).toFixed(0):'\u2014')+'</div><div class="fm-lbl">'+(bestSurf||'Best')+'</div></div><div class="fm-item"><div class="fm-val">'+eloVal+'</div><div class="fm-lbl">Elo</div></div></div>'
       +(topAttrsHtml?'<div class="mu-sec"><div class="mu-lbl fav">Top Attributes</div>'+topAttrsHtml+'</div>':'')
       +'<a href="player.html?name='+encodeURIComponent(playerName)+'" class="vp-link">View Full Profile &rarr;</a>';
     } else {
       // Neither available — true fallback
-      c='<div class="fc-head"><span class="fc-tag">Featured Player</span>'+dotsHtml+'</div><div class="fc-top"><div class="fc-av">'+ini(fp.name)+'</div><div><div class="fc-name">'+fp.name+'</div><div class="fc-sub">'+fp.sub+'</div></div></div><div style="padding:30px 0;color:var(--ink-soft);font-size:12px;text-align:center;">Loading player data...</div>';
+      c='<div class="fc-head"><span class="fc-tag">'+(PLAYER_TOURNAMENT_BADGE[playerName]||CAROUSEL_LABEL)+'</span>'+dotsHtml+'</div><div class="fc-top"><div class="fc-av">'+ini(fp.name)+'</div><div><div class="fc-name">'+fp.name+'</div><div class="fc-sub">'+fp.sub+'</div></div></div><div style="padding:30px 0;color:var(--ink-soft);font-size:12px;text-align:center;">Loading player data...</div>';
     }
     html+='<div class="fc">'+c+'</div>';
   }
@@ -311,19 +348,19 @@ async function loadMatchInsights(){
     {p1:'Sinner',p2:'Djokovic',surface:'hard'},
     {p1:'Zverev',p2:'Medvedev',surface:'hard'}
   ];
-  // Try live tournament data first
+  // Prefer the live-aware key-matchups endpoint
   try{
-    var ltR=await fetch(API_URL+'/api/live-tournament');
-    if(ltR.ok){var lt=await ltR.json();
-      var cur=lt.current||lt;
-      if(cur&&cur.recent_results&&cur.recent_results.length>0){
-        var live=cur.recent_results.slice(-4).filter(function(r){return r.winner&&r.loser;}).map(function(r){return{p1:r.winner,p2:r.loser,surface:cur.surface||'hard'};});
-        if(live.length>=2){matchups=live;isLive=true;}
+    var kmR=await fetch(API_URL+'/api/key-matchups-live');
+    if(kmR.ok){
+      var km=await kmR.json();
+      if(km.matchups && km.matchups.length>=1){
+        matchups=km.matchups.map(function(m){return {p1:m.player1,p2:m.player2,surface:m.surface||'hard'};});
+        isLive=true;
       }
     }
   }catch(e){}
   if(heading){heading.textContent=isLive?'Today\'s Key Matchups':'Featured Rivalries';}
-  if(subtext){subtext.textContent=isLive?'Deep analysis powered by our ML ensemble model.':'Top matchups analyzed by our ML ensemble model.';}
+  if(subtext){subtext.textContent=isLive?'Predictions for the live draws.':'Top matchups analyzed by our ML ensemble model.';}
   var insights=await Promise.all(matchups.slice(0,3).map(function(m){
     return fetch(API_URL+'/api/match-insight',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({player1:m.p1,player2:m.p2,surface:m.surface})}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
   }));
