@@ -119,6 +119,36 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="carousel-wrap" id="cw"><div class="carousel-track" id="ct"></div></div>
 </div>
 </section>
+<section class="stat-of-day-section" id="statOfDaySection" style="max-width:1000px;margin:32px auto 0;padding:0 20px;">
+  <div class="stat-of-day-card" style="background:#FFFFFF;border:1px solid #EAE3DA;border-left:4px solid #0ABAB5;padding:24px 28px;border-radius:8px;">
+    <div class="stat-of-day-eyebrow" style="font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#0ABAB5;margin-bottom:8px;">Stat of the Day</div>
+    <h2 id="statHeadline" style="font-family:'Playfair Display',serif;font-size:24px;color:#2C2C2C;margin:0 0 10px;line-height:1.25;"></h2>
+    <p id="statBody" style="font-family:'DM Sans',sans-serif;color:#4A4A4A;margin:0 0 8px;line-height:1.55;"></p>
+    <div id="statMeta" style="font-family:'DM Mono',monospace;font-size:11px;color:#9A9A9A;"></div>
+  </div>
+</section>
+<script>
+(async function loadStatOfDay() {
+  try {
+    var res = await fetch(API_URL + '/api/stat-of-the-day');
+    var d = await res.json();
+    if (d && d.rendered && d.headline) {
+      document.getElementById('statHeadline').textContent = d.headline;
+      document.getElementById('statBody').textContent = d.body;
+      var meta = '';
+      if (d.served_date) {
+        var dt = new Date(d.served_date + 'T00:00:00Z');
+        meta = dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      }
+      document.getElementById('statMeta').textContent = meta;
+    } else {
+      document.getElementById('statOfDaySection').style.display = 'none';
+    }
+  } catch (e) {
+    document.getElementById('statOfDaySection').style.display = 'none';
+  }
+})();
+</script>
 <section id="todays-matches" style="max-width:1000px;margin:0 auto;padding:40px 20px;">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
     <span style="color:#0ABAB5;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Match Predictions</span>
