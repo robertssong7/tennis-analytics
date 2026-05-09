@@ -1,0 +1,49 @@
+======================================
+SESSION 14 — FEATURE EXPANSION COMPLETE
+Finished at: 2026-05-09 03:06 MDT
+======================================
+
+WHAT THIS SESSION SHIPPED:
+  1. parsed_points moved to S3 (processed/ prefix), boto3 fallback in
+     src/api/data_loaders.py. Long-running Git LFS blocker resolved.
+  2. Active player pipeline (currently-in-draw filter) +
+     /api/active-players endpoint.
+  3. /api/key-matchups-live — runs candidate matches through engine.predict
+     and returns top 6 by interest score.
+  4. Historical trends backend — 8 metrics (7 Sackmann + rally length from
+     Match Charting Project), surface-bucketed, 1968 through today.
+  5. /trends.html dashboard — Chart.js with surface pills, year-range
+     inputs, era reference lines, export-PNG button.
+  6. Homepage now filters carousel + key matchups to active players when
+     count >= 4. Falls back to "Top of the ATP" otherwise (today's state).
+  7. Stat-of-the-day deterministic engine (6 categories with novelty +
+     diversity scoring). Today's stat: Sinner 44-match win streak.
+  8. Daily workflow extended with 4 new steps + downstream artifact
+     re-commit. Runs at 8 AM UTC.
+
+CURRENT PRODUCTION STATE:
+  /trends.html: deployed to S3 + CloudFront via daily action sync
+  /api/active-players: 1 active player (Alcaraz, Italian Open seed data)
+  /api/stat-of-the-day: active_streak / Sinner / novelty 1.0
+  Daily action latest run: 25596117962 (manual dispatch, success)
+
+REMAINING MANUAL FOLLOW-UPS:
+  - Dedupe supplement CSV at scrape time (each match recorded ~2x today,
+    inflating streak/h2h/tournament-pattern integers)
+  - Fix tools/refresh_live_tournament.py line 115 [-20:] slice that drops
+    R32 results when tournaments have > 20 matches
+  - 2025 Italian Open data leaking into 2026 live block when current-year
+    rows haven't arrived yet; fallback in _results_for() should be
+    year-strict or scoped to "past 30 days" rather than all-years
+
+WHAT TO DO TOMORROW:
+  Watch the 8 AM UTC daily action run for new step failures
+  Visit /trends.html and try a few metric / surface combinations
+  Review the published Stat of the Day for voice and accuracy
+
+DEFERRED FOR FUTURE SESSIONS:
+  LLM editorial layer over the stat engine (smoother prose, numbers
+  guaranteed by templates)
+  Twitter/X auto-posting pipeline
+  Full ML ensemble retrain on fresh Glicko (would update predictions,
+  not just displayed ratings)

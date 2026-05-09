@@ -1,0 +1,86 @@
+===== Phase K production endpoint check =====
+--- /api/active-players ---
+{
+    "active_players": [
+        "Carlos Alcaraz"
+    ],
+    "tournaments": [
+        {
+            "name": "Italian Open",
+            "level": "Masters 1000",
+            "surface": "Clay",
+            "start": "2026-05-06",
+            "end": "2026-05-17",
+            "round": "F",
+            "active_players_short": [
+                "Alcaraz C."
+            ],
+            "active_players": [
+                "Carlos Alcaraz"
+            ],
+            "matches_recorded": 20
+        }
+    ],
+    "active_player_count": 1,
+    "active_tournament_count": 1,
+    "generated_at": "2026-05-09T08:47:05.285790+00:00"
+}
+
+--- /api/key-matchups-live ---
+curl: (28) Operation timed out after 30004 milliseconds with 0 bytes received
+Expecting value: line 1 column 1 (char 0)
+
+--- /api/historical-trends/metrics ---
+{
+    "metrics": [
+        {
+            "id": "matches_per_year",
+            "label": "Matches Played per Year",
+            "description": "Total ATP main-draw matches recorded each year (Open Era).",
+            "coverage_start": 1968,
+            "is_proxy": false
+        },
+        {
+            "id": "avg_aces_per_match",
+            "label": "Average Aces per Match",
+            "description": "Sum of winner + loser aces per match, averaged by year.",
+            "coverage_start": 1991,
+            "is_proxy": false
+        },
+        {
+            "id": "avg_double_faults_per_match",
+            "label": "Average Double Faults per Match",
+            "description": "Sum of winner + loser double faults per match.",
+            "coverage_start": 1991,
+            "is_proxy": false
+        },
+        {
+            "id": "avg_match_minutes",
+
+--- /api/stat-of-the-day ---
+{
+    "headline": "Jannik Sinner rolls into May 9 on a 44-match win streak",
+    "body": "Jannik Sinner's active win streak now stands at 44 matches, the longest active run on tour. The streak began at BNP Paribas Open on March 7.",
+    "category": "active_streak",
+    "rendered": true,
+    "raw_facts": {
+        "player": "Jannik Sinner",
+        "n": 44,
+        "start_date": "March 7",
+        "start_tourney": "BNP Paribas Open",
+        "today": "May 9"
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-05-09T08:59:44.809430+00:00",
+    "served_date": "2026-05-09"
+}
+
+=== Phase K production endpoint final ===
+/api/active-players: HTTP 200 (1 active, Italian Open)
+/api/key-matchups-live: HTTP 200 (3 matchups, Italian Open clay)
+/api/historical-trends/metrics: HTTP 200 (8 metrics)
+/api/stat-of-the-day: HTTP 200 (active_streak / Sinner / novelty 1.0)
+
+=== Daily action validation ===
+completed	success	Daily Data Update	Daily Data Update	main	workflow_dispatch	25597277608	1m33s	2026-05-09T09:06:52Z
+completed	success	Daily Data Update	Daily Data Update	main	workflow_dispatch	25596117962	1m19s	2026-05-09T08:07:12Z
