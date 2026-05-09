@@ -69,6 +69,35 @@ jobs:
         if: success()
         run: python3 -u tools/compute_model_accuracy.py || echo "Model accuracy compute failed"
 
+      - name: Compute active players
+        if: success()
+        run: python3 -u tools/compute_active_players.py || echo "Active players compute failed"
+
+      - name: Precompute historical trends
+        if: success()
+        run: python3 -u tools/precompute_historical_trends.py || echo "Historical trends precompute failed"
+
+      - name: Mine stat candidates
+        if: success()
+        run: python3 -u tools/mine_stat_candidates.py || echo "Stat candidate mining failed"
+
+      - name: Generate stat of the day
+        if: success()
+        run: python3 -u tools/generate_stat_of_the_day.py || echo "Stat of day generation failed"
+
+      - name: Re-commit downstream artifacts
+        if: success()
+        run: |
+          git add data/processed/active_players.json data/processed/historical_trends.json data/processed/stat_candidates.json data/processed/stat_of_the_day.json data/processed/stat_history.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no downstream artifact changes"
+          else
+            git config user.name "TennisIQ Bot"
+            git config user.email "tennisiq-bot@users.noreply.github.com"
+            git commit -m "Daily downstream artifacts — $(date +%Y-%m-%d)"
+            git push origin main
+          fi
+
       - name: Sync frontend to S3
         if: success()
         run: aws s3 sync frontend/public/dashboard/ s3://tennisiq-frontend/ --delete
