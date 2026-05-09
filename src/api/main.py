@@ -3747,3 +3747,190 @@ def player_scenarios(name: str):
     }
     _scenarios_cache[name] = result
     return result
+
+
+# ─────────────────────────────────────────────────────────────
+# Session 14 — Live-aware + trends + stat-of-the-day endpoints
+# ─────────────────────────────────────────────────────────────
+
+ACTIVE_PLAYERS_PATH = Path(__file__).parent.parent.parent / "data" / "processed" / "active_players.json"
+HISTORICAL_TRENDS_PATH = Path(__file__).parent.parent.parent / "data" / "processed" / "historical_trends.json"
+STAT_OF_DAY_PATH = Path(__file__).parent.parent.parent / "data" / "processed" / "stat_of_the_day.json"
+
+
+@app.get("/api/active-players")
+def get_active_players():
+    """Currently-in-draw player set across all live ATP tournaments."""
+    if not ACTIVE_PLAYERS_PATH.exists():
+        return {
+            "active_players": [],
+            "tournaments": [],
+            "active_player_count": 0,
+            "active_tournament_count": 0,
+            "stale": True,
+        }
+    with open(ACTIVE_PLAYERS_PATH) as f:
+        data = json.load(f)
+    return {
+        "active_players": data.get("all_active_players", []),
+        "tournaments": data.get("tournaments", []),
+        "active_player_count": int(data.get("active_player_count", 0)),
+        "active_tournament_count": int(data.get("active_tournament_count", 0)),
+        "generated_at": data.get("generated_at"),
+    }
+
+
+@app.get("/api/key-matchups-live")
+def get_key_matchups_live():
+    """Key matchups for the currently-live tournament(s).
+
+    The live_tournament feed only carries completed results, so "key
+    matchups today" surfaces the most recent matches from active
+    tournaments (latest round in progress) and runs them through the
+    existing match-prediction logic. Returns top 6 by interest score
+    (rating sum descending; ties broken by upset risk).
+    """
+    if not ACTIVE_PLAYERS_PATH.exists():
+        return {"matchups": [], "stale": True, "reason": "no active_players.json"}
+    with open(ACTIVE_PLAYERS_PATH) as f:
+        active = json.load(f)
+    if not active.get("tournaments"):
+        return {"matchups": [], "reason": "no live tournaments"}
+
+    # Re-read live_tournament.json for the underlying match list
+    live_path = Path(__file__).parent.parent.parent / "data" / "processed" / "live_tournament.json"
+    if not live_path.exists():
+        return {"matchups": [], "stale": True, "reason": "no live_tournament.json"}
+    with open(live_path) as f:
+        live_feed = json.load(f)
+    live_block = live_feed.get("live") or {}
+    if not live_block.get("data_available"):
+        return {"matchups": [], "reason": "live block has no data"}
+
+    results = live_block.get("results", [])
+    if not results:
+        return {"matchups": [], "reason": "live results empty"}
+
+    # Build short-to-canonical map from active_players (it already encodes
+    # the mapping per tournament).
+    short_to_canonical: dict = {}
+    for t in active.get("tournaments", []):
+        for short, canonical in zip(t.get("active_players_short", []),
+                                    t.get("active_players", [])):
+            short_to_canonical[short] = canonical
+
+    # We also need short→canonical for losers (so we can show their full
+    # name in the rendered match), so build a fallback via the engine.
+    engine = _get_engine()
+
+    surface = (live_block.get("surface") or "hard").lower()
+
+    # Pick the latest round and the round before it as the matches to surface.
+    rounds_present = [m.get("round", "") for m in results if m.get("round")]
+    if not rounds_present:
+        return {"matchups": [], "reason": "no round labels"}
+
+    # Order by round-label heuristic (string-rank fallback if unknown).
+    label_order = {
+        "1st Round": 1, "2nd Round": 2, "3rd Round": 3, "4th Round": 4,
+        "Quarterfinals": 5, "Semifinals": 6, "The Final": 7, "Final": 7,
+        "R128": 1, "R64": 2, "R32": 3, "R16": 4, "QF": 5, "SF": 6, "F": 7,
+    }
+    rounds_sorted = sorted(set(rounds_present), key=lambda r: label_order.get(r, 0), reverse=True)
+    target_rounds = rounds_sorted[:2]
+    candidate_matches = [m for m in results if m.get("round") in target_rounds]
+
+    matchups = []
+    seen_pairs: set = set()
+    for m in candidate_matches:
+        w_short, l_short = m.get("winner"), m.get("loser")
+        if not w_short or not l_short:
+            continue
+        pair_key = tuple(sorted([w_short, l_short]) + [m.get("round", "")])
+        if pair_key in seen_pairs:
+            continue
+        seen_pairs.add(pair_key)
+        # Resolve canonical names. Try the active map first, then look up
+        # via the engine's supplemental_name_map (set during engine.load()).
+        suppl_map = getattr(engine, "_supplemental_name_map", {}) or {}
+        p1 = short_to_canonical.get(w_short) or suppl_map.get(w_short) or w_short
+        p2 = short_to_canonical.get(l_short) or suppl_map.get(l_short) or l_short
+
+        try:
+            pred = engine.predict(p1, p2, surface)
+        except Exception as exc:
+            logger.debug(f"key-matchups predict failed for {p1} vs {p2}: {exc}")
+            continue
+
+        # Pull elo for ranking score
+        try:
+            r1 = engine.glicko.ratings.get(p1, {}).get("all")
+            r2 = engine.glicko.ratings.get(p2, {}).get("all")
+            elo_sum = float((r1.mu if r1 else 1500) + (r2.mu if r2 else 1500))
+            elo_diff = float(abs((r1.mu if r1 else 1500) - (r2.mu if r2 else 1500)))
+        except Exception:
+            elo_sum, elo_diff = 3000.0, 0.0
+
+        upset_risk = float(min(elo_diff, 400.0))  # smaller diff → higher risk
+        matchups.append({
+            "player1": p1,
+            "player2": p2,
+            "surface": surface,
+            "round": m.get("round"),
+            "actual_winner": p1,
+            "actual_score": m.get("score"),
+            "predicted_p1_win_prob": float(round(pred["player1_win_prob"], 4)),
+            "predicted_p2_win_prob": float(round(pred["player2_win_prob"], 4)),
+            "elo_sum": float(round(elo_sum, 1)),
+            "elo_diff": float(round(elo_diff, 1)),
+            "interest_score": float(round(elo_sum - upset_risk * 0.5, 1)),
+            "tournament": live_block.get("tournament"),
+        })
+
+    matchups.sort(key=lambda x: x["interest_score"], reverse=True)
+    return {
+        "matchups": matchups[:6],
+        "tournament": live_block.get("tournament"),
+        "surface": surface,
+        "rounds_in_play": target_rounds,
+    }
+
+
+@app.get("/api/historical-trends")
+def get_historical_trends():
+    if not HISTORICAL_TRENDS_PATH.exists():
+        return {"metrics": {}, "annotations": [], "stale": True}
+    with open(HISTORICAL_TRENDS_PATH) as f:
+        return json.load(f)
+
+
+@app.get("/api/historical-trends/metrics")
+def get_historical_trends_metrics():
+    if not HISTORICAL_TRENDS_PATH.exists():
+        return {"metrics": []}
+    with open(HISTORICAL_TRENDS_PATH) as f:
+        data = json.load(f)
+    return {
+        "metrics": [
+            {
+                "id": k,
+                "label": v["label"],
+                "description": v["description"],
+                "coverage_start": int(v.get("coverage_start", 1968)),
+                "is_proxy": bool(v.get("is_proxy", False)),
+            }
+            for k, v in data.get("metrics", {}).items()
+        ]
+    }
+
+
+@app.get("/api/stat-of-the-day")
+def get_stat_of_the_day():
+    if not STAT_OF_DAY_PATH.exists():
+        return {
+            "rendered": False,
+            "headline": "Stat of the day will return soon",
+            "body": "The pipeline has not produced today's insight yet.",
+        }
+    with open(STAT_OF_DAY_PATH) as f:
+        return json.load(f)
