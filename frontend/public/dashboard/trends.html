@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TennisIQ — Historical Trends</title>
+<meta name="description" content="How tennis has changed across the ATP Open Era. Multi-decade trends in aces, match duration, court speed, and rally length.">
+<meta property="og:title" content="TennisIQ — Historical Trends">
+<meta property="og:description" content="How tennis has changed since 1968. Aces, double faults, match duration, court speed, and rally length across the ATP Open Era.">
+<meta property="og:image" content="https://tennisiq-one.vercel.app/og-image.png">
+<meta property="og:url" content="https://tennisiq-one.vercel.app/trends.html">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TennisIQ — Historical Trends">
+<meta name="twitter:description" content="Multi-decade ATP trends across aces, match duration, court speed, and rally length.">
+<meta name="twitter:image" content="https://tennisiq-one.vercel.app/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root{--bg:#F5F0EB;--ink:#2C2C2C;--ink-mid:#3D4F5E;--ink-soft:#7A8A96;--accent:#0ABAB5;--card:#FFFFFF;--border:rgba(26,38,52,0.1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.55;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:0 40px;height:74px;background:rgba(245,240,235,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex-shrink:0;}
+.logo-mark{width:38px;height:38px;background:var(--ink);border-radius:50%;position:relative;overflow:hidden;}
+.logo-mark::before{content:'';position:absolute;width:21px;height:21px;border:2.5px solid var(--bg);border-radius:50%;clip-path:polygon(0 0,50% 0,50% 100%,0 100%);top:50%;left:50%;transform:translate(-50%,-50%);}
+.logo-mark::after{content:'';position:absolute;width:17px;height:1.5px;background:var(--bg);transform:rotate(-35deg);top:50%;left:50%;margin-left:-8px;}
+.logo-text{font-family:'Playfair Display',serif;font-size:18px;}
+.nav-center{flex:1;}
+.nav-links{display:flex;align-items:center;gap:18px;flex-shrink:0;}
+.nav-links a{text-decoration:none;color:var(--ink-mid);font-size:13.5px;}
+.nav-links a:hover{color:var(--ink);}
+.nav-links a.active{color:var(--accent);font-weight:500;}
+.soon-badge{font-size:9px;background:var(--ink-soft);color:white;padding:1px 5px;border-radius:6px;margin-left:4px;}
+
+.page{max-width:1080px;margin:0 auto;padding:108px 24px 60px;}
+.hero{margin-bottom:32px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:42px;line-height:1.1;color:var(--ink);margin-bottom:8px;font-weight:700;}
+.hero p{font-size:16px;color:var(--ink-soft);max-width:680px;}
+
+.controls{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:20px 22px;margin-bottom:20px;display:flex;flex-direction:column;gap:14px;}
+.control-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.control-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);min-width:74px;}
+.metric-pill,.surface-pill{font-family:'DM Sans',sans-serif;font-size:13px;background:transparent;color:var(--ink-mid);padding:6px 12px;border:1px solid var(--border);border-radius:18px;cursor:pointer;transition:all 0.12s ease;}
+.metric-pill:hover,.surface-pill:hover{border-color:var(--accent);color:var(--ink);}
+.metric-pill.active,.surface-pill.active{background:var(--accent);color:white;border-color:var(--accent);}
+.year-input{font-family:'DM Mono',monospace;font-size:13px;width:70px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;color:var(--ink);background:var(--bg);}
+
+.chart-card{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:24px 26px 28px;}
+#trendsChart{max-height:520px;}
+.chart-meta{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;}
+.metric-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--ink);}
+.export-btn{font-family:'DM Sans',sans-serif;font-size:12px;background:transparent;color:var(--ink-soft);padding:6px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer;}
+.export-btn:hover{color:var(--ink);border-color:var(--accent);}
+#metricBlurb{font-size:14px;color:var(--ink-mid);margin-top:14px;line-height:1.6;}
+#coverageCaveat{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:8px;padding:8px 12px;background:var(--bg);border-radius:6px;display:none;}
+#coverageCaveat.visible{display:block;}
+
+.footer{background:#243447;color:rgba(255,255,255,0.6);padding:32px 9%;margin-top:60px;}
+.footer p{color:rgba(255,255,255,0.5);font-family:'DM Mono',monospace;font-size:11px;text-align:center;margin:0 0 6px;}
+
+@media(max-width:767px){
+  nav{padding:0 16px;height:62px;}
+  .nav-center{display:none;}
+  .nav-links{gap:11px;}
+  .nav-links a{font-size:12px;}
+  .page{padding:84px 16px 40px;}
+  .hero h1{font-size:30px;}
+  .hero p{font-size:14px;}
+  .controls{padding:16px;gap:10px;}
+  .control-row{gap:8px;}
+  .metric-pill,.surface-pill{font-size:12px;padding:5px 10px;}
+  .chart-card{padding:18px;}
+  .metric-title{font-size:18px;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><div class="logo-mark"></div><span class="logo-text">TennisIQ</span></a>
+  <div class="nav-center"></div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="compare.html">Compare</a>
+    <a href="tournament.html">Tournaments</a>
+    <a href="trends.html" class="active">Trends</a>
+    <a href="odds.html">Odds<span class="soon-badge">Soon</span></a>
+    <a href="about.html">About</a>
+    <a id="health-dot-link" href="status.html" title="System status" style="display:inline-flex;align-items:center;gap:6px;"><span id="health-dot" style="width:8px;height:8px;border-radius:50%;background:#A8A9AD;display:inline-block;" title="Loading"></span></a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="hero">
+    <h1>How Tennis Has Changed</h1>
+    <p>Multi-decade trends across the ATP Open Era. All numbers come from Sackmann's match database; rally-level metrics come from the Match Charting Project where coverage allows.</p>
+  </div>
+
+  <div class="controls">
+    <div class="control-row">
+      <span class="control-label">Metric</span>
+      <div id="metricPills" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    </div>
+    <div class="control-row">
+      <span class="control-label">Surface</span>
+      <div id="surfacePills" style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="surface-pill active" data-surface="all">All</button>
+        <button class="surface-pill" data-surface="Hard">Hard</button>
+        <button class="surface-pill" data-surface="Clay">Clay</button>
+        <button class="surface-pill" data-surface="Grass">Grass</button>
+        <button class="surface-pill" data-surface="Carpet">Carpet</button>
+      </div>
+    </div>
+    <div class="control-row">
+      <span class="control-label">Years</span>
+      <input id="yearMin" class="year-input" type="number" value="1991" min="1968" max="2024">
+      <span style="color:var(--ink-soft);">to</span>
+      <input id="yearMax" class="year-input" type="number" value="2024" min="1968" max="2024">
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-meta">
+      <div id="metricTitle" class="metric-title">Loading…</div>
+      <button id="exportBtn" class="export-btn">Export PNG</button>
+    </div>
+    <canvas id="trendsChart"></canvas>
+    <p id="metricBlurb"></p>
+    <div id="coverageCaveat"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>TennisIQ &middot; Tennis databases by Jeff Sackmann / Tennis Abstract &middot; CC BY-NC-SA 4.0 &middot; Match Charting Project &middot; tennis-data.co.uk</p>
+</div>
+
+<script>
+const API_BASE = (typeof window.TENNISIQ_API_BASE !== 'undefined') ? window.TENNISIQ_API_BASE : (typeof API_URL !== 'undefined' ? API_URL : 'https://su7vqmgkbd.us-east-1.awsapprunner.com');
+
+if (typeof Chart !== 'undefined' && typeof window['chartjs-plugin-annotation'] !== 'undefined') {
+  Chart.register(window['chartjs-plugin-annotation']);
+}
+
+const state = {
+  metric: 'avg_aces_per_match',
+  surface: 'all',
+  yearMin: 1991,
+  yearMax: 2024,
+  rawData: null,
+  metricsList: null,
+  chart: null,
+};
+
+async function loadMetrics() {
+  const res = await fetch(`${API_BASE}/api/historical-trends/metrics`);
+  const d = await res.json();
+  state.metricsList = d.metrics || [];
+  renderMetricPills();
+}
+
+function renderMetricPills() {
+  const container = document.getElementById('metricPills');
+  container.innerHTML = '';
+  state.metricsList.forEach((m) => {
+    const btn = document.createElement('button');
+    btn.className = 'metric-pill' + (m.id === state.metric ? ' active' : '');
+    btn.textContent = m.label;
+    btn.onclick = () => {
+      state.metric = m.id;
+      document.querySelectorAll('#metricPills .metric-pill').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderChart();
+    };
+    container.appendChild(btn);
+  });
+}
+
+async function loadData() {
+  const res = await fetch(`${API_BASE}/api/historical-trends`);
+  state.rawData = await res.json();
+  renderChart();
+}
+
+function renderChart() {
+  if (!state.rawData) return;
+  const m = state.rawData.metrics[state.metric];
+  if (!m) return;
+
+  const series = (m.by_surface && m.by_surface[state.surface]) || [];
+  const filtered = series.filter((p) => p.year >= state.yearMin && p.year <= state.yearMax);
+
+  document.getElementById('metricTitle').textContent = m.label;
+  document.getElementById('metricBlurb').textContent = m.description || '';
+
+  const caveat = document.getElementById('coverageCaveat');
+  let msg = '';
+  if (m.is_proxy) {
+    msg = 'Note: this metric is a proxy for surface speed, not the ITF Court Pace Index.';
+  } else if (m.coverage_start && m.coverage_start > 1968) {
+    msg = `Data coverage begins ${m.coverage_start}.`;
+  }
+  if (state.surface !== 'all' && filtered.length === 0) {
+    msg = (msg ? msg + ' ' : '') + `No qualifying data for ${state.surface} in this range.`;
+  }
+  if (msg) {
+    caveat.textContent = msg;
+    caveat.classList.add('visible');
+  } else {
+    caveat.classList.remove('visible');
+  }
+
+  const ctx = document.getElementById('trendsChart').getContext('2d');
+  if (state.chart) state.chart.destroy();
+
+  const annotations = {};
+  (state.rawData.annotations || []).forEach((a, i) => {
+    if (a.year >= state.yearMin && a.year <= state.yearMax) {
+      annotations[`ann_${i}`] = {
+        type: 'line',
+        xMin: a.year,
+        xMax: a.year,
+        borderColor: 'rgba(44, 44, 44, 0.22)',
+        borderWidth: 1,
+        borderDash: [4, 4],
+        label: {
+          display: false,
+          content: a.label,
+        },
+      };
+    }
+  });
+
+  state.chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: filtered.map((p) => p.year),
+      datasets: [
+        {
+          label: m.label,
+          data: filtered.map((p) => p.value),
+          borderColor: '#0ABAB5',
+          backgroundColor: 'rgba(10, 186, 181, 0.10)',
+          fill: true,
+          tension: 0.25,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#0ABAB5',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const p = filtered[ctx.dataIndex] || {};
+              return ` ${ctx.parsed.y}  (n=${p.n})`;
+            },
+            afterLabel: (ctx) => {
+              const yr = filtered[ctx.dataIndex] && filtered[ctx.dataIndex].year;
+              const ann = (state.rawData.annotations || []).find((a) => a.year === yr);
+              return ann ? `\n${ann.label}` : '';
+            },
+          },
+        },
+        annotation: { annotations },
+      },
+      scales: {
+        x: { title: { display: true, text: 'Year' }, grid: { color: 'rgba(0,0,0,0.04)' } },
+        y: { title: { display: true, text: m.label }, grid: { color: 'rgba(0,0,0,0.04)' } },
+      },
+    },
+  });
+}
+
+function bindControls() {
+  document.querySelectorAll('#surfacePills .surface-pill').forEach((btn) => {
+    btn.onclick = () => {
+      document.querySelectorAll('#surfacePills .surface-pill').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.surface = btn.dataset.surface;
+      renderChart();
+    };
+  });
+  document.getElementById('yearMin').oninput = (e) => {
+    const v = parseInt(e.target.value, 10);
+    if (!isNaN(v)) { state.yearMin = v; renderChart(); }
+  };
+  document.getElementById('yearMax').oninput = (e) => {
+    const v = parseInt(e.target.value, 10);
+    if (!isNaN(v)) { state.yearMax = v; renderChart(); }
+  };
+  document.getElementById('exportBtn').onclick = () => {
+    if (!state.chart) return;
+    const url = state.chart.toBase64Image();
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tennisiq-${state.metric}-${state.surface}-${state.yearMin}-${state.yearMax}.png`;
+    a.click();
+  };
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  bindControls();
+  await loadMetrics();
+  await loadData();
+});
+</script>
+</body>
+</html>
