@@ -1,0 +1,29 @@
+HALT — Session 14 cannot proceed. Phase 0 prerequisites not met.
+
+Checked at: 2026-05-09
+
+Missing prerequisites:
+  - _SESSION_13_COMPLETE.txt: NOT FOUND (latest is _SESSION_12_COMPLETE.txt, dated May 8)
+  - _SESSION_13_REPORT.md: NOT FOUND
+  - TENNISIQ_HANDOFF_V3_6.md: NOT FOUND (latest is TENNISIQ_HANDOFF_V3_5.md, May 8)
+  - TENNISIQ_ENGINEERING_HANDOFF.md: NOT FOUND
+
+Glicko state staleness:
+  - data/processed/glicko2_state.pkl mtime age: 1082.6 hours (45.1 days)
+  - Threshold from Phase 0: 36 hours
+  - Status: STALE_1082.6h
+
+What this means:
+  Session 14's spec depends on Session 13 outputs (V3.6 handoff, fresh Glicko
+  state, R32 scraper status, S3 bucket provisioning context, etc.). Without
+  Session 13, the active-player pipeline (Phase C), live matchups (Phase D),
+  rating-jump candidate miner (Phase H), and the daily-update workflow updates
+  (Phase K) have no current foundation to build on.
+
+Required action before re-running Session 14:
+  1. Run Session 13 end-to-end and produce _SESSION_13_COMPLETE.txt.
+  2. Refresh data/processed/glicko2_state.pkl (Session 13 Phase D).
+  3. Confirm s3://tennisiq-data-assets bucket exists and is writable.
+
+Per Session 14 spec (line 4): "if Session 13 has not closed, halt before
+Phase A." This file is the halt artifact.

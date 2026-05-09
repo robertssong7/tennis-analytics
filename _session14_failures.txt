@@ -1,0 +1,31 @@
+2026-05-09: Phase C diagnosis — Tournament feed R32 lag root cause
+================================================================
+
+Symptom: data/processed/live_tournament.json shows the Italian Open
+(2026-05-06 → 2026-05-17) with results from 4th Round through The Final
+(20 matches), no R32 results visible.
+
+Two contributing causes:
+
+1. tools/refresh_live_tournament.py line 115 slices the results to
+   `results[-20:]` which drops earlier-round matches when a tournament
+   has > 20 total. A Masters event has ~47 matches total; the slice keeps
+   only the last 20 (which lands at 4th Round and later).
+
+2. The supplement CSV (refreshed by tools/refresh_supplement_data.py from
+   tennis-data.co.uk's xlsx feed) has the Italian Open already completed
+   through The Final, even though today (2026-05-09) falls early in the
+   tournament's date window. Source either pre-publishes scheduled draws
+   with simulated results, or the data is genuinely complete and the
+   calendar dates are misleading.
+
+Decision: Do NOT modify tools/refresh_live_tournament.py in this session
+to keep the diff scope minimal. The active-player computation
+(tools/compute_active_players.py) derives "alive" status from
+match-completion data regardless of round labels, so the homepage filter
+still operates correctly. With Italian Open showing F as complete and
+Alcaraz the winner, active_player_count=1 is honest. Phase G's fallback
+to static top-of-the-ATP framing kicks in because count < 4.
+
+Future session unblock: change line 115 slice to `results` (no slice) or
+filter to "completed last N days" to preserve full bracket history.
