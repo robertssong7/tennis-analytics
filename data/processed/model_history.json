@@ -1,25 +1,25 @@
 {
   "by_surface": {
     "all": {
-      "accuracy_pct": 67.9,
-      "brier_score": 0.205,
-      "sample_size": 4814,
+      "accuracy_pct": 68.5,
+      "brier_score": 0.2031,
+      "sample_size": 5172,
       "window_days": 365
     },
     "hard": {
-      "accuracy_pct": 66.9,
-      "brier_score": 0.2032,
-      "sample_size": 3013,
+      "accuracy_pct": 67.1,
+      "brier_score": 0.2035,
+      "sample_size": 3108,
       "window_days": 365
     },
     "clay": {
-      "accuracy_pct": 69.0,
-      "brier_score": 0.2072,
-      "sample_size": 1207,
+      "accuracy_pct": 70.7,
+      "brier_score": 0.1999,
+      "sample_size": 1470,
       "window_days": 365
     },
     "grass": {
-      "accuracy_pct": 71.0,
+      "accuracy_pct": 70.2,
       "brier_score": 0.2093,
       "sample_size": 594,
       "window_days": 365
@@ -27,103 +27,103 @@
   },
   "by_window": {
     "all_50": {
-      "accuracy_pct": 70.0,
-      "brier_score": 0.1898,
+      "accuracy_pct": 76.0,
+      "brier_score": 0.1472,
       "sample_size": 50,
       "window_label": "last 50"
     },
     "all_100": {
-      "accuracy_pct": 61.0,
-      "brier_score": 0.225,
+      "accuracy_pct": 74.0,
+      "brier_score": 0.1659,
       "sample_size": 100,
       "window_label": "last 100"
     },
     "all_200": {
-      "accuracy_pct": 67.5,
-      "brier_score": 0.2097,
+      "accuracy_pct": 71.5,
+      "brier_score": 0.1952,
       "sample_size": 200,
       "window_label": "last 200"
     },
     "all_500": {
-      "accuracy_pct": 64.6,
-      "brier_score": 0.222,
+      "accuracy_pct": 70.2,
+      "brier_score": 0.1977,
       "sample_size": 500,
       "window_label": "last 500"
     },
     "hard_50": {
-      "accuracy_pct": 64.0,
-      "brier_score": 0.2408,
+      "accuracy_pct": 74.0,
+      "brier_score": 0.2002,
       "sample_size": 50,
       "window_label": "last 50"
     },
     "hard_100": {
-      "accuracy_pct": 59.0,
-      "brier_score": 0.2458,
+      "accuracy_pct": 69.0,
+      "brier_score": 0.2229,
       "sample_size": 100,
       "window_label": "last 100"
     },
     "hard_200": {
-      "accuracy_pct": 63.5,
-      "brier_score": 0.2188,
+      "accuracy_pct": 65.0,
+      "brier_score": 0.2271,
       "sample_size": 200,
       "window_label": "last 200"
     },
     "hard_500": {
-      "accuracy_pct": 65.6,
-      "brier_score": 0.2128,
+      "accuracy_pct": 65.8,
+      "brier_score": 0.2173,
       "sample_size": 500,
       "window_label": "last 500"
     },
     "clay_50": {
-      "accuracy_pct": 70.0,
-      "brier_score": 0.1898,
+      "accuracy_pct": 76.0,
+      "brier_score": 0.1472,
       "sample_size": 50,
       "window_label": "last 50"
     },
     "clay_100": {
-      "accuracy_pct": 61.0,
-      "brier_score": 0.225,
+      "accuracy_pct": 74.0,
+      "brier_score": 0.1659,
       "sample_size": 100,
       "window_label": "last 100"
     },
     "clay_200": {
-      "accuracy_pct": 67.5,
-      "brier_score": 0.2097,
+      "accuracy_pct": 71.5,
+      "brier_score": 0.1952,
       "sample_size": 200,
       "window_label": "last 200"
     },
     "clay_500": {
-      "accuracy_pct": 67.2,
-      "brier_score": 0.2187,
+      "accuracy_pct": 70.2,
+      "brier_score": 0.1977,
       "sample_size": 500,
       "window_label": "last 500"
     },
     "grass_50": {
-      "accuracy_pct": 88.0,
-      "brier_score": 0.1382,
+      "accuracy_pct": 82.0,
+      "brier_score": 0.1462,
       "sample_size": 50,
       "window_label": "last 50"
     },
     "grass_100": {
-      "accuracy_pct": 74.0,
-      "brier_score": 0.185,
+      "accuracy_pct": 73.0,
+      "brier_score": 0.184,
       "sample_size": 100,
       "window_label": "last 100"
     },
     "grass_200": {
-      "accuracy_pct": 72.0,
-      "brier_score": 0.2002,
+      "accuracy_pct": 70.5,
+      "brier_score": 0.2003,
       "sample_size": 200,
       "window_label": "last 200"
     },
     "grass_500": {
-      "accuracy_pct": 71.0,
-      "brier_score": 0.2092,
+      "accuracy_pct": 70.0,
+      "brier_score": 0.2095,
       "sample_size": 500,
       "window_label": "last 500"
     }
   },
-  "computed_at": "2026-05-08T06:47:55.168342Z",
+  "computed_at": "2026-05-09T08:12:20.095845Z",
   "methodology": {
     "model": "Pure Elo (K=32, start=1500). Conservative lower bound vs the production stacked ensemble.",
     "window_days": 365,
