@@ -1,21 +1,67 @@
-===== Session 14 pre-flight Sat May  9 02:44:25 MDT 2026 =====
-
---- Phase 0 closure check ---
-_SESSION_13_COMPLETE.txt: PRESENT
-glicko age: 0.56h (0.02d)
-OK
+===== Session 14 pre-flight Tue May 12 23:23:13 MDT 2026 =====
 
 --- Latest commits ---
-3e881a39 Session 13 — verification report + handoff v3.6
-7498fc3e D: Glicko full retrain on current data — top 20 deltas in artifacts/glicko_diff.txt
-000f2705 Daily data update — 2026-05-08
-6bfc66f4 Handoff v3.5 + Session 12 report + completion summary
-ea5c7a4b Session 12 — data integrity + observability + ship-readiness
+94853eb0 Ignore local session artifact directories
+8ef57709 Daily downstream artifacts — 2026-05-12
+b7879cf5 Daily downstream artifacts — 2026-05-11
+ceb463b8 Daily downstream artifacts — 2026-05-10
+ec06cfb4 Daily downstream artifacts — 2026-05-09
+63c782fc Session 14 — report + handoff v3.7
+384d7f7a Daily downstream artifacts — 2026-05-09
+68deb38e K: Daily action wires stat engine, trends precompute, active players
+9c44da9e Session 14 — live-aware predictions + trends dashboard + stat engine
+0848fdaf I: Stat-of-the-day surface on homepage above the player carousel
 
 --- Production health ---
-overall: healthy
-glicko_age_hours: 0
-matches_through: 2026-05-03
+{
+    "overall": "stale",
+    "data": {
+        "matches_through": "2026-05-03",
+        "matches_through_age_days": 10,
+        "glicko_updated": "2026-05-13T05:12:00Z",
+        "glicko_age_hours": 0,
+        "tournament_results_scraped": "2026-05-13T05:12:00Z",
+        "supplement_scraper_age_hours": 0,
+        "percentiles_computed": "2026-05-13T05:12:00Z",
+        "model_history_computed": "2026-05-09T08:12:20.095845Z"
+    },
+    "model": {
+        "brier_overall": 0.2031,
+        "brier_hard": 0.2035,
+        "brier_clay": 0.1999,
+        "brier_grass": 0.2093,
+        "accuracy_overall_last_100": 74.0,
+        "accuracy_hard_last_100": 69.0,
+        "accuracy_clay_last_100": 74.0,
+        "accuracy_grass_last_100": 73.0,
+        "predictions_in_history": 5172
+    },
+    "coverage": {
+        "active_players_total": 191,
+        "active_players_with_headshots": 74,
+        "headshot_coverage_pct": 38,
+        "headshots_cached_total": 114,
+        "players_with_outliers_qualified": 1857
+    },
+    "infrastructure": {
+        "api_uptime_check": "ok",
+        "s3_data_assets_accessible": true,
+        "last_github_action_status": "stale_or_failed",
+        "last_github_action_time": "2026-05-09T08:12:20.095845Z"
+    },
+    "data_freshness": {
+        "matches_through": "2026-05-03",
+        "glicko_updated": "2026-05-13T05:12:00Z",
+        "tournament_results_scraped": "2026-05-13T05:12:00Z",
+        "model_history_computed": "2026-05-09T08:12:20.095845Z"
+    },
+    "data_health": {
+        "live_tournament_results": "current",
+        "predictions": "current",
+        "model_history": "stale"
+    },
+    "fetched_at": "2026-05-13T05:24:04.745556Z"
+}
 
 --- AWS identity ---
 "arn:aws:iam::302524629522:user/tennisiq-deploy"
