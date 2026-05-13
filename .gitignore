@@ -47,3 +47,8 @@ _session*_failures.txt
 _collab_changes_*.md
 *.pdf
 data/sackmann/tennis_atp_old/
+
+# Local Glicko backups
+data/processed/glicko2_state.pkl.bak*
+# Session 14 brief (local doc, not part of repo product)
+CLAUDE_CODE_SESSION_*.md
