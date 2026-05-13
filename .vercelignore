@@ -1,0 +1,10 @@
+# Ignore everything by default
+*
+
+# Allow frontend assets only
+!frontend
+!frontend/**
+
+# Allow Vercel config
+!vercel.json
+!.vercelignore
