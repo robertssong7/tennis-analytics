@@ -1,8 +1,9 @@
 # TennisIQ — Complete Technical Handoff v3.7
 
-**Date:** May 9, 2026 (updated from v3.6, Session 14)
+**Date:** May 9, 2026 (updated from v3.6, Session 14). Re-verified May 12, 2026.
 **Author:** Robert Song + development session context (Sessions 1-14)
 **Status:** Live in production, actively iterating
+**Re-verification note:** The Session 14 brief was re-executed end-to-end on 2026-05-12. All phases green; no product changes. See `_SESSION_14_REPORT.md` for the addendum.
 **Live URLs:**
 - Frontend (Vercel): https://tennisiq-one.vercel.app
 - Frontend (CloudFront): https://d3aogk1vtnp91d.cloudfront.net

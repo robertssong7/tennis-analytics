@@ -47,3 +47,11 @@ DEFERRED FOR FUTURE SESSIONS:
   Twitter/X auto-posting pipeline
   Full ML ensemble retrain on fresh Glicko (would update predictions,
   not just displayed ratings)
+
+======================================
+RE-VERIFIED: 2026-05-12 23:42 MDT
+======================================
+  Brief re-executed end-to-end on 2026-05-12. Glicko re-retrained
+  (was 93h old). 11/11 local PASS, all 4 prod endpoints green,
+  manual daily-action dispatch (run 25780721286) success. Three
+  follow-ups still open and deferred to a future session.

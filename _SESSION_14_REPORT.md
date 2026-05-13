@@ -57,3 +57,19 @@
 4. **(Optional) Twitter/X integration.** Daily auto-post the stat. Out of scope for Session 14.
 
 5. **Watch tomorrow's 8 AM UTC daily action.** It now includes 4 new steps. If any fails, the workflow continues (each step has `|| echo` guard) but the downstream artifact for that step won't refresh. Pull logs via `gh run view <id> --log` and triage individual step failures.
+
+---
+
+## 2026-05-12 Re-Verification Run
+
+Three days after the initial ship, the Session 14 brief was re-executed end-to-end to confirm everything still works. Nothing material changed.
+
+| Check | Result |
+|-------|--------|
+| Phase 0 closure | PASS after re-running `tools/retrain_glicko.py` (Glicko was 93h old on disk). |
+| Phase J local battery | 11/11 PASS (active-players, key-matchups-live, historical-trends, historical-trends/metrics, stat-of-the-day endpoints; trends ≥4 metrics; stat_of_the_day rendered=true; data_loaders imports; trends.html + statOfDaySection front-end checks). |
+| Prod endpoints | All 4 (`/api/active-players`, `/api/key-matchups-live`, `/api/historical-trends/metrics`, `/api/stat-of-the-day`) responded correctly. |
+| Daily action manual dispatch | Run 25780721286 — success. |
+| Stat-of-the-day output | Production today: "Craig Smith's rating sits 263 points above their career peak" (rating_jump). Locally regenerated for 2026-05-13: "Casper Ruud's Clay edge is the widest on tour" (surface_specialist). |
+
+The three follow-ups from the original ship (supplement dedupe, R32 slice, year-strict tournament results) are still open — they're real bugs that would benefit users but are tracked for a future session, not for re-execution.
