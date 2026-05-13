@@ -91,17 +91,11 @@ def _ensure_parsed_points() -> str:
         socket.setdefaulttimeout(prev_default)
 
 
-# Eager: pull parsed_points at module import so any subsequent reader sees the file.
-# Wrapped in try/except as a final safety net — module import must never raise.
-try:
-    _ensure_parsed_points()
-    if PARSED_POINTS_PATH.exists():
-        _pp_size = PARSED_POINTS_PATH.stat().st_size
-        print(f"[parsed_points] available locally: {_pp_size:,} bytes", flush=True)
-    else:
-        print("[parsed_points] NOT available — pattern endpoints + proxies will degrade", flush=True)
-except Exception as _e:
-    print(f"[parsed_points] eager-load error (continuing without): {_e}", flush=True)
+# Lazy: do not pull parsed_points at module import — that would block uvicorn
+# startup behind a 30s socket timeout on cold deploys, which caused the
+# Session 15 production 502 regression. Callers that need the parquet should
+# call _ensure_parsed_points() themselves; engine.load()'s
+# _compute_attribute_proxies path already does so via data_loaders.
 
 
 def _is_retired(last_match_date_str):
@@ -444,6 +438,11 @@ class PredictEngine:
         """Compute footwork and volley proxies from charted match data.
         Loads only the 5 columns we need to keep peak memory low — App Runner
         has 2GB and the full parquet expanded would push us over."""
+        # Ensure parsed_points is on disk first via the urllib path (works on
+        # the public S3 bucket without boto3). data_loaders.load_parsed_points
+        # would otherwise try boto3, which is not in requirements.txt.
+        if not PARSED_POINTS_PATH.exists() or PARSED_POINTS_PATH.stat().st_size < 1_000_000:
+            _ensure_parsed_points()
         try:
             from src.api.data_loaders import load_parsed_points
             pts = load_parsed_points(
@@ -452,6 +451,11 @@ class PredictEngine:
         except FileNotFoundError:
             logger.warning(
                 "  parsed_points.parquet not found — skipping attribute proxies"
+            )
+            return
+        except Exception as exc:
+            logger.warning(
+                f"  parsed_points load failed ({exc}) — skipping attribute proxies"
             )
             return
         self.attribute_proxies = {}

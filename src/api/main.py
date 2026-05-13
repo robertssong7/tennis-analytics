@@ -47,22 +47,95 @@ app.add_middleware(
 # ─────────────────────────────────────────────────────────────
 # ML Prediction Engine (Phase 8)
 # Loaded once at startup from pkl files — no DB dependency.
+# Engine load is heavy (~30-90s cold), so it runs on a background
+# thread at FastAPI startup. Requests that arrive before the load
+# finishes get a clean 503 rather than blocking the worker until
+# the App Runner request timeout fires a 502.
 # ─────────────────────────────────────────────────────────────
 
-_predict_engine_loaded = False
+import threading
 
-def _get_engine():
-    """Return the singleton PredictEngine, loading it on first call."""
-    global _predict_engine_loaded
+_predict_engine_loaded = False
+_predict_engine_load_error: Exception | None = None
+_predict_engine_load_started = False
+_predict_engine_load_lock = threading.Lock()
+_predict_engine_loaded_event = threading.Event()
+
+
+def _load_predict_engine_inline():
+    """Run the heavy engine.load() and record the outcome. Safe to call
+    from a background thread or synchronously."""
+    global _predict_engine_loaded, _predict_engine_load_error
     from src.api.predict_engine import PredictEngine
     engine = PredictEngine.get()
+    try:
+        engine.load()
+        _predict_engine_loaded = True
+        _predict_engine_load_error = None
+        logger.info("PredictEngine: background preload complete")
+    except Exception as e:
+        _predict_engine_load_error = e
+        logger.error(f"PredictEngine background load failed: {e}")
+    finally:
+        _predict_engine_loaded_event.set()
+
+
+def _kick_off_engine_preload():
+    """Start the background engine load exactly once per process."""
+    global _predict_engine_load_started
+    with _predict_engine_load_lock:
+        if _predict_engine_load_started:
+            return
+        _predict_engine_load_started = True
+    threading.Thread(target=_load_predict_engine_inline, daemon=True).start()
+
+
+@app.on_event("startup")
+def _preload_engine_on_startup():
+    """Start engine warm-up immediately so the first user request does not
+    pay the 30-90s cold-start cost (which would otherwise time out at the
+    App Runner edge and return 502)."""
+    _kick_off_engine_preload()
+    logger.info("PredictEngine: preload kicked off in background thread")
+
+
+def _get_engine():
+    """Return the singleton PredictEngine.
+
+    Behavior:
+    - If the background preload finished successfully, return immediately.
+    - If the preload finished and failed, raise 503 with the recorded error.
+    - If the preload is still in progress, wait briefly (so warm requests
+      after a near-warm start get the engine) and then raise 503.
+    - If no preload was kicked off (e.g., tests, scripts), fall back to
+      a synchronous load.
+    """
+    from src.api.predict_engine import PredictEngine
+    engine = PredictEngine.get()
+
+    if _predict_engine_loaded:
+        return engine
+
+    if _predict_engine_load_started:
+        # Wait up to 2 seconds for an in-flight background load to finish.
+        # Long enough to handle "just-missed" timing, short enough not to
+        # block the worker if the load is still doing heavy work.
+        _predict_engine_loaded_event.wait(timeout=2)
+        if _predict_engine_loaded:
+            return engine
+        if _predict_engine_load_error is not None:
+            raise HTTPException(503, f"ML models not available: {_predict_engine_load_error}")
+        raise HTTPException(503, "ML engine still warming up — retry in ~60s")
+
+    # No preload running (test / script context): do it synchronously.
+    try:
+        _load_predict_engine_inline()
+    except Exception as e:
+        logger.error(f"PredictEngine failed to load: {e}")
+        raise HTTPException(503, f"ML models not available: {e}")
     if not _predict_engine_loaded:
-        try:
-            engine.load()
-            _predict_engine_loaded = True
-        except Exception as e:
-            logger.error(f"PredictEngine failed to load: {e}")
-            raise HTTPException(503, f"ML models not available: {e}")
+        err = _predict_engine_load_error or "unknown"
+        raise HTTPException(503, f"ML models not available: {err}")
     return engine
 
 
