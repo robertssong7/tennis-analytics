@@ -1,0 +1,71 @@
+Session 15 — Manual follow-ups Robert must do
+================================================
+
+[IAM] App Runner instance role permissions
+-------------------------------------------
+Session 15 could not verify the App Runner instance role's S3 permissions
+because the local AWS user (tennisiq-deploy) lacks apprunner:* and logs:*
+permissions. The IAM AccessDeniedException prevented log fetch and role
+introspection. The in-code fix (graceful S3 degrade + lazy parsed_points
+fetch) means this is not blocking production today, but you should still:
+
+  1. Open the AWS console -> App Runner -> tennisiq-api -> Configuration.
+  2. Confirm the Instance role has s3:GetObject on
+     arn:aws:s3:::tennisiq-data-assets/* (read-only is enough).
+  3. While you are there, give the tennisiq-deploy IAM user the read-only
+     policies AWSAppRunnerReadOnlyAccess and CloudWatchLogsReadOnlyAccess
+     so future sessions can pull App Runner logs without help.
+
+
+[Security] CORS allow_origins is currently "*"
+----------------------------------------------
+src/api/main.py:41 sets allow_origins=["*"]. For a public read-only data
+API this is acceptable, but a tighter list reduces drive-by token theft
+risk if you ever add a user-auth endpoint. Production frontends are:
+
+  https://tennisiq-one.vercel.app
+  https://d3aogk1vtnp91d.cloudfront.net
+
+Session 15 did NOT tighten this automatically because (a) the instructions
+called for not guessing, and (b) src/api/config.py already has a
+CORS_ORIGINS env-driven list that main.py overrides — fixing the override
+to use the env list is the right shape but needs your call on whether to
+keep "*" for the public dashboard. Either:
+  - swap main.py:39-44 to allow_origins=CORS_ORIGINS, or
+  - keep "*" and accept the risk.
+
+
+[Deps] boto3 is referenced but not in requirements.txt
+------------------------------------------------------
+src/api/data_loaders.py:38 does `import boto3` inside ensure_local().
+boto3 is not in requirements.txt and Session 15 was forbidden from adding
+dependencies. Effect today: ensure_local() catches ImportError silently
+and the urllib-based fallback in predict_engine._ensure_parsed_points()
+covers it. If you ever want true S3 fallback (private bucket access, IAM
+auth), add `boto3` to requirements.txt and the data_loaders path will
+start working.
+
+
+[Data hygiene] Supabase DB tenant is deleted
+--------------------------------------------
+Multiple existing endpoints (/player/{name}, /patterns/{name}, etc.) call
+get_conn() which connects to a Supabase Postgres. The tenant
+postgres.xkwbulhanmyugmgiklio no longer exists, so these endpoints return
+500 in both local and production. NOT a Session-14 regression — pre-dates
+this session. Decide whether to: (a) re-create the Supabase project and
+restore the schema, (b) port these endpoints to read from pickled state
+the engine already loads in-memory, or (c) remove the dead routes. None
+of these were on the Session 15 punch list, so they were left in place.
+
+
+[Cold start] Engine load is 30-90s on App Runner
+-------------------------------------------------
+Even with the Session-15 background preload fix, every cold-deploy will
+still serve ~60s of slow first-engine-request responses (the worker is
+up, the engine is loading on a background thread). This is logged as a
+known limitation. Long-term remediation:
+  - Move to Docker image deploys (packages baked in -> save 2-3 min)
+  - Pre-bake parsed_points.parquet into the image so no S3 fetch is
+    needed on cold start (saves 5-15s)
+  - Persist the Glicko / form caches as a serialized blob so engine.load()
+    can skip the Sackmann CSV iteration (saves 5-10s)

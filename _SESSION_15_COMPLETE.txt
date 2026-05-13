@@ -1,0 +1,6 @@
+SESSION 15 — REGRESSION FIX + AUDIT COMPLETE
+Endpoints restored: 8/8 (all engine-dependent and file-backed endpoints 200 in prod)
+Security issues fixed: 0 (none required immediate action — see report for full audit)
+Security issues logged for manual action: 2 (CORS wildcard, missing boto3 dependency)
+Performance: cold start /health 25s -> 1s, first engine endpoint timed-out-at-edge -> 3s warm-local; production cold deploy still takes ~12-13min total (App Runner build + pip install + engine load) but no longer 502s on user requests
+Manual follow-ups required: yes (see _session15_followups.txt — IAM permissions, CORS decision, Supabase tenant, boto3, cold-start remediation)
