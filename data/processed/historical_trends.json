@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-12T10:33:46.430572+00:00",
+  "generated_at": "2026-05-13T05:31:06.629180+00:00",
   "metrics": {
     "matches_per_year": {
       "label": "Matches Played per Year",
@@ -6129,6 +6129,146 @@
             "year": 2007,
             "value": 0.6605,
             "n": 93
+          }
+        ]
+      }
+    },
+    "avg_rally_length": {
+      "label": "Average Rally Length (shots)",
+      "description": "Mean shots per point, computed from charted-match data. Coverage is sparse and biased toward high-profile matches.",
+      "source": "Match Charting Project (parsed_points.parquet)",
+      "coverage_start": 2000,
+      "by_surface": {
+        "all": [
+          {
+            "year": 2000,
+            "value": 4.09,
+            "n": 69
+          },
+          {
+            "year": 2001,
+            "value": 4.29,
+            "n": 81
+          },
+          {
+            "year": 2002,
+            "value": 4.55,
+            "n": 82
+          },
+          {
+            "year": 2003,
+            "value": 4.46,
+            "n": 73
+          },
+          {
+            "year": 2004,
+            "value": 4.56,
+            "n": 102
+          },
+          {
+            "year": 2005,
+            "value": 4.55,
+            "n": 98
+          },
+          {
+            "year": 2006,
+            "value": 4.69,
+            "n": 120
+          },
+          {
+            "year": 2007,
+            "value": 4.9,
+            "n": 94
+          },
+          {
+            "year": 2008,
+            "value": 4.89,
+            "n": 92
+          },
+          {
+            "year": 2009,
+            "value": 4.91,
+            "n": 102
+          },
+          {
+            "year": 2010,
+            "value": 4.82,
+            "n": 91
+          },
+          {
+            "year": 2011,
+            "value": 5.15,
+            "n": 111
+          },
+          {
+            "year": 2012,
+            "value": 4.85,
+            "n": 140
+          },
+          {
+            "year": 2013,
+            "value": 4.84,
+            "n": 118
+          },
+          {
+            "year": 2014,
+            "value": 4.63,
+            "n": 172
+          },
+          {
+            "year": 2015,
+            "value": 4.53,
+            "n": 292
+          },
+          {
+            "year": 2016,
+            "value": 4.53,
+            "n": 180
+          },
+          {
+            "year": 2017,
+            "value": 4.6,
+            "n": 238
+          },
+          {
+            "year": 2018,
+            "value": 4.48,
+            "n": 250
+          },
+          {
+            "year": 2019,
+            "value": 4.61,
+            "n": 605
+          },
+          {
+            "year": 2020,
+            "value": 4.76,
+            "n": 164
+          },
+          {
+            "year": 2021,
+            "value": 4.67,
+            "n": 366
+          },
+          {
+            "year": 2022,
+            "value": 4.68,
+            "n": 633
+          },
+          {
+            "year": 2023,
+            "value": 4.69,
+            "n": 618
+          },
+          {
+            "year": 2024,
+            "value": 4.63,
+            "n": 767
+          },
+          {
+            "year": 2025,
+            "value": 4.53,
+            "n": 566
           }
         ]
       }
