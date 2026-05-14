@@ -197,3 +197,55 @@ Robert should re-run the brief's 5-curl gate once the deploy completes.
 - `requirements.txt` — dropped `psycopg2-binary==2.9.11`
 - `.env.example` — `DATABASE_URL` section replaced with a note explaining no DB is required
 - `_session16_followups.txt` — Phase 2 full migration item marked RESOLVED with reference to commit 15d61404
+
+## 16.2 Hotfix — Cold-start UX (decoupled health + frontend banner + diagnostics)
+
+After 16.1 every data endpoint runs through `_get_engine()`, so the 30-90s engine warmup window now showed as a 503 wall on every page. Three layers applied:
+
+### L1 — Endpoint split (commit `2d0e50af`)
+
+- `/health` stays cheap, no engine call, used by App Runner health probe.
+- `/ready` returns 200 only when `_predict_engine_loaded`, 503 otherwise with the warming-up retry hint. Frontend gates UI hydration on this.
+- `/warm` forces the background preload to fire if not started, blocks up to 110s on the loaded event (under App Runner's edge timeout), returns 200 + `load_ms` on success or 202 + `elapsed_ms` if still loading at timeout (keeps the cron green so the next run retries without alarms).
+- Keep-warm cron now hits `/warm` (was `/health`) every 2 minutes (was 4). Shorter cadence is cheap on the AWS credit pool and gives faster recovery if App Runner reaps an instance between scheduled pings.
+- All three endpoints have `Cache-Control: no-store` via the existing middleware so CloudFront never serves stale state.
+
+### L2 — Frontend resilience (commit `288997cc`)
+
+New `frontend/public/dashboard/warmup.js` loaded after `config.js` on `index.html`, `player.html`, `compare.html`, `tournament.html`, `trends.html`. Two concerns in one file:
+
+1. **Fetch wrapper.** Monkey-patches `window.fetch`. Requests targeting `window.API_URL` get auto-retried at 2 s / 5 s / 10 s on HTTP 503. `/warm` and `/ready` themselves pass through unwrapped so the banner poller sees raw 503s and the helper does not recurse.
+2. **Warming-up banner.** Calls `GET /ready` on page load. If 200, no-op. If 503, injects a fixed-top banner reading "TennisIQ is warming up. Data will load in 30-60 seconds." with a pulsing teal dot, polls every 5 s for up to 5 minutes, hides on first 200 and emits a `tiq:ready` window event for pages that want to re-kick their data loads.
+
+Skeleton loaders on the underlying pages stay in their loading state during the retry window because their fetch() calls are silently looping behind the banner — no flash of error.
+
+### L3 — Engine startup logging (commit `e6564cce`)
+
+`PredictEngine.load()` now emits per-phase timestamps + durations as `[engine-load] phase=<name> dt=<sec> total=<sec>`. Local M3 Pro cold-load: 11.61 s, dominated by `attribute_proxies` (5.85 s, parsed_points iteration) and `match_caches` (4.05 s, Sackmann CSV iteration). Production cold-load is in the 60-200 s range, roughly 5-17x slower on App Runner's single vCPU; exact numbers wait on Robert pulling the next cold deploy's CloudWatch logs (the `tennisiq-deploy` IAM user does not have CloudWatch read). Both bottlenecks have concrete fixes already listed under Phase 3 Docker in `_session16_followups.txt`.
+
+### 16.2 verification (production, after deploy + engine warm)
+
+| Endpoint                                | Result |
+|-----------------------------------------|--------|
+| /health                                 | PASS — `{status: ok}`, no engine call |
+| /ready                                  | PASS — `{ready: true}` |
+| /players/search?q=sinner                | PASS — Sinner card returned with fifa_rating 100.2 |
+| /matchup?p1=sinner&p2=alcaraz&surface=hard | PASS — full matchup payload |
+| /api/key-matchups-live                  | PASS — Alcaraz vs Sinner clay final |
+| /api/live-tournament                    | PASS — Italian Open clay |
+| /api/active-players                     | PASS — Alcaraz |
+| /api/stat-of-the-day                    | PASS — Cerundolo clay-edge stat rendered |
+| /cards                                  | PASS — Sinner first, legendary tier sort |
+
+Frontend: all five dashboard pages load with `warmup.js` referenced once each (verified via curl). Banner UX assumes a cold-start window; impossible to time perfectly from CLI but will surface on the next App Runner reap.
+
+Keep-warm workflow dispatched manually on the rewired `/warm` target (run `25847387254`, success, 8 s).
+
+### Files changed (16.2)
+
+- `src/api/main.py` — new `/ready`, `/warm`; cache-control list extended
+- `src/api/predict_engine.py` — per-phase timing logs in `load()`
+- `.github/workflows/keep-warm.yml` — endpoint is now `/warm`, cron `*/2 * * * *`
+- `frontend/public/dashboard/warmup.js` — new, 159 lines
+- `frontend/public/dashboard/index.html`, `player.html`, `compare.html`, `tournament.html`, `trends.html` — one new `<script src="warmup.js">` each
+- `_session16_followups.txt` — added engine-warmup profiling section with local + prod numbers and the Phase 3 Docker fix path

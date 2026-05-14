@@ -55,12 +55,70 @@ What's needed:
   - Add .github/workflows/deploy-api.yml that builds + pushes on
     push to main; switch App Runner service config to use the ECR
     image instead of source-code deploy.
-  - Verify cold deploy drops from ~12-13 min to under 5 min.
+  - Bake data/processed/parsed_points.parquet into the image so the
+    cold-start S3 fetch (5-15s on App Runner) is eliminated.
+  - Persist Glicko form caches to a serialized blob so engine.load
+    can skip the 4s match-CSV iteration. See profiling section below.
+  - Verify cold deploy drops from ~12-13 min to under 5 min and
+    engine warmup drops from ~200s to under 30s.
 Estimated time: 4-6 hours (docker file iteration is the slow part).
 Dependencies: local Docker install. ECR permissions on tennisiq-deploy
   (currently absent, needs the IAM grant above to be extended).
 Suggested commit message: feat: containerize API for sub-5-min App
-  Runner cold deploys
+  Runner cold deploys with sub-30s engine warmup
+
+
+----------------------------------------------------------------------
+[Engine warmup profiling] Per-phase load timings from Session 16.2
+----------------------------------------------------------------------
+Session 16.2 added structured `[engine-load] phase=X dt=Y total=Z`
+log lines to PredictEngine.load(). Local cold-load on Robert's M3 Pro
+(2026-05-14):
+
+  phase=feature_cols          dt=0.00s  total=0.00s
+  phase=xgb                   dt=0.58s  total=0.58s
+  phase=lgb                   dt=0.04s  total=0.62s
+  phase=stacker               dt=0.03s  total=0.65s
+  phase=glicko                dt=0.02s  total=0.67s
+  phase=attributes            dt=0.16s  total=0.83s
+  phase=peak_elo              dt=0.01s  total=0.83s
+  phase=form_cache            dt=0.17s  total=1.00s
+  phase=match_caches          dt=4.05s  total=5.06s
+  phase=attribute_averages    dt=0.70s  total=5.76s
+  phase=attribute_proxies     dt=5.85s  total=11.61s
+  phase=retired_audit         dt=0.00s  total=11.61s
+  ready                                 total=11.61s
+
+Production observation (App Runner, single vCPU, cold deploy of
+commit e6564cce on 2026-05-14): /ready returned 404 for 395s (the
+build + pip install + uvicorn boot window), then 503 for at least
+200s until the next probe found the engine already loaded. So total
+engine warmup on App Runner is in the 60-200s range, roughly 5-17x
+the local 12s. Robert can confirm the exact phase numbers by
+filtering CloudWatch logs for `[engine-load]` on the next cold
+deploy (tennisiq-deploy IAM does not have CloudWatch read; use the
+AWS Console).
+
+Two phases dominate and both have known fixes for Session 17:
+
+1. attribute_proxies (5.85s local) iterates parsed_points.parquet
+   to compute footwork/volley proxies. On App Runner the parquet
+   is fetched lazily from S3 on first need (Session 14 §B). Baking
+   the parquet into the Docker image eliminates the S3 fetch and
+   moves parsed_points into the warm filesystem cache at boot.
+
+2. match_caches (4.05s local) iterates 161 Sackmann CSVs to build
+   win/loss + H2H + age caches. The result is deterministic given
+   the Sackmann data version; serialize it to a single
+   data/processed/match_caches.pkl that gets regenerated nightly by
+   the daily-update workflow and loaded directly at engine startup.
+   Expected to cut this phase from 4s to under 0.5s on App Runner.
+
+Estimated combined impact: production engine warmup drops from
+~200s to ~30s, well below the App Runner edge timeout and inside
+the keep-warm 2-min cron's window. Both fixes are part of the
+Phase 3 Docker followup above.
+----------------------------------------------------------------------
 
 ----------------------------------------------------------------------
 [Phase 4] Live tournament data source evaluation + switch

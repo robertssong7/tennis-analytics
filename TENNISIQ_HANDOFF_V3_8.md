@@ -3,7 +3,7 @@
 **Date:** May 13, 2026 (updated from v3.7 with Session 16 addendum).
 **Author:** Robert Song + development session context (Sessions 1-16)
 **Status:** Live in production, actively iterating
-**v3.8 note:** Session 16 added infrastructure polish (cache headers, gzip, keep-warm cron, skeleton loaders), tightened CORS, and shipped a homepage insight-card scaffold with admin override. Full AI insight engine deferred to Session 17. The 16.1 hotfix removed the `DATABASE_URL` dependency entirely by porting 7 previously DB-backed endpoints to read from in-memory engine state plus `atp_calendar_2026.json`. **TennisIQ no longer uses or requires a database.** See `## 33. SESSION 16 ADDENDUM` at the bottom and `_session16_followups.txt`.
+**v3.8 note:** Session 16 added infrastructure polish (cache headers, gzip, keep-warm cron, skeleton loaders), tightened CORS, and shipped a homepage insight-card scaffold with admin override. Full AI insight engine deferred to Session 17. The 16.1 hotfix removed the `DATABASE_URL` dependency entirely by porting 7 previously DB-backed endpoints to read from in-memory engine state plus `atp_calendar_2026.json`. **TennisIQ no longer uses or requires a database.** The 16.2 hotfix decoupled liveness from engine readiness: `/health` stays cheap, new `/ready` and `/warm` gate the frontend, and a shared `warmup.js` shows a banner + auto-retries 503s during cold-start windows so the user never sees a broken page. See `## 33. SESSION 16 ADDENDUM` at the bottom and `_session16_followups.txt`.
 **v3.7 note:** The Session 14 brief was re-executed end-to-end on 2026-05-12. All phases green; no product changes. See `_SESSION_14_REPORT.md` for that addendum.
 **Live URLs:**
 - Frontend (Vercel): https://tennisiq-one.vercel.app
@@ -797,6 +797,18 @@ Infrastructure polish + insight-card scaffold. Brief originally specified 13 pha
      - `GET /insight/current` returns `{ text, pinned_at, source: "manual_pin" }` when a pin exists, otherwise `{ text: null, source: "placeholder" }`.
      - `POST /admin/insights/override` accepts `{ action: "pin" | "clear" | "block", insight_text? }`. Requires `Authorization: Bearer $ADMIN_TOKEN`. Pin persists to `data/processed/pinned_insight.json`. `block` is a no-op stub for now (the dedup table ships in Session 17 Phase 10).
    - Frontend `#insightSection` sits between the hero and the Stat-of-the-Day card. Initial state shows headline "Coming soon" / body explainer / footer "AI insight engine launches in Session 17." `loadInsight()` fetches `/insight/current` on page load and, if `text` is set, replaces headline + footer (with "Updated N min ago" relative time) without changing the card's outer dimensions, so the Session-17 ship is a no-layout-shift swap.
+
+### 16.2 Hotfix — Cold-start UX (split health/ready/warm + frontend banner)
+
+After 16.1 every data endpoint runs through `_get_engine()`, so the 30-90s engine warmup window now showed as a 503 wall on every page. Three layers shipped:
+
+**L1 (commit `2d0e50af`):** `/health` stays cheap (no engine call), `/ready` returns 200 only when `_predict_engine_loaded` is True (503 otherwise), `/warm` forces a preload if cold and blocks up to 110s on the loaded event (200 with `load_ms` on success, 202 with `elapsed_ms` if still loading at timeout). All three carry `Cache-Control: no-store`. Keep-warm workflow now hits `/warm` every 2 minutes (was `/health` every 4).
+
+**L2 (commit `288997cc`):** New `frontend/public/dashboard/warmup.js` loaded after `config.js` on all 5 pages (index/player/compare/tournament/trends). Monkey-patches `window.fetch` so API calls auto-retry at 2 s / 5 s / 10 s on 503. Polls `/ready` on load; if 503, shows a fixed-top banner ("TennisIQ is warming up. Data will load in 30-60 seconds.") with a pulsing teal dot, polls every 5 s, hides on first 200 and emits a `tiq:ready` window event. `/warm` and `/ready` themselves bypass the retry wrapper so the poller sees raw status.
+
+**L3 (commit `e6564cce`):** `PredictEngine.load()` emits per-phase timing as `[engine-load] phase=<name> dt=<sec> total=<sec>`. Local M3 Pro: 11.61 s total. Slowest phases: `attribute_proxies` (5.85 s, parsed_points iteration) and `match_caches` (4.05 s, Sackmann CSV iteration). Production engine warmup observed in the 60-200 s range. Both bottlenecks fix in the Phase 3 Docker followup (bake parsed_points into the image, persist match caches as a serialized blob).
+
+Production 9-endpoint verification PASS after engine warm. Frontend pages all reference `warmup.js` exactly once. Keep-warm workflow on `/warm` verified green via manual dispatch (run `25847387254`, 8 s).
 
 ### 16.1 Hotfix — DATABASE_URL dependency removed
 
