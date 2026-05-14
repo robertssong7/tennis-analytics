@@ -249,19 +249,37 @@ class PredictEngine:
         if self._loaded:
             return
 
+        import time as _time
+        load_start = _time.monotonic()
+        phase_start = load_start
+
+        def _phase(name):
+            """Log the elapsed time of the just-completed phase and reset
+            the phase clock. Output is grep-friendly for CloudWatch:
+            `[engine-load] phase=<name> dt=<sec> total=<sec>`."""
+            nonlocal phase_start
+            now = _time.monotonic()
+            dt = now - phase_start
+            total = now - load_start
+            logger.info(f"[engine-load] phase={name} dt={dt:.2f}s total={total:.2f}s")
+            phase_start = now
+
         logger.info("PredictEngine: loading models ...")
 
         # Feature column order from training_edge_v4.pkl
         self.feature_cols = self._get_feature_cols()
+        _phase("feature_cols")
 
         # ML models
         with open(ENSEMBLE_DIR / "xgb_model.pkl", "rb") as f:
             self.xgb_model = pickle.load(f)
         logger.info("  ✓ XGBoost loaded")
+        _phase("xgb")
 
         with open(ENSEMBLE_DIR / "lgb_model.pkl", "rb") as f:
             self.lgb_model = pickle.load(f)
         logger.info("  ✓ LightGBM loaded")
+        _phase("lgb")
 
         # Load stacked ensemble — prefer JSON (stable) over pickle (fragile)
         stacked_json = ENSEMBLE_DIR / "stacked_meta.json"
@@ -287,11 +305,13 @@ class PredictEngine:
             with open(ENSEMBLE_DIR / "stacked_ensemble.pkl", "rb") as f:
                 self.ensemble = pickle.load(f)
             logger.info(f"  ✓ Stacked ensemble loaded from pickle (legacy fallback)")
+        _phase("stacker")
 
         # Player state
         with open(DATA_DIR / "glicko2_state.pkl", "rb") as f:
             self.glicko = pickle.load(f)
         logger.info(f"  ✓ Glicko-2 loaded ({len(self.glicko.ratings):,} players)")
+        _phase("glicko")
 
         # Compute latest data date from max(last_match_date) across all players
         global LATEST_DATA_DATE
@@ -332,6 +352,7 @@ class PredictEngine:
         with open(DATA_DIR / "player_attributes_v2.pkl", "rb") as f:
             self.attributes = pickle.load(f)
         logger.info(f"  ✓ Player attributes loaded ({len(self.attributes):,} players)")
+        _phase("attributes")
 
         # Load peak Elo data (per-player peak ratings + last match date).
         self.peak_elo_data = {}
@@ -342,6 +363,7 @@ class PredictEngine:
                 logger.info(f"  ✓ Peak Elo data loaded ({len(self.peak_elo_data):,} players)")
             except Exception as e:
                 logger.warning(f"  Could not load peak_elo.json: {e}")
+        _phase("peak_elo")
 
         # Build player name list from glicko2 (has all players)
         self.player_names = sorted(self.glicko.ratings.keys())
@@ -350,6 +372,7 @@ class PredictEngine:
         logger.info("  Building player form cache from recent matches ...")
         self._build_form_cache()
         logger.info(f"  ✓ Form cache built ({len(self.player_form):,} players)")
+        _phase("form_cache")
 
         # Build win/loss, H2H, and age caches from all Sackmann matches
         logger.info("  Building win/loss, H2H, and age caches ...")
@@ -357,6 +380,7 @@ class PredictEngine:
         logger.info(f"  ✓ Win/loss cache built ({len(self.win_loss):,} players)")
         logger.info(f"  ✓ H2H cache built ({len(self.h2h):,} pairs)")
         logger.info(f"  ✓ Age cache built ({len(self.player_ages):,} players)")
+        _phase("match_caches")
 
         # Compute ATP-wide attribute averages (excluding defaults)
         logger.info("  Computing ATP attribute averages ...")
@@ -364,6 +388,7 @@ class PredictEngine:
         logger.info(
             f"  ✓ Attribute averages computed ({len(self.attribute_averages)} attributes)"
         )
+        _phase("attribute_averages")
 
         # Compute footwork/volley proxies from charted data
         logger.info("  Computing footwork/volley proxies from charted data ...")
@@ -371,11 +396,15 @@ class PredictEngine:
         logger.info(
             f"  ✓ Attribute proxies computed ({len(self.attribute_proxies)} players)"
         )
+        _phase("attribute_proxies")
 
         # Audit: list top retired players from peak_elo data
         self._audit_retired_players()
+        _phase("retired_audit")
 
         self._loaded = True
+        total = _time.monotonic() - load_start
+        logger.info(f"[engine-load] ready total={total:.2f}s")
         logger.info("PredictEngine: ready.")
 
     def _audit_retired_players(self):
