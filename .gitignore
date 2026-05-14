@@ -52,3 +52,9 @@ data/sackmann/tennis_atp_old/
 data/processed/glicko2_state.pkl.bak*
 # Session 14 brief (local doc, not part of repo product)
 CLAUDE_CODE_SESSION_*.md
+.vercel
+.env*.local
+
+# Playwright local artifacts (failure screenshots, traces). Saved e2e
+# screenshots live under _session164_artifacts/ instead.
+test-results/
