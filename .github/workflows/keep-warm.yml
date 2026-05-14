@@ -1,13 +1,13 @@
 name: Keep API warm
 
-# App Runner scales the tennisiq-api instance to zero after idle. Each cold
-# start re-runs pip install + engine load (~12-13 min total) and burns user
-# requests during that window. Hitting /health every 4 minutes keeps the
-# instance warm for ~25 cents/day of compute against the AWS credit pool.
+# App Runner scales tennisiq-api to zero after idle. /warm forces the
+# engine to load if cold and blocks up to ~110s waiting for the preload
+# event. Hitting /warm every 2 minutes keeps the instance warm and the
+# engine state hot so user requests never see the 30-90s warmup window.
 
 on:
   schedule:
-    - cron: "*/4 * * * *"
+    - cron: "*/2 * * * *"
   workflow_dispatch:
 
 concurrency:
@@ -17,18 +17,20 @@ concurrency:
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 3
     steps:
-      - name: GET /health
+      - name: GET /warm
         run: |
           set -eu
           for i in 1 2 3; do
-            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 \
-              https://su7vqmgkbd.us-east-1.awsapprunner.com/health) || code="000"
+            code=$(curl -s -o /tmp/warm.json -w "%{http_code}" --max-time 120 \
+              https://su7vqmgkbd.us-east-1.awsapprunner.com/warm) || code="000"
             echo "attempt $i: HTTP $code"
-            if [ "$code" = "200" ]; then exit 0; fi
+            if [ -s /tmp/warm.json ]; then cat /tmp/warm.json; echo; fi
+            # 200 = engine loaded; 202 = still loading at timeout, fine
+            if [ "$code" = "200" ] || [ "$code" = "202" ]; then exit 0; fi
             sleep 5
           done
-          # Don't fail the workflow on a single cold/transient hiccup —
-          # the next scheduled run handles retry. Exit 0 keeps the run green.
+          # Don't fail the workflow on a single cold/transient hiccup;
+          # the next scheduled run handles retry.
           exit 0

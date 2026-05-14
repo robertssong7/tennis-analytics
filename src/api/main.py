@@ -64,6 +64,8 @@ app.add_middleware(GZipMiddleware, minimum_size=1024)
 _CACHE_RULES = (
     ("/admin/", "no-store"),
     ("/health", "no-store"),
+    ("/ready", "no-store"),
+    ("/warm", "no-store"),
     ("/api/live-tournament", "public, max-age=120"),
     ("/api/key-matchups-live", "public, max-age=120"),
     ("/api/tournament-predictions", "public, max-age=120"),
@@ -606,7 +608,47 @@ def get_top_factors(p1: dict, p2: dict, surface: str) -> list:
 
 @app.get("/health")
 def health():
+    """Cheap liveness probe — never touches the engine. App Runner's health
+    check and external uptime monitors should target this."""
     return {"status": "ok", "version": "1.0.0"}
+
+
+@app.get("/ready")
+def ready():
+    """Engine-readiness probe. Frontend gates UI hydration on this:
+    200 once the background preload has completed, 503 with a retry hint
+    until then. Distinct from /health so the App Runner health check
+    stays green during the 30-90s engine warmup window."""
+    if _predict_engine_loaded:
+        return {"ready": True}
+    if _predict_engine_load_error is not None:
+        raise HTTPException(503, f"ML models not available: {_predict_engine_load_error}")
+    raise HTTPException(503, "ML engine still warming up — retry in ~60s")
+
+
+@app.get("/warm")
+def warm():
+    """Forces an engine warmup if cold. Used by the keep-warm cron so the
+    instance does not actually scale to zero between user requests.
+    Blocks up to 110s (under App Runner's edge timeout) waiting for the
+    background preload event; returns 200 with load duration on success
+    or 202 with elapsed_ms if the preload is still running at timeout."""
+    import time as _time
+    start = _time.monotonic()
+    if _predict_engine_loaded:
+        return {"loaded": True, "already_loaded": True, "load_ms": 0}
+    _kick_off_engine_preload()
+    _predict_engine_loaded_event.wait(timeout=110)
+    elapsed_ms = int((_time.monotonic() - start) * 1000)
+    if _predict_engine_loaded:
+        return {"loaded": True, "already_loaded": False, "load_ms": elapsed_ms}
+    if _predict_engine_load_error is not None:
+        raise HTTPException(503, f"ML models not available: {_predict_engine_load_error}")
+    return JSONResponse(
+        status_code=202,
+        content={"loaded": False, "still_loading": True, "elapsed_ms": elapsed_ms,
+                 "detail": "engine preload still in progress"},
+    )
 
 
 # ─── Insight engine (manual-pin scaffold; AI layer ships in Session 17) ──
