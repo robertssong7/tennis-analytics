@@ -5,6 +5,56 @@ Each item below captures: what's needed, estimated time, dependencies,
 and the suggested commit message for when it ships.
 
 ----------------------------------------------------------------------
+[NOT BROKEN] The 4 endpoint families flagged in 16.0/16.2/16.3/16.4
+----------------------------------------------------------------------
+The brief for Session 16.4 said the following endpoints were broken
+and needed handler-level fixes:
+
+  /predict/player/{name}
+  /player/{name}/patterns
+  /api/key-matchups-live
+  /api/tournament-predictions
+
+Phase 1 diagnosis in 16.4 (committed at 88dec31a) proved all four
+return HTTP 200 with populated data on a warm engine. Probed across
+10 edge cases (fuzzy names, lowercase, last-name-only, retired,
+surface filters, low-MCP-coverage, no-match). No handler was
+modified. The user-visible "broken in browser" symptom was the
+warmup.js retry budget (17 s vs 23 s engine warm-disk cold load),
+fixed in 5d27edb5. Do NOT modify these handlers in future sessions
+absent evidence of a new failure mode. Diagnosis evidence preserved
+in _session164_artifacts/coldstart_probe.log.
+
+----------------------------------------------------------------------
+[CONVENTION] Playwright test gate (established in 16.4 close-out)
+----------------------------------------------------------------------
+The Session 16.4 close-out spec at tests/e2e/session164.spec.js
+established this convention. Do not revert it without explicit
+approval in a future session:
+
+  - page.on('pageerror') is the STRICT assertion target. It fires
+    only for uncaught JavaScript exceptions on the page (real
+    product bugs).
+  - page.on('console') is captured as a [diagnostic] log only, not
+    asserted. Includes browser noise from network-layer failures
+    (envoy 503 without CORS headers during App Runner container
+    cycling), which are infrastructure events, not application bugs.
+  - Homepage uses domcontentloaded + expect.poll, NOT networkidle.
+    Warmup.js polls /ready every 5 s while the banner is shown and
+    the carousel fires 8 parallel fetches each with up to 63 s
+    retry budget, so the network does not idle for 500 ms during
+    cold-bounce activity.
+
+Reason: across 16.0/16.2/16.3/16.4 the test gate was inadvertently
+coupled to infrastructure-layer noise, producing repeated false-
+positive failures while the product was working. The above
+distinguishes signal from noise so any future failure is grounded
+in product behavior.
+
+----------------------------------------------------------------------
+[Phase 3 full] Docker image deploy to App Runner
+
+----------------------------------------------------------------------
 [IAM] Grant App Runner instance role s3:GetObject on processed/*
 ----------------------------------------------------------------------
 What's needed:

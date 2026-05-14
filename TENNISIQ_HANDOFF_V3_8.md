@@ -1,4 +1,4 @@
-# TennisIQ — Complete Technical Handoff v3.8
+# TennisIQ — Complete Technical Handoff v3.9
 
 **Date:** May 13, 2026 (updated from v3.7 with Session 16 addendum).
 **Author:** Robert Song + development session context (Sessions 1-16)
@@ -859,6 +859,25 @@ Per Robert's mid-session call, the following phases were not attempted:
 - Backend commits pushed (`51c785ef`, `832e3468`, `41e4abaf`, `df659ba3`, `afb0b367`). App Runner auto-deploy in flight at session end; new endpoints reach prod once cold-deploy completes (~12-13 min per V3_7 §3, longer if multiple consecutive pushes restarted the build).
 - Frontend deployed via `npx vercel --prod --archive=tgz --yes`. Live at https://tennisiq-one.vercel.app (verified 200 + ETag matches new build + placeholder copy in served HTML).
 - Keep-warm action verified once via `workflow_dispatch`; will hold instance warm on the 4-min cron going forward.
+
+---
+
+## v3.9 — Session 16.4 close-out (May 14, 2026)
+
+Three sessions of misdiagnosis (16.0/16.2/16.3) plus four iterations within 16.4 closed out. The four endpoint families (`/predict/player/{name}`, `/player/{name}/patterns`, `/api/key-matchups-live`, `/api/tournament-predictions`) were never broken. Real bug was warmup.js retry budget at 17 s vs engine warm-disk cold load at 23 s. Fix in `5d27edb5`.
+
+Test conventions established in 16.4 (see `tests/e2e/session164.spec.js`):
+
+- `page.on('pageerror')` is the strict assertion target.
+- `page.on('console')` is diagnostic only.
+- Homepage waits use `domcontentloaded + expect.poll`, not `networkidle` (incompatible with continuous warmup.js polling).
+- Pre-flight before any Playwright run: 5 consecutive `/ready=200` polls at 10 s spacing after a forced `/warm`.
+
+Future inheritor heuristic: if the site appears broken in browser, the order of suspicion is (1) frontend retry budget, (2) cold-start UX, (3) test spec mechanics, (4) only then suspect backend handlers. The 9 endpoints that work and the 4 "broken" ones share the same code path and the same readiness contract.
+
+Session 17 priorities (unchanged): Phase 3 Docker pre-bake (which would also collapse the envoy-503 cold-window enough that `networkidle` becomes viable again on homepage), Phase 4 live source switch, AI insight engine. See `_session16_followups.txt`.
+
+Commits this session: `88dec31a` (diagnosis), `01c16dab` (cold-start probe), `5d27edb5` (retry budget fix), `6f9d7232` (Playwright spec + green e2e), [this commit] (docs).
 
 ---
 
