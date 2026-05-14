@@ -1,0 +1,34 @@
+name: Keep API warm
+
+# App Runner scales the tennisiq-api instance to zero after idle. Each cold
+# start re-runs pip install + engine load (~12-13 min total) and burns user
+# requests during that window. Hitting /health every 4 minutes keeps the
+# instance warm for ~25 cents/day of compute against the AWS credit pool.
+
+on:
+  schedule:
+    - cron: "*/4 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: keep-warm
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: GET /health
+        run: |
+          set -eu
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 \
+              https://su7vqmgkbd.us-east-1.awsapprunner.com/health) || code="000"
+            echo "attempt $i: HTTP $code"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 5
+          done
+          # Don't fail the workflow on a single cold/transient hiccup —
+          # the next scheduled run handles retry. Exit 0 keeps the run green.
+          exit 0

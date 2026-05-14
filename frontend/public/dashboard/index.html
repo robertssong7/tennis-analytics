@@ -47,6 +47,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .mu-sec{margin-bottom:10px;}.mu-lbl{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}.mu-lbl.tough{color:var(--red-soft);}.mu-lbl.fav{color:var(--accent);}.mu-row{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--bg);border-radius:8px;margin-bottom:4px;font-size:12.5px;}.mu-row .oname{font-weight:500;width:130px;flex-shrink:0;}.mu-row .reason{font-size:10.5px;color:var(--ink-soft);flex:1;}
 .vp-link{display:block;text-align:center;margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;transition:color 0.2s;}.vp-link:hover{color:var(--ink);}
 
+/* Skeleton loader — visible until JS replaces #ct contents. Same layout
+   as a real .fc card so the carousel does not jump on first render. */
+.fc-skel{flex-shrink:0;width:100%;background:var(--card-bg);border-radius:18px;padding:34px 36px;border:1px solid var(--border);box-shadow:0 16px 48px rgba(26,38,52,0.08);}
+.fc-skel .skel-row{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
+.fc-skel .skel-av{width:72px;height:72px;border-radius:50%;flex-shrink:0;}
+.fc-skel .skel-name{height:30px;width:62%;border-radius:6px;}
+.fc-skel .skel-sub{height:12px;width:42%;border-radius:6px;margin-top:8px;}
+.fc-skel .skel-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.fc-skel .skel-stat{height:38px;border-radius:6px;}
+.fc-skel .skel-bar{height:14px;border-radius:6px;margin-bottom:8px;}
+.fc-skel .skel-av,.fc-skel .skel-name,.fc-skel .skel-sub,.fc-skel .skel-stat,.fc-skel .skel-bar{background:linear-gradient(90deg,#E8E0D5 0%,#F1EBE2 50%,#E8E0D5 100%);background-size:200% 100%;animation:skel-shimmer 1.4s ease-in-out infinite;}
+@keyframes skel-shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+@media (prefers-reduced-motion: reduce){.fc-skel .skel-av,.fc-skel .skel-name,.fc-skel .skel-sub,.fc-skel .skel-stat,.fc-skel .skel-bar{animation:none;background:#E8E0D5;}}
+
 .tournament-section{background:var(--bg-alt);padding:60px 9%;}
 .section-eyebrow{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px;}.section-eyebrow::after{content:'';flex:0 0 48px;height:1px;background:var(--accent);opacity:0.4;}
 .section-title{font-family:'Playfair Display',serif;font-size:clamp(30px,3.5vw,44px);font-weight:700;margin-bottom:8px;}.section-sub{font-size:15px;color:var(--ink-soft);margin-bottom:16px;}
@@ -116,7 +130,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="hero-stats"><div><div class="stat-num">980+</div><div class="stat-label">Players profiled</div></div><div><div class="stat-num">1.2M</div><div class="stat-label">Points analyzed</div></div><div><div class="stat-num">7,194</div><div class="stat-label">Charted matches</div></div></div>
 </div>
 <div class="hero-right">
-<div class="carousel-wrap" id="cw"><div class="carousel-track" id="ct"></div></div>
+<div class="carousel-wrap" id="cw"><div class="carousel-track" id="ct"><div class="fc-skel" aria-hidden="true"><div class="skel-row"><div class="skel-av"></div><div style="flex:1;"><div class="skel-name"></div><div class="skel-sub"></div></div></div><div class="skel-meta"><div class="skel-stat"></div><div class="skel-stat"></div><div class="skel-stat"></div><div class="skel-stat"></div></div><div class="skel-bar" style="width:80%;"></div><div class="skel-bar" style="width:65%;"></div><div class="skel-bar" style="width:72%;"></div></div></div></div>
 </div>
 </section>
 <section class="stat-of-day-section" id="statOfDaySection" style="max-width:1000px;margin:32px auto 0;padding:0 20px;">

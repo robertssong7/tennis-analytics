@@ -23,8 +23,10 @@ import requests as req_lib
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
+from starlette.middleware.base import BaseHTTPMiddleware
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -47,6 +49,56 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Gzip-compress responses larger than 1 KB. JSON payloads from the engine
+# (player cards, matchup grids) typically compress 4-6x.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
+
+
+# ─── Cache-Control middleware ────────────────────────────────────────────
+# Maps URL prefixes to Cache-Control directives. CloudFront/Vercel honor
+# this; browsers honor it for repeat hits. Buckets chosen for how often
+# the underlying data changes:
+#   1 hour   — slow-changing aggregates (players list, ratings)
+#   15 min   — per-player profiles, pattern stats (refreshed daily by GH Actions)
+#   2 min    — live tournament + predictions (active match data)
+#   no-store — health and admin endpoints (must not be cached)
+_CACHE_RULES = (
+    ("/admin/", "no-store"),
+    ("/health", "no-store"),
+    ("/api/live-tournament", "public, max-age=120"),
+    ("/api/key-matchups-live", "public, max-age=120"),
+    ("/api/tournament-predictions", "public, max-age=120"),
+    ("/api/active-players", "public, max-age=120"),
+    ("/api/stat-of-the-day", "public, max-age=120"),
+    ("/insight/current", "public, max-age=120"),
+    ("/predict/player/", "public, max-age=900"),
+    ("/player/", "public, max-age=900"),
+    ("/patterns/", "public, max-age=900"),
+    ("/api/match-insight", "public, max-age=900"),
+    ("/api/historical-trends", "public, max-age=3600"),
+    ("/players/search", "public, max-age=3600"),
+    ("/cards", "public, max-age=3600"),
+    ("/elo/history/", "public, max-age=3600"),
+    ("/api/v2/search", "public, max-age=3600"),
+    ("/api/player-image/", "public, max-age=2592000"),
+)
+
+
+class CacheControlMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        if "Cache-Control" in response.headers:
+            return response
+        path = request.url.path
+        for prefix, directive in _CACHE_RULES:
+            if path.startswith(prefix):
+                response.headers["Cache-Control"] = directive
+                break
+        return response
+
+
+app.add_middleware(CacheControlMiddleware)
 
 
 # ─────────────────────────────────────────────────────────────
