@@ -1,0 +1,208 @@
+Session 16 — Followups for Session 17
+=====================================
+
+Each item below captures: what's needed, estimated time, dependencies,
+and the suggested commit message for when it ships.
+
+----------------------------------------------------------------------
+[IAM] Grant App Runner instance role s3:GetObject on processed/*
+----------------------------------------------------------------------
+What's needed:
+  1. Open AWS Console -> App Runner -> tennisiq-api -> Configuration.
+  2. Click the Instance role link; attach an inline policy granting
+     s3:GetObject on arn:aws:s3:::tennisiq-data-assets/processed/*.
+  3. While there, attach AWSAppRunnerReadOnlyAccess and
+     CloudWatchLogsReadOnlyAccess to the tennisiq-deploy IAM user
+     so future Claude Code sessions can read logs and service state.
+Estimated time: 15 min in console (no code change).
+Dependencies: none. Console access only.
+Suggested commit message: chore: document new App Runner IAM grants
+  (the policy change itself lives in AWS, not git).
+
+----------------------------------------------------------------------
+[Phase 2 full] Migrate the 7 Supabase-backed endpoints to S3
+----------------------------------------------------------------------
+What's needed:
+  - Build a Sackmann -> Parquet/JSON aggregator that exports each
+    player's pre-computed profile data (conditions, matchups,
+    scenarios, similar, surface-dna, outliers) into per-player files
+    or a single parquet keyed by canonical name. Upload to
+    s3://tennisiq-data-assets/processed/profiles/.
+  - Replace each get_conn()-backed handler in src/api/main.py with
+    a direct S3 GET (boto3) + JSON deserialization + the same
+    response shape the old SQL queries produced. Maintain numpy/JSON
+    boundary discipline (float(), int() wrappers).
+  - Delete get_conn() and the DATABASE_URL env var path entirely.
+  - Add a profiles freshness check to /api/system-status.
+Estimated time: 3-4 hours (1 hr export pipeline, 2 hr endpoint
+  rewrites + verification, 30 min wiring into daily action).
+Dependencies: IAM grant above (so App Runner can read profiles/*).
+Suggested commit message: feat: migrate player profile endpoints
+  from deleted Supabase to S3-backed parquet
+
+----------------------------------------------------------------------
+[Phase 3 full] Docker image deploy to App Runner
+----------------------------------------------------------------------
+What's needed:
+  - Install Docker locally (Docker Desktop or colima for Apple Silicon).
+  - Write multi-stage Dockerfile: stage 1 builds wheels from
+    requirements.txt; stage 2 slim python:3.11-slim copies wheels,
+    installs --no-deps, copies app source, pre-imports the engine
+    modules so import-time work is in the image layer.
+  - Create ECR repo tennisiq-api under account 302524629522.
+  - Add .github/workflows/deploy-api.yml that builds + pushes on
+    push to main; switch App Runner service config to use the ECR
+    image instead of source-code deploy.
+  - Verify cold deploy drops from ~12-13 min to under 5 min.
+Estimated time: 4-6 hours (docker file iteration is the slow part).
+Dependencies: local Docker install. ECR permissions on tennisiq-deploy
+  (currently absent, needs the IAM grant above to be extended).
+Suggested commit message: feat: containerize API for sub-5-min App
+  Runner cold deploys
+
+----------------------------------------------------------------------
+[Phase 4] Live tournament data source evaluation + switch
+----------------------------------------------------------------------
+What's needed: evaluate Sofascore JSON API, Tennis Abstract scrape,
+  and Sportradar trial. DO NOT reverse-engineer ATP's undocumented
+  internal API (fragile, ToS-adjacent). Pick one, build a thin
+  scraper in src/scrapers/<source>.py, build reconciler.py that
+  prefers the live source for matches in flight or completed in
+  the last 48 hr and falls back to Sackmann post-tournament. Log
+  conflicts to data/processed/reconciliation_log.jsonl. Replace
+  tools/refresh_live_tournament.py's tennis-data.co.uk path.
+Estimated time: 6-10 hours total: 2 hr source eval, 2 hr scraper,
+  3 hr reconciler + edge cases, 2 hr daily action rewire.
+Dependencies: source-of-truth decision. If Sportradar, get a trial
+  key. If Sofascore, decide whether undocumented-API risk is OK.
+Suggested commit message: feat: live tournament data via <source>
+  with Sackmann reconciliation
+
+----------------------------------------------------------------------
+[Phase 7] MCP coverage tiers + regression-estimated patterns
+----------------------------------------------------------------------
+What's needed:
+  - Compute charted-match count per player at engine load from
+    parsed_points.parquet, store in memory.
+  - Add mcp_coverage field to player API response with tier
+    (rich >= 20 / partial 5-19 / sparse 1-4 / none 0).
+  - Train modules/pattern_estimator.py: lightweight regression
+    (Ridge or LightGBM regressor) predicting serve+1 win%,
+    return+1 win%, baseline rally win% from career first-serve %,
+    surface mix, ranking, height, handedness.
+  - Frontend badges next to pattern bars: green/yellow/gray dot
+    with sample-size note. Estimated bars render with diagonal-
+    stripe pattern to visually distinguish from real data.
+Estimated time: 6-8 hours.
+Dependencies: parsed_points still loaded from S3 (already true).
+  No new infra.
+Suggested commit message: feat: MCP coverage tiers with regression
+  estimates for sparse players
+
+----------------------------------------------------------------------
+[Phase 8] Insight candidate generator (6 categories)
+----------------------------------------------------------------------
+What's needed:
+  - src/insights/generator.py with 20+ candidate queries across
+    streak milestones, H2H curiosities, predictive milestones,
+    upset alerts, surface-transition watches, era comparisons.
+  - Each candidate returns { category, headline, supporting_stats,
+    query_used, generated_at, expires_at }.
+  - Run all queries, return ranked list by novelty + interestingness.
+  - The existing tools/mine_stat_candidates.py already covers 6
+    different categories (active_streak / surface_specialist /
+    age_anomaly / h2h_breakthrough / tournament_pattern / rating_jump).
+    Decide whether to: (a) replace it, (b) extend it, or (c) run
+    both and merge. Recommend (b): extend mine_stat_candidates with
+    the missing 4 categories (h2h_curiosity, predictive_milestone,
+    upset_alert, surface_transition, era_comparison).
+Estimated time: 6-8 hours.
+Dependencies: none.
+Suggested commit message: feat: extend insight candidate generator
+  with 4 new categories
+
+----------------------------------------------------------------------
+[Phase 9] Hard-gate fact verifier
+----------------------------------------------------------------------
+What's needed:
+  - src/insights/verifier.py parses every numeric claim and named
+    entity from supporting_stats, re-queries against source data
+    (not the cached engine state), drops the candidate on any
+    failure, logs drops to data/processed/insight_drops.jsonl.
+  - Unit tests: inject a deliberately broken candidate, confirm
+    drop; inject a true candidate, confirm pass.
+Estimated time: 3-4 hours.
+Dependencies: Phase 8.
+Suggested commit message: feat: hard-gate fact verifier for insight
+  candidates
+
+----------------------------------------------------------------------
+[Phase 10] 90-day novelty dedup with semantic similarity
+----------------------------------------------------------------------
+What's needed:
+  - data/processed/published_insights.jsonl with id, category,
+    headline, supporting_stats_hash, published_at, expires_at.
+  - Hash exclusion (90-day window) + semantic similarity gate
+    using sentence-transformers/all-MiniLM-L6-v2 (local, no API).
+  - Add sentence-transformers to requirements.txt (~500MB dep).
+    On App Runner, this may push the install time past acceptable
+    bounds; consider whether to run dedup only in the daily action
+    (where the dep is already cached on the GH runner) and skip
+    the in-process API path.
+Estimated time: 4-6 hours.
+Dependencies: Phase 9.
+Suggested commit message: feat: 90-day novelty dedup with semantic
+  similarity gate
+
+----------------------------------------------------------------------
+[Phase 11] Haiku 4.5 editorial layer with $5/month spend cap
+----------------------------------------------------------------------
+What's needed:
+  - Set ANTHROPIC_API_KEY env var on App Runner (and locally for
+    development). Use a key from console.anthropic.com.
+  - Set Anthropic Console budget alerts at $4 and $5 per the
+    original Session 16 brief (manual step).
+  - src/insights/editor.py: call claude-haiku-4-5-20251001 with
+    max_tokens 250 and system prompt enforcing ESPN/538 voice
+    (factual lead, no superlatives without numbers, no em dashes,
+    no emojis, no exclamation points, 2-3 sentences max). Pass
+    supporting_stats as structured input.
+  - Post-verify the polished output (model could drift on numbers
+    despite structured input). Fall back to raw headline on
+    post-verify failure.
+  - Hard spend cap: read data/processed/anthropic_spend.json,
+    refuse to call if MTD > $5.00. Increment after every successful
+    call using Haiku 4.5 token pricing.
+Estimated time: 4-5 hours.
+Dependencies: Phase 9 (verifier) and the ANTHROPIC_API_KEY secret.
+Suggested commit message: feat: Haiku 4.5 editorial layer with
+  $5/month spend cap
+
+----------------------------------------------------------------------
+[Phase 13] 6-hour insight engine cron
+----------------------------------------------------------------------
+What's needed:
+  - .github/workflows/insights.yml on cron 0 0,6,12,18 * * *.
+  - Run generator -> verify -> dedup -> editorial polish -> post-
+    verify -> publish to /admin/insights/override (using ADMIN_TOKEN
+    secret) -> no-op if all candidates fail.
+  - Log every run to _session17_artifacts/insight_runs.jsonl
+    and to a structured stdout line for GH Actions inspection.
+  - Manually dispatch once after first ship and verify the pin
+    propagates to /insight/current and the homepage card.
+Estimated time: 1-2 hours.
+Dependencies: Phases 8-11 all shipped, ADMIN_TOKEN GH secret added.
+Suggested commit message: feat: 6-hour insight engine cron with
+  quality threshold
+
+----------------------------------------------------------------------
+Side notes
+----------------------------------------------------------------------
+- Federer's peak_year in peak_elo.json is 2007 (his Elo peak) not
+  2017 as the Session 16 brief suggested. The data is correct; 2007
+  was peak rating, 2017 was a comeback year. No code change needed
+  unless Robert wants to override Federer specifically.
+- The Stat-of-the-Day card (Session 14) still ships above the
+  matchups grid. When the full insight engine lands in Session 17,
+  decide whether to fold the Stat-of-the-Day under it or keep
+  both. The new insight card already sits above the Stat-of-the-Day.

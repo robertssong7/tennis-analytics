@@ -1,0 +1,11 @@
+SESSION 16 — INFRASTRUCTURE + INSIGHT-CARD SCAFFOLD COMPLETE
+Scope renegotiated mid-session after preflight surfaced no-Docker + no-ANTHROPIC-KEY blockers and a realistic time budget.
+Shipped: Phase 1 (CORS+boto3+.env.example), Phase 2 partial (Supabase audit, dead-path comment), Phase 3 fallback (start.sh hardening), Phase 5 (cache headers + gzip + keep-warm + skeleton loader), Phase 6 (retired-peak verified, no change needed), Phase 12 (admin override + homepage card with "Coming soon" placeholder above Stat-of-the-Day).
+Deferred to Session 17 with detailed per-item followups: full S3 migration of 7 Supabase endpoints, Docker image deploy, live tournament source switch, MCP coverage tiers, full AI insight engine (generator + verifier + dedup + Haiku editor + cron).
+Backend commits pushed: 51c785ef, 832e3468, 41e4abaf, df659ba3, afb0b367. App Runner auto-deploy in flight (cold-deploy takes 12-13 min on source path; new endpoints reach prod once roll completes).
+Frontend deployed to Vercel via npx vercel --prod --archive=tgz; tennisiq-one.vercel.app serves the new insight card immediately.
+Keep-warm GitHub Action runs every 4 min and was verified once via manual dispatch (run 25844497338, 9s, green).
+Production verification of cache headers, gzip on the API, and /insight/current is pending the App Runner deploy and should be re-checked from the Session 17 brief.
+Glicko-2 state and stacked-ensemble Brier unchanged this session; last retrain was Session 13 (2026-05-09).
+Anthropic spend MTD: $0.00. ANTHROPIC_API_KEY remains unset; Phase 11 deferred.
+Follow-ups file: _session16_followups.txt (10 items with what/time/deps/commit-message per the format Robert specified).
