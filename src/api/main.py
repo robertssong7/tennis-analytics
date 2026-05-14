@@ -17,8 +17,6 @@ from pathlib import Path
 from datetime import datetime, date, timedelta, timezone
 from typing import Optional
 
-import psycopg2
-import psycopg2.extras
 import requests as req_lib
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request
@@ -407,63 +405,102 @@ def _get_tournament_predictions() -> dict:
 
 
 # ─────────────────────────────────────────────────────────────
-# Database connection
-# DEAD: Supabase tenant deleted pre-Session 15; callers return 500.
-# Full S3 migration deferred to Session 17 (see followups file).
+# Player / profile / H2H helpers — read from in-memory engine state.
+# Session 16.1 replaced the Supabase-backed versions of these helpers
+# with engine-state reads; the deleted tenant is no longer a dependency.
+# player_id is the canonical full name (e.g. "Jannik Sinner") since
+# the legacy numeric IDs lived only in the deleted Postgres.
 # ─────────────────────────────────────────────────────────────
 
-def get_conn():
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        raise HTTPException(500, "DATABASE_URL not configured")
-    return psycopg2.connect(db_url, cursor_factory=psycopg2.extras.RealDictCursor)
+def _scale_elo_to_0_99(mu: Optional[float]) -> int:
+    if mu is None:
+        return 50
+    return int(round(99.0 / (1.0 + math.exp(-0.004 * (float(mu) - 1750.0)))))
 
 
-# ─────────────────────────────────────────────────────────────
-# Player lookup helper
-# ─────────────────────────────────────────────────────────────
-
-def find_player(conn, name: str) -> Optional[dict]:
-    with conn.cursor() as cur:
-        # Exact match
-        cur.execute("""
-            SELECT player_id, name, elo_overall, elo_hard, elo_clay, elo_grass,
-                   elo_display, fifa_rating, card_tier, elo_peak, elo_peak_date,
-                   elo_match_count, country, hand, height_cm
-            FROM players
-            WHERE LOWER(name) = LOWER(%s)
-        """, (name,))
-        row = cur.fetchone()
-        if row:
-            return dict(row)
-
-        # Partial match
-        cur.execute("""
-            SELECT player_id, name, elo_overall, elo_hard, elo_clay, elo_grass,
-                   elo_display, fifa_rating, card_tier, elo_peak, elo_peak_date,
-                   elo_match_count, country, hand, height_cm
-            FROM players
-            WHERE LOWER(name) LIKE LOWER(%s)
-            ORDER BY elo_display DESC
-            LIMIT 1
-        """, (f"%{name}%",))
-        row = cur.fetchone()
-        return dict(row) if row else None
-
-
-def get_profile(conn, player_id: int, surface: str = "hard") -> Optional[dict]:
-    with conn.cursor() as cur:
-        cur.execute("""
-            SELECT * FROM player_profiles
-            WHERE player_id = %s AND surface = %s
-        """, (player_id, surface))
-        row = cur.fetchone()
-        return dict(row) if row else None
+def find_player(name: str) -> Optional[dict]:
+    """Look up player from engine state. Returns legacy-shaped dict."""
+    engine = _get_engine()
+    canonical = engine.find_player(name)
+    if not canonical:
+        return None
+    glicko_rates = engine.glicko.ratings.get(canonical, {})
+    r_all = glicko_rates.get("all")
+    r_hard = glicko_rates.get("hard")
+    r_clay = glicko_rates.get("clay")
+    r_grass = glicko_rates.get("grass")
+    card = engine.get_player_card(canonical)
+    return {
+        "player_id":       canonical,
+        "name":            canonical,
+        "country":         card.get("country"),
+        "elo_overall":     round(float(r_all.mu), 1) if r_all else None,
+        "elo_hard":        round(float(r_hard.mu), 1) if r_hard else None,
+        "elo_clay":        round(float(r_clay.mu), 1) if r_clay else None,
+        "elo_grass":       round(float(r_grass.mu), 1) if r_grass else None,
+        "elo_display":     float(card.get("overall")) if card.get("overall") is not None else None,
+        "fifa_rating":     float(card.get("overall")) if card.get("overall") is not None else None,
+        "card_tier":       card.get("tier"),
+        "elo_peak":        round(float(r_all.peak_mu), 1) if r_all and r_all.peak_mu else None,
+        "elo_peak_date":   str(r_all.peak_date) if r_all and r_all.peak_date else None,
+        "elo_match_count": int(card.get("match_count") or 0),
+        "hand":            None,
+        "height_cm":       None,
+        "is_retired":      bool(card.get("is_retired")),
+        "peak_year":       card.get("peak_year"),
+        "peak_rating":     round(float(r_all.peak_mu), 1) if r_all and r_all.peak_mu else None,
+    }
 
 
-def get_card_attributes(conn, player_id: int, surface: str = "hard") -> dict:
+def get_profile(player_id: str, surface: str = "hard") -> Optional[dict]:
+    """Synthesize a profile dict from engine attribute accumulator + glicko."""
+    canonical = player_id
+    engine = _get_engine()
+    acc = engine.attributes.get(canonical) if engine.attributes else None
+    surf_rate = engine.glicko.ratings.get(canonical, {}).get(surface.lower())
+    if not acc and not surf_rate:
+        return None
+
+    def _safe_ratio(num, den):
+        try:
+            n, d = float(num or 0), float(den or 0)
+            return round(n / d, 4) if d > 0 else None
+        except Exception:
+            return None
+
+    raw = acc.compute_raw_attributes() if acc else {}
+    mc = int(acc.match_count) if acc else int(surf_rate.match_count if surf_rate else 0)
+    return {
+        "player_id":        canonical,
+        "surface":          surface,
+        "match_count":      mc,
+        "data_confidence":  "high" if mc >= 50 else ("medium" if mc >= 15 else "low"),
+        "attr_srv":         int(round(float(raw.get("serve", 0.5)) * 99)),
+        "attr_ret":         int(round(float(raw.get("groundstroke", 0.5)) * 99)),
+        "attr_pat":         int(round(float(raw.get("mental", 0.5)) * 99)),
+        "attr_spd":         int(round(float(raw.get("footwork", 0.5)) * 99)),
+        "attr_hrd":         _scale_elo_to_0_99(engine.glicko.ratings.get(canonical, {}).get("hard").mu  if engine.glicko.ratings.get(canonical, {}).get("hard")  else None),
+        "attr_cly":         _scale_elo_to_0_99(engine.glicko.ratings.get(canonical, {}).get("clay").mu  if engine.glicko.ratings.get(canonical, {}).get("clay")  else None),
+        # Pattern fields available from the attribute accumulator
+        "serve_wide_pct":   None,
+        "serve_body_pct":   None,
+        "serve_t_pct":      None,
+        "ace_rate":         _safe_ratio(getattr(acc, "total_aces", None), getattr(acc, "total_serve_points", None)) if acc else None,
+        "first_serve_pct":  _safe_ratio(getattr(acc, "total_1st_serves_in", None), getattr(acc, "total_1st_serve_attempts", None)) if acc else None,
+        "first_serve_won":  _safe_ratio(getattr(acc, "total_1st_serve_won", None), getattr(acc, "total_1st_serve_played", None)) if acc else None,
+        "second_serve_won": _safe_ratio(getattr(acc, "total_2nd_serve_won", None), getattr(acc, "total_2nd_serve_played", None)) if acc else None,
+        "avg_rally_length": None,
+        "winner_rate":      _safe_ratio(getattr(acc, "total_winners", None), getattr(acc, "total_shots", None)) if acc else None,
+        "uf_error_rate":    _safe_ratio(getattr(acc, "total_ue", None), getattr(acc, "total_shots", None)) if acc else None,
+        "bp_save_pct":      _safe_ratio(getattr(acc, "total_bp_saved", None), getattr(acc, "total_bp_faced", None)) if acc else None,
+        "bp_convert_pct":   _safe_ratio(getattr(acc, "total_bp_converted", None), getattr(acc, "total_bp_opportunities", None)) if acc else None,
+        "clutch_delta":     None,
+    }
+
+
+def get_card_attributes(player_id: str, surface: str = "hard") -> dict:
     """Get card attributes, falling back to 50 for any missing values."""
-    profile = get_profile(conn, player_id, surface)
+    profile = get_profile(player_id, surface)
     if profile:
         return {
             "srv": int(profile.get("attr_srv") or 50),
@@ -476,29 +513,30 @@ def get_card_attributes(conn, player_id: int, surface: str = "hard") -> dict:
     return {"srv": 50, "ret": 50, "pat": 50, "spd": 50, "hrd": 50, "cly": 50}
 
 
-def get_h2h(conn, p1_id: int, p2_id: int, limit: int = 20) -> dict:
-    with conn.cursor() as cur:
-        cur.execute("""
-            SELECT m.match_id, m.match_date, m.surface, m.round,
-                   t.name AS tournament, m.score,
-                   m.winner_id, m.loser_id
-            FROM matches m
-            LEFT JOIN tournaments t ON m.tournament_id = t.tournament_id
-            WHERE (m.winner_id = %s AND m.loser_id = %s)
-               OR (m.winner_id = %s AND m.loser_id = %s)
-            ORDER BY m.match_date DESC
-            LIMIT %s
-        """, (p1_id, p2_id, p2_id, p1_id, limit))
-        rows = [dict(r) for r in cur.fetchall()]
-
-    p1_wins = sum(1 for r in rows if r["winner_id"] == p1_id)
-    p2_wins = len(rows) - p1_wins
-
+def get_h2h(p1_id: str, p2_id: str, limit: int = 20) -> dict:
+    """Read H2H from engine.h2h. Match objects are (date, winner_name) tuples."""
+    engine = _get_engine()
+    key = tuple(sorted([p1_id, p2_id]))
+    entry = engine.h2h.get(key) if hasattr(engine, "h2h") else None
+    if not entry:
+        return {"p1_wins": 0, "p2_wins": 0, "total": 0, "matches": []}
+    p1_wins = int(entry["wins"].get(p1_id, 0))
+    p2_wins = int(entry["wins"].get(p2_id, 0))
+    sorted_matches = sorted(
+        entry["matches"], key=lambda m: m[0] or datetime.min.date(), reverse=True
+    )[:limit]
+    matches_out = []
+    for m_date, winner in sorted_matches:
+        matches_out.append({
+            "match_date":   str(m_date) if m_date else None,
+            "winner":       winner,
+            "loser":        p1_id if winner == p2_id else p2_id,
+        })
     return {
         "p1_wins":  p1_wins,
         "p2_wins":  p2_wins,
-        "total":    len(rows),
-        "matches":  rows,
+        "total":    p1_wins + p2_wins,
+        "matches":  matches_out,
     }
 
 
@@ -507,14 +545,13 @@ def get_h2h(conn, p1_id: int, p2_id: int, limit: int = 20) -> dict:
 # ─────────────────────────────────────────────────────────────
 
 def predict_win_prob(p1: dict, p2: dict, surface: str) -> dict:
-    """Simple Elo-based win probability with CI."""
-    from src.elo.elo_engine import expected_score
-
+    """Simple Elo-based win probability with CI. Inline expected_score since
+    the original src.elo.elo_engine module is no longer in the tree (the
+    production prediction path lives in PredictEngine.predict)."""
     surf_key = f"elo_{surface.lower()}" if surface in ("hard", "clay", "grass") else "elo_display"
     r1 = float(p1.get(surf_key) or p1.get("elo_display") or 1500)
     r2 = float(p2.get(surf_key) or p2.get("elo_display") or 1500)
-
-    prob = expected_score(r1, r2)
+    prob = 1.0 / (1.0 + 10.0 ** ((r2 - r1) / 400.0))
 
     # Simple uncertainty: wider CI when Elo close
     elo_diff = abs(r1 - r2)
@@ -891,48 +928,34 @@ def matchup(
     p2: str = Query(..., description="Player 2 name"),
     surface: str = Query("hard", description="hard | clay | grass"),
 ):
-    conn = get_conn()
-    try:
-        player1 = find_player(conn, p1)
-        player2 = find_player(conn, p2)
+    player1 = find_player(p1)
+    player2 = find_player(p2)
+    if not player1:
+        raise HTTPException(404, f"Player not found: {p1}")
+    if not player2:
+        raise HTTPException(404, f"Player not found: {p2}")
 
-        if not player1:
-            raise HTTPException(404, f"Player not found: {p1}")
-        if not player2:
-            raise HTTPException(404, f"Player not found: {p2}")
+    win_prob = predict_win_prob(player1, player2, surface)
+    factors  = get_top_factors(player1, player2, surface)
+    h2h      = get_h2h(player1["player_id"], player2["player_id"])
+    p1_card  = get_card_attributes(player1["player_id"], surface)
+    p2_card  = get_card_attributes(player2["player_id"], surface)
 
-        win_prob = predict_win_prob(player1, player2, surface)
-        factors  = get_top_factors(player1, player2, surface)
-        h2h      = get_h2h(conn, player1["player_id"], player2["player_id"])
-        p1_card  = get_card_attributes(conn, player1["player_id"], surface)
-        p2_card  = get_card_attributes(conn, player2["player_id"], surface)
-
-        return {
-            "p1": {
-                **player1,
-                "card_attributes": p1_card,
-            },
-            "p2": {
-                **player2,
-                "card_attributes": p2_card,
-            },
-            "win_probability":    win_prob,
-            "confidence_interval": {
-                "lower": win_prob["ci_lower"],
-                "upper": win_prob["ci_upper"],
-            },
-            "top_3_factors":      factors,
-            "head_to_head_record": h2h,
-            "elo_comparison": {
-                "p1_overall":  player1.get("elo_display"),
-                "p2_overall":  player2.get("elo_display"),
-                f"p1_{surface}": player1.get(f"elo_{surface}"),
-                f"p2_{surface}": player2.get(f"elo_{surface}"),
-            },
-            "surface": surface,
-        }
-    finally:
-        conn.close()
+    return {
+        "p1": {**player1, "card_attributes": p1_card},
+        "p2": {**player2, "card_attributes": p2_card},
+        "win_probability":     win_prob,
+        "confidence_interval": {"lower": win_prob["ci_lower"], "upper": win_prob["ci_upper"]},
+        "top_3_factors":       factors,
+        "head_to_head_record": h2h,
+        "elo_comparison": {
+            "p1_overall":   player1.get("elo_display"),
+            "p2_overall":   player2.get("elo_display"),
+            f"p1_{surface}": player1.get(f"elo_{surface}"),
+            f"p2_{surface}": player2.get(f"elo_{surface}"),
+        },
+        "surface": surface,
+    }
 
 
 @app.get("/player/{name}")
@@ -940,39 +963,28 @@ def player_profile(
     name: str,
     surface: str = Query("hard"),
 ):
-    conn = get_conn()
-    try:
-        player = find_player(conn, name)
-        if not player:
-            raise HTTPException(404, f"Player not found: {name}")
+    player = find_player(name)
+    if not player:
+        raise HTTPException(404, f"Player not found: {name}")
 
-        pid  = player["player_id"]
-        profile = get_profile(conn, pid, surface)
-        attrs   = get_card_attributes(conn, pid, surface)
+    pid = player["player_id"]
+    profile = get_profile(pid, surface)
+    attrs = get_card_attributes(pid, surface)
+    # Per-match elo trajectory is not stored in engine memory; the trajectory
+    # endpoint is /elo/history/{name} which now returns "not_available" for
+    # the same reason. Keeping the field present so the response shape stays
+    # stable for the dashboard, but as an empty list.
+    history = []
 
-        # Elo history (last 50)
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT match_date, surface, elo_before, elo_after,
-                       opponent_elo, tournament_level, k_factor
-                FROM elo_history
-                WHERE player_id = %s
-                ORDER BY match_date DESC
-                LIMIT 50
-            """, (str(pid),))
-            history = [dict(r) for r in cur.fetchall()]
-
-        return {
-            **player,
-            "surface":         surface,
-            "profile":         profile,
-            "card_attributes": attrs,
-            "elo_history":     history,
-            "data_confidence": profile.get("data_confidence") if profile else "excluded",
-            "match_count":     profile.get("match_count") if profile else player.get("elo_match_count", 0),
-        }
-    finally:
-        conn.close()
+    return {
+        **player,
+        "surface":         surface,
+        "profile":         profile,
+        "card_attributes": attrs,
+        "elo_history":     history,
+        "data_confidence": profile.get("data_confidence") if profile else "excluded",
+        "match_count":     profile.get("match_count") if profile else int(player.get("elo_match_count") or 0),
+    }
 
 
 @app.get("/patterns/{name}")
@@ -981,75 +993,83 @@ def player_patterns(
     surface: str = Query("hard"),
     min_n: int = Query(15),
 ):
-    conn = get_conn()
-    try:
-        player = find_player(conn, name)
-        if not player:
-            raise HTTPException(404, f"Player not found: {name}")
+    player = find_player(name)
+    if not player:
+        raise HTTPException(404, f"Player not found: {name}")
 
-        pid = player["player_id"]
-        profile = get_profile(conn, pid, surface)
-        if not profile:
-            return {"player": player, "surface": surface, "patterns": None,
-                    "data_confidence": "excluded"}
+    pid = player["player_id"]
+    profile = get_profile(pid, surface)
+    if not profile:
+        return {"player": player, "surface": surface, "patterns": None,
+                "data_confidence": "excluded"}
 
-        # Serve direction
-        serve_dirs = {
-            "wide": profile.get("serve_wide_pct"),
-            "body": profile.get("serve_body_pct"),
-            "T":    profile.get("serve_t_pct"),
-        }
+    serve_dirs = {
+        "wide": profile.get("serve_wide_pct"),
+        "body": profile.get("serve_body_pct"),
+        "T":    profile.get("serve_t_pct"),
+    }
 
-        return {
-            "player":          player,
-            "surface":         surface,
-            "data_confidence": profile.get("data_confidence"),
-            "match_count":     profile.get("match_count"),
-            "serve_directions": serve_dirs,
-            "serve_effectiveness": {
-                "ace_rate":         profile.get("ace_rate"),
-                "first_serve_pct":  profile.get("first_serve_pct"),
-                "first_serve_won":  profile.get("first_serve_won"),
-                "second_serve_won": profile.get("second_serve_won"),
-            },
-            "rally_patterns": {
-                "avg_rally_length": profile.get("avg_rally_length"),
-                "winner_rate":      profile.get("winner_rate"),
-                "uf_error_rate":    profile.get("uf_error_rate"),
-            },
-            "pressure": {
-                "bp_save_pct":    profile.get("bp_save_pct"),
-                "bp_convert_pct": profile.get("bp_convert_pct"),
-                "clutch_delta":   profile.get("clutch_delta"),
-            },
-        }
-    finally:
-        conn.close()
+    return {
+        "player":          player,
+        "surface":         surface,
+        "data_confidence": profile.get("data_confidence"),
+        "match_count":     profile.get("match_count"),
+        "serve_directions": serve_dirs,
+        "serve_effectiveness": {
+            "ace_rate":         profile.get("ace_rate"),
+            "first_serve_pct":  profile.get("first_serve_pct"),
+            "first_serve_won":  profile.get("first_serve_won"),
+            "second_serve_won": profile.get("second_serve_won"),
+        },
+        "rally_patterns": {
+            "avg_rally_length": profile.get("avg_rally_length"),
+            "winner_rate":      profile.get("winner_rate"),
+            "uf_error_rate":    profile.get("uf_error_rate"),
+        },
+        "pressure": {
+            "bp_save_pct":    profile.get("bp_save_pct"),
+            "bp_convert_pct": profile.get("bp_convert_pct"),
+            "clutch_delta":   profile.get("clutch_delta"),
+        },
+    }
 
 
 @app.get("/tournament/{name}")
 def tournament(name: str):
-    conn = get_conn()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT t.*,
-                       COUNT(m.match_id) AS match_count
-                FROM tournaments t
-                LEFT JOIN matches m ON m.tournament_id = t.tournament_id
-                WHERE LOWER(t.name) LIKE LOWER(%s)
-                GROUP BY t.tournament_id
-                ORDER BY match_count DESC
-                LIMIT 1
-            """, (f"%{name}%",))
-            row = cur.fetchone()
+    """Tournament lookup against atp_calendar_2026.json. `current` and `live`
+    resolve to the active tournament (if any); other strings do a case-
+    insensitive contains match against the calendar."""
+    calendar_path = Path(__file__).parent.parent.parent / "data" / "processed" / "atp_calendar_2026.json"
+    if not calendar_path.exists():
+        raise HTTPException(503, "Tournament calendar not available")
+    cal = json.loads(calendar_path.read_text())
+    today = date.today()
 
-        if not row:
-            raise HTTPException(404, f"Tournament not found: {name}")
+    def _to_date(s):
+        try:
+            return date.fromisoformat(s)
+        except Exception:
+            return None
 
-        return dict(row)
-    finally:
-        conn.close()
+    needle = (name or "").strip().lower()
+    if needle in ("current", "live"):
+        for t in cal:
+            s, e = _to_date(t.get("start")), _to_date(t.get("end"))
+            if s and e and s <= today <= e:
+                return {**t, "status": "live"}
+        # Fall through to most-recent if nothing is live right now
+        finished = sorted(
+            [t for t in cal if _to_date(t.get("end")) and _to_date(t["end"]) < today],
+            key=lambda t: t["end"], reverse=True,
+        )
+        if finished:
+            return {**finished[0], "status": "just_finished"}
+        raise HTTPException(404, "No live or recently-finished tournament")
+
+    matches = [t for t in cal if needle in (t.get("name") or "").lower()]
+    if not matches:
+        raise HTTPException(404, f"Tournament not found: {name}")
+    return matches[0]
 
 
 @app.get("/cards")
@@ -1060,111 +1080,103 @@ def cards_gallery(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
 ):
-    conn = get_conn()
-    try:
-        conditions = ["elo_match_count >= 5", "fifa_rating IS NOT NULL"]
-        params = []
+    engine = _get_engine()
+    tier_lower = (tier or "").lower() if tier else None
+    candidates = []
+    for canonical, rates in engine.glicko.ratings.items():
+        r_all = rates.get("all")
+        if not r_all or int(r_all.match_count or 0) < 5:
+            continue
+        card = engine.get_player_card(canonical)
+        if card.get("overall") is None:
+            continue
+        if tier_lower and card.get("tier") != tier_lower:
+            continue
+        candidates.append({
+            "player_id":       canonical,
+            "name":            canonical,
+            "country":         card.get("country"),
+            "fifa_rating":     float(card.get("overall")),
+            "card_tier":       card.get("tier"),
+            "elo_display":     float(card.get("overall")),
+            "elo_hard":        round(float(rates["hard"].mu), 1)  if rates.get("hard")  else None,
+            "elo_clay":        round(float(rates["clay"].mu), 1)  if rates.get("clay")  else None,
+            "elo_grass":       round(float(rates["grass"].mu), 1) if rates.get("grass") else None,
+            "elo_peak":        round(float(r_all.peak_mu), 1) if r_all.peak_mu else None,
+            "elo_match_count": int(r_all.match_count),
+        })
 
-        if tier:
-            conditions.append("card_tier = %s")
-            params.append(tier.lower())
+    sort_key = {
+        "fifa_rating": lambda p: (-p["fifa_rating"],),
+        "elo":         lambda p: (-p["elo_display"],),
+        "name":        lambda p: (p["name"].lower(),),
+        "recent":      lambda p: (-p["elo_display"],),
+    }.get(sort, lambda p: (-p["fifa_rating"],))
+    # Legendary first, then chosen sort
+    candidates.sort(key=lambda p: (0 if p["card_tier"] == "legendary" else 1,) + sort_key(p))
 
-        where_clause = " AND ".join(conditions)
-        order_by = {
-            "fifa_rating": "fifa_rating DESC NULLS LAST",
-            "elo":         "elo_display DESC NULLS LAST",
-            "name":        "name ASC",
-            "recent":      "elo_last_updated DESC NULLS LAST",
-        }.get(sort, "fifa_rating DESC NULLS LAST")
-
-        # Legendary first
-        order = f"CASE WHEN card_tier = 'legendary' THEN 0 ELSE 1 END, {order_by}"
-
-        offset = (page - 1) * page_size
-        params.extend([page_size, offset])
-
-        with conn.cursor() as cur:
-            cur.execute(f"""
-                SELECT player_id, name, country, fifa_rating, card_tier,
-                       elo_display, elo_hard, elo_clay, elo_grass,
-                       elo_peak, elo_match_count
-                FROM players
-                WHERE {where_clause}
-                ORDER BY {order}
-                LIMIT %s OFFSET %s
-            """, params)
-            players = [dict(r) for r in cur.fetchall()]
-
-            # Get card attributes for each
-            result = []
-            for p in players:
-                attrs = get_card_attributes(conn, p["player_id"])
-                result.append({**p, "card_attributes": attrs})
-
-        return {
-            "players":  result,
-            "page":     page,
-            "page_size": page_size,
-            "total":    len(result),
-        }
-    finally:
-        conn.close()
+    start = (page - 1) * page_size
+    page_rows = candidates[start:start + page_size]
+    result = []
+    for p in page_rows:
+        attrs = get_card_attributes(p["player_id"])
+        result.append({**p, "card_attributes": attrs})
+    return {
+        "players":   result,
+        "page":      page,
+        "page_size": page_size,
+        "total":     len(result),
+    }
 
 
 @app.get("/elo/history/{name}")
 def elo_history(name: str):
-    conn = get_conn()
-    try:
-        player = find_player(conn, name)
-        if not player:
-            raise HTTPException(404, f"Player not found: {name}")
-
-        pid = str(player["player_id"])
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT match_date, surface, elo_before, elo_after,
-                       opponent_elo, tournament_level, k_factor
-                FROM elo_history
-                WHERE player_id = %s
-                ORDER BY match_date ASC
-            """, (pid,))
-            history = [dict(r) for r in cur.fetchall()]
-
-        return {
-            "player":       player,
-            "elo_peak":     player.get("elo_peak"),
-            "elo_peak_date": player.get("elo_peak_date"),
-            "elo_by_surface": {
-                "overall": player.get("elo_overall"),
-                "hard":    player.get("elo_hard"),
-                "clay":    player.get("elo_clay"),
-                "grass":   player.get("elo_grass"),
-                "display": player.get("elo_display"),
-            },
-            "history": history,
-        }
-    finally:
-        conn.close()
+    """Per-match elo trajectory is not yet persisted (P3 future feature per
+    handoff §P3.12). Returns the current per-surface ratings; `history` is
+    an empty list and `available: false` so the dashboard can render a
+    'not available' state instead of expecting per-match rows."""
+    player = find_player(name)
+    if not player:
+        raise HTTPException(404, f"Player not found: {name}")
+    return {
+        "player":        player,
+        "elo_peak":      player.get("elo_peak"),
+        "elo_peak_date": player.get("elo_peak_date"),
+        "elo_by_surface": {
+            "overall": player.get("elo_overall"),
+            "hard":    player.get("elo_hard"),
+            "clay":    player.get("elo_clay"),
+            "grass":   player.get("elo_grass"),
+            "display": player.get("elo_display"),
+        },
+        "history":   [],
+        "available": False,
+        "reason":    "per-match trajectory not yet persisted",
+    }
 
 
 @app.get("/players/search")
 def search_players(q: str = Query(..., min_length=2)):
-    conn = get_conn()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT player_id, name, country, fifa_rating, card_tier,
-                       elo_display, elo_match_count
-                FROM players
-                WHERE LOWER(name) LIKE LOWER(%s)
-                   OR %s = ANY(name_variants)
-                ORDER BY elo_display DESC NULLS LAST
-                LIMIT 10
-            """, (f"%{q}%", q))
-            results = [dict(r) for r in cur.fetchall()]
-        return {"results": results, "query": q}
-    finally:
-        conn.close()
+    engine = _get_engine()
+    q_lower = q.strip().lower()
+    matches = []
+    for canonical in engine.player_names:
+        if q_lower in canonical.lower():
+            r_all = engine.glicko.ratings.get(canonical, {}).get("all")
+            if not r_all:
+                continue
+            card = engine.get_player_card(canonical)
+            matches.append({
+                "player_id":       canonical,
+                "name":            canonical,
+                "country":         card.get("country"),
+                "fifa_rating":     float(card.get("overall")) if card.get("overall") is not None else None,
+                "card_tier":       card.get("tier"),
+                "elo_display":     float(card.get("overall")) if card.get("overall") is not None else None,
+                "elo_match_count": int(r_all.match_count),
+            })
+    matches.sort(key=lambda p: (p.get("elo_display") is None, -(p.get("elo_display") or 0)))
+    return {"results": matches[:10], "query": q}
 
 
 # ─────────────────────────────────────────────────────────────
