@@ -356,6 +356,8 @@ def _get_tournament_predictions() -> dict:
 
 # ─────────────────────────────────────────────────────────────
 # Database connection
+# DEAD: Supabase tenant deleted pre-Session 15; callers return 500.
+# Full S3 migration deferred to Session 17 (see followups file).
 # ─────────────────────────────────────────────────────────────
 
 def get_conn():
