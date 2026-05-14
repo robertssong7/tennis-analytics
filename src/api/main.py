@@ -572,6 +572,76 @@ def health():
     return {"status": "ok", "version": "1.0.0"}
 
 
+# ─── Insight engine (manual-pin scaffold; AI layer ships in Session 17) ──
+
+_PINNED_INSIGHT_PATH = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'pinned_insight.json'
+
+
+def _load_pinned_insight():
+    if not _PINNED_INSIGHT_PATH.exists():
+        return None
+    try:
+        data = json.loads(_PINNED_INSIGHT_PATH.read_text())
+        if data.get("action") == "pin" and data.get("insight_text"):
+            return {
+                "text": str(data["insight_text"]),
+                "pinned_at": data.get("pinned_at"),
+                "source": "manual_pin",
+            }
+    except Exception as e:
+        logger.warning(f"pinned_insight.json unreadable: {e}")
+    return None
+
+
+def _save_pinned_insight(payload: dict):
+    _PINNED_INSIGHT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _PINNED_INSIGHT_PATH.write_text(json.dumps(payload, indent=2))
+
+
+@app.get("/insight/current")
+def insight_current():
+    pinned = _load_pinned_insight()
+    if pinned:
+        return pinned
+    return {"text": None, "source": "placeholder"}
+
+
+class InsightOverrideBody(BaseModel):
+    action: str
+    insight_text: Optional[str] = None
+
+
+@app.post("/admin/insights/override")
+def admin_insight_override(body: InsightOverrideBody, request: Request):
+    expected = os.getenv("ADMIN_TOKEN")
+    if not expected:
+        raise HTTPException(503, "ADMIN_TOKEN not configured on this instance")
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer ") or auth[7:] != expected:
+        raise HTTPException(401, "unauthorized")
+
+    action = (body.action or "").lower()
+    if action == "pin":
+        if not body.insight_text or len(body.insight_text.strip()) < 1:
+            raise HTTPException(400, "insight_text required for pin")
+        payload = {
+            "action": "pin",
+            "insight_text": body.insight_text.strip(),
+            "pinned_at": datetime.now(timezone.utc).isoformat(),
+        }
+        _save_pinned_insight(payload)
+        return {"ok": True, "action": "pin", "pinned_at": payload["pinned_at"]}
+    if action == "clear":
+        if _PINNED_INSIGHT_PATH.exists():
+            _PINNED_INSIGHT_PATH.unlink()
+        return {"ok": True, "action": "clear"}
+    if action == "block":
+        # Block list shipping with the full insight engine in Session 17.
+        # Until then, accept the call but no-op so the admin tooling works.
+        return {"ok": True, "action": "block", "note": "block list lands with Session 17 dedup table"}
+    raise HTTPException(400, f"unknown action {action!r}; expected pin|clear|block")
+
+
 _HEADSHOT_CACHE_DIR = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'headshots'
 _HEADSHOTS_S3_BASE = "https://tennisiq-data-assets.s3.us-east-1.amazonaws.com/headshots"
 _HEADSHOT_CACHE_TTL_SEC = 30 * 24 * 3600  # 30 days
