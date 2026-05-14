@@ -249,3 +249,55 @@ Keep-warm workflow dispatched manually on the rewired `/warm` target (run `25847
 - `frontend/public/dashboard/warmup.js` — new, 159 lines
 - `frontend/public/dashboard/index.html`, `player.html`, `compare.html`, `tournament.html`, `trends.html` — one new `<script src="warmup.js">` each
 - `_session16_followups.txt` — added engine-warmup profiling section with local + prod numbers and the Phase 3 Docker fix path
+
+## 16.3 Hotfix — warmup.js never actually ran (one real bug, two misdiagnoses)
+
+Robert's browser diagnostic surfaced three claims. After reproduction, only one was a real code bug; the other two were symptoms of the same one and the Vercel-path / endpoint-name claims were wrong premises.
+
+### What the brief claimed vs. what was actually true
+
+**Claim 1: "curl /dashboard/warmup.js returns page-could-not-be-found."**
+`vercel.json` sets `outputDirectory: "frontend/public/dashboard"`, so Vercel serves the dashboard files at the domain root, not under a `/dashboard/` prefix. `/warmup.js` returns HTTP 200, 6070 bytes. `/dashboard/warmup.js` is 404 because that path doesn't exist on the site. The HTML uses `<script src="warmup.js">` relatively, which resolves to `/warmup.js` correctly. The deploy was fine; the test path was wrong.
+
+**Claim 2: "Script load order is wrong."**
+Script *tag* order was already correct: `config.js` at line 266, `warmup.js` at line 267, same on all five pages, verified via curl. The actual bug was one level deeper. `config.js` uses `const API_URL = ...`. In a classic (non-module) `<script>`, top-level `const`/`let` creates a binding in the script's Script-scope Lexical Environment but does NOT attach a property to `window`. My warmup.js checked `window.API_URL`, which was `undefined`, so the IIFE fired the console warning and `return`-ed before installing the fetch wrapper or the banner poller. Every user-visible symptom (raw 503s in the network tab, no banner, no auto-retry) traces to that single early-return.
+
+**Claim 3: "Wrong endpoint names being called (/predict/player/jannik, /api/system-status)."**
+Cross-referenced every fetch path in the frontend against `GET /openapi.json`. All 13 paths the frontend uses exist in the API. `/api/system-status` is at line 2385 of `main.py` and returns HTTP 200 with 1268 bytes. `/predict/player/{name}` is at line 737; `name=jannik` is a valid path segment (it fuzzy-matches "Jannik Sinner" via `engine.find_player`). The 503s on `/predict/player/jannik` in the network tab were engine-cold-start 503s with body `"ML engine still warming up — retry in ~60s"` — the path was right, the engine just hadn't loaded yet, and warmup.js wasn't auto-retrying because of the bug above.
+
+### The one real fix — commit `84ef195a`
+
+Resolved `apiUrl` once at IIFE entry:
+
+    var apiUrl;
+    try { apiUrl = (typeof API_URL !== 'undefined') ? API_URL : window.API_URL; }
+    catch (e) { apiUrl = window.API_URL; }
+
+The `typeof API_URL` check reads the lexical binding from `config.js` (works in the shared Script-scope of classic scripts) and falls back to `window.API_URL` if a future `config.js` switches to `var` or an explicit window assignment. All four downstream `window.API_URL` references replaced with `apiUrl`. The leading doc comment now explains the scope rule so the next maintainer does not regress.
+
+### Verification (what I could prove from CLI, what I could not)
+
+What I verified with hard evidence this session:
+
+1. **Repro of the bug:** `node /tmp/repro.js` running `const API_URL = "..."; if (!window.API_URL) ...` in `vm.runInThisContext` → "FAILED window.API_URL check". Confirms the const-vs-window claim is the actual mechanism, not just a hypothesis.
+2. **End-to-end Node simulation of the fix:** `node /tmp/e2e.js` stubs `window.fetch` to return 503, evaluates `config.js` + `warmup.js` in one `vm.runInContext` (mirroring browser shared-script realm), then calls `window.fetch('.../player/Sinner')`. Result: 4 underlying calls, status flipped to 200 after 7s, `window.TIQWarmup` exposed. Confirms the wrapper installs and retries on 503.
+3. **Deployed warmup.js has the fix:** curl returns the file with the `typeof API_URL` line at the right position.
+4. **Script order correct on all 5 deployed pages:** curl + grep shows `config.js` immediately before `warmup.js` on `/`, `/player.html`, `/compare.html`, `/tournament.html`, `/trends.html`.
+5. **Brief's flagged endpoints work:** `/api/system-status` HTTP 200, 1268 bytes. `/predict/player/Jannik%20Sinner` HTTP 200 with `tier=legendary` once engine warm. `/matchup?p1=sinner&p2=alcaraz` HTTP 200 with `win_prob=0.536`.
+6. **Production engine cold-load timing:** forced `/warm`, returned `{loaded: true, load_ms: 23140}`. So engine.load() takes ~23 s on a partially-warm App Runner instance (the slower 60-200 s range happens only on truly-cold deploys where pip + S3 fetch are in the path too).
+
+What I cannot verify from this environment (no Playwright/Chrome):
+
+- The actual visual state of Chrome DevTools console
+- The banner DOM injection rendering correctly on the page
+- Click-through user flow (player search autocomplete, compare-page result, tournaments CPI panel)
+
+These need a real browser. **The fix is in place and the underlying mechanism is proven via Node simulation, but the final 25% — visually confirming the banner shows, then disappears, on a real cold-start in Chrome — is on you.**
+
+### Process correction
+
+You called out (correctly) that I had declared success based on backend curl across the last three sessions while the site stayed broken in the browser. Acknowledged. The static + Node + curl evidence above is the best I can do without a browser tool in this environment; for the future, the cleanest tightening would be either (a) wiring Playwright into the session image, or (b) having me always commit the JS + run the Node-vm e2e before claiming "frontend works," which I should have done starting in 16.2 and didn't.
+
+### Files changed (16.3)
+
+- `frontend/public/dashboard/warmup.js` — IIFE entry resolves `apiUrl` via `typeof API_URL`, all four downstream `window.API_URL` refs replaced
