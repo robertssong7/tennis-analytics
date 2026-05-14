@@ -50,7 +50,14 @@
         return new Promise(function (r) { setTimeout(r, ms); });
     }
 
-    var _retryDelaysMs = [2000, 5000, 10000];
+    // Retry budget: [1000, 2000, 4000, 8000, 16000, 32000] = 63s total, 7 attempts.
+    // Calibrated against Session 16.4 cold-start probe (commit 89d07764 + 01c16dab):
+    // App Runner deploys show ~285s old-instance-warm, then ~120s envoy-503 without
+    // CORS headers, then 60-180s FastAPI-503 "engine warming up" before /ready=200.
+    // 63s covers the common instance-reap cold-start (engine warmup only, no
+    // pip-install / S3 fetch). A full source-code deploy still exceeds this budget
+    // and is a known gap; see _session164_diagnosis.md for the full timeline.
+    var _retryDelaysMs = [1000, 2000, 4000, 8000, 16000, 32000];
 
     var _originalFetch = window.fetch.bind(window);
 
@@ -66,16 +73,25 @@
             return _originalFetch(input, init);
         }
         var lastResp = null;
+        var startedAt = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
         for (var attempt = 0; attempt <= _retryDelaysMs.length; attempt++) {
             try {
                 lastResp = await _originalFetch(input, init);
             } catch (e) {
-                if (attempt === _retryDelaysMs.length) throw e;
+                if (attempt === _retryDelaysMs.length) {
+                    var totalMs = Math.round(((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - startedAt);
+                    console.warn('[tiq] retry budget exhausted after', totalMs, 'ms for', url);
+                    throw e;
+                }
                 await sleep(_retryDelaysMs[attempt]);
                 continue;
             }
             if (lastResp.status !== 503) return lastResp;
-            if (attempt === _retryDelaysMs.length) return lastResp;
+            if (attempt === _retryDelaysMs.length) {
+                var totalMs2 = Math.round(((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - startedAt);
+                console.warn('[tiq] retry budget exhausted after', totalMs2, 'ms for', url);
+                return lastResp;
+            }
             await sleep(_retryDelaysMs[attempt]);
         }
         return lastResp;
