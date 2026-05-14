@@ -38,7 +38,12 @@ from src.api.config import CORS_ORIGINS
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://tennisiq-one.vercel.app",
+        "https://d3aogk1vtnp91d.cloudfront.net",
+        "http://localhost:3000",
+        "http://localhost:8080",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
