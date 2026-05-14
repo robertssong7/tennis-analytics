@@ -20,19 +20,21 @@ Suggested commit message: chore: document new App Runner IAM grants
   (the policy change itself lives in AWS, not git).
 
 ----------------------------------------------------------------------
-[Phase 2 full] Migrate the 7 Supabase-backed endpoints to S3
+[Phase 2 full] Migrate the 7 Supabase-backed endpoints to S3 — RESOLVED
 ----------------------------------------------------------------------
-What's needed:
-  - Build a Sackmann -> Parquet/JSON aggregator that exports each
-    player's pre-computed profile data (conditions, matchups,
-    scenarios, similar, surface-dna, outliers) into per-player files
-    or a single parquet keyed by canonical name. Upload to
-    s3://tennisiq-data-assets/processed/profiles/.
-  - Replace each get_conn()-backed handler in src/api/main.py with
-    a direct S3 GET (boto3) + JSON deserialization + the same
-    response shape the old SQL queries produced. Maintain numpy/JSON
-    boundary discipline (float(), int() wrappers).
-  - Delete get_conn() and the DATABASE_URL env var path entirely.
+Resolved in Session 16.1 hotfix (commit 15d61404). Took the
+in-memory refactor path (Session 15 followup #4 option b) instead
+of S3-backed reads — the engine already has the data and a DB or
+S3 layer added no value. DATABASE_URL is no longer used. The 7
+endpoints (/matchup, /player/{name}, /patterns/{name},
+/tournament/{name}, /cards, /elo/history/{name}, /players/search)
+read directly from engine state plus atp_calendar_2026.json.
+
+One residual gap: /elo/history/{name} returns available=false
+because per-match elo trajectory is not persisted anywhere. That
+is V3_7 §P3.12 ("career trajectory charts — designed-but-not-built")
+and remains a P3 future feature.
+----------------------------------------------------------------------
   - Add a profiles freshness check to /api/system-status.
 Estimated time: 3-4 hours (1 hr export pipeline, 2 hr endpoint
   rewrites + verification, 30 min wiring into daily action).

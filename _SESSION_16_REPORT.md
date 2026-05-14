@@ -117,3 +117,83 @@ $0.00 MTD. `ANTHROPIC_API_KEY` not set; Phase 11 deferred entirely.
 - `.env.example` — full env-var template
 - `.github/workflows/keep-warm.yml` — new workflow
 - `frontend/public/dashboard/index.html` — skeleton-loader CSS + DOM, insight card section, `loadInsight()` script
+
+## 16.1 Hotfix — DATABASE_URL removed, 7 endpoints ported to engine memory
+
+Production diagnostic after Session 16 confirmed that `/player/{name}`,
+`/patterns/{name}`, `/tournament/{name}`, `/matchup`, `/cards`,
+`/elo/history/{name}`, and `/players/search` were all returning
+`{"detail": "DATABASE_URL not configured"}` because the Supabase tenant
+they targeted has been deleted since before Session 14 (this is the
+pre-existing issue documented in Session 15 followup #4 and in §10 of
+this doc; Session 16 did not cause it but also did not fix it).
+
+The original hotfix brief asked for the database to be restored. After
+audit, Robert picked option (b) from Session 15's followup list: refactor
+the endpoints to read from in-memory engine state instead. That path
+eliminates the database dependency entirely, doesn't need an external
+account or new IAM, and uses data the engine already loads at startup.
+
+Commit `15d61404`. Changes:
+
+- New helpers `find_player(name)`, `get_profile(player_id, surface)`,
+  `get_card_attributes(player_id, surface)`, `get_h2h(p1_id, p2_id)`
+  read from `engine.glicko.ratings`, `engine.attributes` (which is a
+  `PlayerAttributeAccumulator` per player), and `engine.h2h`. `player_id`
+  is the canonical full name (the legacy numeric IDs lived only in the
+  deleted Postgres).
+- `/player/{name}` response now includes `is_retired`, `peak_year`, and
+  `peak_rating` (the Phase 6 fields, populated against real engine data).
+- `/patterns/{name}` synthesizes ace_rate, first_serve_won, bp_save_pct,
+  etc. as ratios from the attribute accumulator. Serve-direction wide/
+  body/T fields stay null because that data was only in the deleted
+  player_profiles table; the per-direction split needs MCP-derived
+  pattern stats which are a Session 17 followup.
+- `/tournament/{name}` reads `data/processed/atp_calendar_2026.json`.
+  `current` and `live` resolve to the active tournament; if none is
+  live, falls through to most-recent-finished.
+- `/cards` iterates `engine.glicko.ratings` with the legendary-first
+  tier ordering and chosen sort.
+- `/players/search` substring-matches against `engine.player_names`.
+- `/elo/history/{name}` now returns `available=false` with the current
+  per-surface ratings; per-match trajectory is not persisted (P3 future).
+- `/matchup` inlines the Elo expected_score formula (the original
+  `src.elo.elo_engine` module is no longer in the tree; the production
+  prediction path lives in `PredictEngine.predict`).
+- `psycopg2` imports removed from `src/api/main.py`. `psycopg2-binary`
+  removed from `requirements.txt`. `DATABASE_URL` section removed from
+  `.env.example`.
+
+### 16.1 verification
+
+Local TestClient, all 14 probed endpoints return 200:
+
+| Endpoint                                | Local | Notes |
+|-----------------------------------------|-------|-------|
+| /health                                 | PASS  |       |
+| /player/Sinner                          | PASS  | retired=false, rating=100.2 |
+| /player/Nadal                           | PASS  | retired=true, peak_rating=2684.6, peak_year=2013 |
+| /player/Federer                         | PASS  | retired=true, peak_rating=2700.5, peak_year=2007 |
+| /player/Djokovic                        | PASS  | retired=false |
+| /tournament/current                     | PASS  | Italian Open status=live |
+| /tournament/Italian                     | PASS  |       |
+| /patterns/Sinner                        | PASS  | confidence=high, match_count=533 |
+| /patterns/Alcaraz                       | PASS  |       |
+| /matchup?p1=Sinner&p2=Alcaraz           | PASS  | clay surface, win_prob populated |
+| /players/search?q=fed                   | PASS  |       |
+| /cards?tier=legendary&page_size=3       | PASS  |       |
+| /elo/history/Sinner                     | PASS  | available=false, current ratings included |
+| /insight/current                        | PASS  | placeholder shape |
+
+Production verification is pending the App Runner roll of `15d61404` at
+the time of writing. The Phase 12 `/insight/current` endpoint did roll
+successfully (returns 200 with placeholder); the 16.1 endpoints had not
+yet propagated when last polled (still showing the DATABASE_URL 500). 
+Robert should re-run the brief's 5-curl gate once the deploy completes.
+
+### Files changed (16.1)
+
+- `src/api/main.py` — helpers + 7 endpoints rewritten, `predict_win_prob` patched, psycopg2 imports removed, `get_conn` deleted
+- `requirements.txt` — dropped `psycopg2-binary==2.9.11`
+- `.env.example` — `DATABASE_URL` section replaced with a note explaining no DB is required
+- `_session16_followups.txt` — Phase 2 full migration item marked RESOLVED with reference to commit 15d61404

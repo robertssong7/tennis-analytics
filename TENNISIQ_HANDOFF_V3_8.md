@@ -3,7 +3,7 @@
 **Date:** May 13, 2026 (updated from v3.7 with Session 16 addendum).
 **Author:** Robert Song + development session context (Sessions 1-16)
 **Status:** Live in production, actively iterating
-**v3.8 note:** Session 16 added infrastructure polish (cache headers, gzip, keep-warm cron, skeleton loaders), tightened CORS, and shipped a homepage insight-card scaffold with admin override. Full AI insight engine deferred to Session 17. See `## 33. SESSION 16 ADDENDUM` at the bottom and `_session16_followups.txt`.
+**v3.8 note:** Session 16 added infrastructure polish (cache headers, gzip, keep-warm cron, skeleton loaders), tightened CORS, and shipped a homepage insight-card scaffold with admin override. Full AI insight engine deferred to Session 17. The 16.1 hotfix removed the `DATABASE_URL` dependency entirely by porting 7 previously DB-backed endpoints to read from in-memory engine state plus `atp_calendar_2026.json`. **TennisIQ no longer uses or requires a database.** See `## 33. SESSION 16 ADDENDUM` at the bottom and `_session16_followups.txt`.
 **v3.7 note:** The Session 14 brief was re-executed end-to-end on 2026-05-12. All phases green; no product changes. See `_SESSION_14_REPORT.md` for that addendum.
 **Live URLs:**
 - Frontend (Vercel): https://tennisiq-one.vercel.app
@@ -798,11 +798,15 @@ Infrastructure polish + insight-card scaffold. Brief originally specified 13 pha
      - `POST /admin/insights/override` accepts `{ action: "pin" | "clear" | "block", insight_text? }`. Requires `Authorization: Bearer $ADMIN_TOKEN`. Pin persists to `data/processed/pinned_insight.json`. `block` is a no-op stub for now (the dedup table ships in Session 17 Phase 10).
    - Frontend `#insightSection` sits between the hero and the Stat-of-the-Day card. Initial state shows headline "Coming soon" / body explainer / footer "AI insight engine launches in Session 17." `loadInsight()` fetches `/insight/current` on page load and, if `text` is set, replaces headline + footer (with "Updated N min ago" relative time) without changing the card's outer dimensions, so the Session-17 ship is a no-layout-shift swap.
 
+### 16.1 Hotfix — DATABASE_URL dependency removed
+
+After Session 16 a production diagnostic confirmed the 7 endpoints calling `get_conn()` were returning `{"detail": "DATABASE_URL not configured"}` (pre-existing Supabase tenant deletion, documented in Session 15 followup #4 — not introduced by Session 16). The hotfix took the in-memory refactor path from Session 15 followup #4 option (b): the helpers `find_player`, `get_profile`, `get_card_attributes`, `get_h2h` now read from `engine.glicko.ratings`, `engine.attributes`, `engine.h2h`, and `engine.player_form`. `/tournament/{name}` reads `atp_calendar_2026.json` (with special handling for `current`/`live`). `psycopg2` and `psycopg2-binary` were removed. `DATABASE_URL` is no longer used anywhere. `player_id` in API responses is now the canonical full name (the legacy numeric IDs lived only in the deleted Postgres). One residual: `/elo/history/{name}` returns `available=false` because per-match elo trajectory was never persisted outside the deleted DB; that endpoint is V3_7 §P3.12 ("designed-but-not-built"). Commit `15d61404`. 14/14 local-TestClient endpoint checks PASS including Nadal/Federer with `is_retired=true`, `peak_rating`, `peak_year`.
+
 ### Deferred to Session 17
 
 Per Robert's mid-session call, the following phases were not attempted:
 
-- Phase 2 full S3 migration (7 endpoints) — needs profile export pipeline first, ~3-4 hr
+- ~~Phase 2 full S3 migration~~ — RESOLVED by 16.1 refactor (no DB, no S3 export needed)
 - Phase 3 Docker image deploy — needs local Docker, ~4-6 hr
 - Phase 4 live tournament data source switch — needs source evaluation (Sofascore / Tennis Abstract / Sportradar — do NOT reverse-engineer ATP internal API), ~6-10 hr
 - Phase 7 MCP coverage tiers + regression-estimated patterns — ~6-8 hr
