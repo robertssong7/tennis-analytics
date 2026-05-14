@@ -1,6 +1,7 @@
 #!/bin/sh
 # App Runner reinstalls deps on every cold start (build/runtime containers
 # are separate). The skip-if-present check handles warm restarts.
+# Session 16.4 cold-start probe marker: forces a redeploy without code change.
 set -e
 
 # Probe multiple modules: earlier versions checked only uvicorn, so a
