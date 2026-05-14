@@ -15,25 +15,33 @@
       loaders on the underlying pages stay in their loading state because
       their fetch() calls are looping silently behind this banner.
 
-   Loaded after config.js on every page, so window.API_URL is defined by
-   the time this runs.
+   Loaded after config.js on every page. config.js declares
+   `const API_URL = ...`. In a classic (non-module) <script>, top-level
+   const/let creates a Script-scope binding but does NOT attach a
+   property to window. So we read API_URL by its bare name (which the
+   shared Script lexical environment makes visible across <script>
+   tags) and fall back to window.API_URL in case some future config.js
+   uses var or an explicit window assignment.
 */
 
 (function () {
-    if (!window.API_URL) {
+    var apiUrl;
+    try { apiUrl = (typeof API_URL !== 'undefined') ? API_URL : window.API_URL; }
+    catch (e) { apiUrl = window.API_URL; }
+    if (!apiUrl) {
         console.warn('[warmup.js] API_URL not defined; loader order is wrong');
         return;
     }
 
     var API_HOST = (function () {
-        try { return new URL(window.API_URL).host; }
+        try { return new URL(apiUrl).host; }
         catch (e) { return null; }
     })();
 
     function isOurApi(input) {
         var u = typeof input === 'string' ? input : (input && input.url) || '';
         if (!u) return false;
-        if (u.indexOf(window.API_URL) === 0) return true;
+        if (u.indexOf(apiUrl) === 0) return true;
         if (API_HOST && u.indexOf(API_HOST) !== -1) return true;
         return false;
     }
@@ -118,7 +126,7 @@
 
     async function checkReadyOnce() {
         try {
-            var r = await _originalFetch(window.API_URL + '/ready', { cache: 'no-store' });
+            var r = await _originalFetch(apiUrl + '/ready', { cache: 'no-store' });
             return r.status === 200;
         } catch (e) {
             return false;
