@@ -1,0 +1,45 @@
+Endpoint audit at 2026-05-15T06:26:31Z
+Production commit: e3bfb1f7f16154533d235f48142f9c5cd9ba3d7c
+
+[200] /health
+  body: {"status":"ok","version":"1.0.0"}
+
+[200] /ready
+  body: {"ready":true}
+
+[200] /api/active-players
+  body: {"active_players":["Carlos Alcaraz"],"tournaments":[{"name":"Italian Open","level":"Masters 1000","surface":"Clay","start":"2026-05-06","end":"2026-05-17","round":"4th Round","active_players_short":["Alcaraz C."],"active
+
+[200] /api/live-tournament
+  body: {"live":{"tournament":"Italian Open","year":2026,"dates":"May 6-17, 2026","location":"Rome, ITA","surface":"Clay","level":"Masters 1000","indoor_outdoor":"Outdoor","status":"Live","draw_size":96,"results":[{"winner":"Dra
+
+[200] /api/system-status
+  body: {"overall":"stale","data":{"matches_through":"2026-05-03","matches_through_age_days":12,"glicko_updated":"2026-05-14T20:15:02Z","glicko_age_hours":10,"tournament_results_scraped":"2026-05-14T20:15:02Z","supplement_scrape
+
+[200] /player/Jannik%20Sinner
+  body: {"player_id":"Jannik Sinner","name":"Jannik Sinner","country":"ITA","elo_overall":2722.8,"elo_hard":2532.6,"elo_clay":2459.0,"elo_grass":2081.9,"elo_display":100.2,"fifa_rating":100.2,"card_tier":"legendary","elo_peak":2
+
+[200] /player/Carlos%20Alcaraz
+  body: {"player_id":"Carlos Alcaraz","name":"Carlos Alcaraz","country":"ESP","elo_overall":2494.5,"elo_hard":2398.6,"elo_clay":2434.1,"elo_grass":2167.1,"elo_display":96.3,"fifa_rating":96.3,"card_tier":"legendary","elo_peak":2
+
+[200] /player/Rafael%20Nadal
+  body: {"player_id":"Rafael Nadal","name":"Rafael Nadal","country":"ESP","elo_overall":2192.4,"elo_hard":2127.7,"elo_clay":2355.2,"elo_grass":2037.1,"elo_display":96.0,"fifa_rating":96.0,"card_tier":"legendary","elo_peak":2684.
+
+[200] /players/search?q=Sin
+  body: {"results":[{"player_id":"Jannik Sinner","name":"Jannik Sinner","country":"ITA","fifa_rating":100.2,"card_tier":"legendary","elo_display":100.2,"elo_match_count":543},{"player_id":"Martin Sinner","name":"Martin Sinner","
+
+[200] /matchup?p1=Jannik%20Sinner&p2=Carlos%20Alcaraz
+  body: {"p1":{"player_id":"Jannik Sinner","name":"Jannik Sinner","country":"ITA","elo_overall":2722.8,"elo_hard":2532.6,"elo_clay":2459.0,"elo_grass":2081.9,"elo_display":100.2,"fifa_rating":100.2,"card_tier":"legendary","elo_p
+
+[200] /predict/player/Jannik%20Sinner
+  body: {"name":"Jannik Sinner","country":"ITA","flag":"🇮🇹","overall":100.2,"tier":"legendary","base_rating":96.2,"form_modifier":4.0,"is_retired":false,"peak_year":2024,"rating_label":null,"glow":false,"glow_direction":"u
+
+[200] /player/Jannik%20Sinner/patterns
+  body: {"available":true,"player":"Jannik Sinner","surface":"all","charted_name":"Jannik Sinner","matches_charted":260,"top_serve_directions":{"wide":{"frequency":0.403,"win_rate":0.712},"body":{"frequency":0.271,"win_rate":0.5
+
+[200] /api/key-matchups-live
+  body: {"matchups":[{"player1":"Carlos Alcaraz","player2":"Jannik Sinner","surface":"clay","round":"The Final","actual_winner":"Carlos Alcaraz","actual_score":"7-6 6-1","predicted_p1_win_prob":0.507,"predicted_p2_win_prob":0.49
+
+[200] /api/tournament-predictions
+  body: {"tournament":"Italian Open","year":2026,"surface":"Clay","category":"Masters 1000","draw_available":true,"draw_size":91,"favorites":[{"player":"Jannik Sinner","hard_rating":2459.0,"overall_rating":2722.8,"win_prob":0.35
+
