@@ -1,0 +1,73 @@
+SESSION 17 FOLLOWUPS
+
+Scope deviations accepted in this session:
+
+1. Empty-state banner on player profile (Phase C) shipped as Antigravity's
+   crude branch rather than the spec's MCP coverage dot + tooltip.
+   Defer the dot + tooltip to session 18.
+
+2. Autocomplete renders up to 8 rows now (matches spec). The Antigravity
+   diff capped at 10. Kept at 8.
+
+Deferred to session 18:
+
+3. Insights engine v0 ships 3 categories (surface_specialists,
+   form_reversals, tournament_narrative). The full 6-category vision in
+   the session 17 spec (adds upset_risk, pattern_asymmetries,
+   historical_echoes) was descoped to fit the 6-hour Phase-3 cap.
+
+4. Profile-page insights section. Session 17 ships homepage feed only.
+
+5. Novelty dedup via sentence-transformers embeddings. The orchestrator
+   has a diversity cap (max 2 per category, max 6 total) but does not
+   yet check cosine similarity against the 90-day history. Skipped to
+   avoid the sentence-transformers dependency in the GHA cron worker.
+
+6. Spend ledger persistence across cron runs. The current implementation
+   reports per-run cost in `published.json -> run.haiku_run_cost_usd`,
+   but the rolling monthly total resets on each fresh GHA checkout
+   because the log file is gitignored. To enforce the $5/month cap
+   properly, a small `data/insights/cost_ledger.json` would need to be
+   committed by the cron alongside `published.json`. Acceptable v0
+   compromise.
+
+Robert-action items (also in _SESSION_17_REPORT.md):
+
+7. Add ANTHROPIC_API_KEY to the GitHub repo secrets so the next cron
+   run replaces seed templates with Haiku-edited prose. Until then,
+   data/insights/published.json carries deterministic seed copy.
+
+8. Docker pipeline activation (currently scaffolded but not active):
+   - Create ECR repo `tennisiq-api` in us-east-1
+   - Reconfigure App Runner service in AWS console: switch from
+     source-code to ECR-image mode
+   - Confirm APPRUNNER_SERVICE_ARN still points at the reconfigured
+     service
+   - First-time activation: `gh workflow run deploy-api.yml`
+   - Measure cold-deploy reduction (target: <30s vs current ~60s+)
+
+Known fragility:
+
+9. App Runner source-mode deploys are slow (~10-30 min) when src/api/**
+   changes. Stacking pushes during this window can cause the second
+   deploy to enqueue behind the first, multiplying the wait. Future
+   sessions: batch backend changes into fewer commits, or push and
+   wait for `Service.Status=RUNNING` before pushing again.
+
+10. Vercel auto-deploy is disabled. Frontend changes need
+    `vercel --prod --archive=tgz` from the repo root. Documented in
+    TENNISIQ_HANDOFF_V3_8.md section 2.
+
+11. The atptour.com scrape is reverted, but if the underlying calendar
+    source (`atp_calendar_2026.json`) goes stale at year-end, the
+    tournament feed will not auto-detect the new year. Robert needs
+    to maintain `atp_calendar_2026.json` annually or wire a
+    Tennis Abstract scrape as a freshness fallback (session 17
+    reconciliation E permits this; not needed in 2026).
+
+12. ANTHROPIC_API_KEY direct path is the only LLM route plumbed.
+    TOKENROUTER_API_KEY is present in repo secrets but the engine does
+    not currently use it. If Robert prefers TokenRouter, edit
+    `tools/insights_engine/edit_with_haiku.py:_load_anthropic_client()`
+    to set `base_url` and pass the TokenRouter key. Not done because
+    the TokenRouter base URL was not documented in handoff materials.
