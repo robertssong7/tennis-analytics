@@ -134,11 +134,28 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 </div>
 </section>
 <section id="insightSection" style="max-width:1000px;margin:32px auto 0;padding:0 20px;">
-  <div class="insight-card" style="background:#FFFFFF;border:1px solid #EAE3DA;border-left:4px solid #0ABAB5;padding:24px 28px;border-radius:8px;">
-    <div class="insight-eyebrow" style="font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#0ABAB5;margin-bottom:8px;">AI Insight</div>
-    <h2 id="insightHeadline" style="font-family:'Playfair Display',serif;font-size:24px;color:#2C2C2C;margin:0 0 10px;line-height:1.25;min-height:30px;">Coming soon</h2>
-    <p id="insightBody" style="font-family:'DM Sans',sans-serif;color:#4A4A4A;margin:0 0 8px;line-height:1.55;">A daily analyst-quality read on the tour, generated from verified match data.</p>
-    <div id="insightFooter" style="font-family:'DM Mono',monospace;font-size:11px;color:#9A9A9A;">AI insight engine launches in Session 17.</div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+    <span style="color:#0ABAB5;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;">AI Insights</span>
+    <div style="flex:1;height:1px;background:#D0C9C0;"></div>
+  </div>
+  <div id="insightPinned" class="insight-card" style="display:none;background:#FFFFFF;border:1px solid #EAE3DA;border-left:4px solid #0ABAB5;padding:24px 28px;border-radius:8px;margin-bottom:16px;">
+    <div class="insight-eyebrow" style="font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#0ABAB5;margin-bottom:8px;">Pinned</div>
+    <h2 id="insightHeadline" style="font-family:'Playfair Display',serif;font-size:24px;color:#2C2C2C;margin:0 0 10px;line-height:1.25;min-height:30px;"></h2>
+    <p id="insightBody" style="font-family:'DM Sans',sans-serif;color:#4A4A4A;margin:0 0 8px;line-height:1.55;"></p>
+    <div id="insightFooter" style="font-family:'DM Mono',monospace;font-size:11px;color:#9A9A9A;"></div>
+  </div>
+  <div id="insightFeed" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;">
+    <div class="insight-skel" style="background:#FFFFFF;border:1px solid #EAE3DA;border-left:4px solid #0ABAB5;padding:20px;border-radius:8px;min-height:120px;">
+      <div style="height:11px;width:90px;background:#EAE3DA;border-radius:3px;margin-bottom:14px;"></div>
+      <div style="height:18px;width:80%;background:#EAE3DA;border-radius:3px;margin-bottom:10px;"></div>
+      <div style="height:13px;width:100%;background:#F0EBE3;border-radius:3px;margin-bottom:6px;"></div>
+      <div style="height:13px;width:60%;background:#F0EBE3;border-radius:3px;"></div>
+    </div>
+  </div>
+  <div id="insightEmpty" style="display:none;background:#FFFFFF;border:1px solid #EAE3DA;border-left:4px solid #0ABAB5;padding:24px 28px;border-radius:8px;">
+    <div style="font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#0ABAB5;margin-bottom:8px;">AI Insight</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:24px;color:#2C2C2C;margin:0 0 10px;line-height:1.25;">Coming soon</h2>
+    <p style="font-family:'DM Sans',sans-serif;color:#4A4A4A;margin:0;line-height:1.55;">The insights engine has not produced fresh items yet. The cron runs every six hours.</p>
   </div>
 </section>
 <section class="stat-of-day-section" id="statOfDaySection" style="max-width:1000px;margin:32px auto 0;padding:0 20px;">
@@ -150,31 +167,75 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </div>
 </section>
 <script>
+function _categoryLabel(cat){
+  if(cat==='surface_specialists') return 'Surface gap';
+  if(cat==='form_reversals') return 'Form shift';
+  if(cat==='tournament_narrative') return 'Tournament watch';
+  if(cat==='upset_risk') return 'Upset risk';
+  if(cat==='pattern_asymmetries') return 'Pattern read';
+  if(cat==='historical_echoes') return 'Historical echo';
+  return cat || 'Insight';
+}
+function _escape(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function _renderInsightCards(items){
+  var feed=document.getElementById('insightFeed');
+  if(!items||!items.length){
+    feed.style.display='none';
+    document.getElementById('insightEmpty').style.display='block';
+    return;
+  }
+  feed.innerHTML=items.map(function(i){
+    var subjectLink=i.subject
+      ? '<a href="player.html?name='+encodeURIComponent(i.subject)+'" style="font-family:\'DM Mono\',monospace;font-size:11px;color:#0ABAB5;text-decoration:none;letter-spacing:0.04em;">'+_escape(i.subject)+'</a>'
+      : '';
+    return '<div class="insight-card" style="background:#FFFFFF;border:1px solid #EAE3DA;border-left:4px solid #0ABAB5;padding:20px;border-radius:8px;display:flex;flex-direction:column;gap:8px;min-height:120px;">'+
+      '<h3 style="font-family:\'Playfair Display\',serif;font-size:18px;color:#2C2C2C;margin:0;line-height:1.3;">'+_escape(i.headline)+'</h3>'+
+      '<p style="font-family:\'DM Sans\',sans-serif;font-size:14px;color:#4A4A4A;margin:0;line-height:1.55;">'+_escape(i.body)+'</p>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:6px;">'+
+        '<span style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#0ABAB5;padding:3px 8px;border:1px solid #0ABAB5;border-radius:3px;">'+_escape(_categoryLabel(i.category))+'</span>'+
+        subjectLink+
+      '</div>'+
+    '</div>';
+  }).join('');
+  feed.style.display='grid';
+  document.getElementById('insightEmpty').style.display='none';
+}
+async function _loadInsightFeed(){
+  try{
+    var res=await fetch(API_URL+'/api/insights/recent?limit=3');
+    if(!res.ok){ _renderInsightCards([]); return; }
+    var d=await res.json();
+    _renderInsightCards((d&&d.insights)||[]);
+  }catch(e){ _renderInsightCards([]); }
+}
 (async function loadInsight() {
   try {
     var res = await fetch(API_URL + '/insight/current');
-    if (!res.ok) return;
-    var d = await res.json();
-    if (d && d.text) {
-      // Pinned insight: replace the placeholder copy. Footer drops the
-      // Session-17 disclaimer; if pinned_at is present, show relative time.
-      document.getElementById('insightHeadline').textContent = d.text;
-      document.getElementById('insightBody').textContent = '';
-      document.getElementById('insightBody').style.display = 'none';
-      var footer = 'Verified against source data.';
-      if (d.pinned_at) {
-        var diffMs = Date.now() - new Date(d.pinned_at).getTime();
-        var diffMin = Math.max(0, Math.floor(diffMs / 60000));
-        var rel = diffMin < 1 ? 'just now'
-                : diffMin < 60 ? diffMin + ' min ago'
-                : diffMin < 1440 ? Math.floor(diffMin / 60) + ' hr ago'
-                : Math.floor(diffMin / 1440) + ' days ago';
-        footer += ' Updated ' + rel + '.';
+    if (res.ok) {
+      var d = await res.json();
+      if (d && d.text) {
+        document.getElementById('insightPinned').style.display='block';
+        document.getElementById('insightFeed').style.display='none';
+        document.getElementById('insightHeadline').textContent = d.text;
+        var footer = 'Verified against source data.';
+        if (d.pinned_at) {
+          var diffMs = Date.now() - new Date(d.pinned_at).getTime();
+          var diffMin = Math.max(0, Math.floor(diffMs / 60000));
+          var rel = diffMin < 1 ? 'just now'
+                  : diffMin < 60 ? diffMin + ' min ago'
+                  : diffMin < 1440 ? Math.floor(diffMin / 60) + ' hr ago'
+                  : Math.floor(diffMin / 1440) + ' days ago';
+          footer += ' Updated ' + rel + '.';
+        }
+        document.getElementById('insightFooter').textContent = footer;
+        return;
       }
-      document.getElementById('insightFooter').textContent = footer;
     }
-    // else: keep the placeholder ("Coming soon" + Session 17 disclaimer)
-  } catch (e) { /* keep placeholder on network failure */ }
+  } catch (e) { /* fall through to feed */ }
+  _loadInsightFeed();
+  setInterval(_loadInsightFeed, 5*60*1000);
 })();
 
 (async function loadStatOfDay() {

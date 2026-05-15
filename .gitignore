@@ -58,3 +58,7 @@ CLAUDE_CODE_SESSION_*.md
 # Playwright local artifacts (failure screenshots, traces). Saved e2e
 # screenshots live under _session164_artifacts/ instead.
 test-results/
+
+# Insights engine runtime log. Grows on every cron run; not worth committing.
+# Cost telemetry persists in the published.json run.* fields and history.json.
+_insights_engine.log

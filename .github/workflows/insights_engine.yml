@@ -1,0 +1,50 @@
+name: insights-engine
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: insights-engine
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install runtime deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests anthropic
+
+      - name: Run insights engine
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TENNISIQ_API: https://su7vqmgkbd.us-east-1.awsapprunner.com
+        run: python tools/insights_engine/run.py
+
+      - name: Commit published insights
+        run: |
+          /usr/bin/git config user.name "insights-bot"
+          /usr/bin/git config user.email "bot@tennisiq.app"
+          /usr/bin/git add data/insights/published.json data/insights/history.json _insights_engine.log 2>/dev/null || true
+          if /usr/bin/git diff --cached --quiet; then
+            echo "no insight changes to commit"
+            exit 0
+          fi
+          /usr/bin/git commit -m "insights: cron publish $(date -u +%Y-%m-%dT%H:%MZ)"
+          /usr/bin/git push

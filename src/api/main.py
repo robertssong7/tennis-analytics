@@ -72,6 +72,7 @@ _CACHE_RULES = (
     ("/api/active-players", "public, max-age=120"),
     ("/api/stat-of-the-day", "public, max-age=120"),
     ("/insight/current", "public, max-age=120"),
+    ("/api/insights/recent", "public, max-age=300"),
     ("/predict/player/", "public, max-age=900"),
     ("/player/", "public, max-age=900"),
     ("/patterns/", "public, max-age=900"),
@@ -683,6 +684,31 @@ def insight_current():
     if pinned:
         return pinned
     return {"text": None, "source": "placeholder"}
+
+
+_INSIGHTS_PUBLISHED_PATH = Path(__file__).parent.parent.parent / 'data' / 'insights' / 'published.json'
+
+
+@app.get("/api/insights/recent")
+def insights_recent(
+    limit: int = Query(3, ge=1, le=12),
+    subject: Optional[str] = Query(None, description="Filter by exact subject player name"),
+):
+    if not _INSIGHTS_PUBLISHED_PATH.exists():
+        return {"insights": [], "generated_at": None, "available": False}
+    try:
+        data = json.loads(_INSIGHTS_PUBLISHED_PATH.read_text())
+    except Exception:
+        return {"insights": [], "generated_at": None, "available": False}
+    items = list(data.get("insights") or [])
+    if subject:
+        s = subject.strip()
+        items = [i for i in items if (i.get("subject") or "").strip() == s]
+    return {
+        "insights": items[:limit],
+        "generated_at": data.get("generated_at"),
+        "available": bool(items),
+    }
 
 
 class InsightOverrideBody(BaseModel):
