@@ -60,7 +60,13 @@ test('compare page returns real result', async ({ page }) => {
   });
 
   await page.goto('https://tennisiq-one.vercel.app/compare.html');
-  await page.waitForLoadState('networkidle', { timeout: 120000 });
+  // domcontentloaded matches the homepage test: warmup.js polls /ready every
+  // 5s during the cold window, so networkidle never settles.
+  await page.waitForLoadState('domcontentloaded');
+  const banner = page.locator('text=warming up');
+  if (await banner.count() > 0) {
+    await banner.waitFor({ state: 'detached', timeout: 90000 });
+  }
 
   // Real DOM: #i1 placeholder "Player A (e.g. Sinner)...", #i2 placeholder
   // "Player B (e.g. Alcaraz)...". Submit is Enter on the second field.
@@ -89,7 +95,12 @@ test('tournament page shows real CPI data', async ({ page }) => {
   });
 
   await page.goto('https://tennisiq-one.vercel.app/tournament.html');
-  await page.waitForLoadState('networkidle', { timeout: 120000 });
+  // Same reason as the compare test: warmup.js polling defeats networkidle.
+  await page.waitForLoadState('domcontentloaded');
+  const banner = page.locator('text=warming up');
+  if (await banner.count() > 0) {
+    await banner.waitFor({ state: 'detached', timeout: 90000 });
+  }
 
   await expect(page.locator('text=Start the API to load CPI data')).toHaveCount(0);
 

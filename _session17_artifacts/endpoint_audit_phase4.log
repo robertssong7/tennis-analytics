@@ -1,0 +1,16 @@
+Endpoint audit at 2026-05-15T07:04:41Z
+[200] /health
+[503] /ready
+[200] /api/active-players
+[200] /api/live-tournament
+[200] /api/system-status
+[503] /player/Jannik%20Sinner
+[503] /player/Carlos%20Alcaraz
+[503] /player/Rafael%20Nadal
+[503] /players/search?q=Sin
+[503] /matchup?p1=Jannik%20Sinner&p2=Carlos%20Alcaraz
+[503] /predict/player/Jannik%20Sinner
+[503] /player/Jannik%20Sinner/patterns
+[503] /api/key-matchups-live
+[503] /api/tournament-predictions
+[200] /api/insights/recent?limit=3
