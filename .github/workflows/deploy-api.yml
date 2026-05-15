@@ -1,0 +1,49 @@
+name: Deploy API to App Runner (ECR)
+
+# This workflow builds the Dockerfile, pushes the image to ECR, and triggers
+# an App Runner deployment. It is manual-only because App Runner is currently
+# configured in source-code mode (Python 3.11 runtime, auto-deploys from
+# GitHub). Switching to this image-based pipeline requires:
+#   1. ECR repo `tennisiq-api` exists in us-east-1
+#   2. App Runner service reconfigured in the AWS console to pull from ECR
+#   3. APPRUNNER_SERVICE_ARN secret points at the reconfigured service
+# Until those are in place, this workflow should remain dispatch-only so it
+# does not fire on every push and silently push images that nothing consumes.
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: tennisiq-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Deploy to Amazon App Runner
+        run: |
+          aws apprunner start-deployment --service-arn ${{ secrets.APPRUNNER_SERVICE_ARN }}

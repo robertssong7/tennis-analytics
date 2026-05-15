@@ -390,8 +390,13 @@ async function loadAll() {
     document.title = 'TennisIQ \u2014 ' + cardData.name;
     renderHero(cardData);
 
+    if (cardData.data_confidence === 'excluded' || cardData.data_confidence === 'none') {
+      renderContent(cardData, {available:false, reason:'Insufficient match history'}, {available:false, reason:'Insufficient match history'}, {available:false}, {available:false}, null, null);
+      return;
+    }
+
     // Render initial content immediately with loading placeholders
-    renderContent(cardData, null, null, null, null, null);
+    renderContent(cardData, null, null, null, null, null, null);
     initSurfaceToggle();
 
     // Fetch all secondary data in parallel and render progressively

@@ -1212,6 +1212,7 @@ def search_players(q: str = Query(..., min_length=2)):
                 "player_id":       canonical,
                 "name":            canonical,
                 "country":         card.get("country"),
+                "flag":            card.get("flag"),
                 "fifa_rating":     float(card.get("overall")) if card.get("overall") is not None else None,
                 "card_tier":       card.get("tier"),
                 "elo_display":     float(card.get("overall")) if card.get("overall") is not None else None,
@@ -1250,7 +1251,7 @@ def player_patterns_new(
     if not PARQUET.exists():
         return {"available": False, "reason": "Charted data file not found"}
 
-    pts = pd.read_parquet(PARQUET)
+    pts = pd.read_parquet(PARQUET, columns=["Player 1", "Player 2", "Surface", "Svr", "PtWinner", "serve_direction", "rally_length", "point_outcome", "match_id"])
 
     # Find canonical name in charted data
     all_names = sorted(set(pts["Player 1"].unique()) | set(pts["Player 2"].unique()))
@@ -3463,7 +3464,7 @@ def player_scenarios(name: str):
     if not PARQUET.exists():
         return {"player": canonical, "available": False, "reason": "Charted data file not found"}
 
-    pts = pd.read_parquet(PARQUET)
+    pts = pd.read_parquet(PARQUET, columns=["Player 1", "Player 2", "Svr", "PtWinner", "Pts", "2nd", "Gm1", "Gm2", "rally_length", "serve_direction", "Set1", "Set2", "Best of", "last_shot_type"])
 
     # Find player in charted data
     all_names = sorted(set(pts["Player 1"].unique()) | set(pts["Player 2"].unique()))

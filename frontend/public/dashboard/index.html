@@ -265,6 +265,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 <script src="config.js"></script>
 <script src="warmup.js"></script>
+<script src="autocomplete.js"></script>
 <script>
 const API=API_URL+'/api/v2';
 const FP_STATIC=[{name:'Carlos Alcaraz',sub:'206 charted · Right-handed'},{name:'Novak Djokovic',sub:'540 charted · Right-handed'},{name:'Jannik Sinner',sub:'260 charted · Right-handed'},{name:'Roger Federer',sub:'689 charted · Right-handed'},{name:'Rafael Nadal',sub:'416 charted · Left-handed'}];
@@ -406,12 +407,7 @@ function startFill(){clearInterval(fillInterval);var t=0;fillInterval=setInterva
   if(pct>=100)clearInterval(fillInterval);},50);}
 function startA(){clearInterval(autoT);autoT=setInterval(()=>{if(!hov){cs=(cs+1)%FP.length;go(cs);}},6000);}
 
-/* Search autocomplete */
-let st=null,sr=[],si=-1;const sinp=document.getElementById('sinp'),sdd=document.getElementById('sdd');
-sinp.addEventListener('input',()=>{clearTimeout(st);const q=sinp.value.trim();if(q.length<2){sdd.classList.remove('open');return;}
-st=setTimeout(async()=>{try{const r=await fetch(`${API}/search?q=${encodeURIComponent(q)}`);if(!r.ok)return;sr=await r.json();si=0;if(!sr.length){sdd.classList.remove('open');return;}sdd.innerHTML=sr.map((p,i)=>`<div class="search-item${i===0?' sel':''}" data-n="${p.name}">${p.name}<span class="si-m">${p.matches} matches</span></div>`).join('');sdd.classList.add('open');sdd.querySelectorAll('.search-item').forEach(it=>it.addEventListener('click',()=>window.location=`player.html?name=${encodeURIComponent(it.dataset.n)}`));}catch(e){}},200);});
-sinp.addEventListener('keydown',e=>{if(!sdd.classList.contains('open')){if(e.key==='Enter'&&sinp.value.trim())window.location=`player.html?name=${encodeURIComponent(sinp.value.trim())}`;return;}const items=sdd.querySelectorAll('.search-item');if(e.key==='ArrowDown'){e.preventDefault();si=Math.min(si+1,items.length-1);}else if(e.key==='ArrowUp'){e.preventDefault();si=Math.max(si-1,0);}else if(e.key==='Enter'){e.preventDefault();if(si>=0&&items[si])window.location=`player.html?name=${encodeURIComponent(items[si].dataset.n)}`;return;}else if(e.key==='Escape'){sdd.classList.remove('open');return;}items.forEach((it,i)=>it.classList.toggle('sel',i===si));});
-document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))sdd.classList.remove('open');});
+
 
 buildC();
 
