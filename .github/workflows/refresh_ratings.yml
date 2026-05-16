@@ -1,0 +1,51 @@
+name: refresh-ratings
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Sunday 02:00 UTC, after tournament weeks end
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-ratings
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install runtime deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Ingest live matches into supplemental CSV
+        run: python tools/live_tournament/ingest_to_history.py
+
+      - name: Retrain Glicko-2
+        run: python tools/retrain_glicko.py
+
+      - name: Commit refreshed data + ratings
+        run: |
+          /usr/bin/git config user.name "ratings-bot"
+          /usr/bin/git config user.email "bot@tennisiq.app"
+          /usr/bin/git add data/processed/supplemental_matches_2025_2026.csv data/processed/glicko2_state.pkl 2>/dev/null || true
+          if /usr/bin/git diff --cached --quiet; then
+            echo "no rating changes to commit"
+            exit 0
+          fi
+          /usr/bin/git commit -m "data: weekly ratings refresh $(date -u +%F)"
+          /usr/bin/git push
