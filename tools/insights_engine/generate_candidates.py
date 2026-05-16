@@ -272,7 +272,7 @@ def generate() -> list[dict]:
     cands: list[dict] = []
     cands += _surface_gap_candidates(active)
     cands += _form_reversal_candidates(active)
-    cands += _tournament_narrative_candidates()
+    # cands += _tournament_narrative_candidates()  # disabled until live data source wired in (Session 18)
     return cands
 
 
