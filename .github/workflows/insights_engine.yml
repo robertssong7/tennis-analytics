@@ -34,6 +34,8 @@ jobs:
       - name: Run insights engine
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
+          INSIGHTS_MODEL: ${{ secrets.INSIGHTS_MODEL }}
           TENNISIQ_API: https://su7vqmgkbd.us-east-1.awsapprunner.com
         run: python tools/insights_engine/run.py
 

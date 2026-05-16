@@ -17,7 +17,7 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 
-MODEL_ID = "claude-haiku-4-5-20251001"
+MODEL_ID = os.environ.get("INSIGHTS_MODEL", "anthropic/claude-haiku-4.5")
 
 # Haiku 4.5 pricing (USD per million tokens). Used for spend projection only.
 PRICE_INPUT_PER_MTOK = 1.00
