@@ -68,8 +68,15 @@
         // Skip retry on /warm and /ready themselves so they return their
         // intended status (the banner poller below uses /ready directly
         // and depends on seeing 503 to decide whether to keep polling).
+        // Also skip retry on /api/v2/* endpoints: those return 503 only
+        // when the parquet data file isn't bundled into the deploy (a
+        // permanent state until the data is shipped), not because they
+        // are warming up. Retrying just stalls the caller for ~63s.
         var url = typeof input === 'string' ? input : (input && input.url) || '';
         if (url.indexOf('/warm') !== -1 || url.indexOf('/ready') !== -1) {
+            return _originalFetch(input, init);
+        }
+        if (url.indexOf('/api/v2/') !== -1) {
             return _originalFetch(input, init);
         }
         var lastResp = null;

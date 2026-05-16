@@ -2166,11 +2166,15 @@ def _scrape_results_for_tournament(tournament_name: str, year: int):
 
 @app.get("/api/live-tournament")
 def live_tournament():
-    """Return live, just_finished, and next_upcoming tournament metadata
-    derived from the ATP 2026 calendar. Match-level results inside each
-    section are pulled from the supplemental CSV when available.
-    Backward-compat: also returns 'finished' and 'current' keys for older
-    frontends."""
+    """Live, just_finished, and next_upcoming tournament metadata.
+
+    Session 18: when a canonical live-tournament state file is present, its
+    fields (current_round, draw, withdrawals, remaining_players, data_freshness)
+    are layered onto the live_feed so the frontend can render the real
+    bracket state. The legacy `live`/`just_finished`/`next_upcoming`/
+    `finished`/`current` keys are preserved so existing frontends keep
+    working unchanged.
+    """
     today = date.today()
     live = get_live_tournament(today)
     finished = get_just_finished(today)
@@ -2199,14 +2203,23 @@ def live_tournament():
         finished_feed["court_speed"] = get_court_speed_label(cpi_base, None)
         finished_feed["cpi_base"] = cpi_base
 
+    state = _load_live_state()
+    if state and live_feed and state.get("data_freshness") != "historical":
+        live_feed["current_round"] = state.get("current_round")
+        live_feed["draw"] = state.get("draw", [])
+        live_feed["withdrawals"] = state.get("withdrawals", [])
+        live_feed["remaining_players"] = state.get("remaining_players", [])
+        live_feed["last_updated_utc"] = state.get("last_updated_utc")
+        live_feed["data_freshness"] = state.get("data_freshness")
+        live_feed["data_source"] = state.get("data_source")
+
     return {
-        # New keys (Session 10)
         "live": live_feed,
         "just_finished": finished_feed,
         "next_upcoming": upcoming_feed,
-        # Backward compat for older frontends
         "finished": finished_feed,
         "current": live_feed or upcoming_feed,
+        "state": state,
     }
 
 
@@ -3283,6 +3296,21 @@ def tournament_predictions():
     else:
         active_hard_in_draw = active_hard
 
+    # Session 18: prefer the canonical live state's remaining_players for
+    # filtering. This is the truth-recovery step that keeps withdrawn players
+    # (e.g. Alcaraz in Rome 2026) out of the favorites list. The legacy
+    # supplemental-CSV filter remains as a fallback for tournaments without
+    # a live state file yet.
+    _live_state = _load_live_state()
+    _live_withdrawn: list[str] = []
+    if _live_state and _live_state.get("data_freshness") != "historical":
+        _remaining = set(_live_state.get("remaining_players") or [])
+        if _remaining:
+            active_hard_in_draw = [
+                (n, h, o) for n, h, o in active_hard_in_draw if n in _remaining
+            ]
+        _live_withdrawn = [w.get("player") for w in (_live_state.get("withdrawals") or []) if w.get("player")]
+
     # Top 20 for normalization (from draw-filtered list)
     top20 = active_hard_in_draw[:20]
     total_exp = sum(_math.exp(mu / 100) for _, mu, _ in top20)
@@ -3455,6 +3483,10 @@ def tournament_predictions():
         "draw_size": len(draw_canonical) if draw_available else None,
         "favorites": favorites,
         "dark_horses": dark_horses,
+        "withdrawn": _live_withdrawn,
+        "remaining_players": [n for n, _, _ in active_hard_in_draw[:30]],
+        "data_freshness": (_live_state or {}).get("data_freshness"),
+        "last_updated_utc": (_live_state or {}).get("last_updated_utc"),
         "_key": cache_key,
     }
     _tournament_pred_cache.clear()
@@ -4039,6 +4071,122 @@ def player_scenarios(name: str):
 ACTIVE_PLAYERS_PATH = Path(__file__).parent.parent.parent / "data" / "processed" / "active_players.json"
 HISTORICAL_TRENDS_PATH = Path(__file__).parent.parent.parent / "data" / "processed" / "historical_trends.json"
 STAT_OF_DAY_PATH = Path(__file__).parent.parent.parent / "data" / "processed" / "stat_of_the_day.json"
+LIVE_STATE_PATH = Path(__file__).parent.parent.parent / "data" / "live" / "tournament_state.json"
+
+
+def _load_live_state() -> Optional[dict]:
+    """Read the canonical live-tournament state, tagged with data_freshness.
+
+    Session 18 single source of truth, produced by tools/live_tournament/
+    scraper.py on a 2-hour cron. The endpoints below (`/api/live-tournament`,
+    `/api/key-matchups-live`, `/api/tournament-predictions`) all read this
+    file. Returns None when no live tournament has been scraped yet.
+
+    The data_freshness field expresses the staleness of the underlying scrape:
+      live       — last_updated_utc within 2 hours
+      stale      — 2 to 12 hours old
+      historical — older than 12 hours
+    """
+    if not LIVE_STATE_PATH.exists():
+        return None
+    try:
+        state = json.loads(LIVE_STATE_PATH.read_text())
+    except json.JSONDecodeError:
+        return None
+    ts = state.get("last_updated_utc")
+    age_hours: Optional[float] = None
+    if ts:
+        try:
+            dt = datetime.strptime(ts, "%Y-%m-%dT%H:%MZ").replace(tzinfo=timezone.utc)
+            age_hours = (datetime.now(timezone.utc) - dt).total_seconds() / 3600
+        except ValueError:
+            age_hours = None
+    if age_hours is None:
+        freshness = "historical"
+    elif age_hours <= 2:
+        freshness = "live"
+    elif age_hours <= 12:
+        freshness = "stale"
+    else:
+        freshness = "historical"
+    state["data_freshness"] = freshness
+    if age_hours is not None:
+        state["age_hours"] = round(age_hours, 2)
+    return state
+
+
+_ROUND_RANK = {"1R": 1, "R128": 1, "2R": 2, "R64": 2, "3R": 3, "R32": 3, "R16": 4, "QF": 5, "SF": 6, "F": 7}
+
+
+def _key_matchups_from_state(state: dict) -> dict:
+    """Surface upcoming + in_progress matches from the live state, enriched
+    with prediction-engine output. Picks matches at the latest non-completed
+    round; if everything at that round is already completed, falls back to
+    the most recent completed matches.
+    """
+    draw = state.get("draw") or []
+    by_status: dict[str, list[dict]] = {"scheduled": [], "in_progress": [], "completed": []}
+    for m in draw:
+        st = m.get("status", "scheduled")
+        if st in by_status:
+            by_status[st].append(m)
+
+    candidates: list[dict] = by_status["in_progress"] + by_status["scheduled"]
+    if not candidates:
+        # All matches at the latest round have been completed: surface the
+        # most recent completed batch instead so the homepage still has cards.
+        completed = sorted(by_status["completed"], key=lambda m: _ROUND_RANK.get(m.get("round", ""), 0), reverse=True)
+        top_round = completed[0]["round"] if completed else None
+        candidates = [m for m in completed if m.get("round") == top_round]
+
+    surface = (state.get("surface") or "hard").lower()
+    if surface not in ("hard", "clay", "grass"):
+        surface = "hard"
+
+    engine = _get_engine()
+    matchups: list[dict] = []
+    for m in candidates:
+        p1, p2 = m.get("p1"), m.get("p2")
+        if not p1 or not p2:
+            continue
+        try:
+            pred = engine.predict(p1, p2, surface)
+        except Exception as exc:
+            logger.debug(f"key-matchups predict failed for {p1} vs {p2}: {exc}")
+            continue
+        try:
+            r1 = engine.glicko.ratings.get(p1, {}).get("all")
+            r2 = engine.glicko.ratings.get(p2, {}).get("all")
+            elo_sum = float((r1.mu if r1 else 1500) + (r2.mu if r2 else 1500))
+            elo_diff = float(abs((r1.mu if r1 else 1500) - (r2.mu if r2 else 1500)))
+        except Exception:
+            elo_sum, elo_diff = 3000.0, 0.0
+        upset_risk = float(min(elo_diff, 400.0))
+        matchups.append({
+            "player1": p1,
+            "player2": p2,
+            "surface": surface,
+            "round": m.get("round"),
+            "status": m.get("status"),
+            "actual_winner": m.get("winner"),
+            "actual_score": m.get("score"),
+            "predicted_p1_win_prob": float(round(pred["player1_win_prob"], 4)),
+            "predicted_p2_win_prob": float(round(pred["player2_win_prob"], 4)),
+            "elo_sum": float(round(elo_sum, 1)),
+            "elo_diff": float(round(elo_diff, 1)),
+            "interest_score": float(round(elo_sum - upset_risk * 0.5, 1)),
+            "tournament": state.get("tournament"),
+        })
+
+    matchups.sort(key=lambda x: x["interest_score"], reverse=True)
+    return {
+        "matchups": matchups[:6],
+        "tournament": state.get("tournament"),
+        "surface": surface,
+        "current_round": state.get("current_round"),
+        "last_updated_utc": state.get("last_updated_utc"),
+        "data_freshness": state.get("data_freshness"),
+    }
 
 
 @app.get("/api/active-players")
@@ -4065,14 +4213,17 @@ def get_active_players():
 
 @app.get("/api/key-matchups-live")
 def get_key_matchups_live():
-    """Key matchups for the currently-live tournament(s).
+    """Key matchups for the currently-live tournament.
 
-    The live_tournament feed only carries completed results, so "key
-    matchups today" surfaces the most recent matches from active
-    tournaments (latest round in progress) and runs them through the
-    existing match-prediction logic. Returns top 6 by interest score
-    (rating sum descending; ties broken by upset risk).
+    Session 18: when a canonical live-tournament state file is present, the
+    upcoming + in_progress matches at the current_round (and the round above
+    it, if available) are surfaced through the prediction engine. Falls back
+    to the legacy completed-results path for tournaments without state yet.
     """
+    state = _load_live_state()
+    if state and state.get("data_freshness") != "historical" and state.get("draw"):
+        return _key_matchups_from_state(state)
+
     if not ACTIVE_PLAYERS_PATH.exists():
         return {"matchups": [], "stale": True, "reason": "no active_players.json"}
     with open(ACTIVE_PLAYERS_PATH) as f:
