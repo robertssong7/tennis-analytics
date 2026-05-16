@@ -1,0 +1,22 @@
+Session 18 launch audit at 2026-05-16T07:05:20Z
+--- TokenRouter wiring (insights engine) ---
+tools/insights_engine/edit_with_haiku.py:20:MODEL_ID = os.environ.get("INSIGHTS_MODEL", "anthropic/claude-haiku-4.5")
+.github/workflows/insights_engine.yml:37:          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
+.github/workflows/insights_engine.yml:38:          INSIGHTS_MODEL: ${{ secrets.INSIGHTS_MODEL }}
+--- tournament_narrative disable ---
+205:def _tournament_narrative_candidates() -> list[dict]:
+275:    # cands += _tournament_narrative_candidates()  # disabled until live data source wired in (Session 18)
+--- Published insights (should be surface_specialists only) ---
+surface_specialists       | Zverev's clay mastery masks grass court weakness
+surface_specialists       | Fils' Clay Mastery Masks Grass Court Struggles
+--- GitHub secret list ---
+ADMIN_TOKEN	2026-05-15T06:00:52Z
+ANTHROPIC_API_KEY	2026-05-16T06:33:07Z
+ANTHROPIC_BASE_URL	2026-05-16T06:33:08Z
+APPRUNNER_SERVICE_ARN	2026-05-15T05:37:16Z
+AWS_ACCESS_KEY_ID	2026-05-09T07:11:11Z
+AWS_SECRET_ACCESS_KEY	2026-05-09T07:11:29Z
+CLOUDFRONT_DIST_ID	2026-05-09T07:11:45Z
+INSIGHTS_MODEL	2026-05-16T06:33:08Z
+PAT_TOKEN	2026-03-30T03:26:17Z
+TOKENROUTER_API_KEY	2026-05-15T06:00:11Z
