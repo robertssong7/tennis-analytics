@@ -26,7 +26,19 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import requests
+# Tennis Abstract sits behind Cloudflare. Plain `requests` from a cloud egress
+# (GitHub Actions) gets 403'd because the TLS fingerprint flags as automated.
+# curl_cffi emulates a real browser's TLS handshake and gets through cleanly.
+# We fall back to vanilla requests only if curl_cffi is unavailable so that
+# local dev without the extra dep still works.
+try:
+    from curl_cffi import requests as _http  # type: ignore
+    _IMPERSONATE = "chrome"
+except ImportError:
+    import requests as _http  # type: ignore
+    _IMPERSONATE = None
+
+import requests as _requests_for_exc
 
 from rounds import current_round, round_order
 from tournaments import meta_for, resolve_active, ta_slug_for, tz_for
@@ -63,8 +75,11 @@ def _log(msg: str) -> None:
 
 def _fetch(url: str) -> str | None:
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
-    except requests.RequestException as e:
+        kwargs = {"headers": HEADERS, "timeout": REQUEST_TIMEOUT}
+        if _IMPERSONATE:
+            kwargs["impersonate"] = _IMPERSONATE
+        resp = _http.get(url, **kwargs)
+    except (_requests_for_exc.RequestException, Exception) as e:
         _log(f"fetch_error {url}: {e}")
         return None
     if resp.status_code != 200:
@@ -72,11 +87,6 @@ def _fetch(url: str) -> str | None:
         return None
     body = resp.text
     _log(f"fetch_ok status=200 bytes={len(body)} {url}")
-    # Trip an obvious "Cloudflare challenge / interstitial" signal: real pages
-    # are >50KB, challenge pages are <10KB. Log so the workflow surfaces it.
-    if len(body) < 5000 and "challenge" in body.lower():
-        _log(f"likely_cf_challenge {url}")
-        return None
     return body
 
 

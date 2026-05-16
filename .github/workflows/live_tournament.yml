@@ -30,7 +30,9 @@ jobs:
       - name: Install runtime deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests pandas pyarrow
+          # curl_cffi emulates a real browser TLS handshake so Tennis Abstract's
+          # Cloudflare front doesn't 403 the GitHub Actions egress IP.
+          pip install requests curl_cffi pandas pyarrow
 
       - name: Run scraper
         run: |
