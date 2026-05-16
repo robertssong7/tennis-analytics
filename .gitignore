@@ -1,6 +1,7 @@
 # Large model/data files
 data/processed/*.pkl
 data/processed/*.parquet
+!data/processed/live_matches_ingest.parquet
 models/**/*.pkl
 models/**/*.pt
 matchup_grid.json
