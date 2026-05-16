@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-05-16T06:37:59.181598+00:00",
+  "generated_at": "2026-05-16T13:26:25.549446+00:00",
   "insights": [
     {
-      "headline": "Zverev's clay mastery masks grass court weakness",
-      "body": "Zverev rates 92.9 on clay but drops to 79.8 on grass, a 13.1-point gap that exposes significant surface dependency. His hard court rating of 92.1 further isolates grass as his clear vulnerability.",
+      "headline": "Ruud's Clay Dominance Masks Grass Court Struggles",
+      "body": "Casper Ruud rates 91.3 on clay but drops to 68.2 on grass, a 23.1-point gap that underscores his surface specialization. His hard court rating of 84.9 sits between the extremes.",
       "category": "surface_specialists",
-      "subject": "Alexander Zverev",
+      "subject": "Casper Ruud",
       "metrics_cited": [
         "top_rating",
         "top_surface",
@@ -15,57 +15,56 @@
         "ratings_by_surface"
       ],
       "supporting_metrics": {
-        "player": "Alexander Zverev",
+        "player": "Casper Ruud",
         "top_surface": "clay",
-        "top_rating": 92.9,
+        "top_rating": 91.3,
         "bottom_surface": "grass",
-        "bottom_rating": 79.8,
-        "gap": 13.1,
+        "bottom_rating": 68.2,
+        "gap": 23.1,
         "ratings_by_surface": {
-          "hard": 92.1,
-          "clay": 92.9,
-          "grass": 79.8
+          "hard": 84.9,
+          "clay": 91.3,
+          "grass": 68.2
         }
       },
-      "edited_at": "2026-05-16T06:37:49.596356+00:00",
+      "edited_at": "2026-05-16T13:26:20.426534+00:00",
       "source": "haiku"
     },
     {
-      "headline": "Fils' Clay Mastery Masks Grass Court Struggles",
-      "body": "Arthur Fils rates 92.0 on clay but drops to 74.3 on grass, a 17.7-point gap that reflects significant surface variance. His hard court rating of 89.6 sits between the two extremes.",
+      "headline": "Medvedev's Hard Court Dominance Masks Grass Struggles",
+      "body": "Medvedev rates 91.5 on hard courts but drops to 80.8 on grass, a 10.7-point gap highlighting his surface specialization. His clay rating of 88.9 sits between the two extremes.",
       "category": "surface_specialists",
-      "subject": "Arthur Fils",
+      "subject": "Daniil Medvedev",
       "metrics_cited": [
         "top_rating",
         "top_surface",
         "bottom_rating",
         "bottom_surface",
-        "gap",
-        "ratings_by_surface"
+        "gap"
       ],
       "supporting_metrics": {
-        "player": "Arthur Fils",
-        "top_surface": "clay",
-        "top_rating": 92.0,
+        "player": "Daniil Medvedev",
+        "top_surface": "hard",
+        "top_rating": 91.5,
         "bottom_surface": "grass",
-        "bottom_rating": 74.3,
-        "gap": 17.7,
+        "bottom_rating": 80.8,
+        "gap": 10.7,
         "ratings_by_surface": {
-          "hard": 89.6,
-          "clay": 92.0,
-          "grass": 74.3
+          "hard": 91.5,
+          "clay": 88.9,
+          "grass": 80.8
         }
       },
-      "edited_at": "2026-05-16T06:37:51.838977+00:00",
+      "edited_at": "2026-05-16T13:26:23.292892+00:00",
       "source": "haiku"
     }
   ],
   "run": {
-    "candidates": 5,
-    "verified": 5,
+    "candidates": 3,
+    "verified": 3,
     "rejected": 0,
-    "published": 3,
-    "haiku_run_cost_usd": 0.005124,
-    "month_spend_so_far_usd": 0.005124
+    "published": 2,
+    "haiku_run_cost_usd": 0.003273,
+    "month_spend_so_far_usd": 0.003273
   }
 }
