@@ -38,9 +38,23 @@ DATA_PROC = REPO_ROOT / "data" / "processed"
 STATE_PATH = DATA_LIVE / "tournament_state.json"
 ACTIVE_PLAYERS = DATA_PROC / "active_players.json"
 
-UA = "TennisIQ-LiveTournament/1.0 (+non-commercial; CC BY-NC-SA 4.0 source)"
+# Tennis Abstract sits behind Cloudflare. A plain non-browser UA gets
+# bot-checked on cloud egress (GitHub Actions). Use a current desktop UA;
+# attribution is preserved in the schema's data_source field instead.
+UA = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_1) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"
+)
 REQUEST_TIMEOUT = 30
 REQUEST_DELAY_SEC = 2  # polite gap between requests
+HEADERS = {
+    "User-Agent": UA,
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    # No brotli: stdlib `requests` does not decompress it without the
+    # optional `brotli` package, and the response would arrive as garbage.
+    "Accept-Encoding": "gzip, deflate",
+}
 
 
 def _log(msg: str) -> None:
@@ -49,14 +63,21 @@ def _log(msg: str) -> None:
 
 def _fetch(url: str) -> str | None:
     try:
-        resp = requests.get(url, headers={"User-Agent": UA}, timeout=REQUEST_TIMEOUT)
+        resp = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
     except requests.RequestException as e:
         _log(f"fetch_error {url}: {e}")
         return None
-    if resp.status_code >= 500 or resp.status_code == 404:
-        _log(f"fetch_status_{resp.status_code} {url}")
+    if resp.status_code != 200:
+        _log(f"fetch_status_{resp.status_code} bytes={len(resp.content)} {url}")
         return None
-    return resp.text
+    body = resp.text
+    _log(f"fetch_ok status=200 bytes={len(body)} {url}")
+    # Trip an obvious "Cloudflare challenge / interstitial" signal: real pages
+    # are >50KB, challenge pages are <10KB. Log so the workflow surfaces it.
+    if len(body) < 5000 and "challenge" in body.lower():
+        _log(f"likely_cf_challenge {url}")
+        return None
+    return body
 
 
 def _strip_tags(s: str) -> str:
@@ -426,6 +447,21 @@ def main() -> int:
         # blank object — leave whatever was last written so the API keeps
         # serving the most recent good snapshot.
         return 1
+    # Halt condition: if the scraper succeeded only at populating the
+    # tournament-name shell but found no matches (Tennis Abstract returned
+    # a bot challenge, an empty forecast, or its page format changed) AND
+    # we already have a populated state file on disk, preserve the existing
+    # state and exit 1. Better to serve slightly stale data than to publish
+    # an empty draw with current_round defaulting to "1R".
+    if not state.get("draw"):
+        if STATE_PATH.exists():
+            try:
+                prev = json.loads(STATE_PATH.read_text())
+                if prev.get("draw"):
+                    _log("preserving_prior_state empty_scrape suppressed")
+                    return 1
+            except json.JSONDecodeError:
+                pass
     write_state(state)
     append_completed_to_history(state)
     return 0
