@@ -1,15 +1,18 @@
 {
-  "generated_at": "2026-05-16T06:36:26.621515+00:00",
+  "generated_at": "2026-05-16T06:37:59.181598+00:00",
   "insights": [
     {
-      "headline": "Alexander Zverev: 13.1-point surface gap",
-      "body": "Alexander Zverev is rated 92.9 on clay and only 79.8 on grass, a 13.1-point spread that flags him as a surface specialist.",
+      "headline": "Zverev's clay mastery masks grass court weakness",
+      "body": "Zverev rates 92.9 on clay but drops to 79.8 on grass, a 13.1-point gap that exposes significant surface dependency. His hard court rating of 92.1 further isolates grass as his clear vulnerability.",
       "category": "surface_specialists",
       "subject": "Alexander Zverev",
       "metrics_cited": [
         "top_rating",
+        "top_surface",
         "bottom_rating",
-        "gap"
+        "bottom_surface",
+        "gap",
+        "ratings_by_surface"
       ],
       "supporting_metrics": {
         "player": "Alexander Zverev",
@@ -24,18 +27,21 @@
           "grass": 79.8
         }
       },
-      "edited_at": "2026-05-16T06:36:25.855775+00:00",
-      "source": "seed"
+      "edited_at": "2026-05-16T06:37:49.596356+00:00",
+      "source": "haiku"
     },
     {
-      "headline": "Arthur Fils: 17.7-point surface gap",
-      "body": "Arthur Fils is rated 92.0 on clay and only 74.3 on grass, a 17.7-point spread that flags him as a surface specialist.",
+      "headline": "Fils' Clay Mastery Masks Grass Court Struggles",
+      "body": "Arthur Fils rates 92.0 on clay but drops to 74.3 on grass, a 17.7-point gap that reflects significant surface variance. His hard court rating of 89.6 sits between the two extremes.",
       "category": "surface_specialists",
       "subject": "Arthur Fils",
       "metrics_cited": [
         "top_rating",
+        "top_surface",
         "bottom_rating",
-        "gap"
+        "bottom_surface",
+        "gap",
+        "ratings_by_surface"
       ],
       "supporting_metrics": {
         "player": "Arthur Fils",
@@ -50,16 +56,19 @@
           "grass": 74.3
         }
       },
-      "edited_at": "2026-05-16T06:36:26.012837+00:00",
-      "source": "seed"
+      "edited_at": "2026-05-16T06:37:51.838977+00:00",
+      "source": "haiku"
     },
     {
-      "headline": "Alcaraz C. deep at the Italian Open",
-      "body": "Alcaraz C. has won 4 matches at the Italian Open 2026, advancing on clay through 4th Round, Quarterfinals, Semifinals.",
+      "headline": "Alcaraz reaches Italian Open final",
+      "body": "Alcaraz advanced through four rounds on clay at the Italian Open, defeating opponents in the 4th Round, Quarterfinals, and Semifinals to reach The Final.",
       "category": "tournament_narrative",
       "subject": "Alcaraz C.",
       "metrics_cited": [
-        "wins_in_tournament"
+        "wins_in_tournament",
+        "rounds_won",
+        "surface",
+        "tournament"
       ],
       "supporting_metrics": {
         "tournament": "Italian Open",
@@ -74,8 +83,8 @@
           "The Final"
         ]
       },
-      "edited_at": "2026-05-16T06:36:26.621474+00:00",
-      "source": "seed"
+      "edited_at": "2026-05-16T06:37:59.181478+00:00",
+      "source": "haiku"
     }
   ],
   "run": {
@@ -83,7 +92,7 @@
     "verified": 5,
     "rejected": 0,
     "published": 3,
-    "haiku_run_cost_usd": 0.0,
-    "month_spend_so_far_usd": 0.0
+    "haiku_run_cost_usd": 0.005124,
+    "month_spend_so_far_usd": 0.005124
   }
 }

@@ -378,5 +378,90 @@
     },
     "edited_at": "2026-05-16T06:36:26.621474+00:00",
     "source": "seed"
+  },
+  {
+    "headline": "Zverev's clay mastery masks grass court weakness",
+    "body": "Zverev rates 92.9 on clay but drops to 79.8 on grass, a 13.1-point gap that exposes significant surface dependency. His hard court rating of 92.1 further isolates grass as his clear vulnerability.",
+    "category": "surface_specialists",
+    "subject": "Alexander Zverev",
+    "metrics_cited": [
+      "top_rating",
+      "top_surface",
+      "bottom_rating",
+      "bottom_surface",
+      "gap",
+      "ratings_by_surface"
+    ],
+    "supporting_metrics": {
+      "player": "Alexander Zverev",
+      "top_surface": "clay",
+      "top_rating": 92.9,
+      "bottom_surface": "grass",
+      "bottom_rating": 79.8,
+      "gap": 13.1,
+      "ratings_by_surface": {
+        "hard": 92.1,
+        "clay": 92.9,
+        "grass": 79.8
+      }
+    },
+    "edited_at": "2026-05-16T06:37:49.596356+00:00",
+    "source": "haiku"
+  },
+  {
+    "headline": "Fils' Clay Mastery Masks Grass Court Struggles",
+    "body": "Arthur Fils rates 92.0 on clay but drops to 74.3 on grass, a 17.7-point gap that reflects significant surface variance. His hard court rating of 89.6 sits between the two extremes.",
+    "category": "surface_specialists",
+    "subject": "Arthur Fils",
+    "metrics_cited": [
+      "top_rating",
+      "top_surface",
+      "bottom_rating",
+      "bottom_surface",
+      "gap",
+      "ratings_by_surface"
+    ],
+    "supporting_metrics": {
+      "player": "Arthur Fils",
+      "top_surface": "clay",
+      "top_rating": 92.0,
+      "bottom_surface": "grass",
+      "bottom_rating": 74.3,
+      "gap": 17.7,
+      "ratings_by_surface": {
+        "hard": 89.6,
+        "clay": 92.0,
+        "grass": 74.3
+      }
+    },
+    "edited_at": "2026-05-16T06:37:51.838977+00:00",
+    "source": "haiku"
+  },
+  {
+    "headline": "Alcaraz reaches Italian Open final",
+    "body": "Alcaraz advanced through four rounds on clay at the Italian Open, defeating opponents in the 4th Round, Quarterfinals, and Semifinals to reach The Final.",
+    "category": "tournament_narrative",
+    "subject": "Alcaraz C.",
+    "metrics_cited": [
+      "wins_in_tournament",
+      "rounds_won",
+      "surface",
+      "tournament"
+    ],
+    "supporting_metrics": {
+      "tournament": "Italian Open",
+      "year": 2026,
+      "surface": "Clay",
+      "player": "Alcaraz C.",
+      "wins_in_tournament": 4,
+      "rounds_won": [
+        "4th Round",
+        "Quarterfinals",
+        "Semifinals",
+        "The Final"
+      ]
+    },
+    "edited_at": "2026-05-16T06:37:59.181478+00:00",
+    "source": "haiku"
   }
 ]
