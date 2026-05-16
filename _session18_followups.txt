@@ -1,0 +1,73 @@
+Session 18 follow-ups (deferred to Session 19+)
+================================================
+
+1. Power BI-style customization layer for the Trends dashboard.
+   Robert mentioned at Session 18 launch. Not in scope for this session.
+   Suggested approach: extend trends.html with a column/metric selector
+   panel (similar to the existing surface toggle on compare.html).
+   Backend would need /api/trends/customize?metrics=...&groupings=...
+
+2. Tournament timezone table extension.
+   tools/live_tournament/tournaments.py covers ATP Masters 1000 + Grand
+   Slams + Barcelona. Smaller events (Challenger, ATP 250 weeks) default
+   to UTC with a warning. Extend as needed when those events become
+   active.
+
+3. Tennis Abstract scrape resilience.
+   The scraper depends on the structure of `var upcomingSingles` /
+   `completedSingles` JS variables in current/<slug>.html pages. If
+   Jeff Sackmann redesigns the site, the regex in
+   tools/live_tournament/scraper.py:_parse_matches will need updating.
+   The scraper preserves the last-known-good state file rather than
+   publishing garbage, but it will still go stale.
+
+4. Withdrawal reason enrichment.
+   The current state file marks each absence as `reason: "not stated"`.
+   A future scraper extension could pull the reason from public news
+   APIs (Tennis Channel, ATP Tour press releases) and attach it. Best
+   stored in `data/processed/known_withdrawals_<year>_<month>.json`
+   keyed by player name.
+
+5. Compare Players: the underlying data gap.
+   The Phase 3a fix removed the 63s 503 retry that was the user-visible
+   bug. The underlying gap remains: data/processed/parsed_points.parquet
+   (22 MB) and player_profiles.parquet (203 KB) are gitignored so
+   /api/v2/* endpoints persist 503. Two paths to fix:
+   (a) Add an S3 sync step to apprunner.yaml that pulls these files
+       at container start. Requires a one-time upload to the existing
+       tennisiq-data bucket.
+   (b) Commit the files (tracked as binary in the repo). 22MB is on
+       the edge of GitHub's 100MB-per-file warning but well below the
+       hard limit.
+
+6. Live tournament state freshness.
+   Cron is 2h. During an active SF/F day, the canonical state may lag
+   real play by up to 2 hours. Acceptable for the surfaces being served
+   (predictions, key matchups) which don't claim minute-by-minute live
+   accuracy. Tighten to 30 min if needed for grand slams.
+
+7. Node.js 20 deprecation in GitHub Actions.
+   actions/checkout@v4 and actions/setup-python@v5 use Node 20, which
+   is deprecated for runners by 2026-09-16. Upgrade to v24-compatible
+   action versions before then or set FORCE_JAVASCRIPT_ACTIONS_TO_NODE24.
+
+8. Docker pipeline activation (carried from Session 17).
+   The blocker is manual AWS console work: create ECR repo
+   `tennisiq-api` in us-east-1, switch App Runner service from
+   source-code to ECR-image mode. AWS secrets are present and ready.
+   First-time activation: `gh workflow run deploy-api.yml`.
+
+9. tournament_narrative insights re-enable.
+   Disabled in Session 17 because it pulled from the calendar-based
+   _live() projection. Phase 2's canonical state object now provides
+   honest live data, but per the launch plan we wait until the state
+   object proves trustworthy across two full tournaments before
+   re-enabling. Earliest candidate: post-Roland Garros 2026.
+
+10. tennisabstract Cloudflare bypass.
+    Session 18 added curl_cffi to the live_tournament workflow to
+    bypass Cloudflare's TLS-fingerprint check on GitHub Actions egress
+    IPs. If Tennis Abstract tightens its bot detection further, the
+    scraper may need cookies/session handling or a per-run delay. The
+    scraper's preserve-last-good behavior keeps the API serving even
+    if scrapes fail for a few hours.
