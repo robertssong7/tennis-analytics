@@ -6,9 +6,27 @@
   "category": "Masters 1000",
   "start_date": "2026-05-06",
   "end_date": "2026-05-17",
-  "current_round": "SF",
+  "current_round": "F",
   "draw_size": 96,
   "draw": [
+    {
+      "round": "SF",
+      "round_order": 6,
+      "p1": "Jannik Sinner",
+      "p2": "Daniil Medvedev",
+      "status": "completed",
+      "winner": "Jannik Sinner",
+      "score": "6-2 5-7 6-4"
+    },
+    {
+      "round": "SF",
+      "round_order": 6,
+      "p1": "Casper Ruud",
+      "p2": "Luciano Darderi",
+      "status": "completed",
+      "winner": "Casper Ruud",
+      "score": "6-1 6-1"
+    },
     {
       "round": "QF",
       "round_order": 5,
@@ -839,19 +857,11 @@
       "score": "4-6 7-6(3) 6-4"
     },
     {
-      "round": "SF",
-      "round_order": 6,
+      "round": "F",
+      "round_order": 7,
       "p1": "Jannik Sinner",
-      "p2": "Daniil Medvedev",
+      "p2": "Casper Ruud",
       "status": "scheduled"
-    },
-    {
-      "round": "SF",
-      "round_order": 6,
-      "p1": "Casper Ruud",
-      "p2": "Luciano Darderi",
-      "status": "in_progress",
-      "source_note": "charted_on_match_charting_project"
     }
   ],
   "withdrawals": [
@@ -888,11 +898,9 @@
   ],
   "remaining_players": [
     "Casper Ruud",
-    "Daniil Medvedev",
-    "Jannik Sinner",
-    "Luciano Darderi"
+    "Jannik Sinner"
   ],
-  "last_updated_utc": "2026-05-17T06:40Z",
+  "last_updated_utc": "2026-05-17T09:29Z",
   "data_freshness": "live",
   "data_source": "tennis_abstract (current/+charting+atp_elo)",
   "tournament_tz": "Europe/Rome"
