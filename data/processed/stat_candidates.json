@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-05-18T11:46:41.693377+00:00",
-  "candidate_count": 30,
+  "generated_at": "2026-05-19T11:21:21.127137+00:00",
+  "candidate_count": 31,
   "candidates": [
     {
       "category": "active_streak",
       "facts": {
         "player": "Jannik Sinner",
-        "n": 50,
+        "n": 56,
         "start_date": "March 7",
         "start_tourney": "BNP Paribas Open",
-        "today": "May 18"
+        "today": "May 19"
       },
       "novelty_score": 1.0
     },
@@ -287,6 +287,17 @@
     {
       "category": "h2h_breakthrough",
       "facts": {
+        "winner": "Alexei Popyrin",
+        "loser": "Jakub Mensik",
+        "previous_meetings": 4,
+        "tourney": "Internazionali BNL d'Italia",
+        "date": "May 9, 2026"
+      },
+      "novelty_score": 0.5
+    },
+    {
+      "category": "h2h_breakthrough",
+      "facts": {
         "winner": "Joao Fonseca",
         "loser": "Alejandro Tabilo",
         "previous_meetings": 3,
@@ -338,16 +349,6 @@
         "date": "May 9, 2026"
       },
       "novelty_score": 0.375
-    },
-    {
-      "category": "tournament_pattern",
-      "facts": {
-        "player": "Ben Shelton",
-        "tourney": "BMW Open",
-        "career_wins_here": 17,
-        "date": "April 19, 2026"
-      },
-      "novelty_score": 0.2833333333333333
     }
   ]
 }
