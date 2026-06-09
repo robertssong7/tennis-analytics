@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-08T12:36:10.594688+00:00",
-  "candidate_count": 32,
+  "generated_at": "2026-06-09T11:18:39.631996+00:00",
+  "candidate_count": 35,
   "candidates": [
     {
       "category": "surface_specialist",
@@ -232,6 +232,17 @@
     {
       "category": "h2h_breakthrough",
       "facts": {
+        "winner": "Jakub Mensik",
+        "loser": "Alex De Minaur",
+        "previous_meetings": 5,
+        "tourney": "French Open",
+        "date": "May 29, 2026"
+      },
+      "novelty_score": 0.625
+    },
+    {
+      "category": "h2h_breakthrough",
+      "facts": {
         "winner": "Flavio Cobolli",
         "loser": "Alexander Zverev",
         "previous_meetings": 4,
@@ -272,6 +283,17 @@
         "date": "May 9, 2026"
       },
       "novelty_score": 0.5
+    },
+    {
+      "category": "active_streak",
+      "facts": {
+        "player": "Alexander Zverev",
+        "n": 12,
+        "start_date": "May 24",
+        "start_tourney": "French Open",
+        "today": "June 9"
+      },
+      "novelty_score": 0.48
     },
     {
       "category": "h2h_breakthrough",
@@ -325,28 +347,6 @@
         "previous_meetings": 3,
         "tourney": "Internazionali BNL d'Italia",
         "date": "May 9, 2026"
-      },
-      "novelty_score": 0.375
-    },
-    {
-      "category": "h2h_breakthrough",
-      "facts": {
-        "winner": "Brandon Nakashima",
-        "loser": "Roberto Bautista Agut",
-        "previous_meetings": 3,
-        "tourney": "Internazionali BNL d'Italia",
-        "date": "May 9, 2026"
-      },
-      "novelty_score": 0.375
-    },
-    {
-      "category": "h2h_breakthrough",
-      "facts": {
-        "winner": "Aleksandar Kovacevic",
-        "loser": "Felix Auger Aliassime",
-        "previous_meetings": 3,
-        "tourney": "Hamburg Open",
-        "date": "May 20, 2026"
       },
       "novelty_score": 0.375
     }
