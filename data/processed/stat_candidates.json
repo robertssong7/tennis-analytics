@@ -1,26 +1,14 @@
 {
-  "generated_at": "2026-06-27T10:11:31.899684+00:00",
-  "candidate_count": 42,
+  "generated_at": "2026-06-28T10:29:56.269821+00:00",
+  "candidate_count": 43,
   "candidates": [
-    {
-      "category": "surface_specialist",
-      "facts": {
-        "player": "Alexander Zverev",
-        "best_surface": "Clay",
-        "worst_surface": "Grass",
-        "gap": 503,
-        "best_rating": 2356,
-        "worst_rating": 1853
-      },
-      "novelty_score": 1.0
-    },
     {
       "category": "surface_specialist",
       "facts": {
         "player": "Arthur Fils",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 503,
+        "gap": 504,
         "best_rating": 2213,
         "worst_rating": 1709
       },
@@ -41,6 +29,18 @@
     {
       "category": "surface_specialist",
       "facts": {
+        "player": "Learner Tien",
+        "best_surface": "Clay",
+        "worst_surface": "Grass",
+        "gap": 519,
+        "best_rating": 2145,
+        "worst_rating": 1626
+      },
+      "novelty_score": 1.0
+    },
+    {
+      "category": "surface_specialist",
+      "facts": {
         "player": "Alexander Blockx",
         "best_surface": "Clay",
         "worst_surface": "Grass",
@@ -53,12 +53,12 @@
     {
       "category": "surface_specialist",
       "facts": {
-        "player": "Francisco Cerundolo",
+        "player": "Jakub Mensik",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 595,
-        "best_rating": 2095,
-        "worst_rating": 1501
+        "gap": 501,
+        "best_rating": 2161,
+        "worst_rating": 1660
       },
       "novelty_score": 1.0
     },
@@ -68,8 +68,8 @@
         "player": "Mariano Navone",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 666,
-        "best_rating": 2085,
+        "gap": 667,
+        "best_rating": 2087,
         "worst_rating": 1419
       },
       "novelty_score": 1.0
@@ -92,7 +92,7 @@
         "player": "Eliot Spizzirri",
         "best_surface": "Hard",
         "worst_surface": "Clay",
-        "gap": 539,
+        "gap": 540,
         "best_rating": 1983,
         "worst_rating": 1443
       },
@@ -114,9 +114,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Christian Ruud",
-        "delta": 454,
+        "delta": 455,
         "direction": "above",
-        "current_rating": 2231,
+        "current_rating": 2232,
         "peak_rating": 1777,
         "peak_year": 1997
       },
@@ -126,9 +126,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Bryan Shelton",
-        "delta": 434,
+        "delta": 456,
         "direction": "above",
-        "current_rating": 2179,
+        "current_rating": 2201,
         "peak_rating": 1745,
         "peak_year": 1993
       },
@@ -138,9 +138,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Craig Smith",
-        "delta": 259,
+        "delta": 260,
         "direction": "above",
-        "current_rating": 1759,
+        "current_rating": 1760,
         "peak_rating": 1500,
         "peak_year": 1992
       },
@@ -152,7 +152,7 @@
         "player": "Stan Wawrinka",
         "delta": -277,
         "direction": "below",
-        "current_rating": 1839,
+        "current_rating": 1840,
         "peak_rating": 2117,
         "peak_year": 2014
       },
@@ -162,7 +162,7 @@
       "category": "rating_jump",
       "facts": {
         "player": "Marco Trungelliti",
-        "delta": 299,
+        "delta": 300,
         "direction": "above",
         "current_rating": 1876,
         "peak_rating": 1577,
@@ -174,9 +174,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Alexander Zverev",
-        "delta": 281,
+        "delta": 254,
         "direction": "above",
-        "current_rating": 2418,
+        "current_rating": 2390,
         "peak_rating": 2137,
         "peak_year": 2021
       },
@@ -198,9 +198,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Frances Tiafoe",
-        "delta": 249,
+        "delta": 346,
         "direction": "above",
-        "current_rating": 2128,
+        "current_rating": 2225,
         "peak_rating": 1879,
         "peak_year": 2023
       },
@@ -210,9 +210,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Kamil Majchrzak",
-        "delta": 449,
+        "delta": 488,
         "direction": "above",
-        "current_rating": 2080,
+        "current_rating": 2119,
         "peak_rating": 1631,
         "peak_year": 2024
       },
@@ -346,7 +346,7 @@
         "n": 10,
         "start_date": "June 15",
         "start_tourney": "Halle Open",
-        "today": "June 27"
+        "today": "June 28"
       },
       "novelty_score": 0.4
     }
