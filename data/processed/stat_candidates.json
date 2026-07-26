@@ -1,27 +1,15 @@
 {
-  "generated_at": "2026-07-25T09:49:54.963847+00:00",
+  "generated_at": "2026-07-26T10:03:21.788028+00:00",
   "candidate_count": 43,
   "candidates": [
-    {
-      "category": "surface_specialist",
-      "facts": {
-        "player": "Casper Ruud",
-        "best_surface": "Clay",
-        "worst_surface": "Grass",
-        "gap": 729,
-        "best_rating": 2254,
-        "worst_rating": 1525
-      },
-      "novelty_score": 1.0
-    },
     {
       "category": "surface_specialist",
       "facts": {
         "player": "Learner Tien",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 531,
-        "best_rating": 2146,
+        "gap": 532,
+        "best_rating": 2147,
         "worst_rating": 1615
       },
       "novelty_score": 1.0
@@ -29,12 +17,12 @@
     {
       "category": "surface_specialist",
       "facts": {
-        "player": "Alexander Blockx",
+        "player": "Casper Ruud",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 952,
-        "best_rating": 2181,
-        "worst_rating": 1230
+        "gap": 697,
+        "best_rating": 2221,
+        "worst_rating": 1525
       },
       "novelty_score": 1.0
     },
@@ -53,24 +41,24 @@
     {
       "category": "surface_specialist",
       "facts": {
-        "player": "Eliot Spizzirri",
-        "best_surface": "Hard",
-        "worst_surface": "Clay",
-        "gap": 541,
-        "best_rating": 1984,
-        "worst_rating": 1443
+        "player": "Alexander Blockx",
+        "best_surface": "Clay",
+        "worst_surface": "Grass",
+        "gap": 905,
+        "best_rating": 2135,
+        "worst_rating": 1230
       },
       "novelty_score": 1.0
     },
     {
       "category": "surface_specialist",
       "facts": {
-        "player": "Thiago Agustin Tirante",
-        "best_surface": "Clay",
-        "worst_surface": "Grass",
-        "gap": 750,
-        "best_rating": 2077,
-        "worst_rating": 1326
+        "player": "Eliot Spizzirri",
+        "best_surface": "Hard",
+        "worst_surface": "Clay",
+        "gap": 540,
+        "best_rating": 1984,
+        "worst_rating": 1443
       },
       "novelty_score": 1.0
     },
@@ -81,7 +69,7 @@
         "best_surface": "Clay",
         "worst_surface": "Grass",
         "gap": 567,
-        "best_rating": 2111,
+        "best_rating": 2112,
         "worst_rating": 1544
       },
       "novelty_score": 1.0
@@ -89,12 +77,36 @@
     {
       "category": "surface_specialist",
       "facts": {
-        "player": "Ignacio Buse",
+        "player": "Luciano Darderi",
         "best_surface": "Clay",
-        "worst_surface": "Hard",
-        "gap": 553,
-        "best_rating": 2042,
-        "worst_rating": 1490
+        "worst_surface": "Grass",
+        "gap": 620,
+        "best_rating": 2140,
+        "worst_rating": 1520
+      },
+      "novelty_score": 1.0
+    },
+    {
+      "category": "surface_specialist",
+      "facts": {
+        "player": "Thiago Agustin Tirante",
+        "best_surface": "Clay",
+        "worst_surface": "Grass",
+        "gap": 753,
+        "best_rating": 2079,
+        "worst_rating": 1326
+      },
+      "novelty_score": 1.0
+    },
+    {
+      "category": "rating_jump",
+      "facts": {
+        "player": "Matthew McDonald",
+        "delta": 318,
+        "direction": "above",
+        "current_rating": 1844,
+        "peak_rating": 1525,
+        "peak_year": 1981
       },
       "novelty_score": 1.0
     },
@@ -114,9 +126,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Stan Wawrinka",
-        "delta": -288,
+        "delta": -306,
         "direction": "below",
-        "current_rating": 1829,
+        "current_rating": 1811,
         "peak_rating": 2117,
         "peak_year": 2014
       },
@@ -126,9 +138,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Marco Trungelliti",
-        "delta": 281,
+        "delta": 290,
         "direction": "above",
-        "current_rating": 1858,
+        "current_rating": 1866,
         "peak_rating": 1577,
         "peak_year": 2019
       },
@@ -186,9 +198,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Jaume Munar",
-        "delta": 336,
+        "delta": 308,
         "direction": "above",
-        "current_rating": 2006,
+        "current_rating": 1978,
         "peak_rating": 1669,
         "peak_year": 2019
       },
@@ -198,22 +210,10 @@
       "category": "rating_jump",
       "facts": {
         "player": "Quentin Halys",
-        "delta": 269,
+        "delta": 280,
         "direction": "above",
-        "current_rating": 1932,
+        "current_rating": 1943,
         "peak_rating": 1663,
-        "peak_year": 2024
-      },
-      "novelty_score": 1.0
-    },
-    {
-      "category": "rating_jump",
-      "facts": {
-        "player": "Taylor Fritz",
-        "delta": 265,
-        "direction": "above",
-        "current_rating": 2229,
-        "peak_rating": 1964,
         "peak_year": 2024
       },
       "novelty_score": 1.0
@@ -279,7 +279,7 @@
         "n": 14,
         "start_date": "June 29",
         "start_tourney": "Wimbledon",
-        "today": "July 25"
+        "today": "July 26"
       },
       "novelty_score": 0.56
     },
