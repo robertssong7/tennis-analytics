@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-30T10:26:18.265047+00:00",
-  "candidate_count": 46,
+  "generated_at": "2026-07-31T10:41:15.522524+00:00",
+  "candidate_count": 48,
   "candidates": [
     {
       "category": "surface_specialist",
@@ -219,14 +219,36 @@
       "novelty_score": 1.0
     },
     {
+      "category": "h2h_breakthrough",
+      "facts": {
+        "winner": "Taylor Fritz",
+        "loser": "Bryan Shelton",
+        "previous_meetings": 7,
+        "tourney": "Halle Open",
+        "date": "June 19, 2026"
+      },
+      "novelty_score": 0.875
+    },
+    {
+      "category": "h2h_breakthrough",
+      "facts": {
+        "winner": "Taylor Fritz",
+        "loser": "Bryan Shelton",
+        "previous_meetings": 7,
+        "tourney": "Halle Open",
+        "date": "June 19, 2026"
+      },
+      "novelty_score": 0.875
+    },
+    {
       "category": "tournament_pattern",
       "facts": {
         "player": "Novak Djokovic",
         "tourney": "Wimbledon",
-        "career_wins_here": 39,
-        "date": "July 1, 2026"
+        "career_wins_here": 41,
+        "date": "July 3, 2026"
       },
-      "novelty_score": 0.65
+      "novelty_score": 0.6833333333333333
     },
     {
       "category": "h2h_breakthrough",
@@ -257,9 +279,19 @@
         "n": 14,
         "start_date": "June 29",
         "start_tourney": "Wimbledon",
-        "today": "July 30"
+        "today": "July 31"
       },
       "novelty_score": 0.56
+    },
+    {
+      "category": "tournament_pattern",
+      "facts": {
+        "player": "Jannik Sinner",
+        "tourney": "Wimbledon",
+        "career_wins_here": 32,
+        "date": "July 3, 2026"
+      },
+      "novelty_score": 0.5333333333333333
     },
     {
       "category": "h2h_breakthrough",
@@ -313,38 +345,6 @@
         "previous_meetings": 4,
         "tourney": "Nordea Open",
         "date": "July 17, 2026"
-      },
-      "novelty_score": 0.5
-    },
-    {
-      "category": "h2h_breakthrough",
-      "facts": {
-        "winner": "Sebastian Baez",
-        "loser": "Miomir Kecmanovic",
-        "previous_meetings": 4,
-        "tourney": "Generali Open",
-        "date": "July 21, 2026"
-      },
-      "novelty_score": 0.5
-    },
-    {
-      "category": "h2h_breakthrough",
-      "facts": {
-        "winner": "Sebastian Baez",
-        "loser": "Miomir Kecmanovic",
-        "previous_meetings": 4,
-        "tourney": "Generali Open",
-        "date": "July 21, 2026"
-      },
-      "novelty_score": 0.5
-    },
-    {
-      "category": "tournament_pattern",
-      "facts": {
-        "player": "Jannik Sinner",
-        "tourney": "Wimbledon",
-        "career_wins_here": 30,
-        "date": "July 1, 2026"
       },
       "novelty_score": 0.5
     }
