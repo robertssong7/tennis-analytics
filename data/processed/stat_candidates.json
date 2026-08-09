@@ -1,7 +1,19 @@
 {
-  "generated_at": "2026-08-08T08:42:59.412837+00:00",
-  "candidate_count": 46,
+  "generated_at": "2026-08-09T08:44:58.166901+00:00",
+  "candidate_count": 43,
   "candidates": [
+    {
+      "category": "surface_specialist",
+      "facts": {
+        "player": "Casper Ruud",
+        "best_surface": "Clay",
+        "worst_surface": "Grass",
+        "gap": 698,
+        "best_rating": 2223,
+        "worst_rating": 1525
+      },
+      "novelty_score": 1.0
+    },
     {
       "category": "surface_specialist",
       "facts": {
@@ -17,12 +29,12 @@
     {
       "category": "surface_specialist",
       "facts": {
-        "player": "Casper Ruud",
+        "player": "Alexander Blockx",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 697,
-        "best_rating": 2222,
-        "worst_rating": 1525
+        "gap": 904,
+        "best_rating": 2133,
+        "worst_rating": 1229
       },
       "novelty_score": 1.0
     },
@@ -41,12 +53,12 @@
     {
       "category": "surface_specialist",
       "facts": {
-        "player": "Alexander Blockx",
+        "player": "Alejandro Tabilo",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 903,
-        "best_rating": 2132,
-        "worst_rating": 1229
+        "gap": 510,
+        "best_rating": 2035,
+        "worst_rating": 1525
       },
       "novelty_score": 1.0
     },
@@ -56,9 +68,9 @@
         "player": "Quentin Halys",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 543,
-        "best_rating": 2103,
-        "worst_rating": 1560
+        "gap": 545,
+        "best_rating": 2104,
+        "worst_rating": 1559
       },
       "novelty_score": 1.0
     },
@@ -69,7 +81,7 @@
         "best_surface": "Clay",
         "worst_surface": "Grass",
         "gap": 567,
-        "best_rating": 2109,
+        "best_rating": 2110,
         "worst_rating": 1542
       },
       "novelty_score": 1.0
@@ -80,21 +92,21 @@
         "player": "Eliot Spizzirri",
         "best_surface": "Hard",
         "worst_surface": "Clay",
-        "gap": 542,
+        "gap": 541,
         "best_rating": 1985,
-        "worst_rating": 1443
+        "worst_rating": 1444
       },
       "novelty_score": 1.0
     },
     {
-      "category": "surface_specialist",
+      "category": "rating_jump",
       "facts": {
-        "player": "Luciano Darderi",
-        "best_surface": "Clay",
-        "worst_surface": "Grass",
-        "gap": 619,
-        "best_rating": 2138,
-        "worst_rating": 1519
+        "player": "Matthew McDonald",
+        "delta": 309,
+        "direction": "above",
+        "current_rating": 1834,
+        "peak_rating": 1525,
+        "peak_year": 1981
       },
       "novelty_score": 1.0
     },
@@ -150,9 +162,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Frances Tiafoe",
-        "delta": 328,
+        "delta": 290,
         "direction": "above",
-        "current_rating": 2207,
+        "current_rating": 2169,
         "peak_rating": 1879,
         "peak_year": 2023
       },
@@ -162,9 +174,9 @@
       "category": "rating_jump",
       "facts": {
         "player": "Kamil Majchrzak",
-        "delta": 475,
+        "delta": 485,
         "direction": "above",
-        "current_rating": 2106,
+        "current_rating": 2116,
         "peak_rating": 1631,
         "peak_year": 2024
       },
@@ -174,7 +186,7 @@
       "category": "rating_jump",
       "facts": {
         "player": "Jaume Munar",
-        "delta": 311,
+        "delta": 310,
         "direction": "above",
         "current_rating": 1980,
         "peak_rating": 1669,
@@ -198,47 +210,13 @@
       "category": "rating_jump",
       "facts": {
         "player": "Taylor Fritz",
-        "delta": 268,
+        "delta": 321,
         "direction": "above",
-        "current_rating": 2232,
+        "current_rating": 2285,
         "peak_rating": 1964,
         "peak_year": 2024
       },
       "novelty_score": 1.0
-    },
-    {
-      "category": "rating_jump",
-      "facts": {
-        "player": "Tommy Paul",
-        "delta": 246,
-        "direction": "above",
-        "current_rating": 2163,
-        "peak_rating": 1917,
-        "peak_year": 2024
-      },
-      "novelty_score": 1.0
-    },
-    {
-      "category": "h2h_breakthrough",
-      "facts": {
-        "winner": "Taylor Fritz",
-        "loser": "Bryan Shelton",
-        "previous_meetings": 7,
-        "tourney": "Halle Open",
-        "date": "June 19, 2026"
-      },
-      "novelty_score": 0.875
-    },
-    {
-      "category": "h2h_breakthrough",
-      "facts": {
-        "winner": "Taylor Fritz",
-        "loser": "Bryan Shelton",
-        "previous_meetings": 7,
-        "tourney": "Halle Open",
-        "date": "June 19, 2026"
-      },
-      "novelty_score": 0.875
     },
     {
       "category": "h2h_breakthrough",
@@ -267,10 +245,10 @@
       "facts": {
         "player": "Jannik Sinner",
         "tourney": "Wimbledon",
-        "career_wins_here": 38,
-        "date": "July 10, 2026"
+        "career_wins_here": 40,
+        "date": "July 12, 2026"
       },
-      "novelty_score": 0.6333333333333333
+      "novelty_score": 0.6666666666666666
     },
     {
       "category": "h2h_breakthrough",
@@ -301,7 +279,7 @@
         "n": 14,
         "start_date": "June 29",
         "start_tourney": "Wimbledon",
-        "today": "August 8"
+        "today": "August 9"
       },
       "novelty_score": 0.56
     },
@@ -348,6 +326,28 @@
         "date": "July 21, 2026"
       },
       "novelty_score": 0.5
+    },
+    {
+      "category": "active_streak",
+      "facts": {
+        "player": "Quentin Halys",
+        "n": 11,
+        "start_date": "July 17",
+        "start_tourney": "Suisse Open Gstaad",
+        "today": "August 9"
+      },
+      "novelty_score": 0.44
+    },
+    {
+      "category": "active_streak",
+      "facts": {
+        "player": "Luca Van Assche",
+        "n": 10,
+        "start_date": "July 20",
+        "start_tourney": "Estoril Open",
+        "today": "August 9"
+      },
+      "novelty_score": 0.4
     }
   ]
 }
