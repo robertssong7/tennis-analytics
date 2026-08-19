@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Craig Smith's rating sits 263 points above their career peak",
-    "body": "Craig Smith's current Glicko rating is 1763, versus a career peak of 1500 set in 1992. That is a 263-point swing from prime form.",
-    "category": "rating_jump",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Craig Smith",
-      "delta": 263,
-      "direction": "above",
-      "current_rating": 1763,
-      "peak_rating": 1500,
-      "peak_year": 1992
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-05-12T10:33:51.231798+00:00",
-    "served_date": "2026-05-12"
-  },
-  {
     "headline": "Casper Ruud's Clay edge is the widest on tour",
     "body": "Casper Ruud's rating on Clay sits 655 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2211. Worst: 1556.",
     "category": "surface_specialist",
@@ -1678,5 +1661,22 @@
     "novelty_score": 0.56,
     "served_at": "2026-08-18T08:39:01.983254+00:00",
     "served_date": "2026-08-18"
+  },
+  {
+    "headline": "Learner Tien's Clay edge is the widest on tour",
+    "body": "Learner Tien's rating on Clay sits 532 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2147. Worst: 1615.",
+    "category": "surface_specialist",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Learner Tien",
+      "best_surface": "Clay",
+      "worst_surface": "Grass",
+      "gap": 532,
+      "best_rating": 2147,
+      "worst_rating": 1615
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-08-19T08:39:10.694891+00:00",
+    "served_date": "2026-08-19"
   }
 ]
