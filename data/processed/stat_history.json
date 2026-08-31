@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Alexander Zverev's rating sits 259 points above their career peak",
-    "body": "Alexander Zverev's current Glicko rating is 2396, versus a career peak of 2137 set in 2021. That is a 259-point swing from prime form.",
-    "category": "rating_jump",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Alexander Zverev",
-      "delta": 259,
-      "direction": "above",
-      "current_rating": 2396,
-      "peak_rating": 2137,
-      "peak_year": 2021
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-05-22T10:53:13.259610+00:00",
-    "served_date": "2026-05-22"
-  },
-  {
     "headline": "Vit Kopriva's Clay edge is the widest on tour",
     "body": "Vit Kopriva's rating on Clay sits 710 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2054. Worst: 1344.",
     "category": "surface_specialist",
@@ -1677,5 +1660,22 @@
     "novelty_score": 1.0,
     "served_at": "2026-08-30T13:38:17.445225+00:00",
     "served_date": "2026-08-30"
+  },
+  {
+    "headline": "Arthur Fils's Hard edge is the widest on tour",
+    "body": "Arthur Fils's rating on Hard sits 513 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2247. Worst: 1735.",
+    "category": "surface_specialist",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Arthur Fils",
+      "best_surface": "Hard",
+      "worst_surface": "Grass",
+      "gap": 513,
+      "best_rating": 2247,
+      "worst_rating": 1735
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-08-31T15:56:07.025643+00:00",
+    "served_date": "2026-08-31"
   }
 ]
