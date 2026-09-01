@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Vit Kopriva's Clay edge is the widest on tour",
-    "body": "Vit Kopriva's rating on Clay sits 710 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2054. Worst: 1344.",
-    "category": "surface_specialist",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Vit Kopriva",
-      "best_surface": "Clay",
-      "worst_surface": "Grass",
-      "gap": 710,
-      "best_rating": 2054,
-      "worst_rating": 1344
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-05-23T09:56:17.322236+00:00",
-    "served_date": "2026-05-23"
-  },
-  {
     "headline": "Bryan Shelton's rating sits 423 points above their career peak",
     "body": "Bryan Shelton's current Glicko rating is 2169, versus a career peak of 1745 set in 1993. That is a 423-point swing from prime form.",
     "category": "rating_jump",
@@ -1677,5 +1660,21 @@
     "novelty_score": 1.0,
     "served_at": "2026-08-31T15:56:07.025643+00:00",
     "served_date": "2026-08-31"
+  },
+  {
+    "headline": "Terence Atmane finally beats Frances Tiafoe after 6 prior losses",
+    "body": "Terence Atmane's win at Citi Open on July 28, 2026 broke a 6-match losing streak against Frances Tiafoe. It is the first career win in this head-to-head.",
+    "category": "h2h_breakthrough",
+    "rendered": true,
+    "raw_facts": {
+      "winner": "Terence Atmane",
+      "loser": "Frances Tiafoe",
+      "previous_meetings": 6,
+      "tourney": "Citi Open",
+      "date": "July 28, 2026"
+    },
+    "novelty_score": 0.75,
+    "served_at": "2026-09-01T13:13:27.905099+00:00",
+    "served_date": "2026-09-01"
   }
 ]
