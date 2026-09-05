@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Casper Ruud's Clay edge is the widest on tour",
-    "body": "Casper Ruud's rating on Clay sits 723 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2279. Worst: 1556.",
-    "category": "surface_specialist",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Casper Ruud",
-      "best_surface": "Clay",
-      "worst_surface": "Grass",
-      "gap": 723,
-      "best_rating": 2279,
-      "worst_rating": 1556
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-05-28T11:40:51.163869+00:00",
-    "served_date": "2026-05-28"
-  },
-  {
     "headline": "Matthew McDonald's rating sits 358 points above their career peak",
     "body": "Matthew McDonald's current Glicko rating is 1883, versus a career peak of 1525 set in 1981. That is a 358-point swing from prime form.",
     "category": "rating_jump",
@@ -1675,5 +1658,22 @@
     "novelty_score": 1.0,
     "served_at": "2026-09-04T12:34:28.596902+00:00",
     "served_date": "2026-09-04"
+  },
+  {
+    "headline": "Bryan Shelton's rating sits 477 points above their career peak",
+    "body": "Bryan Shelton's current Glicko rating is 2222, versus a career peak of 1745 set in 1993. That is a 477-point swing from prime form.",
+    "category": "rating_jump",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Bryan Shelton",
+      "delta": 477,
+      "direction": "above",
+      "current_rating": 2222,
+      "peak_rating": 1745,
+      "peak_year": 1993
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-09-05T11:42:33.831871+00:00",
+    "served_date": "2026-09-05"
   }
 ]
