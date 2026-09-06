@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Matthew McDonald's rating sits 358 points above their career peak",
-    "body": "Matthew McDonald's current Glicko rating is 1883, versus a career peak of 1525 set in 1981. That is a 358-point swing from prime form.",
-    "category": "rating_jump",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Matthew McDonald",
-      "delta": 358,
-      "direction": "above",
-      "current_rating": 1883,
-      "peak_rating": 1525,
-      "peak_year": 1981
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-05-29T11:32:20.973798+00:00",
-    "served_date": "2026-05-29"
-  },
-  {
     "headline": "Francisco Cerundolo's Clay edge is the widest on tour",
     "body": "Francisco Cerundolo's rating on Clay sits 623 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2124. Worst: 1501.",
     "category": "surface_specialist",
@@ -1675,5 +1658,22 @@
     "novelty_score": 1.0,
     "served_at": "2026-09-05T11:42:33.831871+00:00",
     "served_date": "2026-09-05"
+  },
+  {
+    "headline": "Casper Ruud's Clay edge is the widest on tour",
+    "body": "Casper Ruud's rating on Clay sits 697 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2222. Worst: 1525.",
+    "category": "surface_specialist",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Casper Ruud",
+      "best_surface": "Clay",
+      "worst_surface": "Grass",
+      "gap": 697,
+      "best_rating": 2222,
+      "worst_rating": 1525
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-09-06T12:00:42.273203+00:00",
+    "served_date": "2026-09-06"
   }
 ]
