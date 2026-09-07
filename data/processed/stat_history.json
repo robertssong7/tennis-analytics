@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Francisco Cerundolo's Clay edge is the widest on tour",
-    "body": "Francisco Cerundolo's rating on Clay sits 623 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2124. Worst: 1501.",
-    "category": "surface_specialist",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Francisco Cerundolo",
-      "best_surface": "Clay",
-      "worst_surface": "Grass",
-      "gap": 623,
-      "best_rating": 2124,
-      "worst_rating": 1501
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-05-30T10:02:56.005057+00:00",
-    "served_date": "2026-05-30"
-  },
-  {
     "headline": "Stan Wawrinka's rating sits 255 points below their career peak",
     "body": "Stan Wawrinka's current Glicko rating is 1861, versus a career peak of 2117 set in 2014. That is a 255-point swing from prime form.",
     "category": "rating_jump",
@@ -1675,5 +1658,22 @@
     "novelty_score": 1.0,
     "served_at": "2026-09-06T12:00:42.273203+00:00",
     "served_date": "2026-09-06"
+  },
+  {
+    "headline": "Herve Grenier's rating sits 282 points above their career peak",
+    "body": "Herve Grenier's current Glicko rating is 1782, versus a career peak of 1500 set in 1994. That is a 282-point swing from prime form.",
+    "category": "rating_jump",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Herve Grenier",
+      "delta": 282,
+      "direction": "above",
+      "current_rating": 1782,
+      "peak_rating": 1500,
+      "peak_year": 1994
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-09-07T14:03:29.629264+00:00",
+    "served_date": "2026-09-07"
   }
 ]
