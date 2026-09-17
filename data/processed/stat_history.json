@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Learner Tien's Clay edge is the widest on tour",
-    "body": "Learner Tien's rating on Clay sits 531 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2155. Worst: 1624.",
-    "category": "surface_specialist",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Learner Tien",
-      "best_surface": "Clay",
-      "worst_surface": "Grass",
-      "gap": 531,
-      "best_rating": 2155,
-      "worst_rating": 1624
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-06-09T11:18:39.729291+00:00",
-    "served_date": "2026-06-09"
-  },
-  {
     "headline": "Frances Tiafoe's rating sits 237 points above their career peak",
     "body": "Frances Tiafoe's current Glicko rating is 2116, versus a career peak of 1879 set in 2023. That is a 237-point swing from prime form.",
     "category": "rating_jump",
@@ -1675,5 +1658,21 @@
     "novelty_score": 1.0,
     "served_at": "2026-09-16T13:13:29.958299+00:00",
     "served_date": "2026-09-16"
+  },
+  {
+    "headline": "Terence Atmane finally beats Frances Tiafoe after 6 prior losses",
+    "body": "Terence Atmane's win at Citi Open on July 28, 2026 broke a 6-match losing streak against Frances Tiafoe. It is the first career win in this head-to-head.",
+    "category": "h2h_breakthrough",
+    "rendered": true,
+    "raw_facts": {
+      "winner": "Terence Atmane",
+      "loser": "Frances Tiafoe",
+      "previous_meetings": 6,
+      "tourney": "Citi Open",
+      "date": "July 28, 2026"
+    },
+    "novelty_score": 0.75,
+    "served_at": "2026-09-17T13:08:46.337456+00:00",
+    "served_date": "2026-09-17"
   }
 ]
