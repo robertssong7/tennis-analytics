@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Frances Tiafoe's rating sits 237 points above their career peak",
-    "body": "Frances Tiafoe's current Glicko rating is 2116, versus a career peak of 1879 set in 2023. That is a 237-point swing from prime form.",
-    "category": "rating_jump",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Frances Tiafoe",
-      "delta": 237,
-      "direction": "above",
-      "current_rating": 2116,
-      "peak_rating": 1879,
-      "peak_year": 2023
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-06-10T11:41:04.980651+00:00",
-    "served_date": "2026-06-10"
-  },
-  {
     "headline": "Alexander Blockx's Clay edge is the widest on tour",
     "body": "Alexander Blockx's rating on Clay sits 980 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2227. Worst: 1247.",
     "category": "surface_specialist",
@@ -1674,5 +1657,22 @@
     "novelty_score": 0.75,
     "served_at": "2026-09-17T13:08:46.337456+00:00",
     "served_date": "2026-09-17"
+  },
+  {
+    "headline": "Christian Ruud's Clay edge is the widest on tour",
+    "body": "Christian Ruud's rating on Clay sits 986 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2188. Worst: 1203.",
+    "category": "surface_specialist",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Christian Ruud",
+      "best_surface": "Clay",
+      "worst_surface": "Grass",
+      "gap": 986,
+      "best_rating": 2188,
+      "worst_rating": 1203
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-09-18T12:46:47.103956+00:00",
+    "served_date": "2026-09-18"
   }
 ]
