@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Casper Ruud's Clay edge is the widest on tour",
-    "body": "Casper Ruud's rating on Clay sits 704 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2260. Worst: 1556.",
-    "category": "surface_specialist",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Casper Ruud",
-      "best_surface": "Clay",
-      "worst_surface": "Grass",
-      "gap": 704,
-      "best_rating": 2260,
-      "worst_rating": 1556
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-06-13T10:31:52.791956+00:00",
-    "served_date": "2026-06-13"
-  },
-  {
     "headline": "Matthew McDonald's rating sits 358 points above their career peak",
     "body": "Matthew McDonald's current Glicko rating is 1883, versus a career peak of 1525 set in 1981. That is a 358-point swing from prime form.",
     "category": "rating_jump",
@@ -1673,5 +1656,22 @@
     "novelty_score": 1.0,
     "served_at": "2026-09-20T12:55:32.946655+00:00",
     "served_date": "2026-09-20"
+  },
+  {
+    "headline": "James Duckworth's rating sits 226 points above their career peak",
+    "body": "James Duckworth's current Glicko rating is 1919, versus a career peak of 1693 set in 2021. That is a 226-point swing from prime form.",
+    "category": "rating_jump",
+    "rendered": true,
+    "raw_facts": {
+      "player": "James Duckworth",
+      "delta": 226,
+      "direction": "above",
+      "current_rating": 1919,
+      "peak_rating": 1693,
+      "peak_year": 2021
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-09-21T14:55:21.249343+00:00",
+    "served_date": "2026-09-21"
   }
 ]
