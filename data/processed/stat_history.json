@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Alexander Zverev's Clay edge is the widest on tour",
-    "body": "Alexander Zverev's rating on Clay sits 505 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2358. Worst: 1853.",
-    "category": "surface_specialist",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Alexander Zverev",
-      "best_surface": "Clay",
-      "worst_surface": "Grass",
-      "gap": 505,
-      "best_rating": 2358,
-      "worst_rating": 1853
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-06-15T13:57:56.509842+00:00",
-    "served_date": "2026-06-15"
-  },
-  {
     "headline": "Bryan Shelton's rating sits 361 points above their career peak",
     "body": "Bryan Shelton's current Glicko rating is 2107, versus a career peak of 1745 set in 1993. That is a 361-point swing from prime form.",
     "category": "rating_jump",
@@ -1673,5 +1656,22 @@
     "novelty_score": 1.0,
     "served_at": "2026-09-22T13:11:26.298589+00:00",
     "served_date": "2026-09-22"
+  },
+  {
+    "headline": "Marco Trungelliti's rating sits 326 points above their career peak",
+    "body": "Marco Trungelliti's current Glicko rating is 1902, versus a career peak of 1577 set in 2019. That is a 326-point swing from prime form.",
+    "category": "rating_jump",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Marco Trungelliti",
+      "delta": 326,
+      "direction": "above",
+      "current_rating": 1902,
+      "peak_rating": 1577,
+      "peak_year": 2019
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-09-23T13:25:40.033334+00:00",
+    "served_date": "2026-09-23"
   }
 ]
