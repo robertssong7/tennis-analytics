@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Francisco Cerundolo's Clay edge is the widest on tour",
-    "body": "Francisco Cerundolo's rating on Clay sits 600 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2100. Worst: 1501.",
-    "category": "surface_specialist",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Francisco Cerundolo",
-      "best_surface": "Clay",
-      "worst_surface": "Grass",
-      "gap": 600,
-      "best_rating": 2100,
-      "worst_rating": 1501
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-06-17T12:18:59.720437+00:00",
-    "served_date": "2026-06-17"
-  },
-  {
     "headline": "Stan Wawrinka's rating sits 276 points below their career peak",
     "body": "Stan Wawrinka's current Glicko rating is 1841, versus a career peak of 2117 set in 2014. That is a 276-point swing from prime form.",
     "category": "rating_jump",
@@ -1673,5 +1656,21 @@
     "novelty_score": 1.0,
     "served_at": "2026-09-24T13:20:39.415166+00:00",
     "served_date": "2026-09-24"
+  },
+  {
+    "headline": "Nuno Borges finally beats Andrey Rublev after 9 prior losses",
+    "body": "Nuno Borges's win at Western & Southern Financial Group Masters on August 18, 2026 broke a 9-match losing streak against Andrey Rublev. It is the first career win in this head-to-head.",
+    "category": "h2h_breakthrough",
+    "rendered": true,
+    "raw_facts": {
+      "winner": "Nuno Borges",
+      "loser": "Andrey Rublev",
+      "previous_meetings": 9,
+      "tourney": "Western & Southern Financial Group Masters",
+      "date": "August 18, 2026"
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-09-25T13:20:59.850644+00:00",
+    "served_date": "2026-09-25"
   }
 ]
