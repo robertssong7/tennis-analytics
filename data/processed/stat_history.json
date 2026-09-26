@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Stan Wawrinka's rating sits 276 points below their career peak",
-    "body": "Stan Wawrinka's current Glicko rating is 1841, versus a career peak of 2117 set in 2014. That is a 276-point swing from prime form.",
-    "category": "rating_jump",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Stan Wawrinka",
-      "delta": -276,
-      "direction": "below",
-      "current_rating": 1841,
-      "peak_rating": 2117,
-      "peak_year": 2014
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-06-18T11:52:37.302995+00:00",
-    "served_date": "2026-06-18"
-  },
-  {
     "headline": "Mariano Navone's Clay edge is the widest on tour",
     "body": "Mariano Navone's rating on Clay sits 672 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2091. Worst: 1419.",
     "category": "surface_specialist",
@@ -1672,5 +1655,22 @@
     "novelty_score": 1.0,
     "served_at": "2026-09-25T13:20:59.850644+00:00",
     "served_date": "2026-09-25"
+  },
+  {
+    "headline": "Jakub Mensik's Clay edge is the widest on tour",
+    "body": "Jakub Mensik's rating on Clay sits 527 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2163. Worst: 1636.",
+    "category": "surface_specialist",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Jakub Mensik",
+      "best_surface": "Clay",
+      "worst_surface": "Grass",
+      "gap": 527,
+      "best_rating": 2163,
+      "worst_rating": 1636
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-09-26T12:44:08.079990+00:00",
+    "served_date": "2026-09-26"
   }
 ]
