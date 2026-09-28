@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Marco Trungelliti's rating sits 300 points above their career peak",
-    "body": "Marco Trungelliti's current Glicko rating is 1877, versus a career peak of 1577 set in 2019. That is a 300-point swing from prime form.",
-    "category": "rating_jump",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Marco Trungelliti",
-      "delta": 300,
-      "direction": "above",
-      "current_rating": 1877,
-      "peak_rating": 1577,
-      "peak_year": 2019
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-06-20T10:34:31.348397+00:00",
-    "served_date": "2026-06-20"
-  },
-  {
     "headline": "Arthur Fils's Clay edge is the widest on tour",
     "body": "Arthur Fils's rating on Clay sits 503 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2213. Worst: 1709.",
     "category": "surface_specialist",
@@ -1671,5 +1654,22 @@
     "novelty_score": 0.72,
     "served_at": "2026-09-27T13:36:36.680809+00:00",
     "served_date": "2026-09-27"
+  },
+  {
+    "headline": "Casper Ruud's Clay edge is the widest on tour",
+    "body": "Casper Ruud's rating on Clay sits 696 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2221. Worst: 1525.",
+    "category": "surface_specialist",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Casper Ruud",
+      "best_surface": "Clay",
+      "worst_surface": "Grass",
+      "gap": 696,
+      "best_rating": 2221,
+      "worst_rating": 1525
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-09-28T16:32:36.764361+00:00",
+    "served_date": "2026-09-28"
   }
 ]
