@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Arthur Fils's Clay edge is the widest on tour",
-    "body": "Arthur Fils's rating on Clay sits 503 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2213. Worst: 1709.",
-    "category": "surface_specialist",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Arthur Fils",
-      "best_surface": "Clay",
-      "worst_surface": "Grass",
-      "gap": 503,
-      "best_rating": 2213,
-      "worst_rating": 1709
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-06-21T11:18:16.076518+00:00",
-    "served_date": "2026-06-21"
-  },
-  {
     "headline": "Frances Tiafoe finally beats Taylor Fritz after 5 prior losses",
     "body": "Frances Tiafoe's win at Halle Open on June 21, 2026 broke a 5-match losing streak against Taylor Fritz. It is the first career win in this head-to-head.",
     "category": "h2h_breakthrough",
@@ -1671,5 +1654,22 @@
     "novelty_score": 1.0,
     "served_at": "2026-09-28T16:32:36.764361+00:00",
     "served_date": "2026-09-28"
+  },
+  {
+    "headline": "Matthew McDonald's rating sits 306 points above their career peak",
+    "body": "Matthew McDonald's current Glicko rating is 1832, versus a career peak of 1525 set in 1981. That is a 306-point swing from prime form.",
+    "category": "rating_jump",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Matthew McDonald",
+      "delta": 306,
+      "direction": "above",
+      "current_rating": 1832,
+      "peak_rating": 1525,
+      "peak_year": 1981
+    },
+    "novelty_score": 1.0,
+    "served_at": "2026-09-29T14:41:00.607601+00:00",
+    "served_date": "2026-09-29"
   }
 ]
