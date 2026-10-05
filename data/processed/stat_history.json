@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Alexander Blockx's Clay edge is the widest on tour",
-    "body": "Alexander Blockx's rating on Clay sits 928 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2175. Worst: 1247.",
-    "category": "surface_specialist",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Alexander Blockx",
-      "best_surface": "Clay",
-      "worst_surface": "Grass",
-      "gap": 928,
-      "best_rating": 2175,
-      "worst_rating": 1247
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-06-27T10:11:31.992160+00:00",
-    "served_date": "2026-06-27"
-  },
-  {
     "headline": "Craig Smith's rating sits 260 points above their career peak",
     "body": "Craig Smith's current Glicko rating is 1760, versus a career peak of 1500 set in 1992. That is a 260-point swing from prime form.",
     "category": "rating_jump",
@@ -1671,5 +1654,21 @@
     "novelty_score": 1.0,
     "served_at": "2026-10-04T13:46:45.333658+00:00",
     "served_date": "2026-10-04"
+  },
+  {
+    "headline": "Jannik Sinner rolls into October 5 on a 14-match win streak",
+    "body": "Jannik Sinner's active win streak now stands at 14 matches, the longest active run on tour. The streak began at Wimbledon on June 29.",
+    "category": "active_streak",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Jannik Sinner",
+      "n": 14,
+      "start_date": "June 29",
+      "start_tourney": "Wimbledon",
+      "today": "October 5"
+    },
+    "novelty_score": 0.56,
+    "served_at": "2026-10-05T16:53:59.048345+00:00",
+    "served_date": "2026-10-05"
   }
 ]
