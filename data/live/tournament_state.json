@@ -10,59 +10,119 @@
   "draw_size": null,
   "draw": [
     {
-      "round": "R1",
-      "round_order": 0,
+      "round": "R128",
+      "round_order": 1,
       "p1": "Yibing Wu",
       "p2": "Michael Zheng",
-      "status": "scheduled"
+      "status": "completed",
+      "winner": "Yibing Wu",
+      "score": "6-3 7-6(6)"
     },
     {
-      "round": "R1",
-      "round_order": 0,
+      "round": "R128",
+      "round_order": 1,
       "p1": "Quentin Halys",
       "p2": "Coleman Wong",
-      "status": "scheduled"
+      "status": "completed",
+      "winner": "Quentin Halys",
+      "score": "6-4 7-6(5)"
     },
     {
-      "round": "R1",
-      "round_order": 0,
-      "p1": "Zhizhen Zhang",
-      "p2": "Tomas Machac",
-      "status": "scheduled"
+      "round": "R128",
+      "round_order": 1,
+      "p1": "Tomas Machac",
+      "p2": "Zhizhen Zhang",
+      "status": "completed",
+      "winner": "Tomas Machac",
+      "score": "1-6 7-6(3) 6-2"
     },
     {
-      "round": "R1",
-      "round_order": 0,
-      "p1": "Aleksandar Kovacevic",
-      "p2": "Matteo Berrettini",
-      "status": "scheduled"
+      "round": "R128",
+      "round_order": 1,
+      "p1": "Matteo Berrettini",
+      "p2": "Aleksandar Kovacevic",
+      "status": "completed",
+      "winner": "Matteo Berrettini",
+      "score": "6-7(3) 6-1 6-4"
     },
     {
-      "round": "R1",
-      "round_order": 0,
+      "round": "R128",
+      "round_order": 1,
       "p1": "Alex Molcan",
       "p2": "Federico Cina",
-      "status": "scheduled"
+      "status": "completed",
+      "winner": "Alex Molcan",
+      "score": "4-6 6-1 6-2"
     },
     {
-      "round": "R1",
-      "round_order": 0,
-      "p1": "Marco Trungelliti",
-      "p2": "Rei Sakamoto",
-      "status": "scheduled"
+      "round": "R128",
+      "round_order": 1,
+      "p1": "Rei Sakamoto",
+      "p2": "Marco Trungelliti",
+      "status": "completed",
+      "winner": "Rei Sakamoto",
+      "score": "6-3 7-5"
+    },
+    {
+      "round": "R128",
+      "round_order": 1,
+      "p1": "Adrian Mannarino",
+      "p2": "Nikoloz Basilashvili",
+      "status": "retired",
+      "winner": "Adrian Mannarino",
+      "score": "6-3 2-2 RET",
+      "retired": true
+    },
+    {
+      "round": "R128",
+      "round_order": 1,
+      "p1": "Arthur Gea",
+      "p2": "Jaime Faria",
+      "status": "completed",
+      "winner": "Arthur Gea",
+      "score": "6-7(3) 6-1 6-2"
+    },
+    {
+      "round": "R128",
+      "round_order": 1,
+      "p1": "Roman Safiullin",
+      "p2": "Rinky Hijikata",
+      "status": "completed",
+      "winner": "Roman Safiullin",
+      "score": "7-5 6-3"
+    },
+    {
+      "round": "R128",
+      "round_order": 1,
+      "p1": "Miomir Kecmanovic",
+      "p2": "Sho Shimabukuro",
+      "status": "completed",
+      "winner": "Miomir Kecmanovic",
+      "score": "6-2 6-4"
+    },
+    {
+      "round": "R128",
+      "round_order": 1,
+      "p1": "Yi Zhou",
+      "p2": "Mattia Bellucci",
+      "status": "completed",
+      "winner": "Yi Zhou",
+      "score": "6-4 3-6 7-6(4)"
+    },
+    {
+      "round": "R128",
+      "round_order": 1,
+      "p1": "Yannick Hanfmann",
+      "p2": "Kamil Majchrzak",
+      "status": "completed",
+      "winner": "Yannick Hanfmann",
+      "score": "6-7(4) 7-6(3) 7-6(7)"
     },
     {
       "round": "R1",
       "round_order": 0,
       "p1": "Arthur Fery",
       "p2": "Marin Cilic",
-      "status": "scheduled"
-    },
-    {
-      "round": "R1",
-      "round_order": 0,
-      "p1": "Adrian Mannarino",
-      "p2": "Nikoloz Basilashvili",
       "status": "scheduled"
     },
     {
@@ -75,27 +135,6 @@
     {
       "round": "R1",
       "round_order": 0,
-      "p1": "Arthur Gea",
-      "p2": "Jaime Faria",
-      "status": "scheduled"
-    },
-    {
-      "round": "R1",
-      "round_order": 0,
-      "p1": "Rinky Hijikata",
-      "p2": "Roman Safiullin",
-      "status": "scheduled"
-    },
-    {
-      "round": "R1",
-      "round_order": 0,
-      "p1": "Sho Shimabukuro",
-      "p2": "Miomir Kecmanovic",
-      "status": "scheduled"
-    },
-    {
-      "round": "R1",
-      "round_order": 0,
       "p1": "Hubert Hurkacz",
       "p2": "James Duckworth",
       "status": "scheduled"
@@ -103,22 +142,8 @@
     {
       "round": "R1",
       "round_order": 0,
-      "p1": "Mattia Bellucci",
-      "p2": "Yi Zhou",
-      "status": "scheduled"
-    },
-    {
-      "round": "R1",
-      "round_order": 0,
       "p1": "Jaume Munar",
       "p2": "Jenson Brooksby",
-      "status": "scheduled"
-    },
-    {
-      "round": "R1",
-      "round_order": 0,
-      "p1": "Yannick Hanfmann",
-      "p2": "Kamil Majchrzak",
       "status": "scheduled"
     },
     {
@@ -232,6 +257,90 @@
       "p1": "Juan Manuel Cerundolo",
       "p2": "Nicolas Mejia",
       "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Alexander Zverev",
+      "p2": "Yibing Wu",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Quentin Halys",
+      "p2": "Alexander Blockx",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Alexander Bublik",
+      "p2": "Tomas Machac",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Matteo Berrettini",
+      "p2": "Brandon Nakashima",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Alex De Minaur",
+      "p2": "Alex Molcan",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Rei Sakamoto",
+      "p2": "Andrey Rublev",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Adrian Mannarino",
+      "p2": "Flavio Cobolli",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Arthur Gea",
+      "p2": "Ugo Humbert",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Francisco Cerundolo",
+      "p2": "Roman Safiullin",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Miomir Kecmanovic",
+      "p2": "Jakub Mensik",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Yi Zhou",
+      "p2": "Lorenzo Musetti",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Yannick Hanfmann",
+      "p2": "Frances Tiafoe",
+      "status": "scheduled"
     }
   ],
   "withdrawals": [
@@ -242,11 +351,6 @@
     },
     {
       "player": "Carlos Alcaraz",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Alexander Zverev",
       "reason": "not stated",
       "source": "absent_from_top_atp_elo_baseline"
     },
@@ -272,16 +376,6 @@
     },
     {
       "player": "Felix Auger Aliassime",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Alex De Minaur",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Frances Tiafoe",
       "reason": "not stated",
       "source": "absent_from_top_atp_elo_baseline"
     },
@@ -321,42 +415,7 @@
       "source": "absent_from_top_atp_elo_baseline"
     },
     {
-      "player": "Brandon Nakashima",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
       "player": "Alejandro Davidovich Fokina",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Flavio Cobolli",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Jakub Mensik",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Alexander Blockx",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Andrey Rublev",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Alexander Bublik",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Francisco Cerundolo",
       "reason": "not stated",
       "source": "absent_from_top_atp_elo_baseline"
     },
@@ -364,80 +423,75 @@
       "player": "Alex Michelsen",
       "reason": "not stated",
       "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Lorenzo Musetti",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
     }
   ],
   "remaining_players": [
     "Adolfo Daniel Vallejo",
     "Adrian Mannarino",
-    "Aleksandar Kovacevic",
+    "Alex De Minaur",
     "Alex Molcan",
+    "Alexander Blockx",
+    "Alexander Bublik",
+    "Alexander Zverev",
+    "Andrey Rublev",
     "Arthur Fery",
     "Arthur Gea",
     "Bernard Tomic",
     "Botic Van De Zandschulp",
+    "Brandon Nakashima",
     "Bu Yunchaokete",
     "Cameron Norrie",
     "Camilo Ugo Carabelli",
-    "Coleman Wong",
     "Dalibor Svrcina",
     "Daniel Altmaier",
     "Daniel Merida Aguilar",
     "Fabian Marozsan",
     "Facundo Diaz Acosta",
-    "Federico Cina",
+    "Flavio Cobolli",
+    "Frances Tiafoe",
+    "Francisco Cerundolo",
     "Hamad Medjedovic",
     "Holger Rune",
     "Hubert Hurkacz",
     "Ilia Simakin",
-    "Jaime Faria",
+    "Jakub Mensik",
     "James Duckworth",
     "Jan Lennard Struff",
     "Jaume Munar",
     "Jenson Brooksby",
     "Juan Manuel Cerundolo",
-    "Kamil Majchrzak",
     "Kimmer Coppejans",
+    "Lorenzo Musetti",
     "Luca Van Assche",
-    "Marco Trungelliti",
     "Marcos Giron",
     "Mariano Navone",
     "Marin Cilic",
     "Martin Landaluce",
     "Matteo Arnaldi",
     "Matteo Berrettini",
-    "Mattia Bellucci",
-    "Michael Zheng",
     "Miomir Kecmanovic",
     "Nicolas Mejia",
-    "Nikoloz Basilashvili",
     "Nuno Borges",
     "Pablo Carreno Busta",
     "Pavel Kotov",
     "Quentin Halys",
     "Rei Sakamoto",
-    "Rinky Hijikata",
     "Roman Safiullin",
     "Sebastian Baez",
-    "Sho Shimabukuro",
     "Stefanos Tsitsipas",
     "Tallon Griekspoor",
     "Thiago Agustin Tirante",
     "Tomas Machac",
+    "Ugo Humbert",
     "Valentin Royer",
     "Vit Kopriva",
     "Yannick Hanfmann",
     "Yi Zhou",
     "Yibing Wu",
     "Zachary Svajda",
-    "Zhizhen Zhang",
     "Zizou Bergs"
   ],
-  "last_updated_utc": "2026-10-07T10:44Z",
+  "last_updated_utc": "2026-10-07T18:13Z",
   "data_freshness": "live",
   "data_source": "tennis_abstract (current/+charting+atp_elo)",
   "tournament_tz": "Asia/Shanghai"
