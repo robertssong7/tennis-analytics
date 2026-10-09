@@ -6,7 +6,7 @@
   "category": "Masters 1000",
   "start_date": "2026-10-04",
   "end_date": "2026-10-11",
-  "current_round": "R1",
+  "current_round": "R2",
   "draw_size": null,
   "draw": [
     {
@@ -202,6 +202,15 @@
     {
       "round": "R128",
       "round_order": 1,
+      "p1": "Bu Yunchaokete",
+      "p2": "Luca Van Assche",
+      "status": "completed",
+      "winner": "Bu Yunchaokete",
+      "score": "7-6(3) 6-3"
+    },
+    {
+      "round": "R128",
+      "round_order": 1,
       "p1": "Pablo Carreno Busta",
       "p2": "Mariano Navone",
       "status": "completed",
@@ -225,6 +234,15 @@
       "status": "completed",
       "winner": "Jan Lennard Struff",
       "score": "6-4 6-4"
+    },
+    {
+      "round": "R128",
+      "round_order": 1,
+      "p1": "Dalibor Svrcina",
+      "p2": "Cameron Norrie",
+      "status": "completed",
+      "winner": "Dalibor Svrcina",
+      "score": "6-3 3-6 6-4"
     },
     {
       "round": "R128",
@@ -265,32 +283,20 @@
     {
       "round": "R128",
       "round_order": 1,
+      "p1": "Zizou Bergs",
+      "p2": "Vit Kopriva",
+      "status": "completed",
+      "winner": "Zizou Bergs",
+      "score": "6-3 6-1"
+    },
+    {
+      "round": "R128",
+      "round_order": 1,
       "p1": "Juan Manuel Cerundolo",
       "p2": "Nicolas Mejia",
       "status": "completed",
       "winner": "Juan Manuel Cerundolo",
       "score": "6-4 6-4"
-    },
-    {
-      "round": "R1",
-      "round_order": 0,
-      "p1": "Luca Van Assche",
-      "p2": "Bu Yunchaokete",
-      "status": "scheduled"
-    },
-    {
-      "round": "R1",
-      "round_order": 0,
-      "p1": "Cameron Norrie",
-      "p2": "Dalibor Svrcina",
-      "status": "scheduled"
-    },
-    {
-      "round": "R1",
-      "round_order": 0,
-      "p1": "Vit Kopriva",
-      "p2": "Zizou Bergs",
-      "status": "scheduled"
     },
     {
       "round": "R2",
@@ -442,6 +448,13 @@
     {
       "round": "R2",
       "round_order": 0,
+      "p1": "Bu Yunchaokete",
+      "p2": "Casper Ruud",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
       "p1": "Alejandro Tabilo",
       "p2": "Pablo Carreno Busta",
       "status": "scheduled"
@@ -458,6 +471,13 @@
       "round_order": 0,
       "p1": "Daniil Medvedev",
       "p2": "Jan Lennard Struff",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
+      "p1": "Dalibor Svrcina",
+      "p2": "Tomas Martin Etcheverry",
       "status": "scheduled"
     },
     {
@@ -491,6 +511,13 @@
     {
       "round": "R2",
       "round_order": 0,
+      "p1": "Ignacio Buse",
+      "p2": "Zizou Bergs",
+      "status": "scheduled"
+    },
+    {
+      "round": "R2",
+      "round_order": 0,
       "p1": "Juan Manuel Cerundolo",
       "p2": "Carlos Alcaraz",
       "status": "scheduled"
@@ -499,11 +526,6 @@
   "withdrawals": [
     {
       "player": "Jannik Sinner",
-      "reason": "not stated",
-      "source": "absent_from_top_atp_elo_baseline"
-    },
-    {
-      "player": "Casper Ruud",
       "reason": "not stated",
       "source": "absent_from_top_atp_elo_baseline"
     },
@@ -532,9 +554,9 @@
     "Botic Van De Zandschulp",
     "Brandon Nakashima",
     "Bu Yunchaokete",
-    "Cameron Norrie",
     "Camilo Ugo Carabelli",
     "Carlos Alcaraz",
+    "Casper Ruud",
     "Dalibor Svrcina",
     "Daniel Altmaier",
     "Daniil Medvedev",
@@ -543,6 +565,7 @@
     "Frances Tiafoe",
     "Francisco Cerundolo",
     "Hubert Hurkacz",
+    "Ignacio Buse",
     "Jakub Mensik",
     "Jan Lennard Struff",
     "Jenson Brooksby",
@@ -551,7 +574,6 @@
     "Karen Khachanov",
     "Learner Tien",
     "Lorenzo Musetti",
-    "Luca Van Assche",
     "Luciano Darderi",
     "Matteo Arnaldi",
     "Matteo Berrettini",
@@ -569,17 +591,17 @@
     "Taylor Fritz",
     "Thiago Agustin Tirante",
     "Tomas Machac",
+    "Tomas Martin Etcheverry",
     "Tommy Paul",
     "Ugo Humbert",
     "Valentin Vacherot",
-    "Vit Kopriva",
     "Yannick Hanfmann",
     "Yi Zhou",
     "Yibing Wu",
     "Zachary Svajda",
     "Zizou Bergs"
   ],
-  "last_updated_utc": "2026-10-08T19:36Z",
+  "last_updated_utc": "2026-10-09T00:04Z",
   "data_freshness": "live",
   "data_source": "tennis_abstract (current/+charting+atp_elo)",
   "tournament_tz": "Asia/Shanghai"
