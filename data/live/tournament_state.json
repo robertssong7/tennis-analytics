@@ -154,6 +154,42 @@
       "score": "6-4 6-4"
     },
     {
+      "round": "R64",
+      "round_order": 2,
+      "p1": "Jiri Lehecka",
+      "p2": "Nuno Borges",
+      "status": "completed",
+      "winner": "Jiri Lehecka",
+      "score": "6-3 3-6 6-3"
+    },
+    {
+      "round": "R64",
+      "round_order": 2,
+      "p1": "Rafael Jodar",
+      "p2": "Thiago Agustin Tirante",
+      "status": "completed",
+      "winner": "Rafael Jodar",
+      "score": "4-6 6-2 6-3"
+    },
+    {
+      "round": "R64",
+      "round_order": 2,
+      "p1": "Felix Auger Aliassime",
+      "p2": "Camilo Ugo Carabelli",
+      "status": "completed",
+      "winner": "Felix Auger Aliassime",
+      "score": "4-6 7-6(1) 7-5"
+    },
+    {
+      "round": "R64",
+      "round_order": 2,
+      "p1": "Daniil Medvedev",
+      "p2": "Jan Lennard Struff",
+      "status": "completed",
+      "winner": "Daniil Medvedev",
+      "score": "4-6 6-4 6-3"
+    },
+    {
       "round": "R128",
       "round_order": 1,
       "p1": "Yibing Wu",
@@ -459,20 +495,6 @@
     {
       "round": "R2",
       "round_order": 0,
-      "p1": "Jiri Lehecka",
-      "p2": "Nuno Borges",
-      "status": "scheduled"
-    },
-    {
-      "round": "R2",
-      "round_order": 0,
-      "p1": "Thiago Agustin Tirante",
-      "p2": "Rafael Jodar",
-      "status": "scheduled"
-    },
-    {
-      "round": "R2",
-      "round_order": 0,
       "p1": "Learner Tien",
       "p2": "Zachary Svajda",
       "status": "scheduled"
@@ -489,20 +511,6 @@
       "round_order": 0,
       "p1": "Alejandro Tabilo",
       "p2": "Pablo Carreno Busta",
-      "status": "scheduled"
-    },
-    {
-      "round": "R2",
-      "round_order": 0,
-      "p1": "Camilo Ugo Carabelli",
-      "p2": "Felix Auger Aliassime",
-      "status": "scheduled"
-    },
-    {
-      "round": "R2",
-      "round_order": 0,
-      "p1": "Daniil Medvedev",
-      "p2": "Jan Lennard Struff",
       "status": "scheduled"
     },
     {
@@ -609,6 +617,13 @@
       "p1": "Alejandro Davidovich Fokina",
       "p2": "Frances Tiafoe",
       "status": "scheduled"
+    },
+    {
+      "round": "R3",
+      "round_order": 0,
+      "p1": "Jiri Lehecka",
+      "p2": "Rafael Jodar",
+      "status": "scheduled"
     }
   ],
   "withdrawals": [
@@ -638,7 +653,6 @@
     "Botic Van De Zandschulp",
     "Brandon Nakashima",
     "Bu Yunchaokete",
-    "Camilo Ugo Carabelli",
     "Carlos Alcaraz",
     "Casper Ruud",
     "Dalibor Svrcina",
@@ -649,14 +663,12 @@
     "Hubert Hurkacz",
     "Ignacio Buse",
     "Jakub Mensik",
-    "Jan Lennard Struff",
     "Jiri Lehecka",
     "Juan Manuel Cerundolo",
     "Karen Khachanov",
     "Learner Tien",
     "Luciano Darderi",
     "Matteo Arnaldi",
-    "Nuno Borges",
     "Pablo Carreno Busta",
     "Pavel Kotov",
     "Quentin Halys",
@@ -665,7 +677,6 @@
     "Sebastian Baez",
     "Stefanos Tsitsipas",
     "Taylor Fritz",
-    "Thiago Agustin Tirante",
     "Tomas Martin Etcheverry",
     "Tommy Paul",
     "Valentin Vacherot",
@@ -673,7 +684,7 @@
     "Zachary Svajda",
     "Zizou Bergs"
   ],
-  "last_updated_utc": "2026-10-10T03:42Z",
+  "last_updated_utc": "2026-10-10T10:20Z",
   "data_freshness": "live",
   "data_source": "tennis_abstract (current/+charting+atp_elo)",
   "tournament_tz": "Asia/Shanghai"
