@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-10T14:18:10.460592+00:00",
-  "candidate_count": 31,
+  "generated_at": "2026-10-11T14:44:05.793357+00:00",
+  "candidate_count": 30,
   "candidates": [
     {
       "category": "surface_specialist",
@@ -8,9 +8,9 @@
         "player": "Arthur Fils",
         "best_surface": "Hard",
         "worst_surface": "Grass",
-        "gap": 514,
+        "gap": 513,
         "best_rating": 2248,
-        "worst_rating": 1734
+        "worst_rating": 1735
       },
       "novelty_score": 1.0
     },
@@ -20,8 +20,8 @@
         "player": "Christian Ruud",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 986,
-        "best_rating": 2188,
+        "gap": 987,
+        "best_rating": 2189,
         "worst_rating": 1203
       },
       "novelty_score": 1.0
@@ -32,8 +32,8 @@
         "player": "Learner Tien",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 529,
-        "best_rating": 2144,
+        "gap": 530,
+        "best_rating": 2145,
         "worst_rating": 1615
       },
       "novelty_score": 1.0
@@ -44,9 +44,9 @@
         "player": "Thiago Agustin Tirante",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 746,
-        "best_rating": 2072,
-        "worst_rating": 1326
+        "gap": 751,
+        "best_rating": 2078,
+        "worst_rating": 1327
       },
       "novelty_score": 1.0
     },
@@ -57,7 +57,7 @@
         "best_surface": "Clay",
         "worst_surface": "Grass",
         "gap": 524,
-        "best_rating": 2160,
+        "best_rating": 2161,
         "worst_rating": 1637
       },
       "novelty_score": 1.0
@@ -69,7 +69,7 @@
         "best_surface": "Clay",
         "worst_surface": "Grass",
         "gap": 894,
-        "best_rating": 2123,
+        "best_rating": 2124,
         "worst_rating": 1230
       },
       "novelty_score": 1.0
@@ -80,8 +80,8 @@
         "player": "Alejandro Tabilo",
         "best_surface": "Clay",
         "worst_surface": "Grass",
-        "gap": 503,
-        "best_rating": 2031,
+        "gap": 505,
+        "best_rating": 2033,
         "worst_rating": 1528
       },
       "novelty_score": 1.0
@@ -94,7 +94,7 @@
         "worst_surface": "Grass",
         "gap": 562,
         "best_rating": 2106,
-        "worst_rating": 1544
+        "worst_rating": 1545
       },
       "novelty_score": 1.0
     },
@@ -123,10 +123,22 @@
     {
       "category": "rating_jump",
       "facts": {
-        "player": "Christian Ruud",
-        "delta": 382,
+        "player": "Matthew McDonald",
+        "delta": 306,
         "direction": "above",
-        "current_rating": 2159,
+        "current_rating": 1831,
+        "peak_rating": 1525,
+        "peak_year": 1981
+      },
+      "novelty_score": 1.0
+    },
+    {
+      "category": "rating_jump",
+      "facts": {
+        "player": "Christian Ruud",
+        "delta": 381,
+        "direction": "above",
+        "current_rating": 2158,
         "peak_rating": 1777,
         "peak_year": 1997
       },
@@ -141,6 +153,18 @@
         "current_rating": 2223,
         "peak_rating": 1745,
         "peak_year": 1993
+      },
+      "novelty_score": 1.0
+    },
+    {
+      "category": "rating_jump",
+      "facts": {
+        "player": "Herve Grenier",
+        "delta": 280,
+        "direction": "above",
+        "current_rating": 1780,
+        "peak_rating": 1500,
+        "peak_year": 1994
       },
       "novelty_score": 1.0
     },
@@ -174,7 +198,7 @@
         "player": "Marco Trungelliti",
         "delta": 325,
         "direction": "above",
-        "current_rating": 1901,
+        "current_rating": 1902,
         "peak_rating": 1577,
         "peak_year": 2019
       },
@@ -210,33 +234,9 @@
         "player": "Frances Tiafoe",
         "delta": 356,
         "direction": "above",
-        "current_rating": 2236,
+        "current_rating": 2235,
         "peak_rating": 1879,
         "peak_year": 2023
-      },
-      "novelty_score": 1.0
-    },
-    {
-      "category": "rating_jump",
-      "facts": {
-        "player": "Kamil Majchrzak",
-        "delta": 418,
-        "direction": "above",
-        "current_rating": 2049,
-        "peak_rating": 1631,
-        "peak_year": 2024
-      },
-      "novelty_score": 1.0
-    },
-    {
-      "category": "rating_jump",
-      "facts": {
-        "player": "Jaume Munar",
-        "delta": 309,
-        "direction": "above",
-        "current_rating": 1979,
-        "peak_rating": 1669,
-        "peak_year": 2019
       },
       "novelty_score": 1.0
     },
@@ -247,7 +247,7 @@
         "n": 18,
         "start_date": "August 5",
         "start_tourney": "Canadian Open",
-        "today": "October 10"
+        "today": "October 11"
       },
       "novelty_score": 0.72
     },
@@ -274,20 +274,9 @@
       "novelty_score": 0.625
     },
     {
-      "category": "active_streak",
-      "facts": {
-        "player": "Jannik Sinner",
-        "n": 14,
-        "start_date": "June 29",
-        "start_tourney": "Wimbledon",
-        "today": "October 10"
-      },
-      "novelty_score": 0.56
-    },
-    {
       "category": "h2h_breakthrough",
       "facts": {
-        "winner": "Bryan Shelton",
+        "winner": "Ben Shelton",
         "loser": "Learner Tien",
         "previous_meetings": 4,
         "tourney": "Canadian Open",
@@ -298,7 +287,7 @@
     {
       "category": "h2h_breakthrough",
       "facts": {
-        "winner": "Bryan Shelton",
+        "winner": "Ben Shelton",
         "loser": "Learner Tien",
         "previous_meetings": 4,
         "tourney": "Canadian Open",
@@ -313,7 +302,7 @@
         "n": 10,
         "start_date": "August 25",
         "start_tourney": "Winston-Salem Open at Wake Forest University",
-        "today": "October 10"
+        "today": "October 11"
       },
       "novelty_score": 0.4
     },
@@ -336,6 +325,17 @@
         "previous_meetings": 3,
         "tourney": "Western & Southern Financial Group Masters",
         "date": "August 16, 2026"
+      },
+      "novelty_score": 0.375
+    },
+    {
+      "category": "h2h_breakthrough",
+      "facts": {
+        "winner": "Lorenzo Sonego",
+        "loser": "Adrian Mannarino",
+        "previous_meetings": 3,
+        "tourney": "Winston-Salem Open at Wake Forest University",
+        "date": "August 26, 2026"
       },
       "novelty_score": 0.375
     },
