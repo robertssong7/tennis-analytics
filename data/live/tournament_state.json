@@ -10,6 +10,78 @@
   "draw_size": 96,
   "draw": [
     {
+      "round": "R32",
+      "round_order": 3,
+      "p1": "Alexander Zverev",
+      "p2": "Quentin Halys",
+      "status": "completed",
+      "winner": "Alexander Zverev",
+      "score": "6-4 6-7(8) 6-3"
+    },
+    {
+      "round": "R32",
+      "round_order": 3,
+      "p1": "Alexander Bublik",
+      "p2": "Brandon Nakashima",
+      "status": "completed",
+      "winner": "Alexander Bublik",
+      "score": "6-7(7) 6-3 7-6(5)"
+    },
+    {
+      "round": "R32",
+      "round_order": 3,
+      "p1": "Alex De Minaur",
+      "p2": "Rei Sakamoto",
+      "status": "completed",
+      "winner": "Alex De Minaur",
+      "score": "7-6(6) 6-4"
+    },
+    {
+      "round": "R32",
+      "round_order": 3,
+      "p1": "Karen Khachanov",
+      "p2": "Adrian Mannarino",
+      "status": "completed",
+      "winner": "Karen Khachanov",
+      "score": "6-2 6-4"
+    },
+    {
+      "round": "R32",
+      "round_order": 3,
+      "p1": "Arthur Gea",
+      "p2": "Ben Shelton",
+      "status": "completed",
+      "winner": "Arthur Gea",
+      "score": "7-6(5) 7-6(3)"
+    },
+    {
+      "round": "R32",
+      "round_order": 3,
+      "p1": "Jakub Mensik",
+      "p2": "Francisco Cerundolo",
+      "status": "completed",
+      "winner": "Jakub Mensik",
+      "score": "6-3 3-6 6-2"
+    },
+    {
+      "round": "R32",
+      "round_order": 3,
+      "p1": "Hubert Hurkacz",
+      "p2": "Yi Zhou",
+      "status": "completed",
+      "winner": "Hubert Hurkacz",
+      "score": "6-2 3-6 6-3"
+    },
+    {
+      "round": "R32",
+      "round_order": 3,
+      "p1": "Alejandro Davidovich Fokina",
+      "p2": "Frances Tiafoe",
+      "status": "completed",
+      "winner": "Alejandro Davidovich Fokina",
+      "score": "7-6(4) 4-6 7-6(6)"
+    },
+    {
       "round": "R64",
       "round_order": 2,
       "p1": "Alexander Zverev",
@@ -589,62 +661,6 @@
     {
       "round": "R3",
       "round_order": 0,
-      "p1": "Alexander Zverev",
-      "p2": "Quentin Halys",
-      "status": "scheduled"
-    },
-    {
-      "round": "R3",
-      "round_order": 0,
-      "p1": "Alexander Bublik",
-      "p2": "Brandon Nakashima",
-      "status": "scheduled"
-    },
-    {
-      "round": "R3",
-      "round_order": 0,
-      "p1": "Alex De Minaur",
-      "p2": "Rei Sakamoto",
-      "status": "scheduled"
-    },
-    {
-      "round": "R3",
-      "round_order": 0,
-      "p1": "Karen Khachanov",
-      "p2": "Adrian Mannarino",
-      "status": "scheduled"
-    },
-    {
-      "round": "R3",
-      "round_order": 0,
-      "p1": "Ben Shelton",
-      "p2": "Arthur Gea",
-      "status": "scheduled"
-    },
-    {
-      "round": "R3",
-      "round_order": 0,
-      "p1": "Francisco Cerundolo",
-      "p2": "Jakub Mensik",
-      "status": "scheduled"
-    },
-    {
-      "round": "R3",
-      "round_order": 0,
-      "p1": "Hubert Hurkacz",
-      "p2": "Yi Zhou",
-      "status": "scheduled"
-    },
-    {
-      "round": "R3",
-      "round_order": 0,
-      "p1": "Alejandro Davidovich Fokina",
-      "p2": "Frances Tiafoe",
-      "status": "scheduled"
-    },
-    {
-      "round": "R3",
-      "round_order": 0,
       "p1": "Arthur Fils",
       "p2": "Botic Van De Zandschulp",
       "status": "scheduled"
@@ -697,6 +713,34 @@
       "p1": "Zizou Bergs",
       "p2": "Carlos Alcaraz",
       "status": "scheduled"
+    },
+    {
+      "round": "R4",
+      "round_order": 0,
+      "p1": "Alexander Zverev",
+      "p2": "Alexander Bublik",
+      "status": "scheduled"
+    },
+    {
+      "round": "R4",
+      "round_order": 0,
+      "p1": "Alex De Minaur",
+      "p2": "Karen Khachanov",
+      "status": "scheduled"
+    },
+    {
+      "round": "R4",
+      "round_order": 0,
+      "p1": "Arthur Gea",
+      "p2": "Jakub Mensik",
+      "status": "scheduled"
+    },
+    {
+      "round": "R4",
+      "round_order": 0,
+      "p1": "Hubert Hurkacz",
+      "p2": "Alejandro Davidovich Fokina",
+      "status": "scheduled"
     }
   ],
   "withdrawals": [
@@ -712,40 +756,32 @@
     }
   ],
   "remaining_players": [
-    "Adrian Mannarino",
     "Alejandro Davidovich Fokina",
     "Alex De Minaur",
     "Alexander Bublik",
     "Alexander Zverev",
     "Arthur Fils",
     "Arthur Gea",
-    "Ben Shelton",
     "Botic Van De Zandschulp",
-    "Brandon Nakashima",
     "Carlos Alcaraz",
     "Casper Ruud",
     "Dalibor Svrcina",
     "Daniil Medvedev",
     "Felix Auger Aliassime",
-    "Frances Tiafoe",
-    "Francisco Cerundolo",
     "Hubert Hurkacz",
     "Jakub Mensik",
     "Jiri Lehecka",
     "Karen Khachanov",
     "Learner Tien",
     "Pablo Carreno Busta",
-    "Quentin Halys",
     "Rafael Jodar",
-    "Rei Sakamoto",
     "Stefanos Tsitsipas",
     "Taylor Fritz",
     "Tommy Paul",
     "Valentin Vacherot",
-    "Yi Zhou",
     "Zizou Bergs"
   ],
-  "last_updated_utc": "2026-10-11T16:05Z",
+  "last_updated_utc": "2026-10-11T21:19Z",
   "data_freshness": "live",
   "data_source": "tennis_abstract (current/+charting+atp_elo)",
   "tournament_tz": "Asia/Shanghai"
