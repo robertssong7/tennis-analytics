@@ -40,7 +40,7 @@ except ImportError:
 
 import requests as _requests_for_exc
 
-from rounds import current_round, round_order
+from rounds import current_round, normalize_round, round_order
 from tournaments import meta_for, resolve_active, ta_slug_for, tz_for
 
 
@@ -217,7 +217,7 @@ def _charted_keys(meta_html: str, ta_slug: str) -> set[tuple[str, str, str]]:
             continue
         p1 = p1_slug.replace("_", " ")
         p2 = p2_slug.replace("_", " ")
-        found.add((round_label.upper(), p1, p2))
+        found.add((normalize_round(round_label), p1, p2))
     return found
 
 
@@ -362,8 +362,8 @@ def build_state(now: datetime | None = None) -> dict | None:
     # forecast page).
     charted_keys = _charted_keys(meta_html, slug) if meta_html else set()
     for m in upcoming:
-        key_a = (m["round"], m["p1"], m["p2"])
-        key_b = (m["round"], m["p2"], m["p1"])
+        key_a = (normalize_round(m["round"]), m["p1"], m["p2"])
+        key_b = (normalize_round(m["round"]), m["p2"], m["p1"])
         if key_a in charted_keys or key_b in charted_keys:
             m["status"] = "in_progress"
             m["source_note"] = "charted_on_match_charting_project"
