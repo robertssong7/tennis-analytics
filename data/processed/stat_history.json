@@ -1,22 +1,5 @@
 [
   {
-    "headline": "Casper Ruud's Clay edge is the widest on tour",
-    "body": "Casper Ruud's rating on Clay sits 698 points above their Grass rating, the largest cross-surface gap among active top-50 players. Best surface rating: 2254. Worst: 1556.",
-    "category": "surface_specialist",
-    "rendered": true,
-    "raw_facts": {
-      "player": "Casper Ruud",
-      "best_surface": "Clay",
-      "worst_surface": "Grass",
-      "gap": 698,
-      "best_rating": 2254,
-      "worst_rating": 1556
-    },
-    "novelty_score": 1.0,
-    "served_at": "2026-07-05T10:16:24.574673+00:00",
-    "served_date": "2026-07-05"
-  },
-  {
     "headline": "Marco Trungelliti's rating sits 300 points above their career peak",
     "body": "Marco Trungelliti's current Glicko rating is 1876, versus a career peak of 1577 set in 2019. That is a 300-point swing from prime form.",
     "category": "rating_jump",
@@ -1670,5 +1653,21 @@
     "novelty_score": 1.0,
     "served_at": "2026-10-12T17:29:25.792022+00:00",
     "served_date": "2026-10-12"
+  },
+  {
+    "headline": "Arthur Fils rolls into October 13 on a 18-match win streak",
+    "body": "Arthur Fils's active win streak now stands at 18 matches, the longest active run on tour. The streak began at Canadian Open on August 5.",
+    "category": "active_streak",
+    "rendered": true,
+    "raw_facts": {
+      "player": "Arthur Fils",
+      "n": 18,
+      "start_date": "August 5",
+      "start_tourney": "Canadian Open",
+      "today": "October 13"
+    },
+    "novelty_score": 0.72,
+    "served_at": "2026-10-13T15:39:15.667647+00:00",
+    "served_date": "2026-10-13"
   }
 ]
