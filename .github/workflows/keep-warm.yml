@@ -6,8 +6,6 @@ name: Keep API warm
 # engine state hot so user requests never see the 30-90s warmup window.
 
 on:
-  schedule:
-    - cron: "*/2 * * * *"
   workflow_dispatch:
 
 concurrency:

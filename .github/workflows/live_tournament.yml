@@ -1,8 +1,6 @@
 name: live-tournament-state
 
 on:
-  schedule:
-    - cron: '0 */2 * * *'  # every 2 hours
   workflow_dispatch:
 
 permissions:

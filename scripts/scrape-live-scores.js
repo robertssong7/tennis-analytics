@@ -4,7 +4,7 @@
  * 
  * Run: node scripts/scrape-live-scores.js
  * 
- * Interval: 90s when live matches detected, 15min otherwise.
+ * Runs once per invocation; no automatic repeat.
  */
 
 const https = require('https');
@@ -21,8 +21,6 @@ try {
 
 const LIVE_URL = 'https://live-tennis.eu/en/atp-live-scores';
 const OUTPUT_PATH = path.join(__dirname, '..', 'docs', 'data', 'live-scores.json');
-const LIVE_INTERVAL = 90_000;     // 90 seconds
-const IDLE_INTERVAL = 15 * 60_000; // 15 minutes
 
 // Tournament tier priority
 const TIER_PRIORITY = {
@@ -195,28 +193,5 @@ async function scrape() {
     }
 }
 
-// ─── Run Loop ────────────────────────────────────────────────────
-let currentInterval = IDLE_INTERVAL;
-let timer = null;
-
-async function loop() {
-    const hasLive = await scrape();
-    const newInterval = hasLive ? LIVE_INTERVAL : IDLE_INTERVAL;
-
-    if (newInterval !== currentInterval) {
-        console.log(`  Switching to ${hasLive ? 'live' : 'idle'} polling (${newInterval / 1000}s)`);
-        currentInterval = newInterval;
-    }
-
-    timer = setTimeout(loop, currentInterval);
-}
-
-// Initial scrape
-loop();
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-    clearTimeout(timer);
-    console.log('\nScraper stopped.');
-    process.exit(0);
-});
+// One-time scrape. Re-run manually when updated scores are needed.
+scrape();

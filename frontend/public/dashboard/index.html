@@ -235,7 +235,6 @@ async function _loadInsightFeed(){
     }
   } catch (e) { /* fall through to feed */ }
   _loadInsightFeed();
-  setInterval(_loadInsightFeed, 5*60*1000);
 })();
 
 (async function loadStatOfDay() {

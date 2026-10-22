@@ -1,8 +1,6 @@
 name: refresh-ratings
 
 on:
-  schedule:
-    - cron: '0 2 * * 0'  # Sunday 02:00 UTC, after tournament weeks end
   workflow_dispatch:
 
 permissions:
