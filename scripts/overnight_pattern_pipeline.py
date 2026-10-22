@@ -577,11 +577,11 @@ def get_db_conn():
     if db_url:
         return psycopg2.connect(db_url)
     return psycopg2.connect(
-        host=os.getenv("DB_HOST", os.getenv("SUPABASE_HOST", "localhost")),
-        port=os.getenv("DB_PORT", os.getenv("SUPABASE_PORT", "5432")),
-        dbname=os.getenv("DB_NAME", os.getenv("SUPABASE_DB", "tennisiq")),
-        user=os.getenv("DB_USER", os.getenv("SUPABASE_USER", "postgres")),
-        password=os.getenv("DB_PASSWORD", os.getenv("SUPABASE_PASSWORD", "")),
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
+        dbname=os.getenv("DB_NAME", "tennisiq"),
+        user=os.getenv("DB_USER", "postgres"),
+        password=os.getenv("DB_PASSWORD", ""),
     )
 
 
