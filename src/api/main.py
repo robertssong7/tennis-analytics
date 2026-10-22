@@ -30,6 +30,9 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 from src.api.pattern_endpoints import router as pattern_router
+from src.live_tournament.rounds import (
+    FINISHED_STATUSES, current_round, normalize_round, round_order,
+)
 
 app = FastAPI(title="TennisIQ API", version="1.0.0")
 app.include_router(pattern_router)
@@ -4109,35 +4112,29 @@ def _load_live_state() -> Optional[dict]:
         freshness = "stale"
     else:
         freshness = "historical"
+    # Repair older snapshots in memory without changing their scrape timestamp.
+    draw = state.get("draw") or []
+    for match in draw:
+        match["round_order"] = round_order(match.get("round", ""))
+    state["current_round"] = current_round(draw)
     state["data_freshness"] = freshness
     if age_hours is not None:
         state["age_hours"] = round(age_hours, 2)
     return state
 
 
-_ROUND_RANK = {"1R": 1, "R128": 1, "2R": 2, "R64": 2, "3R": 3, "R32": 3, "R16": 4, "QF": 5, "SF": 6, "F": 7}
-
-
 def _key_matchups_from_state(state: dict) -> dict:
-    """Surface upcoming + in_progress matches from the live state, enriched
-    with prediction-engine output. Picks matches at the latest non-completed
-    round; if everything at that round is already completed, falls back to
-    the most recent completed matches.
+    """Predict unfinished matches at the progress-selected round only.
+
+    When the draw is finished, show the latest finished round instead.
+    Compare normalized labels so aliases belong to the same round.
     """
     draw = state.get("draw") or []
-    by_status: dict[str, list[dict]] = {"scheduled": [], "in_progress": [], "completed": []}
-    for m in draw:
-        st = m.get("status", "scheduled")
-        if st in by_status:
-            by_status[st].append(m)
-
-    candidates: list[dict] = by_status["in_progress"] + by_status["scheduled"]
-    if not candidates:
-        # All matches at the latest round have been completed: surface the
-        # most recent completed batch instead so the homepage still has cards.
-        completed = sorted(by_status["completed"], key=lambda m: _ROUND_RANK.get(m.get("round", ""), 0), reverse=True)
-        top_round = completed[0]["round"] if completed else None
-        candidates = [m for m in completed if m.get("round") == top_round]
+    selected_round = current_round(draw)
+    active = [m for m in draw if m.get("status", "scheduled") in {"scheduled", "in_progress"}]
+    pool = active or [m for m in draw if m.get("status") in FINISHED_STATUSES]
+    candidates = [m for m in pool
+                  if normalize_round(m.get("round", "")) == normalize_round(selected_round)]
 
     surface = (state.get("surface") or "hard").lower()
     if surface not in ("hard", "clay", "grass"):
@@ -4178,12 +4175,12 @@ def _key_matchups_from_state(state: dict) -> dict:
             "tournament": state.get("tournament"),
         })
 
-    matchups.sort(key=lambda x: x["interest_score"], reverse=True)
+    matchups.sort(key=lambda x: (x["status"] == "in_progress", x["interest_score"]), reverse=True)
     return {
         "matchups": matchups[:6],
         "tournament": state.get("tournament"),
         "surface": surface,
-        "current_round": state.get("current_round"),
+        "current_round": selected_round,
         "last_updated_utc": state.get("last_updated_utc"),
         "data_freshness": state.get("data_freshness"),
     }
@@ -4216,8 +4213,8 @@ def get_key_matchups_live():
     """Key matchups for the currently-live tournament.
 
     Session 18: when a canonical live-tournament state file is present, the
-    upcoming + in_progress matches at the current_round (and the round above
-    it, if available) are surfaced through the prediction engine. Falls back
+    upcoming + in_progress matches at the progress-selected current_round
+    are surfaced through the prediction engine. Falls back
     to the legacy completed-results path for tournaments without state yet.
     """
     state = _load_live_state()
@@ -4264,13 +4261,7 @@ def get_key_matchups_live():
     if not rounds_present:
         return {"matchups": [], "reason": "no round labels"}
 
-    # Order by round-label heuristic (string-rank fallback if unknown).
-    label_order = {
-        "1st Round": 1, "2nd Round": 2, "3rd Round": 3, "4th Round": 4,
-        "Quarterfinals": 5, "Semifinals": 6, "The Final": 7, "Final": 7,
-        "R128": 1, "R64": 2, "R32": 3, "R16": 4, "QF": 5, "SF": 6, "F": 7,
-    }
-    rounds_sorted = sorted(set(rounds_present), key=lambda r: label_order.get(r, 0), reverse=True)
+    rounds_sorted = sorted(set(rounds_present), key=round_order, reverse=True)
     target_rounds = rounds_sorted[:2]
     candidate_matches = [m for m in results if m.get("round") in target_rounds]
 

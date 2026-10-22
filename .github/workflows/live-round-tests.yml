@@ -1,0 +1,21 @@
+name: Live round regression tests
+on:
+  pull_request:
+    paths:
+      - 'src/api/**'
+      - 'src/live_tournament/**'
+      - 'tools/live_tournament/**'
+      - 'tests/test_live_rounds.py'
+      - 'tests/fixtures/shanghai_2026_10_11.json'
+      - '.github/workflows/live-round-tests.yml'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install fastapi==0.135.1 starlette==0.52.1 pydantic==2.12.5 requests==2.32.5 python-dotenv==1.2.2 pandas==3.0.1 numpy==2.4.3 httpx==0.28.1 pytest
+      - run: python -m pytest tests/test_live_rounds.py -q

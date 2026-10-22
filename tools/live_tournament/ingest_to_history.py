@@ -14,6 +14,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from rounds import normalize_round
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 INGEST_PATH = REPO_ROOT / "data" / "processed" / "live_matches_ingest.parquet"
 SUPPLEMENTAL_PATH = REPO_ROOT / "data" / "processed" / "supplemental_matches_2025_2026.csv"
@@ -72,7 +74,7 @@ def main() -> int:
         "loser": "loser_name",
     })
     new["tourney_name"] = new["tourney_name"].replace(_NAME_ALIASES)
-    new["round"] = new["round"].replace(_ROUND_ALIASES)
+    new["round"] = new["round"].map(normalize_round).replace(_ROUND_ALIASES)
     # Add columns the supplemental CSV carries that we don't track yet.
     for col, default in [
         ("tourney_date", ""), ("tourney_level", ""),
