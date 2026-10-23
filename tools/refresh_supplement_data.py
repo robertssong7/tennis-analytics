@@ -12,6 +12,10 @@ tourney_level, round, winner_name, loser_name, winner_rank, loser_rank,
 score, best_of, court, location), and merges into the existing CSV.
 
 Falls back to a no-op if download fails — never wipes existing data.
+
+An optional second source (Live Tennis API) is merged after this one when
+`LIVETENNISAPI_KEY` is set; see `tools/livetennisapi_source.py`. With that
+variable unset nothing changes: tennis-data.co.uk remains the only source.
 """
 
 from __future__ import annotations
@@ -110,6 +114,21 @@ def main():
             continue
         norm = _normalize(df, url)
         fetched.append(norm)
+
+    # Optional fallback source, consulted ONLY when tennis-data.co.uk gave us
+    # nothing. It is deliberately not merged alongside the primary source: the
+    # dedupe key matches player names exactly, and the two providers spell them
+    # differently ("Djokovic N." vs "Novak Djokovic"), so merging both would
+    # keep the same match twice and double-count it into the Glicko retrain.
+    # No-op unless LIVETENNISAPI_KEY is set.
+    if not fetched:
+        try:
+            from tools.livetennisapi_source import fetch_supplement_rows
+        except ImportError:  # running as a plain script from tools/
+            from livetennisapi_source import fetch_supplement_rows
+        extra = fetch_supplement_rows()
+        if extra is not None and not extra.empty:
+            fetched.append(extra)
 
     if not fetched:
         print("No data fetched; supplement file unchanged.")
